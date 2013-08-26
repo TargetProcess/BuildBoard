@@ -1,0 +1,27 @@
+@(user: User)
+<div class="navbar navbar-default">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="@routes.Application.index()">Build Board</a>
+    </div>
+    <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-right">
+            @user.githubToken match {
+                case Some(token) =>{ token }
+                case None => {
+                    <button type="button" class="btn btn-default navbar-btn">Login to GitHib</button>
+                }
+            }
+            @user.tpToken match {
+                case Some(token) =>{ token }
+                case None => {
+                    <button type="button" class="btn btn-default navbar-btn">Login to TP</button>
+                }
+            }
+        </ul>
+    </div>
+</div>

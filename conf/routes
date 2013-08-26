@@ -3,7 +3,7 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index(message ?= "Hello")
+GET     /                           controllers.Application.index
 
 GET     /login                      controllers.Login.index
 GET     /login/oauth                controllers.Login.oauth(code ?= "")
