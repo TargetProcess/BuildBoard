@@ -1,0 +1,16 @@
+@(clientId: String)(implicit request:RequestHeader)
+
+@main("Welcome to Play 2.1") {
+
+<button class="github">Login to github</button>
+
+<script>
+    $(function(){
+        var $login = $('.github');
+        $login.click(function(){
+        window.open('https://github.com/login/oauth/authorize?client_id=@clientId&scope=repo&redirect_uri=@routes.Login.oauth().absoluteURL(false)',
+        '', 'popup');
+        });
+    });
+</script>
+}
