@@ -7,7 +7,7 @@
 
         <ul>
         @for(branch <- branches) {
-            <li>@branch.name</li>
+            <li>@branch.name - @branch.lastCommit.sha1</li>
         }
         </ul>
     </div>

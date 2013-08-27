@@ -1,5 +1,5 @@
 package models
 
-case class Branch(name: String) {
+case class Branch(name: String, lastCommit: Commit) {
 
 }

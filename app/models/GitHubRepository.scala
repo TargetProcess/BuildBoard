@@ -3,12 +3,12 @@ package models
 import org.kohsuke.github.{GHBranch, GitHub}
 import collection.JavaConversions._
 
-class GitHubRepository(val accessToken: String) {
+class GitHubRepository(accessToken: String) {
+  private val github = GitHub.connectUsingOAuth(accessToken)
+  private val repo = github.getRepository("TargetProcess/TP")
   def getBranches: Iterable[Branch] = {
-    val github = GitHub.connectUsingOAuth(accessToken)
-    val repo = github.getRepository("TargetProcess/TP")
     val branches: Iterable[GHBranch] = repo.getBranches.values
 
-    branches.map(x => Branch(x.getName))
+    branches.map(x => Branch(x.getName, Commit(x.getSHA1)))
   }
 }
