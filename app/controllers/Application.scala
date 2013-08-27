@@ -6,7 +6,7 @@ import org.kohsuke.github.GitHub
 
 object Application extends Controller {
 
-  def index(message: String) = Action {
+  def index() = Action {
     implicit request =>
       val data: Array[String] = request.session.get("github") match {
         case Some(token: String) => {
@@ -17,7 +17,7 @@ object Application extends Controller {
         }
         case None => Array()
       }
-      Ok(views.html.index(message, data))
+      Ok(views.html.index(data))
   }
 
 }
