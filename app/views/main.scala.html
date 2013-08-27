@@ -1,4 +1,4 @@
-@(title: String, scripts: Html = Html(""))(content: Html)(implicit request:RequestHeader)
+@(title: String, scripts: Html = Html(""), styles: Html = Html(""), hasNavBar: Boolean = true)(content: Html)(implicit request:RequestHeader)
 <!DOCTYPE html>
 
 <html>
@@ -7,17 +7,21 @@
     <title>@title</title>
     <link rel="stylesheet" href='@routes.Assets.at("/stylesheets/main.css")'>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+    @styles
+
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 </head>
 <body>
+@if(hasNavBar){
     <div class="container">
-        @navigationBar(User(None,None,"Alex Fomin"))
+        @navigationBar(null)
     </div>
+}
     <div class="container">
         @content
     </div>
 
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-    @scripts
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+@scripts
 </body>
 </html>

@@ -7,6 +7,8 @@ GET     /                           controllers.Application.index
 
 GET     /login                      controllers.Login.index
 GET     /login/oauth                controllers.Login.oauth(code ?= "")
+GET		/login/submit				controllers.Login.submit
+
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

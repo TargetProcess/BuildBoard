@@ -4,14 +4,35 @@ import play.api.mvc.{Cookie, Action, Controller}
 import scalaj.http.{HttpOptions, Http, Token}
 import org.kohsuke.github.GitHub
 import models.GitHubApplication
+import play.api.data._
+import play.api.data.Forms._
+import models.User
 
 object Login extends Controller {
-  val consumer = Token(GitHubApplication.clientId, GitHubApplication.clientSecret)
+
+  val loginForm = Form(
+    mapping (
+      "login" -> text,
+      "password" -> text,
+      "accept" -> boolean)
+      ((login, password, _) => User(login, password))
+      ((user: User) => Some(user.login, user.password, false))
+  )
+
+  val consumer = Token("72b7f38d644d0a1330f7", "dec66c9b3f49f0b5eba70fd163de03d5d76ce220")
 
   def index = Action {
     implicit request =>
-      Ok(views.html.login(consumer.key))
+      Ok(views.html.login(loginForm))
   }
+
+  def submit = Action {
+    implicit request =>
+      Ok(views.html.login(null))
+  }
+
+  
+  
 
   def oauth(code: String) = Action {
 
@@ -19,8 +40,7 @@ object Login extends Controller {
       .params(
       "code" -> code,
       "client_id" -> consumer.key,
-      "client_secret" -> consumer.secret
-    )
+        "client_secret" -> consumer.secret)
       .header("Accept", "application/xml")
       .option(HttpOptions.connTimeout(1000))
       .option(HttpOptions.readTimeout(5000))

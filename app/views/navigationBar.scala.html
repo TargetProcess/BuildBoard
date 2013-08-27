@@ -16,14 +16,7 @@
                 case Some(token) =>{ token }
                 case None => {
                     <li><button type="button" class="btn btn-default navbar-btn login-to-github">Login to GitHib</button></li>
-                }
-            }
-            @user.tpToken match {
-                case Some(token) =>{ token }
-                case None => {
                     <li><button type="button" class="btn btn-default navbar-btn">Login to TP</button></li>
-                }
-            }
         </ul>
         <script>
             $(function(){
