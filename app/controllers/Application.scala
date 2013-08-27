@@ -1,21 +1,16 @@
 package controllers
 
-import play.api._
 import play.api.mvc._
-import org.kohsuke.github.GitHub
+import models.{Branch, GitHubRepository}
 
 object Application extends Controller {
 
   def index() = Action {
     implicit request =>
-      val data: Array[String] = request.session.get("github") match {
-        case Some(token: String) => {
-          val github = GitHub.connectUsingOAuth(token)
-          val repo = github.getRepository("TargetProcess/TP")
-          val branches = repo.getBranches
-          Array()
-        }
-        case None => Array()
+      val data: Iterable[Branch] = request.session.get("github.token") match {
+        case Some(token: String) =>
+          new GitHubRepository(token).getBranches
+        case None => Iterable()
       }
       Ok(views.html.index(data))
   }

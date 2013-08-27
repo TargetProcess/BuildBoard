@@ -1,14 +1,15 @@
-@(branches: Array[String])(implicit request:RequestHeader)
+@(branches: Iterable[Branch])(implicit request:RequestHeader)
 
 @main("Welcome to Play 2.1") {
     <div class="container">
     <div class="starter-template">
-        <h1>Bootstrap starter template</h1>
+        <h1>Available branches</h1>
 
-        <p class="lead">Use this document as a way to quickly start any new project.<br> All you get is this text and a mostly barebones HTML document.</p>
+        <ul>
         @for(branch <- branches) {
-            <p>@branch</p>
+            <li>@branch.name</li>
         }
+        </ul>
     </div>
 </div><!-- /.container -->
 }
