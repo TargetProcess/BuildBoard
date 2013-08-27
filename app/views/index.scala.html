@@ -1,5 +1,5 @@
-@(branchList: Iterable[Branch])(implicit request:RequestHeader)
+@(branchList: Iterable[Branch], user:User)(implicit request:RequestHeader)
 
-@main("Welcome to Play 2.1") {
+@main("Welcome to Play 2.1", user) {
     @branches(branchList)
 }

@@ -15,17 +15,13 @@ import views._
 
 object Application extends Controller with Secured {
 
-  def index = IsAuthenticated {
-    username =>
+  def index = IsAuthorized {
+    user =>
       implicit request =>
-
-        User.findOneByUsername(username).map { user =>
-          val data: Iterable[Branch] = if (user.githubToken != null)
-            new GitHubRepository(user.githubToken).getBranches
-          else
-            Iterable()
-          
-            Ok(views.html.index(data))
-        }.getOrElse(Forbidden)
+        val data: Iterable[Branch] = if (user.githubToken != null)
+          new GitHubRepository(user.githubToken).getBranches
+        else
+          Iterable()
+        Ok(views.html.index(data, user))
   }
 }

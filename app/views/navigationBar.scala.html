@@ -12,16 +12,19 @@
     </div>
     <div class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
-                    <li><button type="button" class="btn btn-default navbar-btn login-to-github">Login to GitHib</button></li>
-                    <li><button type="button" class="btn btn-default navbar-btn">Login to TP</button></li>
+            @if(user.githubToken == null){
+            	<li>
+            		<button type="button" class="btn btn-default navbar-btn login-to-github">Login to GitHib</button>
+            	</li>
+            }
+            <li><a>Hello, @user.username</a></li>
+            <li><form method="post" action="@routes.Login.logout"><button type="submit" class="btn btn-default navbar-btn logout">Logout</button></form></li>
         </ul>
         <script>
-            $(function(){
                 var $login = $('.login-to-github');
                 $login.click(function(){
                     window.open('https://github.com/login/oauth/authorize?client_id=@GitHubApplication.clientId&scope=repo&redirect_uri=@routes.Login.oauth().absoluteURL(false)', '', 'popup');
                 });
-            });
         </script>
     </div>
 </div>

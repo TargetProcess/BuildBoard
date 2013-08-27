@@ -15,7 +15,7 @@ import models._
 import views._
 import scala.util._
 
-object Login extends Controller {
+object Login extends Controller with Secured {
 
   val loginForm = Form[UserCredentials](
     mapping(
@@ -26,6 +26,10 @@ object Login extends Controller {
     implicit request =>
       Ok(views.html.login(loginForm))
   }
+  def logout = Action {
+    implicit request =>
+      Redirect(routes.Login.index).withNewSession
+  }
 
   def submit = Action {
     implicit request =>
@@ -33,50 +37,32 @@ object Login extends Controller {
         formWithErrors => BadRequest(html.login(formWithErrors)),
         login =>
           User.authenticate(login.username, login.password) match {
-            case Success(tpUser) =>{
-              
+            case Success(tpUser) => {
+
               val userFromDb = User.findOneById(tpUser.id)
-              val newUser = 
-              userFromDb match {
-                case None => {
-                  User(tpId=tpUser.id, username=login.username, password=login.password)
+              val newUser =
+                userFromDb match {
+                  case None => {
+                    User(tpId = tpUser.id, username = login.username, password = login.password)
+                  }
+                  case Some(user) => {
+                    user.copy(username = login.username, password = login.password)
+                  }
                 }
-                case Some(user) => {
-                  user.copy(username=login.username, password=login.password)
-                }
-              }
               User.save(newUser)
-              
+
               Redirect(routes.Application.index).withSession("login" -> login.username)
-            } 
+            }
             case Failure(e) => Ok(views.html.login(loginForm))
           })
   }
 
-  def oauth(code: String) = Action { implicit request =>
-
-    val req = Http.post("https://github.com/login/oauth/access_token")
-      .params(
-        "code" -> code,
-        "client_id" -> GitHubApplication.clientId,
-        "client_secret" -> GitHubApplication.clientSecret)
-      .header("Accept", "application/xml")
-      .option(HttpOptions.connTimeout(1000))
-      .option(HttpOptions.readTimeout(5000))
-
-    val accessTokenXml = req.asXml
-    val clientCode = accessTokenXml \ "access_token"
-    val accessToken = clientCode.text
-
-    val github = GitHub.connectUsingOAuth(accessToken)
-    val user = github.getMyself
-    val login = user.getLogin
-
-    Ok(views.html.closeWindow())
-      .withSession(
-        session + ("github.token" -> accessToken)
-          + ("github.login" -> login))
-      .withCookies(Cookie("github", "token.ready"))
+  def oauth(code: String) = IsAuthorized {
+    user =>
+      implicit request =>
+        val (login, accessToken) = GitHubApplication.login(code);
+        User.save(user.copy(githubLogin = login, githubToken=accessToken))       
+        Ok(views.html.closeWindow())
   }
 }
  

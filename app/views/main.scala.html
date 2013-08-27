@@ -1,4 +1,4 @@
-@(title: String, scripts: Html = Html(""), styles: Html = Html(""), hasNavBar: Boolean = true)(content: Html)(implicit request:RequestHeader)
+@(title: String, user:User, scripts: Html = Html(""), styles: Html = Html(""), hasNavBar: Boolean = true)(content: Html)(implicit request:RequestHeader)
 <!DOCTYPE html>
 
 <html>
@@ -14,7 +14,7 @@
 <body>
 @if(hasNavBar){
     <div class="container">
-        @navigationBar(null)
+        @navigationBar(user)
     </div>
 }
     <div class="container">
