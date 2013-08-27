@@ -6,7 +6,7 @@ import com.mongodb.casbah.Imports._
 import se.radley.plugin.salat._
 import se.radley.plugin.salat.Binders._
 import mongoContext._
-import models.Tp.{TpUser, TpUserRepo}
+import models.tp.{TpUser, TpUserRepo}
 
 
 trait Login {

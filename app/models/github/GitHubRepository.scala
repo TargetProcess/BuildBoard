@@ -1,4 +1,4 @@
-package models
+package models.github
 
 import org.kohsuke.github.{GHPullRequest, GHIssueState, GHBranch, GitHub}
 import collection.JavaConversions._

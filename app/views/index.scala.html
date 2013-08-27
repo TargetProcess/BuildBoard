@@ -1,4 +1,4 @@
-@(branchList: Iterable[Branch], user:User)(implicit request:RequestHeader)
+@(branchList: Iterable[models.github.Branch], user:User)(implicit request:RequestHeader)
 
 @main("Welcome to Play 2.1", user) {
     @branches(branchList)

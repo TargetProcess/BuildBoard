@@ -1,4 +1,4 @@
-package models
+package models.tp
 
 object TargetprocessApplication {
   val tpUrl = "http://plan.tpondemand.com"

@@ -1,4 +1,6 @@
-package models
+package models.github
+
+import models.tp.Entity
 
 trait Branch {
   val name: String

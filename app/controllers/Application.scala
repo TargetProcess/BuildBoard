@@ -1,7 +1,7 @@
 package controllers
 
 import play.api.mvc._
-import models.{ Branch, GitHubRepository }
+import models.github.{ Branch, GitHubRepository }
 import models.User
 import play.api._
 import play.api.mvc._

@@ -3,7 +3,6 @@ package controllers
 import play.api.mvc.{ Cookie, Action, Controller }
 import scalaj.http.{ HttpOptions, Http, Token }
 import org.kohsuke.github.GitHub
-import models.GitHubApplication
 import play.api.data._
 import play.api.data.Forms._
 import models.User
@@ -14,6 +13,7 @@ import play.api.data.Forms._
 import models._
 import views._
 import scala.util._
+import models.github._
 
 object Login extends Controller with Secured {
 

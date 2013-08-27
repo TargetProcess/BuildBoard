@@ -1,4 +1,4 @@
-package models.Tp
+package models.tp
 
 import scalaj.http.Http
 import play.api.libs.json._

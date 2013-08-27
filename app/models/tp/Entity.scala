@@ -1,4 +1,4 @@
-package models
+package models.tp
 
 case class Entity(val id: Int, val entityType: String) {
   val link = ""
