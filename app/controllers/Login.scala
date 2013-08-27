@@ -11,17 +11,16 @@ import play.api._
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
-
 import models._
 import views._
+import scala.util._
 
 object Login extends Controller {
 
-  val loginForm = Form(
+  val loginForm = Form[UserCredentials](
     mapping(
       "login" -> text,
-      "password" -> text,
-      "accept" -> boolean)((login, password, _) => User(login, password))((user: User) => Some(user.login, user.password, false)))
+      "password" -> text)(UserCredentials.apply)(UserCredentials.unapply))
 
   def index = Action {
     implicit request =>
@@ -32,7 +31,26 @@ object Login extends Controller {
     implicit request =>
       loginForm.bindFromRequest.fold(
         formWithErrors => BadRequest(html.login(formWithErrors)),
-        user => Redirect(routes.Application.index).withSession("login" -> user.login))
+        login =>
+          User.authenticate(login.username, login.password) match {
+            case Success(tpUser) =>{
+              
+              val userFromDb = User.findOneById(tpUser.id)
+              val newUser = 
+              userFromDb match {
+                case None => {
+                  User(tpId=tpUser.id, username=login.username, password=login.password)
+                }
+                case Some(user) => {
+                  user.copy(username=login.username, password=login.password)
+                }
+              }
+              User.save(newUser)
+              
+              Redirect(routes.Application.index).withSession("login" -> login.username)
+            } 
+            case Failure(e) => Ok(views.html.login(loginForm))
+          })
   }
 
   def oauth(code: String) = Action { implicit request =>
@@ -56,19 +74,9 @@ object Login extends Controller {
 
     Ok(views.html.closeWindow())
       .withSession(
-        session + ("github.token" -> accessToken) + ("github.login" -> login))
+        session + ("github.token" -> accessToken)
+          + ("github.login" -> login))
       .withCookies(Cookie("github", "token.ready"))
   }
-}
-
-trait Secured {
-
-  private def username(request: RequestHeader) = request.session.get("login")
-  private def onUnauthorized(request: RequestHeader) = Results.Redirect(routes.Login.index)
-
-  def IsAuthenticated(f: => String => Request[AnyContent] => Result) =
-    Security.Authenticated(username, onUnauthorized) {
-      user => Action(request => f(user)(request))
-    }
 }
  

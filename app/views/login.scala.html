@@ -1,4 +1,4 @@
-@(myForm: Form[User])(implicit request:RequestHeader)
+@(myForm: Form[UserCredentials])(implicit request:RequestHeader)
 
 @import helper.twitterBootstrap._
 
@@ -11,7 +11,6 @@
 	    <h2 class="form-signin-heading">Please sign in</h2>
 	    @helper.inputText(myForm("login"), 'class-> "form-control", 'autofocus->true, '_label -> "Login")
 	    @helper.inputPassword(myForm("password"), 'class-> "form-control", '_label -> "Password")
-	    @helper.checkbox(myForm("remember"), '_label -> "Remember me")
     	<button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-    }
+}
 }
