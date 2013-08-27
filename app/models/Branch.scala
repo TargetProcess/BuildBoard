@@ -14,7 +14,7 @@ case class EntityBranch(override val name: String, entity: Entity) extends Branc
 }
 
 object Branch {
-  val EntityBranchPattern = "^(?i)(feature|hotfix|release)/(us|bug|f)(\\d+).*".r
+  val EntityBranchPattern = "^(?i)(feature)/(us|bug|f)(\\d+).*".r
   val FeatureBranchPattern = "^(?i)(feature|hotfix|release)/(\\w+)".r
   def create(name: String): Branch = {
     name match {

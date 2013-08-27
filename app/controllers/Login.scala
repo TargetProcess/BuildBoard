@@ -39,17 +39,7 @@ object Login extends Controller with Secured {
           User.authenticate(login.username, login.password) match {
             case Success(tpUser) => {
 
-              val userFromDb = User.findOneById(tpUser.id)
-              val newUser =
-                userFromDb match {
-                  case None => {
-                    User(tpId = tpUser.id, username = login.username, password = login.password)
-                  }
-                  case Some(user) => {
-                    user.copy(username = login.username, password = login.password)
-                  }
-                }
-              User.save(newUser)
+              User.saveLogged(tpUser, login)
 
               Redirect(routes.Application.index).withSession("login" -> login.username)
             }
@@ -60,7 +50,7 @@ object Login extends Controller with Secured {
   def oauth(code: String) = IsAuthorized {
     user =>
       implicit request =>
-        val (login, accessToken) = GitHubApplication.login(code);
+        val (login, accessToken) = GitHubApplication.login(code)
         User.save(user.copy(githubLogin = login, githubToken=accessToken))       
         Ok(views.html.closeWindow())
   }
