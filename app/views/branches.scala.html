@@ -6,17 +6,25 @@
         @for(branch <- branches){
             <div class="col-lg-4">
                 <h2>@branch.name</h2>
+                <p>
                 @branch match {
                     case EntityBranch(name: String, entity: Entity) => {
-                        <p><a class="btn btn-default" href="@entity.url" target="_blank">@entity.id</a></p>
+                        <a  href="@entity.url" class="btn btn-default" target="_blank">#@entity.id</a>
                     }
                     case FeatureBranch(name: String, feature: String) => {
-                        <p>@name</p>
+                        @name
                     }
                     case RegularBranch(name: String) => {
-                        <p>@name</p>
+                        @name
                     }
                 }
+                @branch.pullRequest match {
+                    case Some(pr: PullRequest) => {
+                        <a href="@pr.url" class="btn btn-default" target="_blank">PR#@pr.id</a>
+                    }
+                    case None => {}
+                }
+                </p>
             </div>
         }
     </div>

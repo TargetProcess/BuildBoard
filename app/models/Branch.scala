@@ -2,6 +2,7 @@ package models
 
 trait Branch {
   val name: String
+  var pullRequest: Option[PullRequest] = None
 }
 
 case class RegularBranch(val name: String) extends Branch {
@@ -14,11 +15,11 @@ case class EntityBranch(override val name: String, entity: Entity) extends Branc
 }
 
 object Branch {
-  val EntityBranchPattern = "^(?i)(feature)/(us|bug|f)(\\d+).*".r
-  val FeatureBranchPattern = "^(?i)(feature|hotfix|release)/(\\w+)".r
-  def create(name: String): Branch = {
-    name match {
-      case EntityBranchPattern(branchType: String, entityType: String, id: String) => {
+  val EntityBranchPattern = "^(?i)feature/(us|bug|f)(\\d+).*".r
+  val FeatureBranchPattern = "^(?i)feature/(\\w+)".r
+  def create(name: String, pullRequest: Option[PullRequest]): Branch = {
+    val branch = name match {
+      case EntityBranchPattern(entityType: String, id: String) => {
         EntityBranch(name, Entity(id.toInt, entityType))
       }
       case FeatureBranchPattern(feature: String) => {
@@ -26,5 +27,8 @@ object Branch {
       }
       case _ => RegularBranch(name)
     }
+    branch.pullRequest = pullRequest
+
+    branch
   }
 }
