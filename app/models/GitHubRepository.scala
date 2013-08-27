@@ -9,6 +9,6 @@ class GitHubRepository(accessToken: String) {
   def getBranches: Iterable[Branch] = {
     val branches: Iterable[GHBranch] = repo.getBranches.values
 
-    branches.map(x => Branch(x.getName, Commit(x.getSHA1)))
+    branches.map(x => Branch.create(x.getName))
   }
 }

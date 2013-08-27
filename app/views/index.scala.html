@@ -6,8 +6,18 @@
         <h1>Available branches</h1>
 
         <ul>
-        @for(branch <- branches) {
-            <li>@branch.name - @branch.lastCommit.sha1</li>
+        @for(branch <- branches){
+            @branch match {
+                case EntityBranch(name: String, entity: Entity) => {
+                    <li>@name <a href="@entity.url" target="_blank">@entity.id</a><li>
+                }
+                case FeatureBranch(name: String, feature: String) => {
+                    <li>@name</li>
+                }
+                case RegularBranch(name: String) => {
+                    <li>@name</li>
+                }
+            }
         }
         </ul>
     </div>
