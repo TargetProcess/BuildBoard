@@ -1,4 +1,6 @@
-@(user: User)
+@(user: User)(implicit request:RequestHeader)
+
+@import models.GitHubApplication
 <div class="navbar navbar-default">
     <div class="navbar-header">
         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -13,15 +15,23 @@
             @user.githubToken match {
                 case Some(token) =>{ token }
                 case None => {
-                    <button type="button" class="btn btn-default navbar-btn">Login to GitHib</button>
+                    <li><button type="button" class="btn btn-default navbar-btn login-to-github">Login to GitHib</button></li>
                 }
             }
             @user.tpToken match {
                 case Some(token) =>{ token }
                 case None => {
-                    <button type="button" class="btn btn-default navbar-btn">Login to TP</button>
+                    <li><button type="button" class="btn btn-default navbar-btn">Login to TP</button></li>
                 }
             }
         </ul>
+        <script>
+            $(function(){
+                var $login = $('.login-to-github');
+                $login.click(function(){
+                    window.open('https://github.com/login/oauth/authorize?client_id=@GitHubApplication.clientId&scope=repo&redirect_uri=@routes.Login.oauth().absoluteURL(false)', '', 'popup');
+                });
+            });
+        </script>
     </div>
 </div>

@@ -3,10 +3,10 @@ package controllers
 import play.api.mvc.{Cookie, Action, Controller}
 import scalaj.http.{HttpOptions, Http, Token}
 import org.kohsuke.github.GitHub
+import models.GitHubApplication
 
 object Login extends Controller {
-  val consumer = Token("72b7f38d644d0a1330f7", "dec66c9b3f49f0b5eba70fd163de03d5d76ce220")
-
+  val consumer = Token(GitHubApplication.clientId, GitHubApplication.clientSecret)
 
   def index = Action {
     implicit request =>
