@@ -1,25 +1,27 @@
 package controllers
 
-import play.api.mvc.{Cookie, Action, Controller}
-import scalaj.http.{HttpOptions, Http, Token}
+import play.api.mvc.{ Cookie, Action, Controller }
+import scalaj.http.{ HttpOptions, Http, Token }
 import org.kohsuke.github.GitHub
 import models.GitHubApplication
 import play.api.data._
 import play.api.data.Forms._
 import models.User
+import play.api._
+import play.api.mvc._
+import play.api.data._
+import play.api.data.Forms._
+
+import models._
+import views._
 
 object Login extends Controller {
 
   val loginForm = Form(
-    mapping (
+    mapping(
       "login" -> text,
       "password" -> text,
-      "accept" -> boolean)
-      ((login, password, _) => User(login, password))
-      ((user: User) => Some(user.login, user.password, false))
-  )
-
-  val consumer = Token("72b7f38d644d0a1330f7", "dec66c9b3f49f0b5eba70fd163de03d5d76ce220")
+      "accept" -> boolean)((login, password, _) => User(login, password))((user: User) => Some(user.login, user.password, false)))
 
   def index = Action {
     implicit request =>
@@ -28,19 +30,18 @@ object Login extends Controller {
 
   def submit = Action {
     implicit request =>
-      Ok(views.html.login(null))
+      loginForm.bindFromRequest.fold(
+        formWithErrors => BadRequest(html.login(formWithErrors)),
+        user => Redirect(routes.Application.index).withSession("login" -> user.login))
   }
 
-  
-  
-
-  def oauth(code: String) = Action {
+  def oauth(code: String) = Action { implicit request =>
 
     val req = Http.post("https://github.com/login/oauth/access_token")
       .params(
-      "code" -> code,
-      "client_id" -> consumer.key,
-        "client_secret" -> consumer.secret)
+        "code" -> code,
+        "client_id" -> GitHubApplication.clientId,
+        "client_secret" -> GitHubApplication.clientSecret)
       .header("Accept", "application/xml")
       .option(HttpOptions.connTimeout(1000))
       .option(HttpOptions.readTimeout(5000))
@@ -54,7 +55,20 @@ object Login extends Controller {
     val login = user.getLogin
 
     Ok(views.html.closeWindow())
-      .withSession("github.token" -> accessToken, "github.login" -> login)
+      .withSession(
+        session + ("github.token" -> accessToken) + ("github.login" -> login))
       .withCookies(Cookie("github", "token.ready"))
   }
 }
+
+trait Secured {
+
+  private def username(request: RequestHeader) = request.session.get("login")
+  private def onUnauthorized(request: RequestHeader) = Results.Redirect(routes.Login.index)
+
+  def IsAuthenticated(f: => String => Request[AnyContent] => Result) =
+    Security.Authenticated(username, onUnauthorized) {
+      user => Action(request => f(user)(request))
+    }
+}
+ 
