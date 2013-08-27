@@ -1,0 +1,23 @@
+@(branches: Iterable[Branch])(implicit request:RequestHeader)
+
+<div class="container">
+    <h1>Available branches</h1>
+    <div class="row">
+        @for(branch <- branches){
+            <div class="col-lg-4">
+                <h2>@branch.name</h2>
+                @branch match {
+                    case EntityBranch(name: String, entity: Entity) => {
+                        <p><a class="btn btn-default" href="@entity.url" target="_blank">@entity.id</a></p>
+                    }
+                    case FeatureBranch(name: String, feature: String) => {
+                        <p>@name</p>
+                    }
+                    case RegularBranch(name: String) => {
+                        <p>@name</p>
+                    }
+                }
+            </div>
+        }
+    </div>
+</div><!-- /.container -->

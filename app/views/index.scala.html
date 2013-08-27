@@ -1,25 +1,5 @@
-@(branches: Iterable[Branch])(implicit request:RequestHeader)
+@(branchList: Iterable[Branch])(implicit request:RequestHeader)
 
 @main("Welcome to Play 2.1") {
-    <div class="container">
-    <div class="starter-template">
-        <h1>Available branches</h1>
-
-        <ul>
-        @for(branch <- branches){
-            @branch match {
-                case EntityBranch(name: String, entity: Entity) => {
-                    <li>@name <a href="@entity.url" target="_blank">@entity.id</a><li>
-                }
-                case FeatureBranch(name: String, feature: String) => {
-                    <li>@name</li>
-                }
-                case RegularBranch(name: String) => {
-                    <li>@name</li>
-                }
-            }
-        }
-        </ul>
-    </div>
-</div><!-- /.container -->
+    @branches(branchList)
 }
