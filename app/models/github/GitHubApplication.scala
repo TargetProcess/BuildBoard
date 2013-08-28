@@ -2,7 +2,8 @@ package models.github
 
 import scalaj.http.Http
 import scalaj.http.HttpOptions
-import org.kohsuke.github.GitHub
+import org.eclipse.egit.github.core.client.GitHubClient
+import org.eclipse.egit.github.core.service.UserService
 
 object GitHubApplication {
   val clientId = "72b7f38d644d0a1330f7"
@@ -22,9 +23,9 @@ object GitHubApplication {
         val clientCode = accessTokenXml \ "access_token"
         val accessToken = clientCode.text
 
-        val github = GitHub.connectUsingOAuth(accessToken)
-        val user = github.getMyself
-        val login = user.getLogin
-        (login, accessToken)
+     val github =  new GitHubClient().setOAuth2Token(accessToken)
+
+     val userService = new UserService(github)
+     (userService.getUser.getLogin, accessToken)
   }
 }

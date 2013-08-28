@@ -1,16 +1,16 @@
-@(myForm: Form[UserCredentials])(implicit request:RequestHeader)
+@(myForm: Form[UserCredentials])(implicit request: RequestHeader)
 
 @import helper.twitterBootstrap._
 
-@styles = {
-    <link rel="stylesheet" href='@routes.Assets.at("/stylesheets/login.css")'>
-}
+    @styles = {
+        <link rel="stylesheet" href='@routes.Assets.at("/stylesheets/login.css")'>
+    }
 
-@main("Login to BuildBoard", styles=styles, hasNavBar=false, user=null){
-	@helper.form(action = routes.Login.submit, 'class -> "form-signin") {
-	    <h2 class="form-signin-heading">Please sign in</h2>
-	    @helper.inputText(myForm("login"), 'class-> "form-control", 'autofocus->true, '_label -> "Login")
-	    @helper.inputPassword(myForm("password"), 'class-> "form-control", '_label -> "Password")
-    	<button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-}
+@main("Login to BuildBoard", styles = styles, hasNavBar = false, user = null) {
+    @helper.form(action = routes.Login.submit, 'class -> "form-signin") {
+        <h2 class="form-signin-heading">Please sign in</h2>
+        @helper.inputText(myForm("login"), 'class -> "form-control", 'autofocus -> true, '_label -> "Login")
+        @helper.inputPassword(myForm("password"), 'class -> "form-control", '_label -> "Password")
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+    }
 }

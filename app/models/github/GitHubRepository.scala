@@ -1,23 +1,29 @@
 package models.github
 
-import org.kohsuke.github.{ GHIssueState, GitHub }
 import collection.JavaConversions._
 import models.tp.EntityRepo
 import models._
-import models.jenkins.JenkinsRepository
+import org.eclipse.egit.github.core.client.GitHubClient
+import org.eclipse.egit.github.core.service._
+import org.eclipse.egit.github.core.RepositoryId
 
 class GitHubRepository(implicit user: User) {
   val EntityBranchPattern = "^(?i)feature/(us|bug|f)(\\d+).*".r
   val FeatureBranchPattern = "^(?i)feature/(\\w+)".r
+  val repo = new RepositoryId("TargetProcess", "TP")
 
-  private val github = GitHub.connectUsingOAuth(user.githubToken)
-  private val repo = github.getRepository("TargetProcess/TP")
+
+
+
+
+
 
   def getBranches: List[Branch] = {
-    val ghBranches = repo.getBranches.values.toList
-    val ghPullRequests = repo.getPullRequests(GHIssueState.OPEN)
-      .map(pr => (pr.getHead.getRef, pr))
-      .toMap
+    val github =  new GitHubClient().setOAuth2Token(user.githubToken)
+    val repositoryService = new RepositoryService(github)
+    val prService = new PullRequestService(github)
+    val ghBranches = repositoryService.getBranches(repo)
+    val ghPullRequests = prService.getPullRequests(repo, "OPEN").map(pr=>(pr.getHead.getRef, pr)).toMap
 
     val branchNames = ghBranches
       .map(br => br.getName)
@@ -27,6 +33,7 @@ class GitHubRepository(implicit user: User) {
         case EntityBranchPattern(_, id) => Some(id.toInt)
         case _ => None
       }
+    .toList
 
     val entities = EntityRepo.getAssignables(entityIds).get
       .map(e => (e.id, e))
@@ -36,7 +43,7 @@ class GitHubRepository(implicit user: User) {
       val name = githubBranch.getName
       
       val pullRequest = ghPullRequests.get(name)
-        .map(pr => PullRequest(pr.getNumber, pr.getUrl.toString))
+        .map(pr => PullRequest(pr.getNumber, pr.getUrl))
 
 
       val entity = name match {
@@ -46,6 +53,6 @@ class GitHubRepository(implicit user: User) {
 
       Branch(name, pullRequest, entity)
 
-    })
+    })   .toList
   }
 }

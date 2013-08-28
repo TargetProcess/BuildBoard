@@ -1,25 +1,35 @@
-@(user: User)(implicit request:RequestHeader)
+@(user: User)(implicit request: RequestHeader)
 
-@import components._
+    @import components._
 
-<div class="navbar navbar-default">
-    <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="@routes.Application.branches(true)">Build Board</a>
-    </div>
-    <div class="navbar-collapse collapse">
-    	<ul class="nav navbar-nav">
-    		<li class="menu-index"><a href="@routes.Application.branches(true)">All branches</a></li>
-    		<li class="menu-entity-branches"><a href="@routes.Application.branches(false)">Entity branches</a></li>
-    	</ul>
-        <ul class="nav navbar-nav navbar-right">              
-        	@githubLogin(user)
+    <div class="navbar navbar-default">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="@routes.Application.branches(all = true)">Build Board</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav role-navigation">
+                <li><a href="@routes.Application.branches(all = true)">All branches</a></li>
+                <li><a href="@routes.Application.branches(all = false)">Entity branches</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                @githubLogin(user)
             <li><a>Hello, @user.fullName</a></li>
             <li><form method="post" action="@routes.Login.logout"><button type="submit" class="btn btn-default navbar-btn logout">Logout</button></form></li>
-        </ul>
+            </ul>
+        </div>
     </div>
-</div>
+    <script>
+    $ ( '.role-navigation' ).find ( 'li' ).each ( function ( ) {
+        var $li = $ ( this ) ;
+        var href = $li.find ( 'a' ).attr ( 'href' ) ;
+    if ( href == '@{request.path}') {
+        $li.addClass ( 'active' ) ;
+       }
+    }
+    );
+    </script>

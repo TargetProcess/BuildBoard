@@ -1,51 +1,65 @@
-@(branches: Iterable[models.Branch])(implicit request:RequestHeader)
+@(branches: Iterable[models.Branch])(implicit request: RequestHeader)
 
 @import models.Entity
 
+
 <div class="container">
-    @for(branch <- branches){
-    <div class="row">
-        <div class="col-md-6">
-            @branch.entity match {
-            case Some(entity) => {
-            <h2>@entity.name</h2>
 
-            <div class="btn-group">
-                <a href="@entity.url" class="btn btn-link" target="_blank">#@entity.id</a>
-
-                <div class="btn-group">
-                    <button type="button"
-                            class="btn @if(entity.state.isFinal){btn-danger}else{btn-default} dropdown-toggle"
-                            data-toggle="dropdown">@entity.state.name
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        @for(nextState <- entity.state.nextStates.get) {
-                        <li><a href="#">@nextState.name</a></li>
-                        }
-                    </ul>
-                </div>
-                @branch.pullRequest match {
-                case Some(pr) => {
-                <a href="@pr.url" class="btn btn-default" target="_blank">PR#@pr.id</a>
+    <table class="table table-striped table-condensed">
+        <thead>
+            <tr>
+                <th>Pull Request</th>
+                <th>Branch</th>
+                <th>Name</th>
+                <th>Users</th>
+                <th>State</th>
+            </tr>
+        </thead>
+        <tbody>
+        @for(branch <- branches) {
+            <tr>
+                <td>@branch.pullRequest match {
+                    case Some(pr) => {
+                        <a class="btn btn-link" href="@pr.url">#@pr.id</a>
+                    }
+                    case None => {}
                 }
-                case None => {}
+                </td>
+                <td>@branch.name</td>
+                @branch.entity match {
+                    case Some(entity) => {
+                        <td>@entity.name</td>
+                        <td>
+                            @for(assignment <- entity.assignments) {
+                                <span class="role-@assignment.role"><img data-src="holder.js/100%x180" src="@{
+                                    assignment.avatar
+                                }30"
+                                title="@assignment.role: @assignment.fullName">
+                                }
+                        </span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <button type="button" class="btn @if(entity.state.isFinal) {btn-warning} else {btn-default} dropdown-toggle" data-toggle="dropdown">
+                                    @entity.state.name
+                                <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                @for(nextState <- entity.state.nextStates.get) {
+                                    <li><a href="#">@nextState.name</a></li>
+                                }
+                                </ul>
+                            </div>
+                        </td>
+                    }
+                    case None => {
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    }
                 }
-
-            </div>
-
-            @for(assignemnt<-entity.assignments){
-            <img data-src="holder.js/100%x180" src="@{assignemnt.avatar}25"
-                 title="@{assignemnt.role}: @assignemnt.fullName">
-            }
-
-
-            }
-            case None => {}
-            }
-            <h3>@branch.name</h3>
-        </div>
-    </div>
-    <hr>
-    }
+            </tr>
+        }
+        </tbody>
+    </table>
 </div><!-- /.container -->
