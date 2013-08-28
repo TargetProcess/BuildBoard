@@ -30,8 +30,8 @@ class GitHubRepository(implicit user: User) {
       .map(e => (e.id, e))
       .toMap
 
-    ghBranches.map(x => {
-      val name = x.getName
+    ghBranches.map(githubBranch => {
+      val name = githubBranch.getName
       val pullRequest = ghPullRequests.get(name)
         .map(pr => PullRequest(pr.getNumber, pr.getUrl.toString))
 
