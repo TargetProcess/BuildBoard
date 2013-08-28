@@ -6,25 +6,33 @@
     <h1>Available branches</h1>
     <div class="row">
         @for(branch <- branches){
-            <div>
-                <h2>@branch.name</h2>
                 <p>
                 @branch match {
                     case EntityBranch(name, Some(entity)) => {
+						@if(entity.state.isFinal) {
+							<div class="alert alert-danger">
+						} else {
+							<div>
+						}
                         <a  href="@entity.url" class="btn btn-default" target="_blank">#@entity.id</a>
                         <h3>@entity.name</h3>
                         <h3>@entity.state.name</h3>
+                        @for(assignment <- entity.assignments){
+                        	<img src="@{assignment.avatar}25" title="@{assignment.role}: @assignment.fullName">
+                        }
                     }
-                    case _ => {}
+                    case _ => {<div>}
                 }
+		                <h2>@branch.name</h2>
                 @branch.pullRequest match {
                     case Some(pr: PullRequest) => {
                         <a href="@pr.url" class="btn btn-default" target="_blank">PR#@pr.id</a>
                     }
                     case None => {}
                 }
+
+               </div>
                 </p>
-            </div>
             <hr>
         }
     </div>

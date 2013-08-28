@@ -22,15 +22,18 @@ class TpRepoSpec extends Specification {
     {
       "Id": 1,
       "Name": "Open",
+      "IsFinal" : false,
       "NextStates": {
         "Items": [
           {
             "Id": 158,
             "Name": "Planned"
+    		"IsFinal" : false,
           },
           {
             "Id": 160,
-            "Name": "Planned"
+            "Name": "Final",
+    		"IsFinal" : true,
           }
         ]
       }
@@ -38,16 +41,17 @@ class TpRepoSpec extends Specification {
     {
       "Id": 5,
       "Name": "Open"
+      "IsFinal" : false,
     }
     ]
  }
           """)
 
       entityStates === List(
-        EntityState(1, "Open", Some(List(
-          EntityState(158, "Planned"),
-          EntityState(160, "Planned")))),
-        EntityState(5, "Open"))
+        EntityState(1, "Open", Some(false), Some(List(
+          EntityState(158, "Planned", None),
+          EntityState(160, "Final", Some(true))))),
+        EntityState(5, "Open", None))
 
     }
 

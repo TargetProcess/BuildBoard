@@ -26,7 +26,7 @@ class GitHubRepository(implicit user: User) {
         case _ => None
       }
 
-    val entities = EntityRepo.getAssignables(entityIds)
+    val entities = EntityRepo.getAssignables(entityIds).get
       .map(e => (e.id, e))
       .toMap
 
