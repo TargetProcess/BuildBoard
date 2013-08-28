@@ -1,4 +1,4 @@
-package models.github
+package models.GitHub
 
 import scalaj.http.Http
 import scalaj.http.HttpOptions

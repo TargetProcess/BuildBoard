@@ -1,4 +1,4 @@
-package models.github
+package models.GitHub
 
 import models.tp.Entity
 

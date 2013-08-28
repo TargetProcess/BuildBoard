@@ -1,6 +1,6 @@
-@(branches: Iterable[models.github.Branch])(implicit request:RequestHeader)
+@(branches: Iterable[models.GitHub.Branch])(implicit request:RequestHeader)
 
-@import models.github._
+@import models.GitHub._
 @import models.tp._
 
 <div class="container">
@@ -14,12 +14,7 @@
                     case EntityBranch(name: String, entity: Entity) => {
                         <a  href="@entity.url" class="btn btn-default" target="_blank">#@entity.id</a>
                     }
-                    case FeatureBranch(name: String, feature: String) => {
-                        @name
-                    }
-                    case RegularBranch(name: String) => {
-                        @name
-                    }
+                    case _ => {}
                 }
                 @branch.pullRequest match {
                     case Some(pr: PullRequest) => {
