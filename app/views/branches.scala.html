@@ -4,33 +4,48 @@
 
 <div class="container">
     @for(branch <- branches){
-            <p>
-            @branch match {
-                case EntityBranch(name, Some(entity)) => {
-		@if(entity.state.isFinal) {
-			<div class="alert alert-danger">
-		} else {
-			<div>
-		}
-                    <a  href="@entity.url" class="btn btn-default" target="_blank">#@entity.id</a>
-                    <h3>@entity.name</h3>
-                    <h3>@entity.state.name</h3>
-                    @for(assignment <- entity.assignments){
-                    	<img src="@{assignment.avatar}25" title="@{assignment.role}: @assignment.fullName">
-                    }
-                }
-                case _ => {<div>}
-            }
-              <h2>@branch.name</h2>
-            @branch.pullRequest match {
-                case Some(pr: PullRequest) => {
-                    <a href="@pr.url" class="btn btn-default" target="_blank">PR#@pr.id</a>
+    <div class="row">
+        <div class="col-md-6">
+            @branch.entity match {
+            case Some(entity) => {
+            <h2>@entity.name</h2>
+
+            <div class="btn-group">
+                <a href="@entity.url" class="btn btn-link" target="_blank">#@entity.id</a>
+
+                <div class="btn-group">
+                    <button type="button"
+                            class="btn @if(entity.state.isFinal){btn-danger}else{btn-default} dropdown-toggle"
+                            data-toggle="dropdown">@entity.state.name
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        @for(nextState <- entity.state.nextStates.get) {
+                        <li><a href="#">@nextState.name</a></li>
+                        }
+                    </ul>
+                </div>
+                @branch.pullRequest match {
+                case Some(pr) => {
+                <a href="@pr.url" class="btn btn-default" target="_blank">PR#@pr.id</a>
                 }
                 case None => {}
+                }
+
+            </div>
+
+            @for(assignemnt<-entity.assignments){
+            <img data-src="holder.js/100%x180" src="@{assignemnt.avatar}25"
+                 title="@{assignemnt.role}: @assignemnt.fullName">
             }
 
-           </div>
-            </p>
-        <hr>
+
+            }
+            case None => {}
+            }
+            <h3>@branch.name</h3>
+        </div>
+    </div>
+    <hr>
     }
 </div><!-- /.container -->

@@ -12,6 +12,7 @@ import play.api.libs.functional.syntax._
 import models.EntityState
 import models.Entity
 import models.Assignment
+import scalaj.http.HttpOptions
 
 object EntityRepo {
 
@@ -24,6 +25,8 @@ object EntityRepo {
 
     val response = Http(uri)
       .auth(user.username, user.password)
+      .option(HttpOptions.connTimeout(1000))
+      .option(HttpOptions.readTimeout(5000))
       .asString
     val res = parseAssignables(response)
 

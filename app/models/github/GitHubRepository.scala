@@ -1,8 +1,7 @@
 package models.github
 
-import org.kohsuke.github.{GHIssueState, GitHub}
+import org.kohsuke.github.{ GHIssueState, GitHub }
 import collection.JavaConversions._
-import models.{PullRequest, Branch, User}
 import models.tp.EntityRepo
 import models._
 import models.jenkins.JenkinsRepository
@@ -21,7 +20,7 @@ class GitHubRepository(implicit user: User) {
       .toMap
 
     val branchNames = ghBranches
-    .map(br => br.getName)
+      .map(br => br.getName)
 
     val entityIds = branchNames
       .flatMap {
@@ -40,13 +39,13 @@ class GitHubRepository(implicit user: User) {
         .map(pr => PullRequest(pr.getNumber, pr.getUrl.toString))
 
 
-      val branch = name match {
-        case EntityBranchPattern(_, id) => EntityBranch(name, entities.get(id.toInt))
-        case FeatureBranchPattern(feature) => FeatureBranch(name, feature)
-        case _ => RegularBranch(name)
-    }
-      branch.pullRequest = pullRequest
-      branch
+      val entity = name match {
+        case EntityBranchPattern(_, id) => entities.get(id.toInt)
+        case _ => None
+      }
+
+      Branch(name, pullRequest, entity)
+
     })
   }
 }

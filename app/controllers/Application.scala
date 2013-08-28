@@ -16,10 +16,7 @@ object Application extends Controller with Secured {
         else
           Iterable()
 
-        val data = if (all) branches else branches.filter {
-          case EntityBranch(_, _) => true
-          case _ => false
-        }
+        val data = if (all) branches else branches.filter(x=>x.entity.isDefined)
 
         Ok(views.html.index(data, user))
   }
