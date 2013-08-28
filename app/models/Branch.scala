@@ -1,8 +1,5 @@
 package models
 
-import models.tp.Entity
-
-
 trait Branch {
   val name: String
   var pullRequest: Option[PullRequest] = None

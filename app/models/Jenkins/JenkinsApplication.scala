@@ -1,4 +1,4 @@
-package models.Jenkins
+package models.jenkins
 
 object JenkinsApplication {
   val url = "http://jenkinsmaster-hv:8080"

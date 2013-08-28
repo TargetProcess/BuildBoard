@@ -1,6 +1,6 @@
 package controllers
 
-import models.GitHub.GitHubRepository
+import models.github.GitHubRepository
 import play.api.mvc._
 import models._
 

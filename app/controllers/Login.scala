@@ -6,7 +6,7 @@ import play.api.data.Forms._
 import models._
 import views._
 import scala.util._
-import models.GitHub._
+import models.github._
 
 object Login extends Controller with Secured {
 
