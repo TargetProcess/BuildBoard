@@ -1,27 +1,51 @@
-package models.tp
-
-import models._
-import models.Login
-import scalaj.http._
-import TargetprocessApplication._
-import scala.util._
 import play.api.libs.json._
-import play.api.libs.functional.syntax._
+import play.api.libs.json.util._
+import play.api.libs.json.Reads._
 import play.api.data.validation.ValidationError
+import play.api.libs.functional.syntax._
 
 object test {
+  case class EntityState(
+    id: Int,
+    name: String,
+    nextStates: Option[List[EntityState]])
 
-	implicit val user = UserCredentials(username="fomin",password="123456")
-                                                  //> user  : models.UserCredentials = UserCredentials(fomin,123456)
-	
-	val t = EntityRepo.getAssignables(List(100,122))
-                                                  //> t  : scala.util.Try[models.tp.Assignable] = Failure(play.api.libs.json.JsRes
-                                                  //| ultException: JsResultException(errors:List((/Id,List(ValidationError(valida
-                                                  //| te.error.missing-path,WrappedArray()))), (/EntityState,List(ValidationError(
-                                                  //| validate.error.missing-path,WrappedArray()))), (/Name,List(ValidationError(v
-                                                  //| alidate.error.missing-path,WrappedArray()))))))
-	  
 
-	
-   
+
+  implicit var creatureReads: Reads[EntityState] = null;
+                                                  //> creatureReads  : play.api.libs.json.Reads[test.EntityState] = null
+
+  creatureReads = (
+    (__ \ "Id").read[Int] ~
+    (__ \ "Name").read[String] ~
+    (__ \ "NextStates").readNullable(
+      (__ \ "Items").lazyRead(list[EntityState](creatureReads))))(EntityState)
+
+
+	val text ="""{
+	"Id" : 5,
+	"Name" : "In dev",
+	"NextStates" : {
+			"Items": [
+				{
+					"Id": 6,
+					"Name": "In Test"
+				}
+			]
+		}
+	}"""                                      //> text  : String = {
+                                                  //| 	"Id" : 5,
+                                                  //| 	"Name" : "In dev",
+                                                  //| 	"NextStates" : {
+                                                  //| 			"Items": [
+                                                  //| 				{
+                                                  //| 					"Id": 6,
+                                                  //| 					"Name": "In Test"
+                                                  //| 				}
+                                                  //| 			]
+                                                  //| 		}
+                                                  //| 	}
+val state = Json.parse(text).as[EntityState]      //> state  : test.EntityState = EntityState(5,In dev,Some(List(EntityState(6,In 
+                                                  //| Test,None))))
+
 }
