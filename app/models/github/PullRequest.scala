@@ -1,4 +1,4 @@
 package models.github
 
-class PullRequest(val id: Int, val url: String) {
+case class PullRequest(id: Int, url: String) {
 }

@@ -10,19 +10,20 @@ trait Branch {
 case class RegularBranch(val name: String) extends Branch {
 }
 
-case class FeatureBranch(override val name: String, val feature: String) extends Branch {
+case class FeatureBranch(val name: String, val feature: String) extends Branch {
 }
 
-case class EntityBranch(override val name: String, entity: Entity) extends Branch {
+case class EntityBranch(val name: String, entity: Entity) extends Branch {
 }
 
 object Branch {
   val EntityBranchPattern = "^(?i)feature/(us|bug|f)(\\d+).*".r
   val FeatureBranchPattern = "^(?i)feature/(\\w+)".r
+  
   def create(name: String, pullRequest: Option[PullRequest]): Branch = {
     val branch = name match {
       case EntityBranchPattern(entityType: String, id: String) => {
-        EntityBranch(name, Entity(id.toInt, entityType))
+        EntityBranch(name, Entity(id.toInt, entityType, "Open"))
       }
       case FeatureBranchPattern(feature: String) => {
         FeatureBranch(name, feature)

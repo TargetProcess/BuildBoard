@@ -2,13 +2,13 @@ package models.tp
 
 import scalaj.http.Http
 import play.api.libs.json._
-import play.api.libs.functional.syntax._
 import scala.util._
+import TargetprocessApplication._
 
 trait TpUserRepo {
 
   def authenticate(username: String, password: String) = Try {
-    val response = Http("http://plan.tpondemand.com/api/v1/Context?format=json")
+    val response = Http(apiUri("Context")+"?format=json")
       .auth(username, password)
       .asString
 
