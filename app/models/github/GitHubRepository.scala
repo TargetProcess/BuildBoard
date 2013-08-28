@@ -32,6 +32,7 @@ class GitHubRepository(implicit user: User) {
 
     ghBranches.map(githubBranch => {
       val name = githubBranch.getName
+      
       val pullRequest = ghPullRequests.get(name)
         .map(pr => PullRequest(pr.getNumber, pr.getUrl.toString))
 

@@ -6,8 +6,7 @@ import com.mongodb.casbah.Imports._
 import se.radley.plugin.salat._
 import se.radley.plugin.salat.Binders._
 import mongoContext._
-import models.tp.{TpUser, TpUserRepo}
-
+import models.tp.{ TpUser, TpUserRepo }
 
 trait Login {
   val username: String
@@ -17,16 +16,16 @@ trait Login {
 case class UserCredentials(username: String, password: String) extends Login
 
 case class User(
-                 id: ObjectId = new ObjectId,
+  id: ObjectId = new ObjectId,
 
-                 tpId: Int,
+  tpId: Int,
 
-                 username: String,
-                 password: String,
+  username: String,
+  password: String,
 
-                 githubLogin: String = null,
-                 githubToken: String = null
-                 ) extends Login
+  githubLogin: String = null,
+  githubToken: String = null,
+  fullName: String = null) extends Login
 
 object User extends UserDAO with TpUserRepo {
   def saveLogged(tpUser: TpUser, login: UserCredentials) = {
@@ -35,10 +34,10 @@ object User extends UserDAO with TpUserRepo {
     val newUser =
       userFromDb match {
         case None => {
-          User(tpId = tpUser.id, username = login.username, password = login.password)
+          User(tpId = tpUser.id, username = login.username, password = login.password, fullName = tpUser.fullName)
         }
         case Some(user) => {
-          user.copy(username = login.username, password = login.password)
+          user.copy(username = login.username, password = login.password, fullName = tpUser.fullName)
         }
       }
     User.save(newUser)

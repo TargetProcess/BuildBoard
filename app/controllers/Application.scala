@@ -6,13 +6,21 @@ import models._
 
 object Application extends Controller with Secured {
 
-  def index = IsAuthorized {
+  def index = branches(true)
+  
+  def branches(all: Boolean = true) = IsAuthorized {
     implicit user =>
       implicit request =>
-        val data: Iterable[Branch] = if (user.githubToken != null)
+        val branches = if (user.githubToken != null)
           new GitHubRepository().getBranches
         else
           Iterable()
+
+        val data = if (all) branches else branches.filter {
+          case EntityBranch(_, _) => true
+          case _ => false
+        }
+
         Ok(views.html.index(data, user))
   }
 }
