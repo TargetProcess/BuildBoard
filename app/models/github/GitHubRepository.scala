@@ -1,9 +1,7 @@
 package models.GitHub
 
-import org.kohsuke.github.{GHPullRequest, GHIssueState, GHBranch, GitHub}
+import org.kohsuke.github.{GHIssueState, GitHub}
 import collection.JavaConversions._
-import models.User
-import models.tp.EntityRepo
 import models.{PullRequest, Branch, User}
 
 class GitHubRepository(implicit user: User) {

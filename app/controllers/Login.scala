@@ -1,12 +1,5 @@
 package controllers
 
-import play.api.mvc.{ Cookie, Action, Controller }
-import scalaj.http.{ HttpOptions, Http, Token }
-import org.kohsuke.github.GitHub
-import play.api.data._
-import play.api.data.Forms._
-import models.User
-import play.api._
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
