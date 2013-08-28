@@ -10,18 +10,19 @@ import play.api.libs.json.Reads._
 import play.api.data.validation.ValidationError
 import play.api.libs.functional.syntax._
 import models.EntityState
+import models.Entity
 
 object EntityRepo {
 
-  def getUri(ids: List[Int]) = apiUri("Assignables") + "?format=json&take=1000&include=[Id,EntityState[Id,Name,NextStates]]&where=Id%20in%20(" + ids.mkString(",") + ")"
+  def getUri(ids: List[Int]) = apiUri("Assignables") + "?format=json&take=1000&include=[Id,Name,EntityType[Name],EntityState[Id,Name,NextStates]]&where=Id%20in%20(" + ids.mkString(",") + ")"
 
-  def getAssignables(ids: List[Int])(implicit user: Login) = Try {
+  def getAssignables(ids: List[Int])(implicit user: Login) = {
     val uri = getUri(ids)
 
     val response = Http(uri)
       .auth(user.username, user.password)
       .asString
-    val res = parseEntityStates(response)
+    val res = parseAssignables(response)
 
     res
   }
@@ -33,14 +34,19 @@ object EntityRepo {
     (__ \ "NextStates").readNullable(
       (__ \ "Items").lazyRead(list[EntityState](entityStateReads))))(EntityState)
 
-  case class EntityStateCollection(entityStates: List[EntityState])
+  implicit val assignableReads = (
+    (__ \ "Id").read[Int] ~
+    (__ \ "Name").read[String] ~
+    (__ \ "EntityType" \ "Name").read[String] ~
+    (__ \ "EntityState").read[EntityState])(Entity)
 
   def parseEntityStates(response: String) = {
-
-    val entityStateCollectionReads = (
-      (__ \ "Items").lazyRead(list[EntityState](entityStateReads)));
-
     val json = Json.parse(response)
-    json.validate(entityStateCollectionReads).get
+    json.validate((__ \ "Items").read(list[EntityState])).get
+  }
+
+  def parseAssignables(response: String) = {
+    val json = Json.parse(response)
+    json.validate((__ \ "Items").read(list[Entity])).get
   }
 }

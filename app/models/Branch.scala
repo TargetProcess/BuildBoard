@@ -5,31 +5,11 @@ trait Branch {
   var pullRequest: Option[PullRequest] = None
 }
 
-case class RegularBranch(val name: String) extends Branch {
+case class RegularBranch(name: String) extends Branch {
 }
 
-case class FeatureBranch(val name: String, val feature: String) extends Branch {
+case class FeatureBranch(name: String, feature: String) extends Branch {
 }
 
-case class EntityBranch(val name: String, entity: Entity) extends Branch {
-}
-
-object Branch {
-  val EntityBranchPattern = "^(?i)feature/(us|bug|f)(\\d+).*".r
-  val FeatureBranchPattern = "^(?i)feature/(\\w+)".r
-  
-  def create(name: String, pullRequest: Option[PullRequest]): Branch = {
-    val branch = name match {
-      case EntityBranchPattern(entityType: String, id: String) => {
-        EntityBranch(name, Entity(id.toInt, entityType, "Open"))
-      }
-      case FeatureBranchPattern(feature: String) => {
-        FeatureBranch(name, feature)
-      }
-      case _ => RegularBranch(name)
-    }
-    branch.pullRequest = pullRequest
-
-    branch
-  }
+case class EntityBranch(name: String, entity:Option[Entity]) extends Branch {
 }

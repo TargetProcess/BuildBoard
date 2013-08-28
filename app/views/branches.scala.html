@@ -1,18 +1,19 @@
 @(branches: Iterable[models.Branch])(implicit request:RequestHeader)
 
-@import models.github._
-@import models.tp._
+@import models.Entity
 
 <div class="container">
     <h1>Available branches</h1>
     <div class="row">
         @for(branch <- branches){
-            <div class="col-lg-4">
+            <div>
                 <h2>@branch.name</h2>
                 <p>
                 @branch match {
-                    case EntityBranch(name: String, entity: Entity) => {
+                    case EntityBranch(name, Some(entity)) => {
                         <a  href="@entity.url" class="btn btn-default" target="_blank">#@entity.id</a>
+                        <h3>@entity.name</h3>
+                        <h3>@entity.state.name</h3>
                     }
                     case _ => {}
                 }
@@ -24,6 +25,7 @@
                 }
                 </p>
             </div>
+            <hr>
         }
     </div>
 </div><!-- /.container -->
