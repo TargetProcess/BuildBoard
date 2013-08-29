@@ -19,3 +19,4 @@ bin/*
 .target/
 .worksheet/
 app/worksheets/
+mongo/

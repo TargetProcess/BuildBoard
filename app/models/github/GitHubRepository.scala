@@ -8,32 +8,28 @@ import org.eclipse.egit.github.core.service._
 import org.eclipse.egit.github.core.RepositoryId
 
 class GitHubRepository(implicit user: User) {
+  val github = new GitHubClient().setOAuth2Token(user.githubToken)
+  val repositoryService = new RepositoryService(github)
+  val prService = new PullRequestService(github)
+
   val EntityBranchPattern = "^(?i)feature/(us|bug|f)(\\d+).*".r
   val FeatureBranchPattern = "^(?i)feature/(\\w+)".r
   val repo = new RepositoryId("TargetProcess", "TP")
 
 
-
-
-
-
-
   def getBranches: List[Branch] = {
-    val github =  new GitHubClient().setOAuth2Token(user.githubToken)
-    val repositoryService = new RepositoryService(github)
-    val prService = new PullRequestService(github)
     val ghBranches = repositoryService.getBranches(repo)
-    val ghPullRequests = prService.getPullRequests(repo, "OPEN").map(pr=>(pr.getHead.getRef, pr)).toMap
+    val ghPullRequests = prService.getPullRequests(repo, "OPEN").map(pr => (pr.getHead.getRef, pr)).toMap
 
     val branchNames = ghBranches
       .map(br => br.getName)
 
     val entityIds = branchNames
       .flatMap {
-        case EntityBranchPattern(_, id) => Some(id.toInt)
-        case _ => None
-      }
-    .toList
+      case EntityBranchPattern(_, id) => Some(id.toInt)
+      case _ => None
+    }
+      .toList
 
     val entities = EntityRepo.getAssignables(entityIds).get
       .map(e => (e.id, e))
@@ -41,9 +37,9 @@ class GitHubRepository(implicit user: User) {
 
     ghBranches.map(githubBranch => {
       val name = githubBranch.getName
-      
+
       val pullRequest = ghPullRequests.get(name)
-        .map(pr => PullRequest(pr.getNumber, pr.getUrl))
+        .map(pr => PullRequest(pr))
 
 
       val entity = name match {
@@ -53,6 +49,12 @@ class GitHubRepository(implicit user: User) {
 
       Branch(name, pullRequest, entity)
 
-    })   .toList
+    }).toList
   }
+
+  def getPullRequestStatus(id: Int) = {
+    var pr = prService.getPullRequest(repo, id)
+    PullRequestStatus(pr.isMergeable, pr.isMerged)
+  }
+
 }

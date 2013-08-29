@@ -1,0 +1,1 @@
+mongod.exe -dbpath mongo\data --smallfiles

@@ -7,7 +7,9 @@
     <link rel="stylesheet" href='@routes.Assets.at("/stylesheets/main.css")'>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
     @styles
-
+    @helper.javascriptRouter("jsRoutes")(
+        routes.javascript.Github.pullRequestStatus
+    )
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 </head>
 <body>
