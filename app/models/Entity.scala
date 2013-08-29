@@ -35,8 +35,9 @@ case class EntityState(
   val isFinal = isFinalOpt.getOrElse(false) || name=="Release Ready"
   val isReopen = name=="Reopen"
   val isQA = name == "Coded" || name=="Testing"
+  val isTested = name=="Tested"
 }
 
-case class Assignment(role: String, avatar: String, firstName: String, lastName: String, isResponsible: Boolean = false) {
+case class Assignment(userId:Int, role: String, avatar: String, firstName: String, lastName: String, isResponsible: Boolean = false) {
   val fullName = firstName + " " + lastName
 }
