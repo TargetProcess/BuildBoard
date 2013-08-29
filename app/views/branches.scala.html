@@ -1,9 +1,19 @@
 @(branches: Iterable[models.Branch])(implicit request: RequestHeader)
 
-@import models.Entity
 
 @import components.entityState
 
+    @buildStatus(branch: Branch) = @{
+        branch.builds match {
+            case head :: tail =>
+                head.result match {
+                    case BuildResult.SUCCESS => "success"
+                    case BuildResult.FAILURE => "danger"
+                    case _ => "warning"
+                }
+            case _ => ""
+        }
+    }
 
 <div class="container">
     <table class="table sortable table-condensed">
@@ -18,44 +28,27 @@
         </thead>
         <tbody>
         @for(branch <- branches) {
-            @branch.builds match {
-                case head::tail => {
-                    @head.result match {
-                        case BuildResult.SUCCESS => {
-                            <tr class="success">
-                        }
-                        case BuildResult.FAILURE => {
-                            <tr class="danger">
-                        }
-                        case _ => {
-                            <tr class="warning">
-                        }
-                    }
-                }
-                case _ => {
-                    <tr>
-                }
-            }
+            <tr class="role-branch @buildStatus(branch)">
                 <td>
                 @branch.pullRequest match {
                     case Some(pr) => {
                         <a class="btn btn-default pull-request" data-id="@pr.id" href="@pr.url">#@pr.id</a>
                     }
                     case None => {}
-                    }
+                }
                 </td>
-                <td><p>@branch.name</p></td>
+                <td>@branch.name</td>
                 @branch.entity match {
                     case Some(entity) => {
-                        <td><small>@entity.name</small></td>
-                        <td data-value="@entity.sortedAssignments.map(_.lastName).mkString(" ")">
-                            @for(assignment <- entity.sortedAssignments) {
-                                <span data-role="@assignment.role" class="role @if(assignment.isResponsible){role-active}else{role-inactive}"><img data-src="holder.js/100%x180" src="@{
-                                    assignment.avatar
-                                }30"
-                                title="@assignment.role: @assignment.fullName">
-                                    </span>
-                                }
+                        <td>@entity.name</td>
+                        <td class="role-users" data-value="@entity.sortedAssignments.map(_.lastName).mkString(" ")" data-user-ids="|@entity.sortedAssignments.map(_.userId).mkString("|")|">
+                        @for(assignment <- entity.sortedAssignments) {
+                            <span data-role="@assignment.role" class="role @if(assignment.isResponsible) {role-active} else {role-inactive}"><img data-src="holder.js/100%x180" src="@{
+                                assignment.avatar
+                            }30"
+                            title="@assignment.role: @assignment.fullName">
+                            </span>
+                        }
                         </td>
                         @entityState(entity.id, entity.state)
                     }
@@ -70,42 +63,4 @@
         </tbody>
     </table>
 </div><!-- /.container -->
-<script>
-    $ ('.pull-request' ).each(function(){
-        var $a = $(this);
-        var id = $a.data('id');
-        if (id){
-            jsRoutes.controllers.Github.pullRequestStatus(id).ajax().done(function(resp){
-                var isMerged = resp.isMerged;
-                var isMergeable = resp.isMergeable;
-                $a.removeClass('btn-default');
-                if (isMerged){
-                    $a.addClass('btn-primary');
-                } else if (isMergeable){
-                    $a.addClass('btn-success');
-                } else {
-                    $a.addClass('btn-danger');
-                }
-            });
-        }
-    });
-
-    $ ('tr' ).on('click', '.role-change-state', function(e){
-        e.preventDefault();
-        var $nextState= $(this);
-
-    var $button = $nextState.closest('.role-next-states-group').find('.role-next-states-trigger' );
-        $button.attr('disabled','disabled');
-
-        var entityStateId = $nextState.data("stateId");
-        var entityId = $nextState.data("entityId");
-
-        jsRoutes.controllers.Targetprocess.changeEntityState(entityId, entityStateId ).ajax( ).done(function(newState){
-            $nextState.closest('td.role-state' ).replaceWith(newState.text);
-        });
-
-
-
-
-    })
-</script>
+<script src="@routes.Assets.at("/javascripts/branches.js")"></script>

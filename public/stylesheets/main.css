@@ -28,3 +28,6 @@ body {
 }
 
 
+.table td {
+    vertical-align: middle;
+}
