@@ -5,11 +5,11 @@
 
 <div class="container">
 
-    <table class="table table-striped table-condensed">
+    <table class="table sortable table-striped table-condensed">
         <thead>
             <tr>
                 <th>Pull Request</th>
-                <th>Branch</th>
+                <th data-defaultsort="asc">Branch</th>
                 <th>Name</th>
                 <th>Users</th>
                 <th>State</th>
@@ -20,7 +20,7 @@
             <tr>
                 <td>@branch.pullRequest match {
                     case Some(pr) => {
-                        <a class="btn btn-link" href="@pr.url">#@pr.id</a>
+                        <a class="btn btn-default pull-request" data-id="@pr.id" href="@pr.url">#@pr.id</a>
                     }
                     case None => {}
                 }
@@ -28,17 +28,17 @@
                 <td>@branch.name</td>
                 @branch.entity match {
                     case Some(entity) => {
-                        <td>@entity.name</td>
-                        <td>
-                            @for(assignment <- entity.assignments) {
-                                <span class="role-@assignment.role"><img data-src="holder.js/100%x180" src="@{
+                        <td><small>@entity.name</small></td>
+                        <td data-value="@entity.sortedAssignments.map(_.lastName).mkString(" ")">
+                            @for(assignment <- entity.sortedAssignments) {
+                                <span class="role role-@assignment.role.toLowerCase.replace(" ","")"><img data-src="holder.js/100%x180" src="@{
                                     assignment.avatar
                                 }30"
                                 title="@assignment.role: @assignment.fullName">
+                                    </span>
                                 }
-                        </span>
                         </td>
-                        <td>
+                        <td data-value="@if(entity.state.isFinal){1}else{0}@entity.state.name">
                             <div class="btn-group">
                                 <button type="button" class="btn @if(entity.state.isFinal) {btn-warning} else {btn-default} dropdown-toggle" data-toggle="dropdown">
                                     @entity.state.name
@@ -63,3 +63,23 @@
         </tbody>
     </table>
 </div><!-- /.container -->
+<script>
+    $ ('.pull-request' ).each(function(){
+        var $a = $(this);
+    var id = $a.data('id');
+        if (id){
+            jsRoutes.controllers.Github.pullRequestStatus(id).ajax().done(function(resp){
+                var isMerged = resp.isMerged;
+                var isMergeable = resp.isMergeable;
+                $a.removeClass('btn-default');
+                if (isMerged){
+                    $a.addClass('btn-primary');
+                } else if (isMergeable){
+                    $a.addClass('btn-success');
+                } else {
+                    $a.addClass('btn-danger');
+                }
+            });
+        }
+    })
+</script>

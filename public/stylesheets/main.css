@@ -10,3 +10,7 @@ body {
 .final-state {
 	color: red
 }
+
+.role:not(.role-developer) {
+    opacity: .3
+}

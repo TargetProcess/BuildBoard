@@ -13,6 +13,11 @@ case class Entity(
     case Some(x) => x
     case None => Nil
   }
+
+  def sortedAssignments = {
+    val (developers, others) = assignments.sortBy(_.lastName).span(_.role == "Developer")
+    developers ::: others
+  }
 }
 
 case class EntityState(

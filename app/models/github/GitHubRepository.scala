@@ -57,4 +57,11 @@ class GitHubRepository(implicit user: User) {
     PullRequestStatus(pr.isMergeable, pr.isMerged)
   }
 
+  def getBranch(name: String) = {
+    val ghBranches = repositoryService.getBranches(repo).filter(p=>p.getName == name).headOption
+    ghBranches
+  }
+
+
+
 }
