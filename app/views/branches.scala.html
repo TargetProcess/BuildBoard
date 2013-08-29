@@ -6,11 +6,10 @@
 
 
 <div class="container">
-
-    <table class="table sortable table-striped table-condensed">
+    <table class="table sortable table-condensed">
         <thead>
             <tr>
-                <th>Pull Request</th>
+                <th>PR</th>
                 <th>Branch</th>
                 <th>Name</th>
                 <th>Users</th>
@@ -37,14 +36,15 @@
                     <tr>
                 }
             }
-                <td>@branch.pullRequest match {
+                <td>
+                @branch.pullRequest match {
                     case Some(pr) => {
                         <a class="btn btn-default pull-request" data-id="@pr.id" href="@pr.url">#@pr.id</a>
                     }
                     case None => {}
                     }
                 </td>
-                <td>@branch.name</td>
+                <td><p>@branch.name</p></td>
                 @branch.entity match {
                     case Some(entity) => {
                         <td><small>@entity.name</small></td>

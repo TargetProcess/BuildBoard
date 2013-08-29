@@ -2,9 +2,9 @@ body {
     padding-top: 50px;
 }
 
-@media (min-width: 1500px) {
+@media (min-width: 1600px) {
     .container {
-        max-width: 1500px;
+        max-width: 1600px;
     }
 }
 
@@ -19,4 +19,12 @@ body {
 .role.role-inactive {
     opacity: .3
 }
+
+.btn-group.btn-group-stretch {
+    width:100%
+}
+.btn-group.btn-group-stretch .btn{
+    width:100%
+}
+
 

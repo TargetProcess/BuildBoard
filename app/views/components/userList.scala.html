@@ -1,4 +1,4 @@
-@(branchList: List[models.Branch], user: User)(implicit request: RequestHeader)
+@(branchList: List[models.Branch], loggedUser: User)(implicit request: RequestHeader)
 
 @import models.EntityBranch._
 
@@ -7,7 +7,7 @@
     }
 
     @allUsers(entityBranches: List[EntityBranch]) = @{
-        entityBranches.flatMap(_.entity.assignments).map(x => (x.userId, x.fullName)).distinct
+        entityBranches.flatMap(_.entity.assignments).map(a => (a.userId, a.fullName, a.avatar) ).distinct.sortBy(_._2)
     }
 
 @defining(branchesToEntityBranches(branchList)) { entityBranches =>
@@ -23,13 +23,13 @@
         <li>
             <a href="#">
                 My branches
-                <span class="badge pull-right">@branches(entityBranches, user.tpId).length</span>
+                <span class="badge pull-right">@branches(entityBranches, loggedUser.tpId).length</span>
             </a>
         </li>
         <hr>
-        @for((userId, fullName) <- allUsers(entityBranches) if userId != user.tpId) {
+        @for((userId, fullName,avatar) <- allUsers(entityBranches) if userId != loggedUser.tpId) {
             <li>
-                <a href="#">@fullName
+                <a href="#"><img src="@{avatar}30"> @fullName
                 <span class="badge pull-right">@branches(entityBranches, userId).length</span>
                 </a>
             </li>

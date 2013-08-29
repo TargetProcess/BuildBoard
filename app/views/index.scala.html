@@ -1,7 +1,7 @@
 @(branchList: List[models.Branch], user:User)(implicit request:RequestHeader)
 
 @sidebar = {
-    @components.userList(branchList, user);
+    @components.userList(branchList, user)
 }
 
 @main("Build board", user, sidebar = sidebar) {

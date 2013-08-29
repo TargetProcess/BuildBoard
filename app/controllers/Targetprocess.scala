@@ -20,7 +20,7 @@ object Targetprocess extends Controller with Secured {
         implicit val writes = repo.entityStateWrite
         val newState = repo.changeEntityState(entityId, stateId)
 
-        var text = views.html.components.entityState(entityId, newState).body
-        Ok(Json.obj("text" -> text))
+        val text = views.html.components.entityState(entityId, newState).body
+        Ok(Json.obj("text" -> text, "newState" -> newState))
   }
 }
