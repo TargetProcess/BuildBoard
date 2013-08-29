@@ -6,5 +6,5 @@ object TargetprocessApplication {
   
   def apiUri(root:String) = s"$tpUrl/api/v1/$root"
 
-  def board(method:String) = s"$tpUrl/slice/v1/$method"
+  def board(method:String) = s"$tpUrl/slice/v1/matrix/$method"
 }

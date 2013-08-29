@@ -11,6 +11,6 @@ body {
 	color: red
 }
 
-.role:not(.role-developer) {
+.role.role-inactive {
     opacity: .3
 }

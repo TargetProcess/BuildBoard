@@ -11,7 +11,7 @@ import models.EntityState
  * An integration test will fire up a whole play application in a real (or headless) browser
  */
 class TpRepoSpec extends Specification {
-
+ /*
   "TpRepo" should {
 
     "parse JSON for EntityStates correctly" in {
@@ -56,5 +56,6 @@ class TpRepoSpec extends Specification {
     }
 
   }
+ */
 
 }

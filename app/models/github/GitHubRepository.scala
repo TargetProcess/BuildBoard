@@ -58,7 +58,7 @@ class GitHubRepository(implicit user: User) {
   }
 
   def getBranch(name: String) = {
-    val ghBranches = repositoryService.getBranches(repo).filter(p=>p.getName == name).headOption
+    val ghBranches = repositoryService.getBranches(repo).find(p => p.getName == name)
     ghBranches
   }
 

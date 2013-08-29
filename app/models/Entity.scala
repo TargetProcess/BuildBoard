@@ -10,7 +10,13 @@ case class Entity(
                    assignmentsOpt: Option[List[Assignment]]) {
   val url = TargetprocessApplication.getEntityUrl(id)
   val assignments = assignmentsOpt match {
-    case Some(x) => x
+    case Some(x) => x.map(assignment => {
+      state.role match {
+        case Some(role) => assignment.copy(isResponsible = role == assignment.role)
+        case None => assignment
+      }
+
+    })
     case None => Nil
   }
 
@@ -24,10 +30,13 @@ case class EntityState(
                         id: Int,
                         name: String,
                         isFinalOpt: Option[Boolean],
+                        role: Option[String],
                         nextStates: Option[List[EntityState]] = None) {
-  val isFinal = isFinalOpt.getOrElse(false)
+  val isFinal = isFinalOpt.getOrElse(false) || name=="Release Ready"
+  val isReopen = name=="Reopen"
+  val isQA = name == "Coded" || name=="Testing"
 }
 
-case class Assignment(role: String, avatar: String, firstName: String, lastName: String) {
+case class Assignment(role: String, avatar: String, firstName: String, lastName: String, isResponsible: Boolean = false) {
   val fullName = firstName + " " + lastName
 }

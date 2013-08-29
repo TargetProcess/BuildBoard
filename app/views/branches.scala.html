@@ -2,6 +2,19 @@
 
 @import models.Entity
 
+@stateClass(state:EntityState) = @{
+    if (state.isFinal) {
+        "btn-warning"
+    } else if (state.isReopen) {
+        "btn-danger"
+    } else if (state.isQA) {
+        "btn-success"
+    } else {
+        "btn-default"
+    }
+
+}
+
 
 <div class="container">
 
@@ -9,10 +22,10 @@
         <thead>
             <tr>
                 <th>Pull Request</th>
-                <th data-defaultsort="asc">Branch</th>
+                <th>Branch</th>
                 <th>Name</th>
                 <th>Users</th>
-                <th>State</th>
+                <th data-defaultsort="asc">State</th>
             </tr>
         </thead>
         <tbody>
@@ -31,7 +44,7 @@
                         <td><small>@entity.name</small></td>
                         <td data-value="@entity.sortedAssignments.map(_.lastName).mkString(" ")">
                             @for(assignment <- entity.sortedAssignments) {
-                                <span class="role role-@assignment.role.toLowerCase.replace(" ","")"><img data-src="holder.js/100%x180" src="@{
+                                <span data-role="@assignment.role" class="role @if(assignment.isResponsible){role-active}else{role-inactive}"><img data-src="holder.js/100%x180" src="@{
                                     assignment.avatar
                                 }30"
                                 title="@assignment.role: @assignment.fullName">
@@ -40,7 +53,7 @@
                         </td>
                         <td data-value="@if(entity.state.isFinal){1}else{0}@entity.state.name">
                             <div class="btn-group">
-                                <button type="button" class="btn @if(entity.state.isFinal) {btn-warning} else {btn-default} dropdown-toggle" data-toggle="dropdown">
+                                <button type="button" class="btn @stateClass(entity.state) dropdown-toggle" data-toggle="dropdown">
                                     @entity.state.name
                                 <span class="caret"></span>
                                 </button>
