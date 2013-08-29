@@ -41,9 +41,10 @@ class EntityRepo(user: Login) {
 
   implicit val assignmentReads = (
     (__ \ "Role" \ "Name").read[String] ~
+      (__ \ "GeneralUser" \ "Id").read[Int] ~
       (__ \ "GeneralUser" \ "AvatarUri").read[String] ~
       (__ \ "GeneralUser" \ "FirstName").read[String] ~
-      (__ \ "GeneralUser" \ "LastName").read[String])((role, avatar, firstName, lastName) => Assignment(role, avatar, firstName, lastName))
+      (__ \ "GeneralUser" \ "LastName").read[String])((role, id, avatar, firstName, lastName) => Assignment(id, role, avatar, firstName, lastName))
 
   implicit val assignableReads = (
     (__ \ "Id").read[Int] ~
@@ -96,7 +97,7 @@ class EntityRepo(user: Login) {
   }
 
   def getAssignables(ids: List[Int])(implicit user: Login) = {
-    val include = s"[Id,Name,Assignments[GeneralUser[AvatarUri,FirstName,LastName],Role[Name]],EntityType[Name],$stateSelector]"
+    val include = s"[Id,Name,Assignments[GeneralUser[Id,AvatarUri,FirstName,LastName],Role[Name]],EntityType[Name],$stateSelector]"
     val json = get("Assignables", include, where = "Id%20in%20(" + ids.mkString(",") + ")")
 
     json.validate((__ \ "Items").read(list[Entity])).get
