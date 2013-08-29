@@ -6,6 +6,7 @@ import models._
 import org.eclipse.egit.github.core.client.GitHubClient
 import org.eclipse.egit.github.core.service._
 import org.eclipse.egit.github.core.RepositoryId
+import models.jenkins.JenkinsRepository
 
 class GitHubRepository(implicit user: User) {
   val github = new GitHubClient().setOAuth2Token(user.githubToken)
@@ -35,6 +36,8 @@ class GitHubRepository(implicit user: User) {
       .map(e => (e.id, e))
       .toMap
 
+    val builds = JenkinsRepository.getBuilds.get
+
     ghBranches.map(githubBranch => {
       val name = githubBranch.getName
 
@@ -47,7 +50,14 @@ class GitHubRepository(implicit user: User) {
         case _ => None
       }
 
-      Branch(name, pullRequest, entity)
+      val pullRequestId = pullRequest.map(x => x.id);
+
+      val branchBuilds = builds.filter(b => b match {
+        case PullRequestBuild(prId: String, _, _, _, _) => prId == name || (pullRequestId.isDefined && prId == pullRequestId)
+        case _ => false
+      })
+
+      Branch(name, pullRequest, entity, branchBuilds)
 
     }).toList
   }

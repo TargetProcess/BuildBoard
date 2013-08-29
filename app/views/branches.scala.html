@@ -19,13 +19,30 @@
         </thead>
         <tbody>
         @for(branch <- branches) {
-            <tr>
+            @branch.builds match {
+                case head::tail => {
+                    @head.result match {
+                        case BuildResult.SUCCESS => {
+                            <tr class="success">
+                        }
+                        case BuildResult.FAILURE => {
+                            <tr class="danger">
+                        }
+                        case _ => {
+                            <tr class="warning">
+                        }
+                    }
+                }
+                case _ => {
+                    <tr>
+                }
+            }
                 <td>@branch.pullRequest match {
                     case Some(pr) => {
                         <a class="btn btn-default pull-request" data-id="@pr.id" href="@pr.url">#@pr.id</a>
                     }
                     case None => {}
-                }
+                    }
                 </td>
                 <td>@branch.name</td>
                 @branch.entity match {

@@ -1,10 +1,17 @@
 package models
 
-trait Build {
-  val number: Int
-  val displayName: String
-  val url: String
+import org.joda.time.DateTime
+
+object BuildResult extends Enumeration {
+  type BuildResult = Value
+  val UNKNOWN, SUCCESS, FAILURE, ABORTED = Value
 }
 
-case class PullRequestBuild(number: Int, displayName: String, url: String) extends Build
-case class NightBuild(number: Int, displayName: String, url: String) extends Build
+trait Build {
+  val timestamp: DateTime
+  val number: Int
+  val url: String
+  val result: BuildResult.Value
+}
+
+case class PullRequestBuild(pullRequestId: String, result: BuildResult.Value, url: String, timestamp: DateTime, number: Int) extends Build

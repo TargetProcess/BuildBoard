@@ -1,70 +1,58 @@
 package models.jenkins
 
-import com.offbytwo.jenkins.JenkinsServer
-import java.net.URI
 import collection.JavaConversions._
-import com.offbytwo.jenkins.model.{Build, Job}
 import scala.collection.mutable.Map
-import models.{NightBuild, PullRequestBuild}
+import models.{BuildResult, Build, PullRequestBuild}
 import scala.collection.mutable
+import scalaj.http.{HttpOptions, Http}
+import play.api.libs.json._
+import play.api.libs.json.util._
+import play.api.libs.json.Reads._
+import play.api.data.validation.ValidationError
+import play.api.libs.functional.syntax._
+import org.joda.time.DateTime
 
 object JenkinsRepository {
-  val jenkins = new JenkinsServer(new URI(JenkinsApplication.url))
-  def getBuilds(branches: Iterable[String]) = {
-    val jobs: Map[String, Job] = jenkins.getJobs
-    val prJob = jenkins.getJob("buildpullrequest")
-    val prBuilds: Iterable[Build] = prJob.getBuilds
-    val prActions = prBuilds.map(x => {
-      val actions: Iterable[Any] = x.details.getActions
-      (x, actions)
-    })
-    .map(x => {
-      val actions: Iterable[Any] = x._2
-      val actions1 = actions.map(y => {
-        val ac: Map[String, Any] = y.asInstanceOf[java.util.LinkedHashMap[String, Any]]
-        ac
+  val jenkinsUrl = "http://jenkinsmaster-hv:8080"
+
+  case class Parameter(name: String, value: String)
+  case class Action(parameters: Option[List[Parameter]])
+
+  private implicit val parameterReads: Reads[Parameter] = (
+      (__ \ "name").read[String] ~
+      (__ \ "value").read[String]
+    )(Parameter)
+
+
+//  val r1:Reads[Option[List[Parameter]]] =
+
+  private implicit val actionReads:Reads[Action] = (__ \ "parameters").readNullable(list[Parameter]).map(Action)
+
+  private implicit val buildReads: Reads[Build] = (
+      (__ \ "number").read[Int] ~
+      (__ \ "timestamp").read[Long].map(new DateTime(_)) ~
+      (__ \ "result").readNullable[String].map(r => r match {
+          case Some(result: String) => BuildResult withName result
+          case None => BuildResult.UNKNOWN
+        }) ~
+      (__ \ "url").read[String] ~
+      (__ \ "actions").read(list[Action]).map( (x: List[Action]) => {
+        x.map((a: Action) => a.parameters.map(params => params.filter(p => p.name == "ghprbPullId")))
+          .flatten
+          .flatMap(a => a).head.value
       })
-      (x._1, actions1)
-    })
+    )((number, timestamp, buildResult, url, pullRequestId) => {
+    PullRequestBuild(pullRequestId, buildResult, url, timestamp, number)
+  })
 
+  def getBuilds = {
+    val url = s"$jenkinsUrl/job/BuildPullRequest/api/json?depth=2&tree=builds[url,actions[parameters[name,value],lastBuiltRevision[branch[name]]],number,result,timestamp]"
+    val response = Http(url)
+      .option(HttpOptions.connTimeout(1000))
+      .option(HttpOptions.readTimeout(5000))
+      .asString
+    val json = Json.parse(response)
 
-    val lastBuilds = jobs.map(j => {
-      val res = j._1 match {
-        case s if s == "buildpullrequest" => {
-          val builds: Iterable[Build] = j._2.details().getBuilds
-          val b = builds.map(x => {
-            val list: Iterable[Any] = x.details.getActions
-
-            val actions = list.map(l => {
-              val hash: Map[String, Any] = l.asInstanceOf[java.util.LinkedHashMap[String, Any]]
-              val q = hash.map(h => {
-                val wl: Iterable[Any] = h._2.asInstanceOf[java.util.List[Any]]
-                val wll = wl.map(r => {
-                  val w: Map[String, Any] = r.asInstanceOf[java.util.LinkedHashMap[String, Any]]
-                  w
-                })
-                wll
-              })
-              q
-            })
-            actions
-          })
-          val lastBuild = j._2.details.getLastBuild
-          val lastBuildDetails = lastBuild.details
-          PullRequestBuild(lastBuild.getNumber, lastBuildDetails.getFullDisplayName, lastBuildDetails.getUrl)
-        }
-        case s if s == "triggernigthlybuild" => {
-          val lastBuild = j._2.details.getLastBuild
-          val lastBuildDetails = lastBuild.details
-          NightBuild(lastBuild.getNumber, lastBuildDetails.getFullDisplayName, lastBuildDetails.getUrl)
-        }
-        case _ => null
-      }
-
-      res
-    })
-    .filter(x => x != null)
-
-    lastBuilds
+    json.validate((__ \ "builds").read(list[Build]))
   }
 }
