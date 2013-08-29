@@ -2,18 +2,7 @@
 
 @import models.Entity
 
-@stateClass(state:EntityState) = @{
-    if (state.isFinal) {
-        "btn-warning"
-    } else if (state.isReopen) {
-        "btn-danger"
-    } else if (state.isQA) {
-        "btn-success"
-    } else {
-        "btn-default"
-    }
-
-}
+@import components.entityState
 
 
 <div class="container">
@@ -51,19 +40,7 @@
                                     </span>
                                 }
                         </td>
-                        <td data-value="@if(entity.state.isFinal){1}else{0}@entity.state.name">
-                            <div class="btn-group">
-                                <button type="button" class="btn @stateClass(entity.state) dropdown-toggle" data-toggle="dropdown">
-                                    @entity.state.name
-                                <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu">
-                                @for(nextState <- entity.state.nextStates.get) {
-                                    <li><a href="#">@nextState.name</a></li>
-                                }
-                                </ul>
-                            </div>
-                        </td>
+                        @entityState(entity.id, entity.state)
                     }
                     case None => {
                         <td></td>
@@ -79,7 +56,7 @@
 <script>
     $ ('.pull-request' ).each(function(){
         var $a = $(this);
-    var id = $a.data('id');
+        var id = $a.data('id');
         if (id){
             jsRoutes.controllers.Github.pullRequestStatus(id).ajax().done(function(resp){
                 var isMerged = resp.isMerged;
@@ -94,5 +71,16 @@
                 }
             });
         }
+    });
+
+    $ ('tr' ).on('click', '.role-change-state', function(e){
+        e.preventDefault();
+        var $nextState= $(this);
+        var entityStateId = $nextState.data("stateId");
+        var entityId = $nextState.data("entityId");
+        jsRoutes.controllers.Targetprocess.changeEntityState(entityId, entityStateId ).ajax( ).done(function(newState){
+            $nextState.closest('td.role-state' ).replaceWith(newState.text);
+        });
+
     })
 </script>

@@ -13,25 +13,11 @@ import models.EntityState
 import models.Entity
 import models.Assignment
 import scalaj.http.HttpOptions
+import scalaj.http.Http.Request
 
-object EntityRepo {
 
-  def getUri(ids: List[Int]) = apiUri("Assignables") +
-    "?format=json&take=1000&" +
-    "include=[Id,Name,Assignments[GeneralUser[AvatarUri,FirstName,LastName],Role[Name]],EntityType[Name],EntityState[Id,IsFinal,Role,Name,NextStates]]&where=Id%20in%20(" + ids.mkString(",") + ")"
-
-  def getAssignables(ids: List[Int])(implicit user: Login) = {
-    val uri = getUri(ids)
-
-    val response = Http(uri)
-      .auth(user.username, user.password)
-      .option(HttpOptions.connTimeout(1000))
-      .option(HttpOptions.readTimeout(5000))
-      .asString
-    val res = parseAssignables(response)
-
-    res
-  }
+class EntityRepo(user: Login) {
+  val stateSelector = "EntityState[Id,IsFinal,Role,Name,NextStates]"
 
   private implicit var entityStateReads: Reads[EntityState] = null
   entityStateReads = (
@@ -42,6 +28,16 @@ object EntityRepo {
         (__ \ "Name").read[String]) ~
       (__ \ "NextStates").readNullable(
         (__ \ "Items").lazyRead(list[EntityState](entityStateReads))))(EntityState)
+
+  implicit val entityStateWrite: Writes[EntityState] =
+    (
+      (__ \ "Id").write[Int]~
+        (__ \ "Name").write[String]~
+        (__ \ "Role").writeNullable(
+          (__ \ "Name").write[String]) ~
+        (__ \ "IsFinal").write[Option[Boolean]] ~
+        (__ \ "NextStates").lazyWriteNullable(Writes.traversableWrites[EntityState](entityStateWrite))
+      )( e=>(e.id, e.name,e.role,e.isFinalOpt, e.nextStates))
 
   implicit val assignmentReads = (
     (__ \ "Role" \ "Name").read[String] ~
@@ -57,13 +53,57 @@ object EntityRepo {
       (__ \ "Assignments").readNullable(
         (__ \ "Items").read(list[Assignment])))(Entity)
 
-  def parseEntityStates(response: String) = {
-    val json = Json.parse(response)
-    json.validate((__ \ "Items").read(list[EntityState]))
+
+  def sendRequest(request: Request) = {
+    val toSend = request
+      .auth(user.username, user.password)
+      .option(HttpOptions.connTimeout(1000))
+      .option(HttpOptions.readTimeout(5000))
+      .asString
+
+    Json.parse(toSend)
   }
 
-  def parseAssignables(response: String) = {
-    val json = Json.parse(response)
-    json.validate((__ \ "Items").read(list[Entity]))
+  private def post(root: String, include: String, data: JsValue, id: Option[Int] = None) = {
+    val uri = apiUri(root) + "/" + id.map(_.toString).getOrElse("") + "?format=json&include=" + include
+    val request = Http.postData(uri, Json.stringify(data))
+      .header("content-type", "application/json")
+
+    sendRequest(request)
   }
+
+  private def get(root: String, include: String, where: String = "", id: Option[Int] = None) = {
+    val uri = apiUri(root) + "/" + id.map(_.toString).getOrElse("") + s"?format=json&include=$include&where=$where"
+    val request = Http(uri)
+
+    sendRequest(request)
+  }
+
+  def changeEntityState(entityId: Int, stateId: Int) = {
+    val include = s"[$stateSelector]"
+
+    val data = Json.obj(
+      "id" -> entityId,
+      "entityState" -> Json.obj(
+        "id" -> stateId
+      )
+    )
+
+    val json = post("Assignables", include, data)
+
+    val value = json.validate((__ \ "EntityState").read[EntityState])
+    value.get
+  }
+
+  def getAssignables(ids: List[Int])(implicit user: Login) = {
+    val include = s"[Id,Name,Assignments[GeneralUser[AvatarUri,FirstName,LastName],Role[Name]],EntityType[Name],$stateSelector]"
+    val json = get("Assignables", include, where = "Id%20in%20(" + ids.mkString(",") + ")")
+
+    json.validate((__ \ "Items").read(list[Entity])).get
+
+  }
+}
+
+object EntityRepo{
+
 }

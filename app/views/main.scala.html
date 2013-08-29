@@ -1,30 +1,35 @@
-@(title: String, user:User, scripts: Html = Html(""), styles: Html = Html(""), hasNavBar: Boolean = true)(content: Html)(implicit request:RequestHeader)<!DOCTYPE html>
+@(title: String, user: User, scripts: Html = Html(""), styles: Html = Html(""), hasNavBar: Boolean = true, sidebar:Html=Html(""))(content: Html)(implicit request: RequestHeader) <!DOCTYPE html>
 
 <html>
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@title</title>
-    <link rel="stylesheet" href='@routes.Assets.at("/stylesheets/main.css")'>
-    <link rel="stylesheet" href='@routes.Assets.at("/stylesheets/bootstrap-sortable.css")'>
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
-    @styles
-    @helper.javascriptRouter("jsRoutes")(
-        routes.javascript.Github.pullRequestStatus
-    )
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-</head>
-<body>
-@if(hasNavBar){
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>@title</title>
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href='@routes.Assets.at("/stylesheets/bootstrap-sortable.css")'>
+        <link rel="stylesheet" href='@routes.Assets.at("/stylesheets/main.css")'>
+        @styles
+        @helper.javascriptRouter("jsRoutes")(
+            routes.javascript.Github.pullRequestStatus,
+            routes.javascript.Targetprocess.changeEntityState
+        )
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    </head>
+    <body>
+        @if(hasNavBar) {
+            <div class="container">
+            @navigationBar(user)
+            </div>
+        }
+
     <div class="container">
-        @navigationBar(user)
-    </div>
-}
-    <div class="container">
-        @content
+        <div class="row">
+            <div class="col-lg-2">@sidebar</div>
+            <div class="col-lg-10">@content</div>
+        </div>
     </div>
 
-<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-<script src="@routes.Assets.at("/javascripts/libs/bootstrap-sortable.js")"></script>
-@scripts
-</body>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    <script src="@routes.Assets.at("/javascripts/libs/bootstrap-sortable.js")"></script>
+        @scripts
+    </body>
 </html>

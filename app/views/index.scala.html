@@ -1,5 +1,17 @@
 @(branchList: Iterable[models.Branch], user:User)(implicit request:RequestHeader)
 
-@main("Welcome to Play 2.1", user) {
+@sidebar = {
+    <div class="bs-sidebar">
+        <ul class="nav bs-sidenav">
+            <li>
+                @for(name <- branchList.flatMap(_.entity).flatMap(_.assignments).map(_.fullName).toList.distinct.sorted){
+                    <a href="#">@name</a>
+                }
+            </li>
+        </ul>
+    </div>
+}
+
+@main("Welcome to Play 2.1", user, sidebar = sidebar) {
     @branches(branchList)
 }

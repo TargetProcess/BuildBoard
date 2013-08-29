@@ -1,0 +1,27 @@
+@(entityId:Int, entityState: EntityState)
+
+    @stateClass(state: EntityState) = @{
+        if(state.isFinal) {
+            "btn-warning"
+        } else if(state.isReopen) {
+            "btn-danger"
+        } else if(state.isQA) {
+            "btn-success"
+        } else {
+            "btn-default"
+        }
+    }
+
+<td class="role-state" data-value="@if(entityState.isFinal) {1} else {0} @entityState.name">
+    <div class="btn-group">
+        <button type="button" class="btn @stateClass(entityState) dropdown-toggle" data-toggle="dropdown">
+            @entityState.name
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu role-next-states">
+        @for(nextState <- entityState.nextStates.get) {
+            <li><a href="#" class="role-change-state" data-entity-id="@entityId" data-state-id="@nextState.id">@nextState.name</a></li>
+        }
+        </ul>
+    </div>
+</td>

@@ -2,9 +2,7 @@ package controllers
 
 import play.api.mvc._
 import models._
-import play.api.libs.json._
 import models.github.GitHubRepository
-import controllers.Secured
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 

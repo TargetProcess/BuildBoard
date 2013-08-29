@@ -1,16 +1,22 @@
 body {
-	padding-top: 50px;
+    padding-top: 50px;
+}
+
+@media (min-width: 1500px) {
+    .container {
+        max-width: 1500px;
+    }
 }
 
 .starter-template {
-	padding: 40px 15px;
-	text-align: center;
+    text-align: center;
 }
 
 .final-state {
-	color: red
+    color: red
 }
 
 .role.role-inactive {
     opacity: .3
 }
+
