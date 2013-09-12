@@ -14,7 +14,11 @@ import models.Entity
 import models.Assignment
 import scalaj.http.HttpOptions
 import scalaj.http.Http.Request
-
+import scala.concurrent._
+import ExecutionContext.Implicits.global
+import scala.concurrent.duration.Duration
+import scala.concurrent.duration._
+import java.util.concurrent.TimeUnit._
 
 class EntityRepo(user: Login) {
   val stateSelector = "EntityState[Id,IsFinal,Role,Name,NextStates]"
@@ -31,13 +35,13 @@ class EntityRepo(user: Login) {
 
   implicit val entityStateWrite: Writes[EntityState] =
     (
-      (__ \ "Id").write[Int]~
-        (__ \ "Name").write[String]~
+      (__ \ "Id").write[Int] ~
+        (__ \ "Name").write[String] ~
         (__ \ "Role").writeNullable(
           (__ \ "Name").write[String]) ~
         (__ \ "IsFinal").write[Option[Boolean]] ~
         (__ \ "NextStates").lazyWriteNullable(Writes.traversableWrites[EntityState](entityStateWrite))
-      )( e=>(e.id, e.name,e.role,e.isFinalOpt, e.nextStates))
+      )(e => (e.id, e.name, e.role, e.isFinalOpt, e.nextStates))
 
   implicit val assignmentReads = (
     (__ \ "Role" \ "Name").read[String] ~
@@ -96,15 +100,28 @@ class EntityRepo(user: Login) {
     value.get
   }
 
-  def getAssignables(ids: List[Int])(implicit user: Login) = {
-    val include = s"[Id,Name,Assignments[GeneralUser[Id,AvatarUri,FirstName,LastName],Role[Name]],EntityType[Name],$stateSelector]"
-    val json = get("Assignables", include, where = "Id%20in%20(" + ids.mkString(",") + ")")
+  def split(ints: List[Int], count: Int): List[List[Int]] = ints match {
+    case Nil => Nil
+    case l => {
+      val (head, tail) = (ints.take(count), ints.drop(count))
+      head :: split(tail, count)
+    }
+  }
 
-    json.validate((__ \ "Items").read(list[Entity])).get
+  def getAssignables(ids: List[Int])(implicit user: Login): List[Entity] = {
+    val include = s"[Id,Name,Assignments[GeneralUser[Id,AvatarUri,FirstName,LastName],Role[Name]],EntityType[Name],$stateSelector]"
+
+    val idGroups: List[List[Int]] = split(ids, 20)
+
+    idGroups.flatMap {
+      group =>
+        val json = get("Assignables", include, where = "Id%20in%20(" + group.mkString(",") + ")")
+        json.validate((__ \ "Items").read(list[Entity])).get
+    }
 
   }
 }
 
-object EntityRepo{
+object EntityRepo {
 
 }

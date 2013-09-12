@@ -15,7 +15,7 @@
         }
     }
 
-<div class="container">
+<div class="role-branch-list container">
     <table class="table sortable table-condensed">
         <thead>
             <tr>
@@ -35,7 +35,7 @@
                         <a class="btn btn-stretch btn-default pull-request" data-id="@pr.id" href="@pr.url">#@pr.id</a>
                     }
                     case None => {
-                        <button type="button" class="btn btn-default create-pull-request btn-stretch"  title="Create pull request">...</button>
+                        <button type="button" class="btn btn-default role-create-pull-request btn-stretch"  title="Create pull request">...</button>
                     }
                 }
                 </td>
@@ -65,4 +65,5 @@
         </tbody>
     </table>
 </div><!-- /.container -->
+    <div class="role-create-pull-request-dialog"></div>
 <script src="@routes.Assets.at("/javascripts/branches.js")"></script>

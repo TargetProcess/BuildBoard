@@ -1,37 +1,55 @@
 body {
-    padding-top: 50px;
+  padding-top: 50px;
 }
 
 @media (min-width: 1600px) {
-    .container {
-        max-width: 1600px;
-    }
+  .container {
+    max-width: 1600px;
+  }
 }
 
 .starter-template {
-    text-align: center;
+  text-align: center;
 }
 
 .final-state {
-    color: red
+  color: red
 }
 
 .role.role-inactive {
-    opacity: .3
+  opacity: .3
 }
 
 .btn-group-stretch {
   width: 100%;
   .btn {
-    width:100%
+    width: 100%
   }
 }
 
 .btn-stretch {
-  width:100%;
+  width: 100%;
 }
 
-
 .table td {
-    vertical-align: middle;
+  vertical-align: middle;
+}
+
+/* Dialog */
+@dialogZIndex: 10000;
+
+.ui-widget-overlay.ui-front {
+  background: none repeat scroll 0 0 black;
+  height: 100%;
+  left: 0;
+  opacity: 0.6;
+  position: fixed;
+  text-align: center;
+  top: 0;
+  width: 100%;
+  z-index: @dialogZIndex;
+}
+
+.ui-dialog {
+  z-index: (@dialogZIndex+1)
 }
