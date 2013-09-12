@@ -1,9 +1,9 @@
-@(myForm: Form[UserCredentials])(implicit request: RequestHeader)
+@(myForm: Form[UserCredentials], error: Option[String] = None)(implicit request: RequestHeader)
 
 @import helper.twitterBootstrap._
 
     @styles = {
-        <link rel="stylesheet" href='@routes.Assets.at("/stylesheets/login.css")'>
+        <link rel="stylesheet" href='@routes.Assets.at("stylesheets/login.css")'>
     }
 
 @main("Login to BuildBoard", styles = styles, hasNavBar = false, user = null) {
@@ -12,5 +12,8 @@
         @helper.inputText(myForm("login"), 'class -> "form-control", 'autofocus -> true, '_label -> "Login")
         @helper.inputPassword(myForm("password"), 'class -> "form-control", '_label -> "Password")
         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+        @if(error.isDefined){
+            <p class="text-danger">@error.get</p>
+        }
     }
 }

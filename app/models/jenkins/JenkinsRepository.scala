@@ -11,6 +11,7 @@ import play.api.libs.json.Reads._
 import play.api.data.validation.ValidationError
 import play.api.libs.functional.syntax._
 import org.joda.time.DateTime
+import scala.util.Try
 
 object JenkinsRepository {
   val jenkinsUrl = "http://jenkinsmaster-hv:8080"
@@ -45,7 +46,7 @@ object JenkinsRepository {
     PullRequestBuild(pullRequestId, buildResult, url, timestamp, number)
   })
 
-  def getBuilds = {
+  def getBuilds = Try {
     val url = s"$jenkinsUrl/job/BuildPullRequest/api/json?depth=2&tree=builds[url,actions[parameters[name,value],lastBuiltRevision[branch[name]]],number,result,timestamp]"
     val response = Http(url)
       .option(HttpOptions.connTimeout(1000))
@@ -53,6 +54,6 @@ object JenkinsRepository {
       .asString
     val json = Json.parse(response)
 
-    json.validate((__ \ "builds").read(list[Build]))
-  }
+    json.validate((__ \ "builds").read(list[Build])).get
+  } getOrElse Nil
 }

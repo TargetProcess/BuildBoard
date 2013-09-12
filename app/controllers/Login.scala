@@ -36,7 +36,7 @@ object Login extends Controller with Secured {
 
               Redirect(routes.Application.index).withSession("login" -> login.username)
             }
-            case Failure(e) => Ok(views.html.login(loginForm))
+            case Failure(e) => Ok(views.html.login(loginForm, Some(e.toString)))
           })
   }
 

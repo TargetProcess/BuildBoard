@@ -28,19 +28,21 @@
         </thead>
         <tbody>
         @for(branch <- branches) {
-            <tr class="role-branch @buildStatus(branch)">
+            <tr class="role-branch @buildStatus(branch)" data-entity-id="@branch.entity.map(_.id)">
                 <td>
                 @branch.pullRequest match {
                     case Some(pr) => {
-                        <a class="btn btn-default pull-request" data-id="@pr.id" href="@pr.url">#@pr.id</a>
+                        <a class="btn btn-stretch btn-default pull-request" data-id="@pr.id" href="@pr.url">#@pr.id</a>
                     }
-                    case None => {}
+                    case None => {
+                        <button type="button" class="btn btn-default create-pull-request btn-stretch"  title="Create pull request">...</button>
+                    }
                 }
                 </td>
                 <td>@branch.name</td>
                 @branch.entity match {
                     case Some(entity) => {
-                        <td>@entity.name</td>
+                        <td><a href="@entity.url" target="_blank">#@entity.id</a> @entity.name</td>
                         <td class="role-users" data-value="@entity.sortedAssignments.map(_.lastName).mkString(" ")" data-user-ids="|@entity.sortedAssignments.map(_.userId).mkString("|")|">
                         @for(assignment <- entity.sortedAssignments) {
                             <span data-role="@assignment.role" class="role @if(assignment.isResponsible) {role-active} else {role-inactive}"><img data-src="holder.js/100%x180" src="@{
