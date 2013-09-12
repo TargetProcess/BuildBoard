@@ -1,0 +1,19 @@
+@(pullRequest: Option[PullRequest])
+<td class="role-pull-request" data-value="@pullRequest.map(_.id).getOrElse(999999)">
+
+    <div class="btn-group btn-group-stretch">
+    @pullRequest match {
+        case Some(pr) => {
+            <a target="_blank" href="@pr.url" class="btn pull-request dropdown-toggle" data-id="@pr.id" data-toggle="dropdown">
+                #@pr.id
+                <span class="caret"></span>
+            </a>
+           @* <ul class="dropdown-menu">
+            </ul>*@
+        }
+        case None => {
+            <button type="button" class="btn btn-default role-create-pull-request btn-stretch" title="Create pull request">...</button>
+        }
+    }
+    </div>
+</td>

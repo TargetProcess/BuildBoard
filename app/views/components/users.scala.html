@@ -1,0 +1,11 @@
+@(assignments: List[Assignment])
+
+<td class="role-users" data-value="@assignments.map(_.lastName).mkString(" ")" data-user-ids="|@assignments.map(_.userId).mkString("|")|">
+@for(assignment <- assignments) {
+    <span data-role="@assignment.role" class="role @if(assignment.isResponsible) {role-active} else {role-inactive}"><img data-src="holder.js/100%x180" src="@{
+        assignment.avatar
+    }30"
+    title="@assignment.role: @assignment.fullName">
+    </span>
+}
+</td>

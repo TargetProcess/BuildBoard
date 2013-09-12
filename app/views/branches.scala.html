@@ -2,6 +2,8 @@
 
 
 @import components.entityState
+@import components.pullRequest
+@import components.users
 
     @buildStatus(branch: Branch) = @{
         branch.builds match {
@@ -29,29 +31,12 @@
         <tbody>
         @for(branch <- branches) {
             <tr class="role-branch @buildStatus(branch)" data-entity-id="@branch.entity.map(_.id)">
-                <td>
-                @branch.pullRequest match {
-                    case Some(pr) => {
-                        <a class="btn btn-stretch btn-default pull-request" data-id="@pr.id" href="@pr.url">#@pr.id</a>
-                    }
-                    case None => {
-                        <button type="button" class="btn btn-default role-create-pull-request btn-stretch"  title="Create pull request">...</button>
-                    }
-                }
-                </td>
+                @pullRequest(branch.pullRequest)
                 <td>@branch.name</td>
                 @branch.entity match {
                     case Some(entity) => {
                         <td><a href="@entity.url" target="_blank">#@entity.id</a> @entity.name</td>
-                        <td class="role-users" data-value="@entity.sortedAssignments.map(_.lastName).mkString(" ")" data-user-ids="|@entity.sortedAssignments.map(_.userId).mkString("|")|">
-                        @for(assignment <- entity.sortedAssignments) {
-                            <span data-role="@assignment.role" class="role @if(assignment.isResponsible) {role-active} else {role-inactive}"><img data-src="holder.js/100%x180" src="@{
-                                assignment.avatar
-                            }30"
-                            title="@assignment.role: @assignment.fullName">
-                            </span>
-                        }
-                        </td>
+                        @users(entity.sortedAssignments)
                         @entityState(entity.id, entity.state)
                     }
                     case None => {
