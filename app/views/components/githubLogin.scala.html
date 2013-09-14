@@ -6,10 +6,3 @@
     <button type="button" class="btn btn-default navbar-btn login-to-github">Login to GitHib</button>
 </li>
 }
-<script>
-    var $login = $('.login-to-github');
-    $login.click(function(){
-    window.open('https://github.com/login/oauth/authorize?client_id=@GitHubApplication.clientId&scope=repo&redirect_uri=@routes.Login.oauth().absoluteURL(false)',
-    '', 'popup');
-    });
-</script>

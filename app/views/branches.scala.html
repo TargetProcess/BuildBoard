@@ -32,10 +32,10 @@
         @for(branch <- branches) {
             <tr class="role-branch @buildStatus(branch)" data-entity-id="@branch.entity.map(_.id)">
                 @pullRequest(branch.pullRequest)
-                <td>@branch.name</td>
+            <td>@branch.name</td>
                 @branch.entity match {
                     case Some(entity) => {
-                        <td><a href="@entity.url" target="_blank">#@entity.id</a> @entity.name</td>
+                        <td><a href="@entity.url" target="_blank" class="ui-entity ui-entity-@entity.entityType.toLowerCase()">@entity.id</a> @entity.name</td>
                         @users(entity.sortedAssignments)
                         @entityState(entity.id, entity.state)
                     }
@@ -50,5 +50,5 @@
         </tbody>
     </table>
 </div><!-- /.container -->
-    <div class="role-create-pull-request-dialog"></div>
-<script src="@routes.Assets.at("/javascripts/branches.js")"></script>
+<div class="role-create-pull-request-dialog"></div>
+
