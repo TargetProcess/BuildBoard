@@ -1,6 +1,6 @@
 @(user: User)(implicit request: RequestHeader)
 
-    @import components._
+    @import components.githubLogin
 
     <div class="navbar navbar-default">
         <div class="navbar-header">
@@ -13,8 +13,8 @@
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav role-navigation">
-                <li><a href="@routes.Application.branches(all = true)">All branches</a></li>
-                <li><a href="@routes.Application.branches(all = false)">Entity branches</a></li>
+                <li><a class="navigation" href="#branches=all">All branches</a></li>
+                <li><a class="navigation" href="#branches=entity">Entity branches</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 @githubLogin(user)
@@ -23,13 +23,3 @@
             </ul>
         </div>
     </div>
-    <script>
-    $ ( '.role-navigation' ).find ( 'li' ).each ( function ( ) {
-        var $li = $ ( this ) ;
-        var href = $li.find ( 'a' ).attr ( 'href' ) ;
-    if ( href == '@{request.path}') {
-        $li.addClass ( 'active' ) ;
-       }
-    }
-    );
-    </script>
