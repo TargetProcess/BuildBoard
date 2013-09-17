@@ -15,13 +15,13 @@
 
 
     <ul class="nav nav-pills nav-stacked role-user-list">
-        <li class="active">
-            <a class="navigation" href="#user=all">All branches
-                <span class="badge pull-right">@branchList.length</span>
+        <li>
+            <a class="navigation" data-href="user=all">All branches
+                <span class="role-all-branches-count badge pull-right">@branchList.length</span>
             </a>
         </li>
         <li>
-            <a class="navigation" href="#user=@loggedUser.tpId">
+            <a class="navigation" data-href="user=@loggedUser.tpId">
                 My branches
                 <span class="badge pull-right">@branches(entityBranches, loggedUser.tpId).length</span>
             </a>
@@ -29,7 +29,7 @@
         <hr>
         @for((userId, fullName,avatar) <- allUsers(entityBranches) if userId != loggedUser.tpId) {
             <li>
-                <a class="navigation" href="#user=@userId"><img src="@{avatar}30"> @fullName
+                <a class="navigation" data-href="user=@userId"><img src="@{avatar}30"> @fullName
                     <span class="badge pull-right">@branches(entityBranches, userId).length</span>
                 </a>
             </li>

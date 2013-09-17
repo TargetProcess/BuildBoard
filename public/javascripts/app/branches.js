@@ -1,5 +1,6 @@
-require(['jquery', 'jqueryUI'], function($){
+require(['jquery'], function($){
     $(function () {
+        /*
         $('.role-create-pull-request-dialog').dialog({
             autoOpen: false,
             height: 300,
@@ -17,6 +18,7 @@ require(['jquery', 'jqueryUI'], function($){
             }
         });
 
+          */
 
         $('.pull-request').each(function () {
             var $a = $(this);
@@ -37,10 +39,6 @@ require(['jquery', 'jqueryUI'], function($){
             }
         });
 
-        $('.role-branch-list').on('click', '.role-create-pull-request', function () {
-            $(".role-create-pull-request-dialog").dialog("open");
-        });
-
         $('tr').on('click', '.role-change-state', function (e) {
             e.preventDefault();
             var $nextState = $(this);
@@ -54,23 +52,6 @@ require(['jquery', 'jqueryUI'], function($){
             jsRoutes.controllers.Targetprocess.changeEntityState(entityId, entityStateId).ajax().done(function (newState) {
                 $nextState.closest('td.role-state').replaceWith(newState.text);
             });
-        });
-
-        $('.role-user').on('click', function (e) {
-            e.preventDefault();
-            var $a = $(this);
-
-            $a.closest('.role-user-list').find('.role-user').parent().removeClass('active');
-            $a.parent().addClass('active');
-
-            var userId = $a.data('userId');
-            var $roleBranches = $('.role-branch');
-            if (!userId) {
-                $roleBranches.show();
-            } else {
-                $roleBranches.hide();
-                $('.role-branch:has(.role-users[data-user-ids*="|' + userId + '|"])').show();
-            }
         });
     });
 });
