@@ -4,10 +4,13 @@ import scalaj.http.Http
 import scalaj.http.HttpOptions
 import org.eclipse.egit.github.core.client.GitHubClient
 import org.eclipse.egit.github.core.service.UserService
+import play.api.Play.current
+import play.api.Play
+
 
 object GitHubApplication {
-  val clientId = "72b7f38d644d0a1330f7"
-  val clientSecret = "dec66c9b3f49f0b5eba70fd163de03d5d76ce220"
+  val clientId = Play.configuration.getString("github.oauth.client_id").get
+  val clientSecret = Play.configuration.getString("github.oauth.client_secret").get
     
    def login(code:String) = { 
         val req = Http.post("https://github.com/login/oauth/access_token")

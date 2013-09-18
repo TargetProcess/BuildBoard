@@ -20,3 +20,5 @@ bin/*
 .worksheet/
 app/worksheets/
 mongo/
+conf/dev.conf
+conf/prod.conf
