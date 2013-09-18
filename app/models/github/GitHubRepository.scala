@@ -36,7 +36,7 @@ class GitHubRepository(implicit user: User) {
       }
         .toList
 
-      val entities = new EntityRepo(user).getAssignables(entityIds)
+      val entities = new EntityRepo(user.token).getAssignables(entityIds)
         .map(e => (e.id, e))
         .toMap
 

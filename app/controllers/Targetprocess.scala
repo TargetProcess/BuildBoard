@@ -16,7 +16,7 @@ object Targetprocess extends Controller with Secured {
   def changeEntityState(entityId: Int, stateId: Int) = IsAuthorized {
     implicit user =>
       request =>
-        val repo = new EntityRepo(user)
+        val repo = new EntityRepo(user.token)
         implicit val writes = repo.entityStateWrite
         val newState = repo.changeEntityState(entityId, stateId)
 

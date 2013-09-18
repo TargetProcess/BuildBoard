@@ -20,7 +20,15 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.duration._
 import java.util.concurrent.TimeUnit._
 
-class EntityRepo(user: Login) {
+trait EntityRepository {
+  def changeEntityState(entityId: Int, stateId: Int): EntityState
+
+  def getAssignables(ids: List[Int]): List[Entity]
+
+  def getLoggedUser: (TpUser, String)
+}
+
+class EntityRepo(token: String) extends EntityRepository {
   val stateSelector = "EntityState[Id,IsFinal,Role,Name,NextStates]"
 
   private implicit var entityStateReads: Reads[EntityState] = null
@@ -59,9 +67,17 @@ class EntityRepo(user: Login) {
         (__ \ "Items").read(list[Assignment])))(Entity)
 
 
-  def sendRequest(request: Request) = {
+  implicit val loggedUser = (
+
+    (__ \ "Id").read[Int] ~
+      (__ \ "Email").read[String] ~
+      (__ \ "FirstName").read[String] ~
+      (__ \ "LastName").read[String]
+
+    )((id, login, firstName, lastName) => TpUser(id, login, firstName + " " + lastName))
+
+  private def sendRequest(request: Request) = {
     val toSend = request
-      .auth(user.username, user.password)
       .option(HttpOptions.connTimeout(1000))
       .option(HttpOptions.readTimeout(5000))
       .asString
@@ -70,7 +86,7 @@ class EntityRepo(user: Login) {
   }
 
   private def post(root: String, include: String, data: JsValue, id: Option[Int] = None) = {
-    val uri = apiUri(root) + "/" + id.map(_.toString).getOrElse("") + "?format=json&include=" + include
+    val uri = apiUri(root) + "/" + id.map(_.toString).getOrElse("") + s"?format=json&token=$token&include=$include"
     val request = Http.postData(uri, Json.stringify(data))
       .header("content-type", "application/json")
 
@@ -78,10 +94,18 @@ class EntityRepo(user: Login) {
   }
 
   private def get(root: String, include: String, where: String = "", id: Option[Int] = None) = {
-    val uri = apiUri(root) + "/" + id.map(_.toString).getOrElse("") + s"?format=json&include=$include&where=$where"
+    val uri = apiUri(root) + "/" + id.map(_.toString).getOrElse("") + s"?token=$token&format=json&include=$include&where=$where"
     val request = Http(uri)
 
     sendRequest(request)
+  }
+
+  private def split(ints: List[Int], count: Int): List[List[Int]] = ints match {
+    case Nil => Nil
+    case l => {
+      val (head, tail) = (ints.take(count), ints.drop(count))
+      head :: split(tail, count)
+    }
   }
 
   def changeEntityState(entityId: Int, stateId: Int) = {
@@ -100,15 +124,7 @@ class EntityRepo(user: Login) {
     value.get
   }
 
-  def split(ints: List[Int], count: Int): List[List[Int]] = ints match {
-    case Nil => Nil
-    case l => {
-      val (head, tail) = (ints.take(count), ints.drop(count))
-      head :: split(tail, count)
-    }
-  }
-
-  def getAssignables(ids: List[Int])(implicit user: Login): List[Entity] = {
+  def getAssignables(ids: List[Int]): List[Entity] = {
     val include = s"[Id,Name,Assignments[GeneralUser[Id,AvatarUri,FirstName,LastName],Role[Name]],EntityType[Name],$stateSelector]"
 
     val idGroups: List[List[Int]] = split(ids, 20)
@@ -120,8 +136,11 @@ class EntityRepo(user: Login) {
     }
 
   }
-}
 
-object EntityRepo {
+  def getLoggedUser: (TpUser, String) = {
+    val json = get("Context", "")
 
+    val value = json.validate((__ \ "LoggedUser").read[TpUser])
+    (value.get, token)
+  }
 }

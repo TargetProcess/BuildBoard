@@ -8,21 +8,19 @@ import TargetprocessApplication._
 trait TpUserRepo {
 
   def authenticate(username: String, password: String) = Try {
-    val response = Http(apiUri("Context") + "?format=json")
+    val response = Http(apiUri("Authentication") + "?format=json")
       .auth(username, password)
       .option(HttpOptions.connTimeout(1000))
       .option(HttpOptions.readTimeout(5000))
       .asString
 
-    val json = Json.parse(response);
+    val json = Json.parse(response)
 
-    val user =TpUser(
-        (json \ "LoggedUser" \ "Id").as[Int], 
-        username,
-        (json \ "LoggedUser" \ "FirstName").as[String] + " " + (json \ "LoggedUser" \ "LastName").as[String] 
-        
-    )
 
+    val token = (json \ "Token").as[String]
+
+
+    val user = new EntityRepo(token).getLoggedUser
     user
   }
 }

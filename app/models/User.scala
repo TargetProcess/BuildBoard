@@ -10,10 +10,9 @@ import models.tp.{ TpUser, TpUserRepo }
 
 trait Login {
   val username: String
-  val password: String
+  val token: String
 }
 
-case class UserCredentials(username: String, password: String) extends Login
 
 case class User(
   id: ObjectId = new ObjectId,
@@ -21,23 +20,23 @@ case class User(
   tpId: Int,
 
   username: String,
-  password: String,
+  token: String,
 
   githubLogin: String = null,
   githubToken: String = null,
   fullName: String = null) extends Login
 
 object User extends UserDAO with TpUserRepo {
-  def saveLogged(tpUser: TpUser, login: UserCredentials) = {
+  def saveLogged(tpUser: TpUser, token: String) = {
 
     val userFromDb = User.findOneById(tpUser.id)
     val newUser =
       userFromDb match {
         case None => {
-          User(tpId = tpUser.id, username = login.username, password = login.password, fullName = tpUser.fullName)
+          User(tpId = tpUser.id, username = tpUser.login, token = token, fullName = tpUser.fullName)
         }
         case Some(user) => {
-          user.copy(username = login.username, password = login.password, fullName = tpUser.fullName)
+          user.copy(username = tpUser.login, token = token, fullName = tpUser.fullName)
         }
       }
     User.save(newUser)

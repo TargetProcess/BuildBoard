@@ -8,7 +8,11 @@ import views._
 import scala.util._
 import models.github._
 
+case class UserCredentials(username:String, password:String)
+
 object Login extends Controller with Secured {
+
+
 
   val loginForm = Form[UserCredentials](
     mapping(
@@ -30,11 +34,11 @@ object Login extends Controller with Secured {
         formWithErrors => BadRequest(html.login(formWithErrors)),
         login =>
           User.authenticate(login.username, login.password) match {
-            case Success(tpUser) => {
+            case Success((tpUser,token)) => {
 
-              User.saveLogged(tpUser, login)
+              User.saveLogged(tpUser,token)
 
-              Redirect(routes.Application.index).withSession("login" -> login.username)
+              Redirect(routes.Application.index).withSession("login" -> tpUser.login)
             }
             case Failure(e) => Ok(views.html.login(loginForm, Some(e.toString)))
           })
