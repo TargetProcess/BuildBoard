@@ -1,4 +1,4 @@
-require(['jquery', 'underscore',     'libs/jquery.ba-hashchange.min'], function ($, _) {
+define(['jquery', 'underscore', 'libs/jquery.ba-hashchange.min'], function ($, _) {
     var parseHash = function (hash, defaults) {
 
         var match,
@@ -64,4 +64,7 @@ require(['jquery', 'underscore',     'libs/jquery.ba-hashchange.min'], function 
 
         return this;
     };
+
+    return $;
+
 });

@@ -5,7 +5,6 @@ require([
 
     'libs/bootstrap-sortable',
 
-    'app/jquery/jquery.navigation',
 
     'app/navigation',
     'app/branches',
@@ -16,13 +15,10 @@ require([
 
              bootstrap_sortable,
 
-             jquery_navigation,
 
              navigation) {
-    $(function () {
         navigation.start({
             user: 'all',
             branches: 'all'
         });
-    });
 });

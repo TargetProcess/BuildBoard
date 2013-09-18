@@ -8,9 +8,6 @@ requirejs.config({
     shim:{
         'underscore': {
             exports: '_'
-        },
-        'jquery': {
-            exports: '$'
         }
     }
 });

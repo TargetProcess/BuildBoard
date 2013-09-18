@@ -1,8 +1,9 @@
-define(['jquery', 'underscore'], function ($, _) {
+define(['jquery', 'underscore', 'app/jquery/jquery.navigation'], function ($, _, jn) {
     return {
 
 
         start: function (defaults) {
+            console.log(jn)
             $('a.navigation').navigation({
                 defaults: defaults,
                 activeClass: 'active',
