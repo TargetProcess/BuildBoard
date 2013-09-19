@@ -1,7 +1,8 @@
 @(user: User)(implicit request: RequestHeader)
+@import models.github.GitHubApplication
 
 @if(user.githubToken == null) {
     <li>
-        <button type="button" class="btn btn-default navbar-btn role-github-login">Login to GitHib</button>
+        <a href="https://github.com/login/oauth/authorize?client_id=@GitHubApplication.clientId&scope=repo&redirect_uri=@GitHubApplication.redirectUri" class="btn btn-default navbar-btn role-github-login">Login to GitHib</a>
     </li>
 }

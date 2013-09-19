@@ -11,7 +11,8 @@ import play.api.Play
 object GitHubApplication {
   val clientId = Play.configuration.getString("github.oauth.client_id").get
   val clientSecret = Play.configuration.getString("github.oauth.client_secret").get
-    
+  val redirectUri = Play.configuration.getString("github.oauth.redirect_url").get
+
    def login(code:String) = { 
         val req = Http.post("https://github.com/login/oauth/access_token")
           .params(
