@@ -5,7 +5,6 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import models._
 import models.tp.EntityRepo
-import views.html.index
 
 
 object Targetprocess extends Controller with Secured {
@@ -17,7 +16,7 @@ object Targetprocess extends Controller with Secured {
     implicit user =>
       request =>
         val repo = new EntityRepo(user.token)
-        implicit val writes = repo.entityStateWrite
+        implicit val writes = EntityRepo.entityStateWrite
         val newState = repo.changeEntityState(entityId, stateId)
 
         val text = views.html.components.entityState(entityId, newState).body

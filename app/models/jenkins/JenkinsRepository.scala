@@ -2,7 +2,7 @@ package models.jenkins
 
 import collection.JavaConversions._
 import scala.collection.mutable.Map
-import models.{BuildResult, Build, PullRequestBuild}
+import models.{BuildResult, Build}
 import scala.collection.mutable
 import scalaj.http.{HttpOptions, Http}
 import play.api.libs.json._
@@ -32,10 +32,7 @@ object JenkinsRepository {
   private implicit val buildReads: Reads[Build] = (
       (__ \ "number").read[Int] ~
       (__ \ "timestamp").read[Long].map(new DateTime(_)) ~
-      (__ \ "result").readNullable[String].map(r => r match {
-          case Some(result: String) => BuildResult withName result
-          case None => BuildResult.UNKNOWN
-        }) ~
+      (__ \ "result").read[String] ~
       (__ \ "url").read[String] ~
       (__ \ "actions").read(list[Action]).map( (x: List[Action]) => {
         x.map((a: Action) => a.parameters.map(params => params.filter(p => p.name == "ghprbPullId")))
@@ -43,7 +40,7 @@ object JenkinsRepository {
           .flatMap(a => a).head.value
       })
     )((number, timestamp, buildResult, url, pullRequestId) => {
-    PullRequestBuild(pullRequestId, buildResult, url, timestamp, number)
+    Build(pullRequestId, buildResult, url, timestamp, number)
   })
 
   def getBuilds = Try {

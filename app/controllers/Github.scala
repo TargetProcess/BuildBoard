@@ -14,7 +14,7 @@ object Github extends Controller with Secured {
   def pullRequestStatus(id: Int) = IsAuthorized {
     implicit user =>
       request =>
-        val status = new GitHubRepository().getPullRequestStatus(id)
+        val status: PullRequestStatus = new GitHubRepository().getPullRequestStatus(id)
         Ok(Json.toJson(status))
   }
 }

@@ -1,9 +1,10 @@
-@(branchList: List[models.Branch], user:User)(implicit request:RequestHeader)
+@(s:String)(implicit request:RequestHeader)
 
-@sidebar = {
-    @components.userList(branchList, user)
-}
+@main("Build board") {
+    <div ng-controller="BranchesController">
+        <div ng-repeat="branch in branches">
+            {{branch.name}}
+        </div>
 
-@main("Build board", user, sidebar = sidebar) {
-    @branches(branchList)
+    </div>
 }

@@ -46,7 +46,7 @@ class GitHubRepository(implicit user: User) {
         val name = githubBranch.getName
 
         val pullRequest = ghPullRequests.get(name)
-          .map(pr => PullRequest(pr))
+          .map(pr => PullRequest.create(pr))
 
 
         val entity = name match {
@@ -57,7 +57,7 @@ class GitHubRepository(implicit user: User) {
         val pullRequestId = pullRequest.map(x => x.id)
 
         val branchBuilds = builds.filter(b => b match {
-          case PullRequestBuild(prId: String, _, _, _, _) => prId == name || (pullRequestId.isDefined && prId == pullRequestId)
+          case Build(prId: String, _, _, _, _) => prId == name || (pullRequestId.isDefined && prId == pullRequestId)
           case _ => false
         })
 

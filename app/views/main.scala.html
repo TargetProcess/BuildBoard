@@ -1,50 +1,19 @@
-@(title: String, user: User, scripts: Html = Html(""), styles: Html = Html(""), hasNavBar: Boolean = true, sidebar: Html = Html(""))(content: Html)(implicit request: RequestHeader)
+@(title:String)(content: Html)(implicit request: RequestHeader)
 <!DOCTYPE html>
-@import models.github.GitHubApplication
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>@title</title>
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
-        <link rel="stylesheet" href='@routes.Assets.at("stylesheets/bootstrap-sortable.css")'>
         <link rel="stylesheet" href='@routes.Assets.at("stylesheets/main.css")'>
-        @styles
         @helper.javascriptRouter("jsRoutes")(
-            routes.javascript.Github.pullRequestStatus,
-            routes.javascript.Targetprocess.changeEntityState
+            routes.javascript.Application.branches
         )
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script>
+        <script src="@routes.Assets.at("javascripts/libs/ui-bootstrap-tpls-0.6.0.js")"></script>
+        <script src="@routes.Assets.at("javascripts/app/app.js")"></script>
     </head>
-    <body>
-        @if(hasNavBar) {
-            <div class="container">
-            @navigationBar(user)
-            </div>
-        }
-
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-2">@sidebar</div>
-                <div class="col-lg-10">@content</div>
-            </div>
-        </div>
-
-        <script>
-            window.requireBaseUrl = '@routes.Assets.at("javascripts")';
-        </script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.8/require.min.js"></script>
-        <script>
-            define('app/globals',[], function(){
-                return {
-                    github:{
-                        clientId:'@GitHubApplication.clientId'
-                    },
-                    login:{
-                        oauthRedirect:'@routes.Login.oauth().absoluteURL(false)'
-                    }
-                }
-            });
-        </script>
-        <script src="@routes.Assets.at("javascripts/app.js")"></script>
+    <body ng-app="BuildBoard">
+        @content
     </body>
 </html>

@@ -3,9 +3,8 @@
 # ~~~~
 
 # Home page
-GET         /                                controllers.Application.branches(all:Boolean = true)
 GET         /                                controllers.Application.index
-GET         /entityBranches                  controllers.Application.branches(all:Boolean = false)
+GET         /entityBranches                  controllers.Application.branches
 
 GET         /login                           controllers.Login.index
 GET         /login/oauth                     controllers.Login.oauth(code ?= "")

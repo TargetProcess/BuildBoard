@@ -28,10 +28,8 @@ trait EntityRepository {
   def getLoggedUser: (TpUser, String)
 }
 
-class EntityRepo(token: String) extends EntityRepository {
-  val stateSelector = "EntityState[Id,IsFinal,Role,Name,NextStates]"
-
-  private implicit var entityStateReads: Reads[EntityState] = null
+object EntityRepo {
+  implicit var entityStateReads: Reads[EntityState] = null
   entityStateReads = (
     (__ \ "Id").read[Int] ~
       (__ \ "Name").read[String] ~
@@ -75,6 +73,13 @@ class EntityRepo(token: String) extends EntityRepository {
       (__ \ "LastName").read[String]
 
     )((id, login, firstName, lastName) => TpUser(id, login, firstName + " " + lastName))
+
+}
+
+class EntityRepo(token: String) extends EntityRepository {
+  import EntityRepo._
+  val stateSelector = "EntityState[Id,IsFinal,Role,Name,NextStates]"
+
 
   private def sendRequest(request: Request) = {
     val toSend = request
