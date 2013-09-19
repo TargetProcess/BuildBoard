@@ -1,15 +1,35 @@
-@(user:User)(implicit request:RequestHeader)
+@(user: User)(implicit request: RequestHeader)
 
-@sidebar = {
-    <div>Sidebar</div>
-}
+    @sidebar = {
+        <div>Sidebar</div>
+    }
 
-@main("Build board", Some(user), sidebar=sidebar) {
+@main("Build board", Some(user), sidebar = sidebar) {
 
 
-    <div ng-controller="BranchesController">
-        <div ng-repeat="branch in branches">
-            {{branch.name}}
-        </div>
-    </div>
+    <table ng-controller="BranchesController" class="table table-condensed">
+        <thead>
+            <tr>
+                <th>PR</th>
+                <th>Branch</th>
+                <th>Name</th>
+                <th>Users</th>
+                <th data-defaultsort="asc">State</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="branch in branches">
+                <td>
+                    <div ng-controller="PullRequestController" ng-show="branch.pullRequest" class="btn-group btn-group-stretch">
+                        <a target="_blank" href="{{branch.pullRequest.url}}" class="btn btn-default {{getClass(pullRequestStatus)}}" >
+                            #{{branch.pullRequest.id}}</a>
+                    </div>
+                </td>
+                <td>{{branch.name}}</td>
+                <td>
+                    <div ng-show="branch.entity">{{branch.entity}}</div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 }
