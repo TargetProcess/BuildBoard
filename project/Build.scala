@@ -16,7 +16,7 @@ object ApplicationBuild extends Build {
   val main = play.Project(appName, appVersion, appDependencies).settings(
     libraryDependencies ++= Seq(
       "org.eclipse.mylyn.github" % "org.eclipse.egit.github.core" % "2.1.5",
-      "org.scalaj" %% "scalaj-http" % "0.3.9"),
+      "org.scalaj" %% "scalaj-http" % "0.3.9" exclude("junit", "junit")),
     routesImport += "se.radley.plugin.salat.Binders._",
     templatesImport += "org.bson.types.ObjectId")
 
