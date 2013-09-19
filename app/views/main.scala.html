@@ -1,10 +1,16 @@
-@(title:String)(content: Html)(implicit request: RequestHeader)
+@(title: String, user: Option[User], styles: Html = Html(""), sidebar: Html = Html(""))(content: Html)(implicit request: RequestHeader)
+
+@import components.navigationBar
+
 <!DOCTYPE html>
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
         <link rel="stylesheet" href='@routes.Assets.at("stylesheets/main.css")'>
+
+        @styles
+
         @helper.javascriptRouter("jsRoutes")(
             routes.javascript.Application.branches
         )
@@ -14,6 +20,16 @@
         <script src="@routes.Assets.at("javascripts/app/app.js")"></script>
     </head>
     <body ng-app="BuildBoard">
-        @content
+
+        @user.map { u =>
+            <div class="container">@navigationBar(u)</div>
+        }
+
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-2">@sidebar</div>
+                <div class="col-lg-10">@content</div>
+            </div>
+        </div>
     </body>
 </html>

@@ -11,7 +11,7 @@ object Targetprocess extends Controller with Secured {
   implicit val statusWrites = (
     (__ \ "isMergeable").write[Boolean] ~
       (__ \ "isMerged").write[Boolean])(unlift(PullRequestStatus.unapply))
-
+   /*
   def changeEntityState(entityId: Int, stateId: Int) = IsAuthorized {
     implicit user =>
       request =>
@@ -22,4 +22,5 @@ object Targetprocess extends Controller with Secured {
         val text = views.html.components.entityState(entityId, newState).body
         Ok(Json.obj("text" -> text, "newState" -> newState))
   }
+  */
 }

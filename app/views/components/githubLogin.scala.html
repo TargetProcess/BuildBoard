@@ -1,8 +1,7 @@
-@(user:User)(implicit request:RequestHeader)
+@(user: User)(implicit request: RequestHeader)
 
-
-@if(user.githubToken == null){
-<li>
-    <button type="button" class="btn btn-default navbar-btn login-to-github">Login to GitHib</button>
-</li>
+@if(user.githubToken == null) {
+    <li>
+        <button type="button" class="btn btn-default navbar-btn role-github-login">Login to GitHib</button>
+    </li>
 }

@@ -1,10 +1,15 @@
-@(s:String)(implicit request:RequestHeader)
+@(user:User)(implicit request:RequestHeader)
 
-@main("Build board") {
+@sidebar = {
+    <div>Sidebar</div>
+}
+
+@main("Build board", Some(user), sidebar=sidebar) {
+
+
     <div ng-controller="BranchesController">
         <div ng-repeat="branch in branches">
             {{branch.name}}
         </div>
-
     </div>
 }

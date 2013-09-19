@@ -24,7 +24,7 @@ object Application extends Controller with Secured {
   def index = {
     IsAuthorized {
       implicit user =>
-        implicit request => Ok(views.html.index(""))
+        implicit request => Ok(views.html.index(user))
     }
 
   }

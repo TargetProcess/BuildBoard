@@ -6,7 +6,7 @@
         <link rel="stylesheet" href='@routes.Assets.at("stylesheets/login.css")'>
     }
 
-@main("") {
+@main("Login to Build Board", user=None) {
     @helper.form(action = routes.Login.submit, 'class -> "form-signin") {
         <h2 class="form-signin-heading">Please sign in</h2>
         @helper.inputText(myForm("login"), 'class -> "form-control", 'autofocus -> true, '_label -> "Login")
