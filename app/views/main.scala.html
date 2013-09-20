@@ -12,7 +12,8 @@
         @styles
 
         @helper.javascriptRouter("jsRoutes")(
-            routes.javascript.Application.branches
+            routes.javascript.Application.branches,
+            routes.javascript.Github.pullRequestStatus
         )
 
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script>

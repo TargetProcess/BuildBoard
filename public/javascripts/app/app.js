@@ -11,7 +11,9 @@ var BranchesController = function ($scope, $http, $window) {
 
 var PullRequestController = function ($scope, $http, $window) {
     $scope.getClass = function (prStatus) {
-        if (prStatus.isMerged) {
+        if (!prStatus){
+          return '';
+        } else if (prStatus.isMerged) {
             return 'btn-primary';
         } else if (prStatus.isMergeable) {
             return 'btn-success';
