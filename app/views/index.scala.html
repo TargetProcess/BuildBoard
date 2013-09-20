@@ -19,6 +19,7 @@
         </thead>
         <tbody>
             <tr ng-repeat="branch in branches">
+                {{branch}}
                 <td>
                     <div ng-controller="PullRequestController" ng-show="branch.pullRequest" class="btn-group btn-group-stretch">
                         <a target="_blank" href="{{branch.pullRequest.url}}" class="btn btn-default {{getClass(pullRequestStatus)}}" >
@@ -27,7 +28,29 @@
                 </td>
                 <td>{{branch.name}}</td>
                 <td>
-                    <div ng-show="branch.entity">{{branch.entity}}</div>
+                    <div ng-show="branch.entity">
+                        <a href="{{branch.entity.url}}" target="_blank" class="ui-entity ui-entity-{{branch.entity.entityType.toLowerCase()}}">
+                            #{{branch.entity.id}}</a> {{branch.entity.name}}
+                    </div>
+                </td>
+                <td>
+                    <div ng-show="branch.entity">
+                        <span ng-repeat="assignment in branch.entity.assignmentsOpt" class="ui-role ui-role-active-{{assignment.isResponsible}}">
+                            <img data-src="holder.js/100%x180" src="{{assignment.avatar}}30" title="{{assignment.role}}: {{assignment.firstName}} {{assignment.lastName}}">
+                        </span>
+                    </div>
+                </td>
+                <td>
+                    <div ng-show="branch.entity">
+                        <span ng-repeat="assignment in branch.entity.assignmentsOpt" class="ui-role ui-role-active-{{assignment.isResponsible}}">
+                            <img data-src="holder.js/100%x180" src="{{assignment.avatar}}30" title="{{assignment.role}}: {{assignment.firstName}} {{assignment.lastName}}">
+                        </span>
+                    </div>
+                </td>
+                <td>
+                    <div ng-show="branch.entity">
+
+                    </div>
                 </td>
             </tr>
         </tbody>
