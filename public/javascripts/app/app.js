@@ -2,10 +2,10 @@ angular.module('BuildBoard', ['ui.bootstrap']);
 
 var BranchesController = function ($scope, $http, $window) {
 
+    $scope.predicate = 'state';
     $http.get($window.jsRoutes.controllers.Application.branches().absoluteURL()).success(function (data) {
         $scope.branches = data;
     });
-
 };
 
 

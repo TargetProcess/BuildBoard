@@ -1,24 +1,50 @@
 @(user: User)(implicit request: RequestHeader)
 
     @sidebar = {
-        <div>Sidebar</div>
+        <ul ng-controller="BranchesController" class="nav nav-pills nav-stacked role-user-list">
+            <li>
+                <a class="navigation" data-href="user=all">All branches
+                    <span class="badge pull-right">{{branches.length}}</span>
+                </a>
+            </li>
+            <li>
+                <a class="navigation" data-href="user=loggedUser.tpId">
+                    My branches
+                    <span class="badge pull-right">{{}}branches(entityBranches, loggedUser.tpId).length</span>
+                </a>
+            </li>
+            <hr>
+
+            @*for((userId, fullName,avatar) <- allUsers(entityBranches) if userId != loggedUser.tpId) {
+                <li>
+                    <a class="navigation" data-href="user=@userId"><img src="@{avatar}30"> @fullName
+                        <span class="badge pull-right">@branches(entityBranches, userId).length</span>
+                    </a>
+                </li>
+            } *@
+        </ul>
     }
 
 @main("Build board", Some(user), sidebar = sidebar) {
-
-
-    <table ng-controller="BranchesController" class="table table-condensed">
+<div ng-controller="BranchesController">
+    <table  class="table table-condensed">
         <thead>
-            <tr>
-                <th>PR</th>
-                <th>Branch</th>
-                <th>Name</th>
+            <tr class="header">
+                <th ng-click="predicate='pullRequest.id'; reverse=!reverse" ng-class="{sort:predicate == 'pullRequest.id', reverse:reverse}">
+                    PR
+                </th>
+                <th ng-click="predicate='name'; reverse=!reverse"  ng-class="{sort:predicate == 'name', reverse:reverse}">
+                    Branch
+                </th>
+                <th ng-click="predicate='entity.id'; reverse=!reverse"  ng-class="{sort:predicate == 'entity.id', reverse:reverse}">
+                    Name
+                </th>
                 <th>Users</th>
-                <th data-defaultsort="asc">State</th>
+                <th>State</th>
             </tr>
         </thead>
         <tbody>
-            <tr ng-repeat="branch in branches">
+            <tr ng-repeat="branch in branches | orderBy:predicate:reverse">
                 {{branch}}
                 <td>
                     <div ng-controller="PullRequestController" ng-show="branch.pullRequest" class="btn-group btn-group-stretch">
@@ -42,17 +68,12 @@
                 </td>
                 <td>
                     <div ng-show="branch.entity">
-                        <span ng-repeat="assignment in branch.entity.assignmentsOpt" class="ui-role ui-role-active-{{assignment.isResponsible}}">
-                            <img data-src="holder.js/100%x180" src="{{assignment.avatar}}30" title="{{assignment.role}}: {{assignment.firstName}} {{assignment.lastName}}">
-                        </span>
                     </div>
                 </td>
                 <td>
-                    <div ng-show="branch.entity">
-
-                    </div>
                 </td>
             </tr>
         </tbody>
     </table>
+</div>
 }
