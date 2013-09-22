@@ -1,27 +1,26 @@
 @(user: User)(implicit request: RequestHeader)
 
     @sidebar = {
-        <ul ng-controller="BranchesController" class="nav nav-pills nav-stacked role-user-list">
+        <ul ng-controller="BranchesController" class="nav nav-pills nav-stacked">
             <li>
-                <a class="navigation" data-href="user=all">All branches
+                <a>All branches
                     <span class="badge pull-right">{{branches.length}}</span>
                 </a>
             </li>
             <li>
                 <a class="navigation" data-href="user=loggedUser.tpId">
                     My branches
-                    <span class="badge pull-right">{{}}branches(entityBranches, loggedUser.tpId).length</span>
+                    <span class="badge pull-right">{{branchCount(@user.tpId)}}</span>
                 </a>
             </li>
             <hr>
 
-            @*for((userId, fullName,avatar) <- allUsers(entityBranches) if userId != loggedUser.tpId) {
-            <li>
-            <a class="navigation" data-href="user=@userId"><img src="@{avatar}30"> @fullName
-            <span class="badge pull-right">@branches(entityBranches, userId).length</span>
-            </a>
+            @*for((userId, fullName,avatar) <- allUsers(entityBranches) if userId != loggedUser.tpId) {*@
+            <li ng-repeat="user in users | orderBy:'firstName+lastName'">
+                <a><img src="{{user.avatar}}30"> {{user.firstName}} {{user.lastName}}
+                    <span class="badge pull-right">{{branchCount(user.userId)}}</span>
+                </a>
             </li>
-            } *@
         </ul>
     }
 
