@@ -16,64 +16,67 @@
             <hr>
 
             @*for((userId, fullName,avatar) <- allUsers(entityBranches) if userId != loggedUser.tpId) {
-                <li>
-                    <a class="navigation" data-href="user=@userId"><img src="@{avatar}30"> @fullName
-                        <span class="badge pull-right">@branches(entityBranches, userId).length</span>
-                    </a>
-                </li>
+            <li>
+            <a class="navigation" data-href="user=@userId"><img src="@{avatar}30"> @fullName
+            <span class="badge pull-right">@branches(entityBranches, userId).length</span>
+            </a>
+            </li>
             } *@
         </ul>
     }
 
 @main("Build board", Some(user), sidebar = sidebar) {
-<div ng-controller="BranchesController">
-    <table  class="table table-condensed">
-        <thead>
-            <tr class="header">
-                <th ng-click="predicate='pullRequest.id'; reverse=!reverse" ng-class="{sort:predicate == 'pullRequest.id', reverse:reverse}">
-                    PR
-                </th>
-                <th ng-click="predicate='name'; reverse=!reverse"  ng-class="{sort:predicate == 'name', reverse:reverse}">
-                    Branch
-                </th>
-                <th ng-click="predicate='entity.id'; reverse=!reverse"  ng-class="{sort:predicate == 'entity.id', reverse:reverse}">
-                    Name
-                </th>
-                <th>Users</th>
-                <th>State</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr ng-repeat="branch in branches | orderBy:predicate:reverse">
-                {{branch}}
-                <td>
-                    <div ng-controller="PullRequestController" ng-show="branch.pullRequest" class="btn-group btn-group-stretch">
-                        <a target="_blank" href="{{branch.pullRequest.url}}" class="btn btn-default {{getClass(pullRequestStatus)}}" >
-                            #{{branch.pullRequest.id}}</a>
-                    </div>
-                </td>
-                <td>{{branch.name}}</td>
-                <td>
-                    <div ng-show="branch.entity">
-                        <a href="{{branch.entity.url}}" target="_blank" class="ui-entity ui-entity-{{branch.entity.entityType.toLowerCase()}}">
-                            #{{branch.entity.id}}</a> {{branch.entity.name}}
-                    </div>
-                </td>
-                <td>
-                    <div ng-show="branch.entity">
-                        <span ng-repeat="assignment in branch.entity.assignmentsOpt" class="ui-role ui-role-active-{{assignment.isResponsible}}">
-                            <img data-src="holder.js/100%x180" src="{{assignment.avatar}}30" title="{{assignment.role}}: {{assignment.firstName}} {{assignment.lastName}}">
-                        </span>
-                    </div>
-                </td>
-                <td>
-                    <div ng-show="branch.entity">
-                    </div>
-                </td>
-                <td>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+    <div ng-controller="BranchesController">
+        <table class="table sortable table-condensed">
+            <thead>
+                <tr class="header">
+                    <th ng-click="predicate='pullRequest.id'; reverse=!reverse">
+                        PR
+                        <span ng-class="{arrow:predicate == 'pullRequest.id', up:reverse}"></span>
+                    </th>
+                    <th ng-click="predicate='name'; reverse=!reverse" ng-class="{sort:predicate == 'name', reverse:reverse}">
+                        Branch
+                        <span ng-class="{arrow:predicate == 'name', up:reverse}"></span>
+                    </th>
+                    <th ng-click="predicate='entity.id'; reverse=!reverse" ng-class="{sort:predicate == 'entity.id', reverse:reverse}">
+                        Name
+                        <span ng-class="{arrow:predicate == 'entity.id', up:reverse}"></span>
+                    </th>
+                    <th>Users</th>
+                    <th>State</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="branch in branches | orderBy:predicate:reverse">
+                    {{branch}}
+                    <td>
+                        <div ng-controller="PullRequestController" ng-show="branch.pullRequest" class="btn-group btn-group-stretch">
+                            <a target="_blank" href="{{branch.pullRequest.url}}" class="btn btn-default {{getClass(pullRequestStatus)}}" >
+                                #{{branch.pullRequest.id}}</a>
+                        </div>
+                    </td>
+                    <td>{{branch.name}}</td>
+                    <td>
+                        <div ng-show="branch.entity">
+                            <a href="{{branch.entity.url}}" target="_blank" class="ui-entity ui-entity-{{branch.entity.entityType.toLowerCase()}}">
+                                #{{branch.entity.id}}</a> {{branch.entity.name}}
+                        </div>
+                    </td>
+                    <td>
+                        <div ng-show="branch.entity">
+                            <span ng-repeat="assignment in branch.entity.assignmentsOpt" class="ui-role ui-role-active-{{assignment.isResponsible}}">
+                                <img data-src="holder.js/100%x180" src="{{assignment.avatar}}30" title="{{assignment.role}}: {{assignment.firstName}} {{assignment.lastName}}">
+                            </span>
+                        </div>
+                    </td>
+                    <td>
+                        <div ng-show="branch.entity">
+                        </div>
+                    </td>
+                    <td>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 }
