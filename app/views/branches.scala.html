@@ -7,7 +7,7 @@
 
     @buildStatus(branch: Branch) = @{
         branch.builds match {
-            case head :: tail =>
+            case head :: _ =>
                 head.result match {
                     case BuildResult.SUCCESS => "success"
                     case BuildResult.FAILURE => "danger"
@@ -23,6 +23,7 @@
             <tr>
                 <th>PR</th>
                 <th>Branch</th>
+                <th>Jenkins</th>
                 <th>Name</th>
                 <th>Users</th>
                 <th data-defaultsort="asc">State</th>
@@ -32,7 +33,11 @@
         @for(branch <- branches) {
             <tr class="role-branch @buildStatus(branch)" data-entity-id="@branch.entity.map(_.id)">
                 @pullRequest(branch.pullRequest)
-            <td>@branch.name</td>
+            <td><a href="https://github.com/TargetProcess/TP/tree/@branch.name" target="_blank">@branch.name</a></td>
+            <td>@branch.builds.headOption.map{ build =>
+                <a class="btn btn-@buildStatus(branch)" href="http://srv5/Home/Branch?id=@branch.name">@build.number</a>
+            }
+            </td>
                 @branch.entity match {
                     case Some(entity) => {
                         <td><a href="@entity.url" target="_blank" class="ui-entity ui-entity-@entity.entityType.toLowerCase()">@entity.id</a> @entity.name</td>
