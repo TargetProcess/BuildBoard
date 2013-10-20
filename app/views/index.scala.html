@@ -1,6 +1,8 @@
 @(user: User)(implicit request: RequestHeader)
-
     @sidebar = {
+        <script>
+            window.currentUser = {id:@user.tpId};
+        </script>
         <ul ng-controller="BranchesController" class="nav nav-pills nav-stacked">
             <li>
                 <a>All branches
@@ -10,14 +12,12 @@
             <li>
                 <a class="navigation" data-href="user=loggedUser.tpId">
                     My branches
-                    <span class="badge pull-right">{{branchCount(@user.tpId)}}</span>
+                    <span class="badge pull-right">{{branchCount()}}</span>
                 </a>
             </li>
             <hr>
-
-            @*for((userId, fullName,avatar) <- allUsers(entityBranches) if userId != loggedUser.tpId) {*@
             <li ng-repeat="user in users | orderBy:'firstName+lastName'">
-                <a><img src="{{user.avatar}}30"> {{user.firstName}} {{user.lastName}}
+                <a><img ng-src="{{user.avatar}}30"> {{user.firstName}} {{user.lastName}}
                     <span class="badge pull-right">{{branchCount(user.userId)}}</span>
                 </a>
             </li>
@@ -47,7 +47,6 @@
             </thead>
             <tbody>
                 <tr ng-repeat="branch in branches | orderBy:predicate:reverse">
-                    {{branch}}
                     <td>
                         <div ng-controller="PullRequestController" ng-show="branch.pullRequest" class="btn-group btn-group-stretch">
                             <a target="_blank" href="{{branch.pullRequest.url}}" class="btn btn-default {{getClass(pullRequestStatus)}}" >
@@ -64,7 +63,7 @@
                     <td>
                         <div ng-show="branch.entity">
                             <span ng-repeat="assignment in branch.entity.assignmentsOpt" class="ui-role ui-role-active-{{assignment.isResponsible}}">
-                                <img data-src="holder.js/100%x180" src="{{assignment.avatar}}30" title="{{assignment.role}}: {{assignment.firstName}} {{assignment.lastName}}">
+                                <img ng-src="{{assignment.avatar}}30" title="{{assignment.role}}: {{assignment.firstName}} {{assignment.lastName}}">
                             </span>
                         </div>
                     </td>

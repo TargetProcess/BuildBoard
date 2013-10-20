@@ -18,7 +18,9 @@ var BranchesController = function ($scope, $http, $window) {
             })
             .value();
 
-        $scope.branchCount = function (id) {
+        $scope.branchCount = function () {
+            //todo move to service or resource
+            var id = $window.currentUser.id;
             return _.filter($scope.branches,function (branch) {
                 return branch.entity && _.any(branch.entity.assignmentsOpt, function (assignment) {
                     return assignment.userId == id;
