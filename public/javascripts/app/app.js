@@ -1,9 +1,25 @@
-angular.module('BuildBoard', ['ui.bootstrap', 'angular-underscore']);
+angular.module('BuildBoard', ['ui.bootstrap', 'angular-underscore','phonecatFilters']);
 
 var BranchesController = function ($scope, $http, $window) {
 
+    var filterBranchesById = function(branches,id) {
+        return _.filter(branches,function (branch) {
+            return branch.entity && _.any(branch.entity.assignmentsOpt, function (assignment) {
+                return assignment.userId == id;
+            });
+        });
+    };
+    var filterBranchesByEntity = function(branches) {
+        return _.filter(branches,function (branch) {
+            return branch.entity;
+        });
+    };
     $scope.predicate = 'state';
+    $scope.isShowingAll = true;
     $http.get($window.jsRoutes.controllers.Application.branches().absoluteURL()).success(function (data) {
+        $scope.allBranches = data;
+        $scope.entityBranches = filterBranchesByEntity(data);
+        $scope.entityBranchesLength = $scope.entityBranches.length;
         $scope.branches = data;
         $scope.users = _.chain(data)
             .filter(function (branch) {
@@ -18,17 +34,29 @@ var BranchesController = function ($scope, $http, $window) {
             })
             .value();
 
-        $scope.branchCount = function () {
-            //todo move to service or resource
-            var id = $window.currentUser.id;
-            return _.filter($scope.branches,function (branch) {
-                return branch.entity && _.any(branch.entity.assignmentsOpt, function (assignment) {
-                    return assignment.userId == id;
-                });
-            }).length;
+        $scope.branchCount = function (id) {
+            return filterBranchesById($scope.allBranches,id).length;
         }
 
     });
+    $scope.filterBranch = function(id) {
+        $scope.isShowingAll = false;
+        $scope.isShowingEntity = false;
+        $scope.isShowingId = id;
+        $scope.branches = filterBranchesById($scope.allBranches,id);
+    };
+    $scope.resetFilterBranch = function() {
+        $scope.isShowingId = null;
+        $scope.isShowingAll = true;
+        $scope.isShowingEntity = false;
+        $scope.branches = $scope.allBranches;
+    };
+    $scope.filterOnlyEntityBranch = function() {
+        $scope.isShowingId = null;
+        $scope.isShowingAll = false;
+        $scope.isShowingEntity = true;
+        $scope.branches = $scope.entityBranches;
+    }
 
 };
 
