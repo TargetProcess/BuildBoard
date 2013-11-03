@@ -6,7 +6,7 @@
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href='@routes.Assets.at("stylesheets/bootstrap.min.css")'>
         <link rel="stylesheet" href='@routes.Assets.at("stylesheets/main.css")'>
 
         @styles
@@ -16,10 +16,9 @@
             routes.javascript.Github.pullRequestStatus
         )
 
-        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>
-        <script src="@routes.Assets.at("javascripts/libs/ui-bootstrap-tpls-0.6.0.js")"></script>
-        <script src="@routes.Assets.at("javascripts/libs/angular-underscore.js")"></script>
+        <script src="@routes.Assets.at("javascripts/bower_components/angular/angular.min.js"></script>
+        <script src="@routes.Assets.at("javascripts/bower_components/underscore/underscore.min.js"></script>
+        <script src="@routes.Assets.at("javascripts/bower_components/angular-underscore/angular-underscore.min.js"></script>
 
         <script src="@routes.Assets.at("javascripts/all.js")"></script>
     </head>

@@ -11,7 +11,6 @@ module buildBoard {
 
 
         constructor(private $scope:IBranchesScope, private $http:ng.IHttpService, private $window:IBuildBoardWindow, private filterFilter) {
-
             this.$scope.predicate = 'state';
             $scope.isShowingAll = true;
             $http.get($window.jsRoutes.controllers.Application.branches().absoluteURL()).success((data:Branch[])=> {
