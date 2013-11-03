@@ -18,6 +18,8 @@ object ApplicationBuild extends Build {
       "org.eclipse.mylyn.github" % "org.eclipse.egit.github.core" % "2.1.5",
       "org.scalaj" %% "scalaj-http" % "0.3.9" exclude("junit", "junit")),
     routesImport += "se.radley.plugin.salat.Binders._",
-    templatesImport += "org.bson.types.ObjectId")
+    templatesImport += "org.bson.types.ObjectId"
+//     ,javascriptEntryPoints <<= baseDirectory(base => base / "app" / "assets" ** "*.js"))
+  )
 
 }

@@ -1,0 +1,26 @@
+{
+  "name": "BuildBoard",
+  "version": "0.0.0",
+  "description": "This is your new Play 2.1 application\r =====================================",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/TargetProcess/BuildBoard.git"
+  },
+  "author": "",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/TargetProcess/BuildBoard/issues"
+  },
+  "devDependencies": {
+    "grunt-typescript": "~0.2.4",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt": "~0.4.1"
+  }
+}

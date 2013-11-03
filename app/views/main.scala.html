@@ -20,17 +20,17 @@
         <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>
         <script src="@routes.Assets.at("javascripts/libs/ui-bootstrap-tpls-0.6.0.js")"></script>
         <script src="@routes.Assets.at("javascripts/libs/angular-underscore.js")"></script>
-        <script src="@routes.Assets.at("javascripts/app/filters.js")"></script>
-        <script src="@routes.Assets.at("javascripts/app/app.js")"></script>
+
+        <script src="@routes.Assets.at("javascripts/all.js")"></script>
     </head>
-    <body ng-app="BuildBoard">
+    <body ng-app="buildBoard">
 
         @user.map { u =>
             <div class="container">@navigationBar(u)</div>
         }
 
         <div class="container">
-            <div ng-controller="BranchesController" class="row">
+            <div ng-controller="branchesController" class="row">
                 <div class="col-lg-2">@sidebar</div>
                 <div class="col-lg-10">@content</div>
             </div>

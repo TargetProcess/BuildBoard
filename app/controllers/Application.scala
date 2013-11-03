@@ -13,8 +13,6 @@ import models.tp.EntityRepo._
 
 object Application extends Controller with Secured {
 
-  /*
-   */
   implicit val buildWrite = Json.writes[Build]
   implicit val entityAssignment = Json.writes[Assignment]
   implicit val entityWrite = Json.writes[Entity]
