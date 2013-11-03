@@ -30,7 +30,9 @@
     }
 
 @main("Build board", Some(user), sidebar = sidebar) {
-    <div >
+    <div class="loader" ng-class="{hide:!loading}">
+    </div>
+    <div ng-class="{hide:loading}">
         <table class="table sortable table-condensed">
             <thead>
                 <tr class="header">
@@ -82,4 +84,5 @@
             </tbody>
         </table>
     </div>
+
 }

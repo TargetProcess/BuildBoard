@@ -15,5 +15,6 @@ module buildBoard {
         filterBranch(id:number):void;
         resetFilterBranch():void;
         filterOnlyEntityBranch():void;
+        loading:boolean;
     }
 }

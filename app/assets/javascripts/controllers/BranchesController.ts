@@ -12,13 +12,14 @@ module buildBoard {
 
         constructor(private $scope:IBranchesScope, private $http:ng.IHttpService, private $window:IBuildBoardWindow, private filterFilter) {
             this.$scope.predicate = 'state';
-            $scope.isShowingAll = true;
+            this.$scope.isShowingAll = true;
+            this.$scope.loading = true;
             $http.get($window.jsRoutes.controllers.Application.branches().absoluteURL()).success((data:Branch[])=> {
                 this.$scope.allBranches = data;
                 this.$scope.entityBranches = this.filterBranchesByEntity(data);
                 this.$scope.entityBranchesLength = $scope.entityBranches.length;
-                $scope.branches = data;
-                $scope.users = _.chain(data)
+                this.$scope.branches = data;
+                this.$scope.users = _.chain(data)
                     .filter(branch=>!!branch.entity)
                     .map(branch=>branch.entity.assignmentsOpt)
                     .flatten()
@@ -26,7 +27,10 @@ module buildBoard {
                     .value();
 
                 $scope.branchCount = id=>this.filterBranchesById($scope.allBranches, id).length;
-            });
+                this.$scope.loading = false;
+            }).error(()=> {
+                    this.$scope.loading = false;
+                });
 
             this.$scope.filterBranch = (id:number)=> {
                 this.$scope.isShowingAll = false;
