@@ -32,16 +32,28 @@ object Entity {
 
 }
 
-case class EntityState(
-                        id: Int,
-                        name: String,
-                        isFinalOpt: Option[Boolean],
-                        role: Option[String],
-                        nextStates: Option[List[EntityState]] = None) {
-  val isFinal = isFinalOpt.getOrElse(false) || name=="Release Ready"
-  val isReopen = name=="Reopen"
-  val isQA = name == "Coded" || name=="Testing"
-  val isTested = name=="Tested"
+case class EntityState(id: Int,
+                                                              name: String,
+                                                              isFinal: Boolean,
+                                                              role: Option[String],
+                                                              nextStates: List[EntityState]
+) {
+
+}
+
+object EntityState {
+    def create(                        id: Int,
+                                       name: String,
+                                       isFinalOpt: Option[Boolean],
+                                       role: Option[String],
+                                       nextStates: Option[List[EntityState]] = None) =
+                                       new EntityState(
+                                        id,
+                                        name,
+                                        isFinalOpt.getOrElse(false) || name=="Release Ready",
+                                        role,
+                                        nextStates.getOrElse(Nil))
+
 }
 
 case class Assignment(userId:Int, role: String, avatar: String, firstName: String, lastName: String, isResponsible: Boolean = false) {

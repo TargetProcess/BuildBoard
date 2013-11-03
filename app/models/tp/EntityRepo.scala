@@ -38,17 +38,8 @@ object EntityRepo {
       (__ \ "Role").readNullable(
         (__ \ "Name").read[String]) ~
       (__ \ "NextStates").readNullable(
-        (__ \ "Items").lazyRead(list[EntityState](entityStateReads))))(EntityState)
+        (__ \ "Items").lazyRead(list[EntityState](entityStateReads))))(EntityState.create _)
 
-  implicit val entityStateWrite: Writes[EntityState] =
-    (
-      (__ \ "Id").write[Int] ~
-        (__ \ "Name").write[String] ~
-        (__ \ "Role").writeNullable(
-          (__ \ "Name").write[String]) ~
-        (__ \ "IsFinal").write[Option[Boolean]] ~
-        (__ \ "NextStates").lazyWriteNullable(Writes.traversableWrites[EntityState](entityStateWrite))
-      )(e => (e.id, e.name, e.role, e.isFinalOpt, e.nextStates))
 
   implicit val assignmentReads = (
     (__ \ "Role" \ "Name").read[String] ~

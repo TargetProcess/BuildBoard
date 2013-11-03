@@ -30,9 +30,9 @@
     }
 
 @main("Build board", Some(user), sidebar = sidebar) {
-    <div class="loader" ng-class="{hide:!loading}">
+    <div class="loader" ng-show="loading">
     </div>
-    <div ng-class="{hide:loading}">
+    <div ng-show="!loading">
         <table class="table sortable table-condensed">
             <thead>
                 <tr class="header">
@@ -76,9 +76,16 @@
                     </td>
                     <td>
                         <div ng-show="branch.entity">
+                            <div class="btn-group btn-group-stretch">
+                                <button type="button" class="role-next-states-trigger btn dropdown-toggle" data-toggle="dropdown">
+                                    {{branch.entity.state.name}}
+                                    <span class="caret"></span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li ng-repeat="entityState in branch.entity.state.nextStates"><a href="#">{{entityState.name}}</a></li>
+                                </ul>
                         </div>
-                    </td>
-                    <td>
+                            </div>
                     </td>
                 </tr>
             </tbody>
