@@ -23,3 +23,7 @@ mongo/
 conf/dev.conf
 conf/prod.conf
 .idea
+node_modules/grunt-contrib-watch/
+node_modules/grunt-typescript/
+node_modules/grunt/
+public/javascripts/all.js

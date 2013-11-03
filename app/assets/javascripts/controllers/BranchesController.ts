@@ -33,7 +33,7 @@ module buildBoard {
                 this.$scope.isShowingAll = false;
                 this.$scope.isShowingEntity = false;
                 this.$scope.isShowingId = id;
-                this.$scope.branches = this.filterBranchesById($scope.allBranches,id);
+                this.$scope.branches = this.filterBranchesById($scope.allBranches, id);
             };
 
             this.$scope.resetFilterBranch = ()=> {
@@ -51,7 +51,7 @@ module buildBoard {
         }
 
         private filterBranchesById(branches:Branch[], id:number) {
-            return _.filter(branches, branch=> branch.entity && _.any(branch.entity.assignmentsOpt, assignment=>assignment.userId == id));
+            return _.filter(branches, branch => branch.entity && _.any(branch.entity.assignmentsOpt, assignment=>assignment.userId == id));
         }
 
         private filterBranchesByEntity(branches:Branch[]) {
