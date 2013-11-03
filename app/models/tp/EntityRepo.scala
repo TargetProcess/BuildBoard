@@ -11,6 +11,7 @@ import play.api.data.validation.ValidationError
 import play.api.libs.functional.syntax._
 import models.EntityState
 import models.Entity
+import models.Entity._
 import models.Assignment
 import scalaj.http.HttpOptions
 import scalaj.http.Http.Request
@@ -56,13 +57,13 @@ object EntityRepo {
       (__ \ "GeneralUser" \ "FirstName").read[String] ~
       (__ \ "GeneralUser" \ "LastName").read[String])((role, id, avatar, firstName, lastName) => Assignment(id, role, avatar, firstName, lastName))
 
-  implicit val assignableReads = (
+  implicit val entityReads = (
     (__ \ "Id").read[Int] ~
       (__ \ "Name").read[String] ~
       (__ \ "EntityType" \ "Name").read[String] ~
       (__ \ "EntityState").read[EntityState] ~
       (__ \ "Assignments").readNullable(
-        (__ \ "Items").read(list[Assignment])))(Entity)
+        (__ \ "Items").read(list[Assignment])))(Entity.create _)
 
 
   implicit val loggedUser = (

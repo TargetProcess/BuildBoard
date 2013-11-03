@@ -21,7 +21,7 @@ module buildBoard {
                 this.$scope.branches = data;
                 this.$scope.users = _.chain(data)
                     .filter(branch=>!!branch.entity)
-                    .map(branch=>branch.entity.assignmentsOpt)
+                    .map(branch=>branch.entity.assignments)
                     .flatten()
                     .unique(false, user=>user.userId)
                     .value();
@@ -54,7 +54,7 @@ module buildBoard {
         }
 
         private filterBranchesById(branches:Branch[], id:number) {
-            return _.filter(branches, branch => branch.entity && _.any(branch.entity.assignmentsOpt, assignment=>assignment.userId == id));
+            return _.filter(branches, branch => branch.entity && _.any(branch.entity.assignments, assignment=>assignment.userId == id));
         }
 
         private filterBranchesByEntity(branches:Branch[]) {

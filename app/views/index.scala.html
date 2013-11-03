@@ -64,12 +64,12 @@
                     <td>
                         <div ng-show="branch.entity">
                             <a href="{{branch.entity.url}}" target="_blank" class="ui-entity ui-entity-{{branch.entity.entityType.toLowerCase()}}">
-                                #{{branch.entity.id}}</a> {{branch.entity.name}}
+                                {{branch.entity.id}}</a> {{branch.entity.name}}
                         </div>
                     </td>
                     <td>
                         <div ng-show="branch.entity">
-                            <span ng-repeat="assignment in branch.entity.assignmentsOpt" class="ui-role ui-role-active-{{assignment.isResponsible}}">
+                            <span ng-repeat="assignment in branch.entity.assignments" class="ui-role ui-role-active-{{assignment.isResponsible}}">
                                 <img ng-src="{{assignment.avatar}}30" title="{{assignment.role}}: {{assignment.firstName}} {{assignment.lastName}}">
                             </span>
                         </div>

@@ -7,23 +7,29 @@ case class Entity(
                    name: String,
                    entityType: String,
                    state: EntityState,
-                   assignmentsOpt: Option[List[Assignment]]) {
-  val url = TargetprocessApplication.getEntityUrl(id)
-  val assignments = assignmentsOpt match {
-    case Some(x) => x.map(assignment => {
-      state.role match {
-        case Some(role) => assignment.copy(isResponsible = role == assignment.role)
-        case None => assignment
-      }
+                   assignments: List[Assignment],
+                   url: String)
+                   {
+}
 
-    })
-    case None => Nil
-  }
+object Entity {
+    def create(id: Int,
+                  name: String,
+                                  entityType: String,
+                                  state: EntityState,
+                                  assignmentsOpt: Option[List[Assignment]]) =
+                                   new Entity(id, name, entityType, state, assignmentsOpt match {
+                                                                               case Some(x) => x.map(assignment => {
+                                                                                 state.role match {
+                                                                                   case Some(role) => assignment.copy(isResponsible = role == assignment.role)
+                                                                                   case None => assignment
+                                                                                 }
 
-  def sortedAssignments = {
-    val (developers, others) = assignments.sortBy(_.lastName).span(_.role == "Developer")
-    developers ::: others
-  }
+                                                                               })
+                                                                               case None => Nil
+                                                                             },
+            TargetprocessApplication.getEntityUrl(id))
+
 }
 
 case class EntityState(

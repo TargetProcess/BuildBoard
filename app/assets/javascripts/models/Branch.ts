@@ -14,12 +14,13 @@ module buildBoard {
     }
 
     export interface Entity {
-        assignmentsOpt:Assignment[]
+        assignments:Assignment[]
     }
 
 
     export interface Assignment {
         userId:number
+        isResponsible:boolean
     }
 
     export interface PRStatus {
