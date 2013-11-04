@@ -1,5 +1,6 @@
 /// <reference path='libs/jquery.d.ts' />
 /// <reference path='libs/angular.d.ts' />
+/// <reference path='libs/angular-route.d.ts' />
 /// <reference path='libs/underscore.d.ts' />
 /// <reference path='interfaces/JsRoutes.ts' />
 /// <reference path='models/Branch.ts' />
@@ -7,7 +8,9 @@
 /// <reference path='interfaces/IBranchesScope.ts' />
 /// <reference path='interfaces/IPullRequestScope.ts' />
 /// <reference path='interfaces/IBuildBoardWindow.ts' />
+/// <reference path='interfaces/IBuildBoardRoadParamsService.ts'/>
 /// <reference path='controllers/BranchesController.ts' />
 /// <reference path='controllers/PullRequestController.ts' />
 /// <reference path='models/User.ts' />
+/// <reference path='models/Filter.ts' />
 /// <reference path='Application.ts' />

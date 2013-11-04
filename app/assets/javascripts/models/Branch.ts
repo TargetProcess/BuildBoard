@@ -15,8 +15,12 @@ module buildBoard {
 
     export interface Entity {
         assignments:Assignment[]
+        state: EntityState
     }
 
+    export interface EntityState {
+        isClosed : boolean
+    }
 
     export interface Assignment {
         userId:number

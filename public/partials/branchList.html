@@ -1,0 +1,61 @@
+<div class="loader" ng-show="loading">
+</div>
+<div ng-show="!loading">
+    <table class="table sortable table-condensed">
+        <thead>
+        <tr class="header">
+            <th ng-click="predicate='pullRequest.id'; reverse=!reverse">
+                PR
+                <span ng-class="{arrow:predicate == 'pullRequest.id', up:reverse}"></span>
+            </th>
+            <th ng-click="predicate='name'; reverse=!reverse" ng-class="{sort:predicate == 'name', reverse:reverse}">
+                Branch
+                <span ng-class="{arrow:predicate == 'name', up:reverse}"></span>
+            </th>
+            <th ng-click="predicate='entity.id'; reverse=!reverse" ng-class="{sort:predicate == 'entity.id', reverse:reverse}">
+                Name
+                <span ng-class="{arrow:predicate == 'entity.id', up:reverse}"></span>
+            </th>
+            <th>Users</th>
+            <th>State</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="branch in allBranches | orderBy:predicate:reverse">
+            <td>
+                <div ng-controller="pullRequestController" ng-show="branch.pullRequest" class="btn-group btn-group-stretch">
+                    <a target="_blank" href="{{branch.pullRequest.url}}" class="btn btn-default {{getClass(pullRequestStatus)}}" >
+                        #{{branch.pullRequest.id}}</a>
+                </div>
+            </td>
+            <td>{{branch.name}}</td>
+            <td>
+                <div ng-show="branch.entity">
+                    <a href="{{branch.entity.url}}" target="_blank" class="ui-entity ui-entity-{{branch.entity.entityType.toLowerCase()}}">
+                        {{branch.entity.id}}</a> {{branch.entity.name}}
+                </div>
+            </td>
+            <td>
+                <div ng-show="branch.entity">
+                            <span ng-repeat="assignment in branch.entity.assignments" class="ui-role ui-role-active-{{assignment.isResponsible}}">
+                                <img ng-src="{{assignment.avatar}}30" title="{{assignment.role}}: {{assignment.firstName}} {{assignment.lastName}}">
+                            </span>
+                </div>
+            </td>
+            <td>
+                <div ng-show="branch.entity">
+                    <div class="btn-group btn-group-stretch">
+                        <button type="button" class="role-next-states-trigger btn dropdown-toggle" data-toggle="dropdown">
+                            {{branch.entity.state.name}}
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="entityState in branch.entity.state.nextStates"><a href="#">{{entityState.name}}</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>

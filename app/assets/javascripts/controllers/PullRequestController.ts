@@ -10,16 +10,8 @@ module buildBoard {
         ];
 
         constructor(public $scope:IPullRequestScope, $http:ng.IHttpService, $window:IBuildBoardWindow) {
-            this.$scope.getClass = function (prStatus) {
-                if (!prStatus) {
-                    return '';
-                } else if (prStatus.isMerged) {
-                    return 'btn-primary';
-                } else if (prStatus.isMergeable) {
-                    return 'btn-success';
-                } else {
-                    return 'btn-danger';
-                }
+            this.$scope.getClass = (prStatus:PRStatus)=> {
+                return prStatus ? prStatus.isMerged ? 'btn-primary' : prStatus.isMergeable ? 'btn-success' : 'btn-danger' : '';
             };
 
             if (this.$scope.branch.pullRequest) {

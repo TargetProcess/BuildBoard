@@ -2,19 +2,20 @@
 
 module buildBoard {
     export interface IBranchesScope extends ng.IScope {
-        isShowingAll : boolean;
-        isShowingEntity: boolean;
-        isShowingId:number;
-        branches:Branch[];
+
+        currentFilter : IFilter
+
+        setFilter(filter:IFilter);
+        checkCurrentFilter(filter:IFilter);
+
         allBranches:Branch[];
-        entityBranches:Branch[];
-        predicate:string;
-        entityBranchesLength:number;
         users:User[];
-        branchCount(id:number):number;
-        filterBranch(id:number):void;
-        resetFilterBranch():void;
-        filterOnlyEntityBranch():void;
+
+        allBranchesFilter:IFilter
+        entityBranchesFilter:IFilter
+        getUserFilter(userId:number):IFilter
+
+
         loading:boolean;
     }
 }
