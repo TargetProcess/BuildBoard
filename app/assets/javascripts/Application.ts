@@ -9,7 +9,7 @@ module buildBoard {
         .controller('pullRequestController', PullRequestController)
         .filter('activeFilter', activeFilter)
         .config(['$routeProvider',
-            ($routeProvider:ng.IRouteProvider)=>
+            ($routeProvider:ng.route.IRouteProvider)=>
                 $routeProvider
                     .when('/branches', {
                         templateUrl: '/assets/partials/branchList.html',
