@@ -18,4 +18,5 @@ module buildBoard {
 
         loading:boolean;
     }
+
 }

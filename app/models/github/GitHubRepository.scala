@@ -17,6 +17,12 @@ class GitHubRepository(implicit user: User) {
   val FeatureBranchPattern = "^(?i)feature/(\\w+)".r
   val repo = new RepositoryId("TargetProcess", "TP")
 
+  def getBranch(id:String):Branch = {
+    val ghBranches:List[RepositoryBranch] = repositoryService.getBranches(repo).asScala.toList.filter(_.getName == id)
+    getBranchesInfo(ghBranches).head
+  }
+
+
 
   def getBranches: List[Branch] = {
     if (user.githubToken == null) {
@@ -24,58 +30,58 @@ class GitHubRepository(implicit user: User) {
     }
     else {
       val ghBranches:List[RepositoryBranch] = repositoryService.getBranches(repo).asScala.toList
-      val ghPullRequests:Map[String,GhPullRequest] = prService.getPullRequests(repo, "OPEN").asScala.map(pr => (pr.getHead.getRef, pr)).toMap
+      getBranchesInfo(ghBranches)
+    }
+  }
 
-      val branchNames = ghBranches
-        .map(br => br.getName)
+  def getBranchesInfo(ghBranches: List[RepositoryBranch]): List[Branch] ={
 
-      val entityIds = branchNames
-        .flatMap {
-        case EntityBranchPattern(_, id) => Some(id.toInt)
+    val ghPullRequests:Map[String,GhPullRequest] = prService.getPullRequests(repo, "OPEN").asScala.map(pr => (pr.getHead.getRef, pr)).toMap
+
+
+    val branchNames = ghBranches
+      .map(br => br.getName)
+
+    val entityIds = branchNames
+      .flatMap {
+      case EntityBranchPattern(_, id) => Some(id.toInt)
+      case _ => None
+    }
+      .toList
+
+    val entities = new EntityRepo(user.token).getAssignables(entityIds)
+      .map(e => (e.id, e))
+      .toMap
+
+    val builds = JenkinsRepository.getBuilds
+
+    ghBranches.map(githubBranch => {
+      val name = githubBranch.getName
+
+      val pullRequest = ghPullRequests.get(name)
+        .map(pr => PullRequest.create(pr))
+
+
+      val entity = name match {
+        case EntityBranchPattern(_, id) => entities.get(id.toInt)
         case _ => None
       }
-        .toList
 
-      val entities = new EntityRepo(user.token).getAssignables(entityIds)
-        .map(e => (e.id, e))
-        .toMap
+      val pullRequestId = pullRequest.map(x => x.id)
 
-      val builds = JenkinsRepository.getBuilds
+      val branchBuilds = builds.filter(b => b match {
+        case Build(prId: String, _, _, _, _) => prId == name || (pullRequestId.isDefined && prId == pullRequestId)
+        case _ => false
+      })
 
-      ghBranches.map(githubBranch => {
-        val name = githubBranch.getName
+      Branch(name, pullRequest, entity, branchBuilds)
 
-        val pullRequest = ghPullRequests.get(name)
-          .map(pr => PullRequest.create(pr))
+    }).toList
 
-
-        val entity = name match {
-          case EntityBranchPattern(_, id) => entities.get(id.toInt)
-          case _ => None
-        }
-
-        val pullRequestId = pullRequest.map(x => x.id)
-
-        val branchBuilds = builds.filter(b => b match {
-          case Build(prId: String, _, _, _, _) => prId == name || (pullRequestId.isDefined && prId == pullRequestId)
-          case _ => false
-        })
-
-        Branch(name, pullRequest, entity, branchBuilds)
-
-      }).toList
-    }
   }
 
   def getPullRequestStatus(id: Int) = {
     var pr = prService.getPullRequest(repo, id)
     PullRequestStatus(pr.isMergeable, pr.isMerged)
   }
-
-  def getBranch(name: String) = {
-    val ghBranches = repositoryService.getBranches(repo).asScala.find(p => p.getName == name)
-    ghBranches
-  }
-
-
 }

@@ -6,10 +6,10 @@ module buildBoard {
         public static $inject = [
             '$scope',
             '$http',
-            '$window'
+            ServerRoutesService.NAME
         ];
 
-        constructor(private $scope:IBranchesScope, private $http:ng.IHttpService, private $window:IBuildBoardWindow) {
+        constructor(private $scope:IBranchesScope, $http:ng.IHttpService, serverRoutesService:ServerRoutesService) {
             this.$scope.setFilter = this.setFilter.bind(this);
             this.$scope.checkCurrentFilter = this.checkCurrentFilter.bind(this);
 
@@ -19,9 +19,8 @@ module buildBoard {
             this.$scope.entityBranchesFilter = new Filter(branch=>!!branch.entity);
 
             this.$scope.loading = true;
-            console.log(this.$scope);
 
-            $http.get($window.jsRoutes.controllers.Application.branches().absoluteURL()).success((data:Branch[])=> {
+            $http.get(serverRoutesService.branches()).success((data:Branch[])=> {
                 this.$scope.allBranches = data;
                 this.$scope.users = _.chain(data)
                     .filter(branch=>!!branch.entity)

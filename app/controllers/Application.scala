@@ -35,4 +35,13 @@ object Application extends Controller with Secured {
 
         Ok(Json.toJson(branches))
   }
+
+
+  def branch(id:String) = IsAuthorized {
+      implicit user =>
+        implicit request =>
+          val branch: Branch = new GitHubRepository().getBranch(id)
+
+          Ok(Json.toJson(branch))
+  }
 }

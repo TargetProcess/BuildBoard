@@ -1,0 +1,14 @@
+<div class="container">
+    <div class="col-lg-9">
+        <h3>
+            <entity-title entity="branch.entity"></entity-title>
+        </h3>
+
+    </div>
+    <div class="col-lg-3">
+        Users
+        <div ng-repeat="user in branch.entity.assignments">
+            <img ng-src="{{user.avatar}}40"> {{user.firstName}} {{user.lastName}}
+        </div>
+    </div>
+</div>

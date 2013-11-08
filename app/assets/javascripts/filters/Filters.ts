@@ -6,4 +6,10 @@ module buildBoard {
             return isActive ? 'active' : '';
          };
     }
+
+    export function encode(){
+        return function(text : string){
+            return encodeURIComponent(text);
+        };
+    }
 }

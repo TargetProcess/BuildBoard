@@ -18,6 +18,7 @@ module buildBoard {
 
     export interface IApplication {
         branches(): IAction
+        branch(id:string): IAction
     }
 
 }

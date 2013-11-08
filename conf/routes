@@ -6,6 +6,8 @@
 GET         /                                controllers.Application.index
 GET         /entityBranches                  controllers.Application.branches
 
+GET         /branch                          controllers.Application.branch(id:String)
+
 GET         /login                           controllers.Login.index
 GET         /login/oauth                     controllers.Login.oauth(code ?= "")
 POST        /login/submit                    controllers.Login.submit
