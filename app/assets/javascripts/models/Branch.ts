@@ -9,7 +9,7 @@ module buildBoard {
         pullRequest:PullRequest
     }
 
-    export interface PullRequest{
+    export interface PullRequest {
         id:number;
     }
 

@@ -6,9 +6,11 @@ module buildBoard {
     }
 
     export class Filter implements IFilter {
-        constructor(public predicate:(branch:Branch)=>boolean){}
+        constructor(public predicate:(branch:Branch)=>boolean) {
+        }
 
         getCount(branches:Branch[]):number {
             return _.filter(branches, this.predicate).length;
         }
-    }}
+    }
+}

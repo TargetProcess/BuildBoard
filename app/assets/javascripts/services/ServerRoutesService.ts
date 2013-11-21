@@ -14,6 +14,7 @@ module buildBoard {
         constructor($window:IBuildBoardWindow) {
             this.controllers = $window.jsRoutes.controllers;
         }
+
         branches():string {
             return this.controllers.Application.branches().absoluteURL();
         }

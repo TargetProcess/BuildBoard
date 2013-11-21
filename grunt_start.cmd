@@ -1,0 +1,1 @@
+grunt typescript watch

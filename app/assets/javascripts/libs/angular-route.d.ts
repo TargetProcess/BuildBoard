@@ -15,7 +15,8 @@ declare module ng.route {
     // RouteParamsService
     // see http://docs.angularjs.org/api/ngRoute.$routeParams
     ///////////////////////////////////////////////////////////////////////////
-    interface IRouteParamsService {}
+    interface IRouteParamsService {
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // RouteService
@@ -54,11 +55,11 @@ declare module ng.route {
     }
 
     interface IRouteProvider extends IServiceProvider {
-        otherwise(params: any): IRouteProvider;
+        otherwise(params:any): IRouteProvider;
         /**
          * This is a description
          *
          */
-        when(path: string, route: IRoute): IRouteProvider;
+        when(path:string, route:IRoute): IRouteProvider;
     }
 }

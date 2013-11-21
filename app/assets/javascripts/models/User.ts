@@ -4,7 +4,7 @@
 // loaded from server
 
 module buildBoard {
-     export class User{
+    export class User {
 
-     }
+    }
 }
