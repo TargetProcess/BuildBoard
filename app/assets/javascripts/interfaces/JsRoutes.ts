@@ -6,6 +6,11 @@ module buildBoard {
     export interface Controllers {
         Application : IApplication;
         Github: IGithub
+        Jenkins: IJenkins
+    }
+
+    export interface IJenkins {
+        lastBuildInfo(branch:string):IAction
     }
 
     export interface IGithub {

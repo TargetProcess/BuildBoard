@@ -1,21 +1,9 @@
 package models.jenkins
 
-import collection.JavaConversions._
-import scala.collection.mutable.Map
-import models.{BuildResult, Build}
-import scala.collection.mutable
-import scalaj.http.{HttpOptions, Http}
-import play.api.libs.json._
-import play.api.libs.json.util._
-import play.api.libs.json.Reads._
-import play.api.data.validation.ValidationError
-import play.api.libs.functional.syntax._
-import org.joda.time.DateTime
-import scala.util.Try
 
 object JenkinsRepository {
   val jenkinsUrl = "http://jenkinsmaster-hv:8080"
-
+/*
   case class Parameter(name: String, value: String)
   case class Action(parameters: Option[List[Parameter]])
 
@@ -53,4 +41,5 @@ object JenkinsRepository {
 
     json.validate((__ \ "builds").read(list[Build])).get
   } getOrElse Nil
+  */
 }

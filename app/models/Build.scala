@@ -1,11 +1,5 @@
 package models
 
-import org.joda.time.DateTime
+import com.github.nscala_time.time.Imports._
 
-object BuildResult extends Enumeration {
-  type BuildResult = Value
-  val UNKNOWN, SUCCESS, FAILURE, ABORTED = Value
-}
-
-
-case class Build(pullRequestId: String, result:String, url: String, timestamp: DateTime, number: Int)
+case class Build(timeStamp:DateTime, status:String)

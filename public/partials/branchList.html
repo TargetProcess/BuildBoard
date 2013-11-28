@@ -4,35 +4,24 @@
     <table class="table sortable table-condensed">
         <thead>
         <tr class="header">
-            <th ng-click="orderingPredicate='pullRequest.id'; reverse=!reverse">
-                PR
-                <span ng-class="{arrow:orderingPredicate == 'pullRequest.id', up:reverse}"></span>
-            </th>
             <th ng-click="orderingPredicate='name'; reverse=!reverse" ng-class="{sort:orderingPredicate == 'name', reverse:reverse}">
                 Branch
                 <span ng-class="{arrow:orderingPredicate == 'name', up:reverse}"></span>
             </th>
-            <th ng-click="orderingPredicate='entity.id'; reverse=!reverse" ng-class="{sort:orderingPredicate == 'entity.id', reverse:reverse}">
-                Name
-                <span ng-class="{arrow:orderingPredicate == 'entity.id', up:reverse}"></span>
-            </th>
             <th>Users</th>
             <th>State</th>
+            <th ng-click="orderingPredicate='pullRequest.id'; reverse=!reverse">
+                PR
+                <span ng-class="{arrow:orderingPredicate == 'pullRequest.id', up:reverse}"></span>
+            </th>
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="branch in allBranches | orderBy:orderingPredicate:reverse">
-            <td>
-                <div ng-controller="pullRequestController" ng-show="branch.pullRequest" class="btn-group btn-group-stretch">
-                    <a target="_blank" href="{{branch.pullRequest.url}}" class="btn btn-default {{getClass(pullRequestStatus)}}" >
-                        #{{branch.pullRequest.id}}</a>
-                </div>
-            </td>
-            <td>
-                <a href="#/branches/{{branch.name | encode }}">{{branch.name}}</a>
-            </td>
-            <td>
-                   <entity-title entity="branch.entity"></entity-title>
+        <tr ng-repeat="branch in allBranches | orderBy:orderingPredicate:reverse" ng-controller="branchLineController" ng-class="getLastBuildStatus()">
+            <td class="branch-name">
+                   <entity-title entity="branch.entity" url="#/branches/{{branch.name | encode }}"></entity-title>
+                   <span ng-show="!branch.entity"><a href="#/branches/{{branch.name | encode }}">{{branch.name}}</a></span>
+
             </td>
             <td>
                 <div ng-show="branch.entity">
@@ -54,6 +43,13 @@
                     </div>
                 </div>
             </td>
+            <td>
+                <div ng-show="branch.pullRequest" class="btn-group btn-group-stretch">
+                    <a target="_blank" href="{{branch.pullRequest.url}}" class="btn btn-default {{getPullRequestClass()}}" >
+                        #{{branch.pullRequest.id}}</a>
+                </div>
+            </td>
+
         </tr>
         </tbody>
     </table>

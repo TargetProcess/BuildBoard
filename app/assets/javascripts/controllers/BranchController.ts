@@ -9,7 +9,6 @@ module buildBoard {
 
     export interface IBranchScope extends ng.IScope {
         branchName:string;
-        branch: Branch;
     }
 
 
@@ -28,7 +27,6 @@ module buildBoard {
             this.$scope.branchName = (branchId && branchType) ? branchType + '/' + branchId : (branchId || branchType);
 
             $http.get(serverRoutesService.branch(this.$scope.branchName)).success((data:Branch)=> {
-                console.log(data);
                 this.$scope.branch = data;
             });
 

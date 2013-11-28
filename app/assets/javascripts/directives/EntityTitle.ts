@@ -7,14 +7,16 @@ module buildBoard {
 
         scope = {
             entity: "=",
-            clickable: "@"
+            url: "@"
         };
 
 
         template = [
             '<div ng-show="entity">',
-            '<a href="{{entity.url}}" target="_blank" class="ui-entity ui-entity-{{entity.entityType.toLowerCase()}}"> {{entity.id}}</a>',
+            '<a href="{{entity.url}}" target="_blank" class="ui-entity ui-entity-{{entity.entityType.toLowerCase()}}">{{entity.id}}</a>',
+            '<a href="{{url}}">',
             '{{entity.name}}',
+            '</a>',
             '</div>'
         ].join("");
 

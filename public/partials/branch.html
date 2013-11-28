@@ -4,6 +4,14 @@
             <entity-title entity="branch.entity"></entity-title>
         </h3>
 
+        <accordion>
+            <accordion-group is-open="isopen">
+                <accordion-heading>
+                    I can have markup, too! <i class="pull-right" ng-class="{'icon-chevron-down': isopen, 'icon-chevron-right': !isopen}"></i>
+                </accordion-heading>
+                This is just some content to illustrate fancy headings.
+            </accordion-group>
+        </accordion>
     </div>
     <div class="col-lg-3">
         Users

@@ -7,12 +7,11 @@
 /// <reference path='models/Branch.ts' />
 /// <reference path='filters/Filters.ts' />
 /// <reference path='interfaces/IBranchesScope.ts' />
-/// <reference path='interfaces/IPullRequestScope.ts' />
 /// <reference path='interfaces/IBuildBoardWindow.ts' />
 /// <reference path='interfaces/IBuildBoardRoadParamsService.ts'/>
 /// <reference path='controllers/BranchesController.ts' />
 /// <reference path='controllers/BranchController.ts' />
-/// <reference path='controllers/PullRequestController.ts' />
+/// <reference path='controllers/BranchLineController.ts' />
 /// <reference path='models/User.ts' />
 /// <reference path='models/Filter.ts' />
 /// <reference path='directives/EntityTitle.ts' />

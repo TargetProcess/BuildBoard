@@ -7,7 +7,7 @@ module buildBoard {
     angular.module('buildBoard', ['ui.bootstrap', 'ngRoute'])
         .service(ServerRoutesService.NAME, ServerRoutesService)
         .controller('branchesController', BranchesController)
-        .controller('pullRequestController', PullRequestController)
+        .controller(BranchLineController.NAME, BranchLineController)
         .filter('activeFilter', activeFilter)
         .filter('encode', encode)
         .directive('entityTitle', ()=>new EntityTitleDirective())
