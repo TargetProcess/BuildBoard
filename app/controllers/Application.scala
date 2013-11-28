@@ -9,16 +9,10 @@ import models.github.GitHubRepository
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import models.tp.EntityRepo._
+import Writes._
 
 
 object Application extends Controller with Secured {
-
-  implicit val buildWrite = Json.writes[Build]
-  implicit val entityAssignment = Json.writes[Assignment]
-  implicit val entityStateWrite = Json.writes[EntityState]
-  implicit val entityWrite = Json.writes[Entity]
-  implicit val prWrite = Json.writes[PullRequest]
-  implicit val branchWrite = Json.writes[Branch]
 
   def index = {
     IsAuthorized {
