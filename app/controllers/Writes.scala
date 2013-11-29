@@ -13,8 +13,9 @@ import models.Build
 object Writes {
   implicit var buildNodeWrite: Writes[BuildNode] = null
   buildNodeWrite = (
+    (__ \ "number").write[Int] ~
     (__ \ "name").write[String] ~
-    (__ \ "status").write[String] ~
+    (__ \ "status").writeNullable[String] ~
       (__ \ "statusUrl").write[String] ~
       (__ \ "artefactsUrl").write[String] ~
       (__ \ "children").lazyWriteNullable(traversableWrites[BuildNode](buildNodeWrite))

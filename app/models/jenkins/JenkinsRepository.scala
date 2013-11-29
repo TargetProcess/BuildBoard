@@ -19,8 +19,12 @@ object JenkinsRepository {
 
   case class Action(parameters: Option[List[Parameter]])
 
+  case class SubBuild(buildNumber: Int, jobName: String, result: Option[String])
+
+  case class SubBuilds(subBuilds: Option[List[SubBuild]])
+
   private implicit val parameterReads: Reads[Parameter] = (
-    (__ \ "name").read[String] ~
+      (__ \ "name").read[String] ~
       (__ \ "value").read[JsValue]
     )((name, value) => {
     value match {
@@ -28,42 +32,40 @@ object JenkinsRepository {
       case _ => Parameter(name, value.toString)
     }
   })
-
   private implicit val actionReads: Reads[Action] = Json.reads[Action]
 
-  private implicit val buildNodeReads: Reads[BuildNode] = (
-    (__ \ "buildNumber").read[Int] ~
-      (__ \ "jobName").read[String] ~
-      (__ \ "result").read[String]
-    )((number, job, result) => BuildNode(job, result, "no", "no"))
+  private implicit val subBuildReads: Reads[SubBuild] = Json.reads[SubBuild]
 
   implicit val buildReads: Reads[Build] = (
     (__ \ "number").read[Int] ~
-    (__ \ "timestamp").read[Long].map(new DateTime(_)) ~
-      (__ \ "result").read[String] ~
+      (__ \ "timestamp").read[Long].map(new DateTime(_)) ~
+      (__ \ "result").readNullable[String] ~
       (__ \ "url").read[String] ~
       (__ \ "actions").read(list[Action])
         .map((actions: List[Action]) => actions.map(a => a match {
-            case Action(Some(parameters)) => {
-              parameters.map(p => p match {
-                case Parameter("BRANCHNAME", value) => Some(value)
-                case _ => None
-              })
-                .filter(b => b.nonEmpty)
-                .map(_.get)
-                .headOption
-            }
+        case Action(Some(parameters)) => {
+          parameters.map(p => p match {
+            case Parameter("BRANCHNAME", value) => Some(value)
             case _ => None
           })
+            .filter(b => b.nonEmpty)
+            .map(_.get)
+            .headOption
+        }
+        case _ => None
+      })
         .flatten
         .filter(b => b.nonEmpty)
         .headOption
       ) ~
-      (__ \ "subBuilds").readNullable(list[BuildNode])
-    )((number, timestamp, result, url, branchName, buildNodes) => Build(number, branchName.get, result, url, timestamp, BuildNode("StartBuild", result, "1", "1", buildNodes)))
+      (__ \ "subBuilds").read(list[SubBuild])
+    )((number, timestamp, result, url, branchName, subBuilds) => {
+    val buildNodes = Some(subBuilds.map((s: SubBuild) => BuildNode(s.buildNumber, s.jobName, s.result, "no", "no", None)))
+    Build(number, branchName.get, result, url, timestamp, BuildNode(number, "StartBuild", result, url, "1", buildNodes))
+  })
 
-  def getBuilds(branch: String): List[Build] = Try {
-    val url = s"$jenkinsUrl/job/StartBuild/api/json?depth=2&tree=builds[number,url,actions[parameters[name,value],subBuilds],number,result,timestamp]"
+  def getBuilds: List[Build] = Try {
+    val url = s"$jenkinsUrl/job/StartBuild/api/json?depth=2&tree=builds[number,url,actions[parameters[name,value]],subBuilds[buildNumber,jobName,result],number,result,timestamp]"
     val response = Http(url)
       .option(HttpOptions.connTimeout(1000))
       .option(HttpOptions.readTimeout(5000))
@@ -71,8 +73,15 @@ object JenkinsRepository {
     val json = Json.parse(response)
 
     json.validate((__ \ "builds").read(list[Build])).get
-      .filter((b: Build) => b.branch == branch || b.branch == s"origin/$branch")
   } getOrElse Nil
 
-  def getLastBuild(branch: String): Option[Build] = getBuilds(branch).headOption
+  def getBuilds(branch: String): List[Build] = getBuilds.filter((b: Build) => b.branch == branch || b.branch == s"origin/$branch")
+
+  def getLastBuild(branch: String): Option[Build] = {
+    getBuilds(branch).headOption
+  }
+
+  def getLastBuildsByBranch: List[Build] = {
+    getBuilds
+  }
 }
