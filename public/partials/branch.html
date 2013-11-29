@@ -3,6 +3,16 @@
         <h3>
             <entity-title entity="branch.entity"/>
         </h3>
+
+        <div ng-repeat="build in builds" class="panel panel-{{build.status | status}}">
+            <div class="panel-heading">{{build.timeStamp | date:'medium' }}</div>
+            <div class="panel-body">
+                Panel content
+            </div>
+        </div>
+
+
+
     </div>
     <div class="col-lg-3">
         Users

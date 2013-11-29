@@ -1,15 +1,23 @@
 /// <reference path='../_all.ts' />
 module buildBoard {
 
+    var statusMap:{ [s: string]: string;
+    } = {
+        "failure": "danger",
+        "finished": "primary",
+        "success": "success",
+        "ok": "success"
+    };
+
     export function activeFilter() {
-        return function (isActive:boolean) {
-            return isActive ? 'active' : '';
-        };
+        return (isActive:boolean)=>isActive ? 'active' : '';
     }
 
     export function encode() {
-        return function (text:string) {
-            return encodeURIComponent(text);
-        };
+        return encodeURIComponent;
+    }
+
+    export function status() {
+        return (status:string)=>(status && statusMap[status.toLowerCase()]) || "default";
     }
 }

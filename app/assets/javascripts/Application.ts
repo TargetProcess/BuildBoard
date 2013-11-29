@@ -8,6 +8,7 @@ module buildBoard {
         .service(BackendService.NAME, BackendService)
         .controller('branchesController', BranchesController)
         .controller(BranchLineController.NAME, BranchLineController)
+        .filter('status', status)
         .filter('activeFilter', activeFilter)
         .filter('encode', encode)
         .directive('entityTitle', ()=>new EntityTitleDirective())

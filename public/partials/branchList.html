@@ -4,7 +4,8 @@
     <table class="table sortable table-condensed">
         <thead>
         <tr class="header">
-            <th ng-click="orderingPredicate='name'; reverse=!reverse" ng-class="{sort:orderingPredicate == 'name', reverse:reverse}">
+            <th ng-click="orderingPredicate='name'; reverse=!reverse"
+                ng-class="{sort:orderingPredicate == 'name', reverse:reverse}">
                 Branch
                 <span ng-class="{arrow:orderingPredicate == 'name', up:reverse}"></span>
             </th>
@@ -14,42 +15,55 @@
                 PR
                 <span ng-class="{arrow:orderingPredicate == 'pullRequest.id', up:reverse}"></span>
             </th>
+            <th>Build</th>
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="branch in allBranches | orderBy:orderingPredicate:reverse" ng-controller="branchLineController" ng-class="getLastBuildStatus()">
+        <tr ng-repeat="branch in allBranches | orderBy:orderingPredicate:reverse" ng-controller="branchLineController"
+            ng-class="getLastBuildStatus()">
             <td class="branch-name">
-                   <entity-title entity="branch.entity" url="#/branches/{{branch.name | encode }}"></entity-title>
-                   <span ng-show="!branch.entity"><a href="#/branches/{{branch.name | encode }}">{{branch.name}}</a></span>
+                <entity-title entity="branch.entity" url="#/branches/{{branch.name | encode }}"></entity-title>
+                <span ng-show="!branch.entity"><a href="#/branches/{{branch.name | encode }}">{{branch.name}}</a></span>
 
             </td>
             <td>
                 <div ng-show="branch.entity">
-                            <span ng-repeat="assignment in branch.entity.assignments" class="ui-role ui-role-active-{{assignment.isResponsible}}">
-                                <img ng-src="{{assignment.avatar}}30" title="{{assignment.role}}: {{assignment.firstName}} {{assignment.lastName}}">
+                            <span ng-repeat="assignment in branch.entity.assignments"
+                                  class="ui-role ui-role-active-{{assignment.isResponsible}}">
+                                <img ng-src="{{assignment.avatar}}30"
+                                     title="{{assignment.role}}: {{assignment.firstName}} {{assignment.lastName}}">
                             </span>
                 </div>
             </td>
             <td>
                 <div ng-show="branch.entity">
                     <div class="btn-group btn-group-stretch">
-                        <button type="button" class="role-next-states-trigger btn dropdown-toggle" data-toggle="dropdown">
+                        <button type="button" class="role-next-states-trigger btn dropdown-toggle"
+                                data-toggle="dropdown">
                             {{branch.entity.state.name}}
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
-                            <li ng-repeat="entityState in branch.entity.state.nextStates"><a href="#">{{entityState.name}}</a></li>
+                            <li ng-repeat="entityState in branch.entity.state.nextStates"><a href="#">{{entityState.name}}</a>
+                            </li>
                         </ul>
                     </div>
                 </div>
             </td>
             <td>
                 <div ng-show="branch.pullRequest" class="btn-group btn-group-stretch">
-                    <a target="_blank" href="{{branch.pullRequest.url}}" class="btn btn-default {{getPullRequestClass()}}" >
+                    <a target="_blank" href="{{branch.pullRequest.url}}"
+                       class="btn btn-default btn-{{getPullRequestClass() | status }}">
                         #{{branch.pullRequest.id}}</a>
                 </div>
             </td>
-
+            <td>
+                <div ng-show="branch.lastBuild" class="btn-group btn-group-stretch">
+                    <!-- {{branch.lastBuild}} -->
+                    <a class="btn btn-{{getLastBuildStatus() | status}}" target="_blank" href="{{branch.lastBuild.url}}">
+                        {{branch.lastBuild.timeStamp | date }} </a>
+                </div>
+            </td>
         </tr>
         </tbody>
     </table>

@@ -23,7 +23,13 @@ module buildBoard {
             this.$scope.getPullRequestClass = ()=> {
                 var pullRequest = this.$scope.branch.pullRequest;
                 if (pullRequest && pullRequest.status) {
-                    return pullRequest.status.isMerged ? 'btn-primary' : pullRequest.status.isMergeable ? 'btn-success' : 'btn-danger';
+                    if (pullRequest.status.isMerged) {
+                        return 'finished';
+                    } else if (pullRequest.status.isMergeable) {
+                        return 'success';
+                    } else {
+                        return 'failure';
+                    }
                 }
                 else {
                     return '';
@@ -46,8 +52,10 @@ module buildBoard {
                 });
             }
             if (!this.$scope.branch.lastBuild) {
-                $http.get($window.jsRoutes.controllers.Jenkins.lastBuildInfo($scope.branch.name).absoluteURL()).success((build:Build)=> {
-                    this.$scope.branch.lastBuild = build;
+                $http.get($window.jsRoutes.controllers.Jenkins.lastBuildInfo($scope.branch.name).absoluteURL()).success(build=> {
+                    if (build != null && build != "null"){
+                        this.$scope.branch.lastBuild = build;
+                    }
                 });
             }
         }
