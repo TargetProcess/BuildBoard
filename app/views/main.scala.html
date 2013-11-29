@@ -6,7 +6,7 @@
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href='@routes.Assets.at("stylesheets/bootstrap.min.css")'>
+        <link rel="stylesheet" href='@routes.Assets.at("javascripts/bower_components/bootstrap/dist/css/bootstrap.css")'>
         <link rel="stylesheet" href='@routes.Assets.at("stylesheets/main.css")'>
 
         @styles
@@ -19,12 +19,12 @@
             routes.javascript.Jenkins.builds
         )
 
+        <script src='@routes.Assets.at("javascripts/bower_components/jquery/jquery.min.js")'></script>
+        <script src='@routes.Assets.at("javascripts/bower_components/bootstrap/dist/js/bootstrap.js")'></script>
         <script src='@routes.Assets.at("javascripts/bower_components/angular/angular.js")'></script>
         <script src='@routes.Assets.at("javascripts/bower_components/angular-route/angular-route.js")'></script>
         <script src='@routes.Assets.at("javascripts/bower_components/underscore/underscore.js")'></script>
         <script src='@routes.Assets.at("javascripts/bower_components/angular-underscore/angular-underscore.js")'></script>
-        <script src='@routes.Assets.at("javascripts/bower_components/angular-bootstrap/ui-bootstrap.js")'></script>
-        <script src='@routes.Assets.at("javascripts/bower_components/angular-bootstrap/ui-bootstrap-tpls.js")'></script>
 
         <script src='@routes.Assets.at("javascripts/all.js")'></script>
     </head>
