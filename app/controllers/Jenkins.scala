@@ -10,7 +10,7 @@ import models.jenkins.JenkinsRepository
 object Jenkins extends Controller with Secured {
 
   def generateBuild(branch:String, day:Int=0) =
-    Build(if (branch.length %(2+day) == 0)"success" else "danger", s"http://localhost:9000/$day", DateTime.now-day.days, BuildNode("1", "1", "1"))
+    Build("1", if (branch.length %(2+day) == 0)"success" else "danger", s"http://localhost:9000/$day", DateTime.now-day.days, BuildNode("1", "1", "1"))
 
   def lastBuildInfo(branch:String) = IsAuthorized {
     implicit user =>

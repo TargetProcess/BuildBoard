@@ -52,7 +52,7 @@ object JenkinsRepository {
         .filter(b => b.nonEmpty)
         .headOption
       )
-    )((timestamp, result, url, branchName) => Build(branchName.get, result, url, timestamp))
+    )((timestamp, result, url, branchName) => Build(branchName.get, result, url, timestamp, BuildNode("1", "1", "1")))
 
   def getBuilds(branch: String): List[Build] = Try {
     val url = s"$jenkinsUrl/job/StartBuild/api/json?depth=2&tree=builds[url,actions[parameters[name,value]],number,result,timestamp]"
