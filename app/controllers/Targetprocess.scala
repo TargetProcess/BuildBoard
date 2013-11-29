@@ -1,11 +1,6 @@
 package controllers
 
 import play.api.mvc._
-import play.api.libs.json._
-import play.api.libs.functional.syntax._
-import models._
-import models.tp.EntityRepo
-import Writes._
 
 
 object Targetprocess extends Controller with Secured {

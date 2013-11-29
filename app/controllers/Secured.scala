@@ -1,10 +1,7 @@
 package controllers
 
 import play.api.mvc._
-import models.User
-import play.api.mvc._
 import models._
-import play.api.libs.json._
 import play.api.mvc.BodyParsers.parse
 
 trait Secured {

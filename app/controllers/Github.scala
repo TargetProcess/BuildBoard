@@ -4,7 +4,6 @@ import play.api.mvc._
 import models._
 import models.github.GitHubRepository
 import play.api.libs.json._
-import play.api.libs.functional.syntax._
 import Writes._
 
 object Github extends Controller with Secured {
