@@ -9,18 +9,16 @@ import models.jenkins.JenkinsRepository
 
 object Jenkins extends Controller with Secured {
 
-  def generateBuild(branch:String, day:Int=0) =
-    Build("1", if (branch.length %(2+day) == 0)"success" else "danger", s"http://localhost:9000/$day", DateTime.now-day.days, BuildNode("1", "1", "1"))
+  def generateBuild(branch: String, day: Int = 0) =
+    Build("1", if (branch.length % (2 + day) == 0) "success" else "danger", s"http://localhost:9000/$day", DateTime.now - day.days, BuildNode("1", "1", "1"))
 
-  def lastBuildInfo(branch:String) = IsAuthorized {
+  def lastBuildInfo(branch: String) = IsAuthorized {
     implicit user =>
-      request =>  Ok(Json.toJson(JenkinsRepository.getLastBuild(branch)))
+      request => Ok(Json.toJson(JenkinsRepository.getLastBuild(branch)))
   }
 
-  def builds(branch:String) = IsAuthorized {
+  def builds(branch: String) = IsAuthorized {
     implicit user =>
-      request =>  Ok(Json.toJson(
-        (0 to 5).map(generateBuild(branch, _))
-      ))     
+      request => Ok(Json.toJson(JenkinsRepository.getBuilds(branch)))
   }
 }
