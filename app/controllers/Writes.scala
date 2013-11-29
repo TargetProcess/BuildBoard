@@ -13,10 +13,11 @@ import models.Build
 object Writes {
   implicit var buildNodeWrite: Writes[BuildNode] = null
   buildNodeWrite = (
+    (__ \ "name").write[String] ~
     (__ \ "status").write[String] ~
       (__ \ "statusUrl").write[String] ~
       (__ \ "artefactsUrl").write[String] ~
-      (__ \ "children").lazyWrite(traversableWrites[BuildNode](buildNodeWrite))
+      (__ \ "children").lazyWriteNullable(traversableWrites[BuildNode](buildNodeWrite))
     )(unlift(BuildNode.unapply))
 
   implicit val buildWrite = Json.writes[Build]

@@ -31,7 +31,14 @@ object JenkinsRepository {
 
   private implicit val actionReads: Reads[Action] = Json.reads[Action]
 
+  private implicit val buildNodeReads: Reads[BuildNode] = (
+    (__ \ "buildNumber").read[Int] ~
+      (__ \ "jobName").read[String] ~
+      (__ \ "result").read[String]
+    )((number, job, result) => BuildNode(job, result, "no", "no"))
+
   implicit val buildReads: Reads[Build] = (
+    (__ \ "number").read[Int] ~
     (__ \ "timestamp").read[Long].map(new DateTime(_)) ~
       (__ \ "result").read[String] ~
       (__ \ "url").read[String] ~
@@ -51,11 +58,12 @@ object JenkinsRepository {
         .flatten
         .filter(b => b.nonEmpty)
         .headOption
-      )
-    )((timestamp, result, url, branchName) => Build(branchName.get, result, url, timestamp, BuildNode("1", "1", "1")))
+      ) ~
+      (__ \ "subBuilds").readNullable(list[BuildNode])
+    )((number, timestamp, result, url, branchName, buildNodes) => Build(number, branchName.get, result, url, timestamp, BuildNode("StartBuild", result, "1", "1", buildNodes)))
 
   def getBuilds(branch: String): List[Build] = Try {
-    val url = s"$jenkinsUrl/job/StartBuild/api/json?depth=2&tree=builds[url,actions[parameters[name,value]],number,result,timestamp]"
+    val url = s"$jenkinsUrl/job/StartBuild/api/json?depth=2&tree=builds[number,url,actions[parameters[name,value],subBuilds],number,result,timestamp]"
     val response = Http(url)
       .option(HttpOptions.connTimeout(1000))
       .option(HttpOptions.readTimeout(5000))
