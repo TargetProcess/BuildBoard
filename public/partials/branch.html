@@ -4,10 +4,16 @@
             <entity-title entity="branch.entity"/>
         </h3>
 
-        <div ng-repeat="build in builds" class="panel panel-{{build.status | status}}">
-            <div class="panel-heading">{{build.timeStamp | date:'medium' }}</div>
-            <div class="panel-body">
-                Panel content
+        <div ng-model="collapse" ng-repeat="build in builds" class="panel panel-{{build.status | status}}">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                   <a data-toggle="collapse" data-target=".build-{{build.number}}">  {{build.timeStamp | date:'medium' }}</a>
+                </h4>
+            </div>
+            <div class="panel-collapse collapse  build-{{build.number}}">
+                <div class="panel-body">
+                    Panel content
+                </div>
             </div>
         </div>
 

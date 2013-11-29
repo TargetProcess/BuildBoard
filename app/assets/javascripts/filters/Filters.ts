@@ -18,6 +18,6 @@ module buildBoard {
     }
 
     export function status() {
-        return (status:string)=>(status && statusMap[status.toLowerCase()]) || "default";
+        return (status:string)=>((status && statusMap[status.toLowerCase()]) || "default");
     }
 }
