@@ -3,30 +3,7 @@
         <script>
             window.currentUser = {id:@user.tpId};
         </script>
-        <ul class="nav nav-pills nav-stacked">
-            <li>
-                <a ng-click="setFilter(allBranchesFilter)" class="{{checkCurrentFilter(allBranchesFilter) | activeFilter}}">All branches
-                    <span class="badge  pull-right">{{allBranchesFilter.getCount(allBranches)}}</span>
-                </a>
-            </li>
 
-            <li>
-                <a ng-click="setFilter(entityBranchesFilter)" class="{{checkCurrentFilter(entityBranchesFilter) | activeFilter}}">Entity branches
-                    <span class="badge  pull-right">{{entityBranchesFilter.getCount(allBranches)}}</span>
-                </a>
-            </li>
-            <li>
-                <a ng-click="setFilter(getUserFilter(@user.tpId))" class="{{checkCurrentFilter(getUserFilter(@user.tpId)) | activeFilter}}">My branches
-                    <span class="badge  pull-right">{{getUserFilter(@user.tpId).getCount(allBranches)}}</span>
-                </a>
-            </li>
-            <hr>
-            <li ng-repeat="user in users | orderBy:'firstName+lastName'">
-                <a ng-click="setFilter(getUserFilter(user.userId))" class="{{checkCurrentFilter(getUserFilter(user.userId)) | activeFilter}}">{{user.firstName}} {{user.lastName}}
-                    <span class="badge  pull-right">{{getUserFilter(user.userId).getCount(allBranches)}}</span>
-                </a>
-            </li>
-        </ul>
     }
 
 @main("Build board", Some(user), sidebar = sidebar) {

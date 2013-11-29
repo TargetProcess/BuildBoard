@@ -2,6 +2,7 @@
     <div class="col-lg-9">
         <h3>
             <entity-title entity="branch.entity"/>
+            {{branch.name}}
         </h3>
 
         <div ng-model="collapse" ng-repeat="build in builds" class="panel panel-{{build.status | status}}">
@@ -10,9 +11,9 @@
                    <a data-toggle="collapse" data-target=".build-{{build.number}}">  {{build.timeStamp | date:'medium' }}</a>
                 </h4>
             </div>
-            <div class="panel-collapse collapse  build-{{build.number}}">
+            <div class="panel-collapse collapse build-{{build.number}}">
                 <div class="panel-body">
-                    Panel content
+
                 </div>
             </div>
         </div>
@@ -20,7 +21,7 @@
 
 
     </div>
-    <div class="col-lg-3">
+    <div class="col-lg-3" ng-show="branch.entity.assignments">
         Users
         <div ng-repeat="user in branch.entity.assignments">
             <img ng-src="{{user.avatar}}40"> {{user.firstName}} {{user.lastName}}

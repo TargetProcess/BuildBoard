@@ -34,11 +34,7 @@
             <div class="container">@navigationBar(u)</div>
         }
 
-        <div class="container">
-            <div ng-controller="branchesController" class="row">
-                <div class="col-lg-2">@sidebar</div>
-                <div class="col-lg-10" ng-view></div>
-            </div>
+        <div class="container" ng-view>
         </div>
     </body>
 </html>

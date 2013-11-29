@@ -16,7 +16,7 @@ module buildBoard {
             ($routeProvider:ng.route.IRouteProvider)=>
                 $routeProvider
                     .when('/branches', {
-                        templateUrl: '/assets/partials/branchList.html',
+                        templateUrl: '/assets/partials/main.html',
                         controller: BranchesController
                     })
                     .when('/branches/:branchId', {
