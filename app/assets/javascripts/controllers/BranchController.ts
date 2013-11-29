@@ -9,27 +9,30 @@ module buildBoard {
 
     export interface IBranchScope extends ng.IScope {
         branchName:string;
+        builds: Build[];
     }
 
 
     export class BranchController {
         public static $inject = [
             '$scope',
-            '$http',
             '$routeParams',
-            ServerRoutesService.NAME
+            BackendService.NAME
         ];
 
-        constructor(private $scope:IBranchScope, $http:ng.IHttpService, $routeParams:IBranchRouteParams, serverRoutesService:ServerRoutesService) {
+        constructor(private $scope:IBranchScope, $routeParams:IBranchRouteParams, backendService:BackendService) {
             var branchType = $routeParams.branchType;
             var branchId = $routeParams.branchId;
 
             this.$scope.branchName = (branchId && branchType) ? branchType + '/' + branchId : (branchId || branchType);
 
-            $http.get(serverRoutesService.branch(this.$scope.branchName)).success((data:Branch)=> {
-                this.$scope.branch = data;
+            backendService.branch(this.$scope.branchName).success(branch=> {
+                this.$scope.branch = branch;
             });
 
+            backendService.builds(this.$scope.branchName).success(builds=> {
+                this.$scope.builds = builds;
+            });
         }
     }
 

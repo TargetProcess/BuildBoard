@@ -2,13 +2,6 @@ package controllers
 
 import play.api.libs.json._
 import models._
-import models.Assignment
-import models.Build
-import models.PullRequestStatus
-import models.Assignment
-import models.BuildNode
-import models.Branch
-import models.Build
 import play.api.libs.functional.syntax._
 import models.PullRequestStatus
 import models.Assignment
@@ -18,7 +11,13 @@ import models.Build
 
 object Writes {
   implicit var buildNodeWrite: Writes[BuildNode] = null
-  buildNodeWrite = Json.writes[BuildNode]
+  buildNodeWrite = (
+    (__ \ "status").write[String] ~
+      (__ \ "statusUrl").write[String] ~
+      (__ \ "artefactsUrl").write[String] ~
+      (__ \ "children").lazyWrite(play.api.libs.json.Writes.traversableWrites[BuildNode](buildNodeWrite))
+    )(unlift(BuildNode.unapply))
+
   implicit val buildWrite = Json.writes[Build]
   implicit val entityAssignment = Json.writes[Assignment]
   implicit val entityStateWrite = Json.writes[EntityState]

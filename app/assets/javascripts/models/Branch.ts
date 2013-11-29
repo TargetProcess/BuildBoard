@@ -9,7 +9,6 @@ module buildBoard {
         entity:Entity
         pullRequest:PullRequest
         lastBuild:Build
-
     }
 
     export interface PullRequest {

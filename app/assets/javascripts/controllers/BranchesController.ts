@@ -5,11 +5,10 @@ module buildBoard {
     export class BranchesController {
         public static $inject = [
             '$scope',
-            '$http',
-            ServerRoutesService.NAME
+            BackendService.NAME
         ];
 
-        constructor(private $scope:IBranchesScope, $http:ng.IHttpService, serverRoutesService:ServerRoutesService) {
+        constructor(private $scope:IBranchesScope, backendService:BackendService) {
             this.$scope.setFilter = this.setFilter.bind(this);
             this.$scope.checkCurrentFilter = this.checkCurrentFilter.bind(this);
 
@@ -20,7 +19,7 @@ module buildBoard {
 
             this.$scope.loading = true;
 
-            $http.get(serverRoutesService.branches()).success((data:Branch[])=> {
+            backendService.branches().success((data:Branch[])=> {
                 this.$scope.allBranches = data;
                 this.$scope.users = _.chain(data)
                     .filter(branch=>!!branch.entity)

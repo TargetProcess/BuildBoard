@@ -16,6 +16,7 @@ POST        /login/logout                   controllers.Login.logout
 GET         /gihtub/pullRequestStatus       controllers.Github.pullRequestStatus(id:Int)
 
 GET         /jenkins/lastBuild              controllers.Jenkins.lastBuildInfo(branch:String)
+GET         /jenkins/builds                 controllers.Jenkins.builds(branch:String)
 
 
 #POST        /tp/changeEntityState            controllers.Targetprocess.changeEntityState(entityId:Int, entityStateId:Int)

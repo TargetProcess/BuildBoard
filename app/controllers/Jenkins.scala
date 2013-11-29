@@ -10,10 +10,25 @@ import Writes._
 
 object Jenkins extends Controller with Secured {
 
+  def generateBuild(branch:String, day:Int=0) =
+    Build(if (branch.length %(1+day) == 0)"success" else "danger", s"http://localhost:9000/$day", DateTime.now-day.days, null)
+
   def lastBuildInfo(branch:String) = IsAuthorized {
     implicit user =>
-      request =>  Ok(Json.toJson(Build(if (branch.length %2 == 0)"success" else "danger", "http://localhost:9000", DateTime.now, null)))
 
+
+      request =>{
+        val build = generateBuild(branch)
+        Ok(Json.toJson(build))
+      }
+
+  }
+
+  def builds(branch:String) = IsAuthorized {
+    implicit user =>
+      request =>  Ok(Json.toJson(
+        (0 to 5).map(generateBuild(branch, _))
+      ))
   }
 
 }

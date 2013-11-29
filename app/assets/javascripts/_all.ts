@@ -3,7 +3,7 @@
 /// <reference path='libs/angular-route.d.ts' />
 /// <reference path='libs/underscore.d.ts' />
 /// <reference path='interfaces/JsRoutes.ts' />
-/// <reference path='services/ServerRoutesService.ts'/>
+/// <reference path='services/BackendService.ts'/>
 /// <reference path='models/Branch.ts' />
 /// <reference path='filters/Filters.ts' />
 /// <reference path='interfaces/IBranchesScope.ts' />
