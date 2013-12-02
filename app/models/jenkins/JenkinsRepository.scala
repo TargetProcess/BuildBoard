@@ -5,7 +5,7 @@ import play.api.libs.json.util._
 import play.api.libs.json.Reads._
 import play.api.data.validation.ValidationError
 import play.api.libs.functional.syntax._
-import models.{BuildNode, Build}
+import models.{BuildAction, BuildNode, Build}
 import org.joda.time.DateTime
 import scala.util.Try
 import scalaj.http.{HttpOptions, Http}
@@ -13,6 +13,8 @@ import play.api.libs.json.Json.JsValueWrapper
 
 
 object JenkinsRepository {
+  def forceBuild(action: BuildAction with Product with Serializable)={}
+
   val jenkinsUrl = "http://jm2:8080"
 
   case class Parameter(name: String, value: String)
@@ -42,21 +44,17 @@ object JenkinsRepository {
       (__ \ "result").readNullable[String] ~
       (__ \ "url").read[String] ~
       (__ \ "actions").read(list[Action])
-        .map((actions: List[Action]) => actions.map(a => a match {
-        case Action(Some(parameters)) => {
-          parameters.map(p => p match {
-            case Parameter("BRANCHNAME", value) => Some(value)
-            case _ => None
-          })
-            .filter(b => b.nonEmpty)
-            .map(_.get)
-            .headOption
+        .map((actions: List[Action]) => actions.map {
+        case Action(Some(parameters)) => parameters.map {
+          case Parameter("BRANCHNAME", value) => Some(value)
+          case _ => None
         }
+          .filter(b => b.nonEmpty)
+          .map(_.get)
+          .headOption
         case _ => None
-      })
-        .flatten
-        .filter(b => b.nonEmpty)
-        .headOption
+      }
+        .flatten.find(b => b.nonEmpty)
       ) ~
       (__ \ "subBuilds").read(list[SubBuild])
     )((number, timestamp, result, url, branchName, subBuilds) => {

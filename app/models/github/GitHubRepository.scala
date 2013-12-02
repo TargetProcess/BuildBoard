@@ -18,7 +18,8 @@ class GitHubRepository(implicit user: User) {
   val repo = new RepositoryId("TargetProcess", "TP")
 
   def getBranch(id:String):Branch = {
-    val ghBranches:List[RepositoryBranch] = repositoryService.getBranches(repo).asScala.toList.filter(_.getName == id)
+    val br = repositoryService.getBranches(repo)
+    val ghBranches:List[RepositoryBranch] = br.asScala.toList.filter(_.getName == id)
     getBranchesInfo(ghBranches).head
   }
 
@@ -72,7 +73,7 @@ class GitHubRepository(implicit user: User) {
   }
 
   def getPullRequestStatus(id: Int) = {
-    var pr = prService.getPullRequest(repo, id)
+    val pr = prService.getPullRequest(repo, id)
     PullRequestStatus(pr.isMergeable, pr.isMerged)
   }
 }

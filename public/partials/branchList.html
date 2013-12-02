@@ -38,7 +38,7 @@
             <td>
                 <div ng-show="branch.entity">
                     <div class="btn-group btn-group-stretch">
-                        <button type="button" class="role-next-states-trigger btn dropdown-toggle"
+                        <button type="button" class="btn dropdown-toggle"
                                 data-toggle="dropdown">
                             {{branch.entity.state.name}}
                             <span class="caret"></span>
@@ -58,10 +58,18 @@
                 </div>
             </td>
             <td>
-                <div ng-show="branch.lastBuild" class="btn-group btn-group-stretch">
-                    <!-- {{branch.lastBuild}} -->
-                    <a class="btn btn-{{getLastBuildStatus() | status}}" target="_blank" href="{{branch.lastBuild.url}}">
-                        {{branch.lastBuild.timeStamp | date }} </a>
+                <div ng-show="branch.lastBuild && branch.lastBuild != 'null'">
+                    <div class="btn-group btn-group-stretch">
+                        <button type="button" class="btn dropdown-toggle btn-{{getLastBuildStatus() | status}}" data-toggle="dropdown">
+                            {{branch.lastBuild.timeStamp | date }}
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="btn btn-link" target="_blank" href="{{branch.lastBuild.url}}">Open <span class="glyphicon glyphicon-export"></span></a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </td>
         </tr>

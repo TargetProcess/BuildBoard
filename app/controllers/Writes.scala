@@ -12,6 +12,7 @@ import models.Build
 
 object Writes {
   implicit var buildNodeWrite: Writes[BuildNode] = null
+
   buildNodeWrite = (
     (__ \ "number").write[Int] ~
     (__ \ "name").write[String] ~
@@ -22,11 +23,14 @@ object Writes {
     )(unlift(BuildNode.unapply))
 
   implicit val buildWrite = Json.writes[Build]
+
   implicit val entityAssignment = Json.writes[Assignment]
   implicit val entityStateWrite = Json.writes[EntityState]
   implicit val entityWrite = Json.writes[Entity]
   implicit val prWrite = Json.writes[PullRequest]
+
   implicit val branchWrite = Json.writes[Branch]
+
   implicit val statusWrites = (
     (__ \ "isMergeable").write[Boolean] ~
       (__ \ "isMerged").write[Boolean])(unlift(PullRequestStatus.unapply))

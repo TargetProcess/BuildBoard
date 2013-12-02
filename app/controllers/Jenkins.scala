@@ -18,4 +18,13 @@ object Jenkins extends Controller with Secured {
     implicit user =>
       request => Ok(Json.toJson(JenkinsRepository.getBuilds(branch)))
   }
+
+  def forceBuild(pullRequestId:Option[Int], branchId:Option[String], fullCycle:Boolean) = {
+    val buildAction = (pullRequestId, branchId) match {
+      case (Some(prId), None) => PullRequestBuildAction(prId, fullCycle)
+      case (None, Some(brId))=> BranchBuildAction(brId, fullCycle)
+    }
+    JenkinsRepository.forceBuild(buildAction)
+    Ok
+  }
 }
