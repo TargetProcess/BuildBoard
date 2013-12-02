@@ -9,6 +9,7 @@ import models.Assignment
 import models.BuildNode
 import models.Branch
 import models.Build
+import org.joda.time.DateTime
 
 object Writes {
   implicit var buildNodeWrite: Writes[BuildNode] = null
@@ -18,8 +19,9 @@ object Writes {
     (__ \ "name").write[String] ~
     (__ \ "status").writeNullable[String] ~
       (__ \ "statusUrl").write[String] ~
-      (__ \ "artefactsUrl").write[String] ~
-      (__ \ "children").lazyWriteNullable(traversableWrites[BuildNode](buildNodeWrite))
+      (__ \ "artifactsUrl").writeNullable[String] ~
+      (__ \ "timestamp").write[DateTime] ~
+      (__ \ "children").lazyWrite(traversableWrites[BuildNode](buildNodeWrite))
     )(unlift(BuildNode.unapply))
 
   implicit val buildWrite = Json.writes[Build]

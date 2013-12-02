@@ -1,21 +1,19 @@
 package models.jenkins
 
 import play.api.libs.json._
-import play.api.libs.json.util._
 import play.api.libs.json.Reads._
-import play.api.data.validation.ValidationError
 import play.api.libs.functional.syntax._
-import models.{BuildAction, BuildNode, Build}
 import org.joda.time.DateTime
 import scala.util.Try
 import scalaj.http.{HttpOptions, Http}
-import play.api.libs.json.Json.JsValueWrapper
-
 
 object JenkinsRepository {
   def forceBuild(action: BuildAction with Product with Serializable)={}
 
   val jenkinsUrl = "http://jm2:8080"
+  val buildsQuery = "builds[number,url,actions[parameters[name,value]],subBuilds[buildNumber,jobName,result],number,result,timestamp]";
+
+  case class Build(number: Int, timestamp: DateTime, result: Option[String], url: String, actions: List[Action], subBuilds: List[SubBuild] = Nil)
 
   case class Parameter(name: String, value: String)
 
@@ -23,7 +21,9 @@ object JenkinsRepository {
 
   case class SubBuild(buildNumber: Int, jobName: String, result: Option[String])
 
-  case class SubBuilds(subBuilds: Option[List[SubBuild]])
+  case class DownstreamProject(name: String, url: String, builds: List[Build], downstreamProjects: Option[List[DownstreamProject]])
+
+  case class BuildInfo(builds: List[Build], downstreamProjects: List[DownstreamProject])
 
   private implicit val parameterReads: Reads[Parameter] = (
       (__ \ "name").read[String] ~
@@ -34,52 +34,81 @@ object JenkinsRepository {
       case _ => Parameter(name, value.toString)
     }
   })
+
   private implicit val actionReads: Reads[Action] = Json.reads[Action]
 
   private implicit val subBuildReads: Reads[SubBuild] = Json.reads[SubBuild]
 
-  implicit val buildReads: Reads[Build] = (
+  private implicit val buildReads: Reads[Build] = (
     (__ \ "number").read[Int] ~
       (__ \ "timestamp").read[Long].map(new DateTime(_)) ~
       (__ \ "result").readNullable[String] ~
       (__ \ "url").read[String] ~
-      (__ \ "actions").read(list[Action])
-        .map((actions: List[Action]) => actions.map {
-        case Action(Some(parameters)) => parameters.map {
-          case Parameter("BRANCHNAME", value) => Some(value)
-          case _ => None
-        }
-          .filter(b => b.nonEmpty)
-          .map(_.get)
-          .headOption
-        case _ => None
-      }
-        .flatten.find(b => b.nonEmpty)
-      ) ~
-      (__ \ "subBuilds").read(list[SubBuild])
-    )((number, timestamp, result, url, branchName, subBuilds) => {
-    val buildNodes = Some(subBuilds.map((s: SubBuild) => BuildNode(s.buildNumber, s.jobName, s.result, "no", "no", None)))
-    Build(number, branchName.get, result, url, timestamp, BuildNode(number, "StartBuild", result, url, "1", buildNodes))
-  })
+      (__ \ "actions").read(list[Action]) ~
+      (__ \ "subBuilds").readNullable(list[SubBuild])
+    )((number, timestamp, result, url, actions, subBuilds) => Build(number, timestamp, result, url, actions, if (subBuilds.isDefined) subBuilds.get else Nil))
 
-  def getBuilds: List[Build] = Try {
-    val url = s"$jenkinsUrl/job/StartBuild/api/json?depth=2&tree=builds[number,url,actions[parameters[name,value]],subBuilds[buildNumber,jobName,result],number,result,timestamp]"
+  private implicit val downstreamProjectReads: Reads[DownstreamProject] = (
+    (__ \ "name").read[String] ~
+      (__ \ "url").read[String] ~
+      (__ \ "builds").read(list[Build]) ~
+      (__ \ "downstreamProjects").lazyReadNullable(list[DownstreamProject](downstreamProjectReads))
+    )(DownstreamProject)
+
+  private implicit val buildInfoReads: Reads[BuildInfo] = (
+    (__ \ "builds").read(list[Build]) ~
+      (__ \ "downstreamProjects").readNullable(list[DownstreamProject])
+    )((builds: List[Build], projects: Option[List[DownstreamProject]]) => BuildInfo(builds, if (projects.isDefined) projects.get else Nil))
+
+  private def getParameterValue(actions: List[Action], paramName: String) = actions.map((a: Action) => a match {
+    case Action(Some(parameters)) => {
+      parameters.map(p => p match {
+        case Parameter(name, value) if name == paramName => Some(value)
+            case _ => None
+        }
+            .filter(b => b.nonEmpty)
+            .map(_.get)
+            .headOption
+        case _ => None
+        }
+        .flatten.find(b => b.nonEmpty)
+
+  private def getBuildNodeFor(jobName: String, build: Build, downstreamProjects: List[DownstreamProject]): models.BuildNode = {
+    val downstreamBuildNodes = for {subBuild <- build.subBuilds
+                                    downstreamProject <- downstreamProjects if subBuild.jobName == downstreamProject.name
+                                    downstreamBuild <- downstreamProject.builds if subBuild.buildNumber == downstreamBuild.number
+    } yield getBuildNodeFor(subBuild.jobName, downstreamBuild, downstreamProject.downstreamProjects getOrElse Nil)
+
+    models.BuildNode(build.number, jobName, build.result, build.url, getParameterValue(build.actions, "ARTIFACTS"), build.timestamp, downstreamBuildNodes)
+  }
+
+  private def getBuilds: List[models.Build] = Try {
+    val rootJobName = "StartBuild"
+    val url = s"$jenkinsUrl/job/$rootJobName/api/json?tree=$buildsQuery,downstreamProjects[name,url,$buildsQuery,downstreamProjects[name,url,$buildsQuery]]"
     val response = Http(url)
       .option(HttpOptions.connTimeout(1000))
       .option(HttpOptions.readTimeout(5000))
       .asString
     val json = Json.parse(response)
 
-    json.validate((__ \ "builds").read(list[Build])).get
+    val buildInfo = buildInfoReads.reads(json).get
+
+    buildInfo.builds.map(build => {
+      val node = getBuildNodeFor(rootJobName, build, buildInfo.downstreamProjects)
+      models.Build(node.number, getParameterValue(build.actions, "BRANCHNAME").get, node.status, node.statusUrl, node.timestamp, node)
+    })
+    .sortBy(- _.number)
   } getOrElse Nil
 
-  def getBuilds(branch: String): List[Build] = getBuilds.filter((b: Build) => b.branch == branch || b.branch == s"origin/$branch")
+  def getBuilds(branch: String): List[models.Build] = {
+    getBuilds.filter((b: models.Build) => b.branch == branch || b.branch == s"origin/$branch")
+  }
 
-  def getLastBuild(branch: String): Option[Build] = {
+  def getLastBuild(branch: String): Option[models.Build] = {
     getBuilds(branch).headOption
   }
 
-  def getLastBuildsByBranch: List[Build] = {
-    getBuilds
+  def getLastBuildsByBranch: Map[String, Option[models.Build]] = {
+    getBuilds.groupBy(b => b.branch).map(item => (item._1, item._2.headOption))
   }
 }
