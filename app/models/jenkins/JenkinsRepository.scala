@@ -8,7 +8,7 @@ import scala.util.Try
 import scalaj.http.{HttpOptions, Http}
 
 object JenkinsRepository {
-  def forceBuild(action: BuildAction with Product with Serializable)={}
+  def forceBuild(action: models.BuildAction with Product with Serializable) = {}
 
   val jenkinsUrl = "http://jm2:8080"
   val buildsQuery = "builds[number,url,actions[parameters[name,value]],subBuilds[buildNumber,jobName,result],number,result,timestamp]";
@@ -26,7 +26,7 @@ object JenkinsRepository {
   case class BuildInfo(builds: List[Build], downstreamProjects: List[DownstreamProject])
 
   private implicit val parameterReads: Reads[Parameter] = (
-      (__ \ "name").read[String] ~
+    (__ \ "name").read[String] ~
       (__ \ "value").read[JsValue]
     )((name, value) => {
     value match {
@@ -60,18 +60,17 @@ object JenkinsRepository {
       (__ \ "downstreamProjects").readNullable(list[DownstreamProject])
     )((builds: List[Build], projects: Option[List[DownstreamProject]]) => BuildInfo(builds, if (projects.isDefined) projects.get else Nil))
 
-  private def getParameterValue(actions: List[Action], paramName: String) = actions.map((a: Action) => a match {
+  private def getParameterValue(actions: List[Action], paramName: String) = actions.flatMap(a => a match {
     case Action(Some(parameters)) => {
       parameters.map(p => p match {
         case Parameter(name, value) if name == paramName => Some(value)
-            case _ => None
-        }
-            .filter(b => b.nonEmpty)
-            .map(_.get)
-            .headOption
         case _ => None
-        }
-        .flatten.find(b => b.nonEmpty)
+      })
+    }
+    case _ => None
+  })
+  .flatten
+  .headOption
 
   private def getBuildNodeFor(jobName: String, build: Build, downstreamProjects: List[DownstreamProject]): models.BuildNode = {
     val downstreamBuildNodes = for {subBuild <- build.subBuilds
@@ -97,7 +96,7 @@ object JenkinsRepository {
       val node = getBuildNodeFor(rootJobName, build, buildInfo.downstreamProjects)
       models.Build(node.number, getParameterValue(build.actions, "BRANCHNAME").get, node.status, node.statusUrl, node.timestamp, node)
     })
-    .sortBy(- _.number)
+      .sortBy(-_.number)
   } getOrElse Nil
 
   def getBuilds(branch: String): List[models.Build] = {
