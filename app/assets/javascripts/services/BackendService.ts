@@ -23,14 +23,26 @@ module buildBoard {
         }
 
         branches():ng.IHttpPromise<Branch[]> {
-            return this.$http.get( this.controllers.Application.branches().absoluteURL());
+            return this.$http.get(this.controllers.Application.branches().absoluteURL());
         }
-
 
         builds(branchId:string):ng.IHttpPromise<Build[]> {
-            return this.$http.get( this.controllers.Jenkins.builds(branchId).absoluteURL());
+            return this.$http.get(this.controllers.Jenkins.builds(branchId).absoluteURL());
         }
 
+        buildsPerBuild():ng.IHttpPromise<{ [branch: string]: Build; }> {
+            return this.$http.get(this.controllers.Jenkins.lastBuildInfos().absoluteURL());
+        }
+
+
+        forceBuild(buildAction:BuildAction):ng.IHttpPromise<string> {
+            return this.$http.get(this.controllers.Jenkins.forceBuild(buildAction.pullRequestId, buildAction.branchId, buildAction.fullCycle).absoluteURL());
+        }
+
+
+        getPullRequestStatus(pullRequest:number):ng.IHttpPromise<PRStatus> {
+            return this.$http.get(this.controllers.Github.pullRequestStatus(pullRequest).absoluteURL());
+        }
     }
 
 }

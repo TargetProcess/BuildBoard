@@ -58,18 +58,24 @@
                 </div>
             </td>
             <td>
-                <div ng-show="branch.lastBuild && branch.lastBuild != 'null'">
-                    <div class="btn-group btn-group-stretch">
-                        <button type="button" class="btn dropdown-toggle btn-{{getLastBuildStatus() | status}}" data-toggle="dropdown">
-                            {{branch.lastBuild.timeStamp | date }}
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <a class="btn btn-link" target="_blank" href="{{branch.lastBuild.url}}">Open <span class="glyphicon glyphicon-export"></span></a>
-                            </li>
-                        </ul>
-                    </div>
+                <div class="btn-group btn-group-stretch">
+                    <button type="button" class="btn dropdown-toggle btn-{{getLastBuildStatus() | status}}"
+                            data-toggle="dropdown">
+                        <span ng-show="branch.lastBuild">{{ branch.lastBuild.timeStamp | date }}</span>
+                        <span ng-show="!branch.lastBuild">Never built</span>
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a ng-show="branch.lastBuild" class="btn btn-link" target="_blank" href="{{branch.lastBuild.url}}">
+                                Open in Jenkins
+                                <span class="glyphicon glyphicon-export"></span>
+                            </a>
+                            <button type="button" class="btn btn-default" ng-repeat="action in branch.buildActions" ng-click="forceBuild(action)">
+                                {{action.name}}
+                            </button>
+                        </li>
+                    </ul>
                 </div>
             </td>
         </tr>

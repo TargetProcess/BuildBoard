@@ -14,8 +14,9 @@ module buildBoard {
     }
 
     export interface IJenkins {
-        lastBuildInfo(branch:string):IAction
         builds(branch:string):IAction
+        lastBuildInfos():IAction
+        forceBuild(prId:number, branchId:string, fullCycle:boolean):IAction
     }
 
     export interface IGithub {

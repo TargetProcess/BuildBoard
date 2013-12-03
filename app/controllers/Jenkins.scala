@@ -16,6 +16,11 @@ object Jenkins extends Controller with Secured {
       request => Ok(Json.toJson(JenkinsRepository.getLastBuild(branch)))
   }
 
+  def lastBuildInfos = IsAuthorized {
+    implicit user =>
+      request => Ok(Json.toJson(JenkinsRepository.getLastBuildsByBranch))
+  }
+
   def builds(branch: String) = IsAuthorized {
     implicit user =>
       request => Ok(Json.toJson(JenkinsRepository.getBuilds(branch)))

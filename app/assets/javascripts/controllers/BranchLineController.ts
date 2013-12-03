@@ -6,6 +6,7 @@ module buildBoard {
         branch:Branch;
         getPullRequestClass()
         getLastBuildStatus()
+        forceBuild(buildAction:BuildAction)
     }
 
     export class BranchLineController {
@@ -14,12 +15,10 @@ module buildBoard {
 
         public static $inject = [
             '$scope',
-            '$http',
-            '$window'
+            BackendService.NAME
         ];
 
-        constructor(public $scope:IBranchScope, $http:ng.IHttpService, $window:IBuildBoardWindow) {
-
+        constructor(public $scope:IBranchScope, backendService:BackendService) {
             this.$scope.getPullRequestClass = ()=> {
                 var pullRequest = this.$scope.branch.pullRequest;
                 if (pullRequest && pullRequest.status) {
@@ -45,17 +44,14 @@ module buildBoard {
                 }
             };
 
+            this.$scope.forceBuild = (buildAction:BuildAction) => {
+                backendService.forceBuild(buildAction);
+            };
+
 
             if (this.$scope.branch.pullRequest && !this.$scope.branch.pullRequest.status) {
-                $http.get($window.jsRoutes.controllers.Github.pullRequestStatus($scope.branch.pullRequest.id).absoluteURL()).success((data:PRStatus)=> {
+                backendService.getPullRequestStatus($scope.branch.pullRequest.id).success(data=> {
                     this.$scope.branch.pullRequest.status = data;
-                });
-            }
-            if (!this.$scope.branch.lastBuild) {
-                $http.get($window.jsRoutes.controllers.Jenkins.lastBuildInfo($scope.branch.name).absoluteURL()).success(build=> {
-                    if (build != null && build != "null"){
-                        this.$scope.branch.lastBuild = build;
-                    }
                 });
             }
         }

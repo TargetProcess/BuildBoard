@@ -41,4 +41,10 @@ module buildBoard {
         url:string;
         branch:string;
     }
+
+    export class BuildAction {
+        branchId:string;
+        pullRequestId:number;
+        fullCycle:boolean;
+    }
 }
