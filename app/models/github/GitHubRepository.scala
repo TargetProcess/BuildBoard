@@ -7,19 +7,20 @@ import org.eclipse.egit.github.core.service._
 import org.eclipse.egit.github.core.{RepositoryBranch, RepositoryId, PullRequest=>GhPullRequest}
 import scala.collection.JavaConverters._
 import models.jenkins.JenkinsRepository
+import scala.util.matching.Regex
 
 class GitHubRepository(implicit user: User) {
   val github = new GitHubClient().setOAuth2Token(user.githubToken)
   val repositoryService = new RepositoryService(github)
   val prService = new PullRequestService(github)
 
-  val EntityBranchPattern = "^(?i)feature/(us|bug|f)(\\d+).*".r
-  val FeatureBranchPattern = "^(?i)feature/(\\w+)".r
+  val EntityBranchPattern = new Regex("^(?i)feature/(us|bug|f)(\\d+).*")
+  val FeatureBranchPattern = new Regex("^(?i)feature/(\\w+)")
   val repo = new RepositoryId("TargetProcess", "TP")
 
   def getBranch(id:String):Branch = {
-    val br = repositoryService.getBranches(repo)
-    val ghBranches:List[RepositoryBranch] = br.asScala.toList.filter(_.getName == id)
+    val br: List[RepositoryBranch] = repositoryService.getBranches(repo).asScala.toList
+    val ghBranches:List[RepositoryBranch] = br.filter(_.getName == id)
     getBranchesInfo(ghBranches).head
   }
 
@@ -37,7 +38,9 @@ class GitHubRepository(implicit user: User) {
 
   def getBranchesInfo(ghBranches: List[RepositoryBranch]): List[Branch] ={
 
-    val ghPullRequests:Map[String,GhPullRequest] = prService.getPullRequests(repo, "OPEN").asScala.map(pr => (pr.getHead.getRef, pr)).toMap
+    val prList:List[GhPullRequest] = prService.getPullRequests(repo, "OPEN").asScala.toList
+
+    val ghPullRequests:Map[String,GhPullRequest] = prList.map(pr => (pr.getHead.getRef, pr)).toMap
 
 
     val branchNames = ghBranches
@@ -66,7 +69,18 @@ class GitHubRepository(implicit user: User) {
         case _ => None
       }
 
-      Branch(name, pullRequest, entity)
+      val actions = List(
+        BranchBuildAction(name, fullCycle = true),
+        BranchBuildAction(name, fullCycle = false)
+      ) ++ (pullRequest match {
+        case Some(pr) => List(
+          PullRequestBuildAction(pr.id, fullCycle = true),
+          PullRequestBuildAction(pr.id, fullCycle = false)
+        )
+        case None => Nil
+      }     )
+
+      Branch(name, pullRequest, entity, actions)
 
     }).toList
 

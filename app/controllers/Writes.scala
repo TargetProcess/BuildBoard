@@ -4,11 +4,6 @@ import play.api.libs.json._
 import models._
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Writes._
-import models.PullRequestStatus
-import models.Assignment
-import models.BuildNode
-import models.Branch
-import models.Build
 import org.joda.time.DateTime
 
 object Writes {
@@ -25,6 +20,13 @@ object Writes {
     )(unlift(BuildNode.unapply))
 
   implicit val buildWrite = Json.writes[Build]
+
+  implicit val buildActionWrite = (
+    (__ \ "name").write[String] ~
+      (__ \ "pullRequestId").writeNullable[Int] ~
+      (__ \ "branchId").writeNullable[String] ~
+      (__ \ "fullCycle").write[Boolean]
+    )(unlift(BuildAction.unapply))
 
   implicit val entityAssignment = Json.writes[Assignment]
   implicit val entityStateWrite = Json.writes[EntityState]

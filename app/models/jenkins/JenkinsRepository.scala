@@ -5,11 +5,11 @@ import play.api.libs.json.Reads._
 import play.api.libs.functional.syntax._
 import org.joda.time.DateTime
 import scala.util.Try
-import scalaj.http.{HttpOptions, Http}
+import scalaj.http.{HttpException, HttpOptions, Http}
 
 object JenkinsRepository {
   private val jenkinsUrl = "http://jm2:8080"
-
+  val rootJobName = "StartBuild"
   private val buildsQuery = "builds[number,url,actions[parameters[name,value]],subBuilds[buildNumber,jobName,result],number,result,timestamp]";
   private case class Build(number: Int, timestamp: DateTime, result: Option[String], url: String, actions: List[Action], subBuilds: List[SubBuild] = Nil)
 
@@ -58,15 +58,14 @@ object JenkinsRepository {
       (__ \ "downstreamProjects").readNullable(list[DownstreamProject])
     )((builds: List[Build], projects: Option[List[DownstreamProject]]) => BuildInfo(builds, if (projects.isDefined) projects.get else Nil))
 
-  private def getParameterValue(actions: List[Action], paramName: String) = actions.flatMap(a => a match {
-    case Action(Some(parameters)) => {
-      parameters.map(p => p match {
+  private def getParameterValue(actions: List[Action], paramName: String) = actions.flatMap {
+    case Action(Some(parameters)) =>
+      parameters.map {
         case Parameter(name, value) if name == paramName => Some(value)
         case _ => None
-      })
     }
     case _ => None
-  })
+  }
   .flatten
   .headOption
 
@@ -80,7 +79,6 @@ object JenkinsRepository {
   }
 
   private def getBuilds: List[models.Build] = Try {
-    val rootJobName = "StartBuild"
     val url = s"$jenkinsUrl/job/$rootJobName/api/json?tree=$buildsQuery,downstreamProjects[name,url,$buildsQuery,downstreamProjects[name,url,$buildsQuery]]"
     val response = Http(url)
       .option(HttpOptions.connTimeout(1000))
@@ -109,5 +107,10 @@ object JenkinsRepository {
     getBuilds.groupBy(b => b.branch).map(item => (item._1, item._2.headOption))
   }
 
-  def forceBuild(action: models.BuildAction with Product with Serializable) = {}
+  def forceBuild(action: models.BuildAction) = Try {
+    Http.post(s"$jenkinsUrl/job/$rootJobName/buildWithParameters")
+      .params(action.parameters)
+      .asString
+  }
+
 }
