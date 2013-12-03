@@ -8,22 +8,20 @@ import scala.util.Try
 import scalaj.http.{HttpOptions, Http}
 
 object JenkinsRepository {
-  def forceBuild(action: models.BuildAction with Product with Serializable) = {}
+  private val jenkinsUrl = "http://jm2:8080"
 
-  val jenkinsUrl = "http://jm2:8080"
-  val buildsQuery = "builds[number,url,actions[parameters[name,value]],subBuilds[buildNumber,jobName,result],number,result,timestamp]";
+  private val buildsQuery = "builds[number,url,actions[parameters[name,value]],subBuilds[buildNumber,jobName,result],number,result,timestamp]";
+  private case class Build(number: Int, timestamp: DateTime, result: Option[String], url: String, actions: List[Action], subBuilds: List[SubBuild] = Nil)
 
-  case class Build(number: Int, timestamp: DateTime, result: Option[String], url: String, actions: List[Action], subBuilds: List[SubBuild] = Nil)
+  private case class Parameter(name: String, value: String)
 
-  case class Parameter(name: String, value: String)
+  private case class Action(parameters: Option[List[Parameter]])
 
-  case class Action(parameters: Option[List[Parameter]])
+  private case class SubBuild(buildNumber: Int, jobName: String, result: Option[String])
 
-  case class SubBuild(buildNumber: Int, jobName: String, result: Option[String])
+  private case class DownstreamProject(name: String, url: String, builds: List[Build], downstreamProjects: Option[List[DownstreamProject]])
 
-  case class DownstreamProject(name: String, url: String, builds: List[Build], downstreamProjects: Option[List[DownstreamProject]])
-
-  case class BuildInfo(builds: List[Build], downstreamProjects: List[DownstreamProject])
+  private case class BuildInfo(builds: List[Build], downstreamProjects: List[DownstreamProject])
 
   private implicit val parameterReads: Reads[Parameter] = (
     (__ \ "name").read[String] ~
@@ -110,4 +108,6 @@ object JenkinsRepository {
   def getLastBuildsByBranch: Map[String, Option[models.Build]] = {
     getBuilds.groupBy(b => b.branch).map(item => (item._1, item._2.headOption))
   }
+
+  def forceBuild(action: models.BuildAction with Product with Serializable) = {}
 }
