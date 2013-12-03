@@ -4,7 +4,7 @@
 module buildBoard {
     'use strict';
 
-    angular.module('buildBoard', ['ngRoute'])
+    angular.module('buildBoard', ['ngRoute','ui.bootstrap'])
         .service(BackendService.NAME, BackendService)
         .controller('branchesController', BranchesController)
         .controller(BranchLineController.NAME, BranchLineController)

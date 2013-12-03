@@ -55,21 +55,14 @@ module buildBoard {
 
 
                 this.$scope.loading = false;
+            }, x=> {
+                this.$scope.loading = false;
             });
-
-            /*.success((data:Branch[])=> {
-             this.$scope.allBranches = data;
-             }).error(()=> {
-             this.$scope.loading = false;
-             });
-
-             backendService.
-             */
         }
 
         private getUserFilter(userId:number) {
             return new Filter(branch=> {
-                return branch.entity && _.any(branch.entity.assignments, assignemnt=>assignemnt.userId == userId);
+                return branch.entity && _.any(branch.entity.assignments, assignment=>assignment.userId == userId);
             });
         }
 

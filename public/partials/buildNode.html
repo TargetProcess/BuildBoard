@@ -1,0 +1,8 @@
+<span ng-model="showMe" ng-click="showMe=!showMe" class="label node label-{{data.status | status}}">
+<span tooltip="{{data.status | lowercase}}">{{data.name}}</span>
+    <span ng-show="data.children && data.children.length > 0" class="glyphicon glyphicon-collapse-{{showMe ?'down':'up'}}"></span>
+</span>
+
+<ul collapse="showMe">
+    <li ng-repeat="data in data.children" ng-include="'/assets/partials/buildNode.html'"></li>
+</ul>
