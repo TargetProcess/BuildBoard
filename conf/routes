@@ -3,25 +3,26 @@
 # ~~~~
 
 # Home page
-GET         /                                controllers.Application.index
-GET         /entityBranches                  controllers.Application.branches
+GET         /                               controllers.Application.index
+GET         /entityBranches                 controllers.Application.branches
 
-GET         /branch                          controllers.Application.branch(id:String)
+GET         /branch                         controllers.Application.branch(id:String)
 
-GET         /login                           controllers.Login.index
-GET         /login/oauth                     controllers.Login.oauth(code ?= "")
-POST        /login/submit                    controllers.Login.submit
-POST        /login/logout                    controllers.Login.logout
+GET         /login                          controllers.Login.index
+GET         /login/oauth                    controllers.Login.oauth(code ?= "")
+POST        /login/submit                   controllers.Login.submit
+POST        /login/logout                   controllers.Login.logout
 
-GET         /gihtub/pullRequestStatus        controllers.Github.pullRequestStatus(id:Int)
+GET         /gihtub/pullRequestStatus       controllers.Github.pullRequestStatus(id:Int)
 
 #GET         /jenkins/lastBuild/:branch       controllers.Jenkins.lastBuildInfo(branch:String)
 GET         /jenkins/lastBuild               controllers.Jenkins.lastBuildInfos()
-GET         /jenkins/builds                  controllers.Jenkins.builds(branch:String)
+GET         /jenkins/builds                 controllers.Jenkins.builds(branch:String)
+GET         /jenkins/build                  controllers.Jenkins.build(branch:String, number: Int)
 GET         /jenkins/forceBuild              controllers.Jenkins.forceBuild(pullRequestId:Option[Int],branchId:Option[String],fullCycle:Boolean)
 
 
 #POST        /tp/changeEntityState          controllers.Targetprocess.changeEntityState(entityId:Int, entityStateId:Int)
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file                    controllers.Assets.at(path="/public", file)
+GET         /assets/*file                   controllers.Assets.at(path="/public", file)

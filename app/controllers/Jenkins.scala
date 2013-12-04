@@ -26,6 +26,11 @@ object Jenkins extends Controller with Secured {
       request => Ok(Json.toJson(JenkinsRepository.getBuilds(branch)))
   }
 
+  def build(branch: String, number: Int) = IsAuthorized {
+    implicit user =>
+      request => Ok(Json.toJson(JenkinsRepository.getBuild(branch, number)))
+        }
+
   def forceBuild(pullRequestId: Option[Int], branchId: Option[String], fullCycle: Boolean) = IsAuthorized {
     implicit user =>
       request =>
@@ -40,7 +45,7 @@ object Jenkins extends Controller with Secured {
               case Success(_) => Ok("ok")
               case Failure(e: HttpException) => BadRequest(e.message)
               case Failure(e) => InternalServerError("Something going wrong " + e.toString)
-            }
+    }
           case None => BadRequest("There is no pullRequestId or branchId")
         }
   }
