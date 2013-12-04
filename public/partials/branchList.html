@@ -65,15 +65,18 @@
                         <span ng-show="!branch.lastBuild">Never built</span>
                         <span class="caret"></span>
                     </button>
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a ng-show="branch.lastBuild" class="btn btn-link" target="_blank" href="{{branch.lastBuild.url}}">
+                    <ul class="dropdown-menu" role="menu">
+                        <li ng-show="branch.lastBuild">
+                            <a target="_blank" href="{{branch.lastBuild.url}}">
                                 Open in Jenkins
-                                <span class="glyphicon glyphicon-export"></span>
+                                <span class="external"></span>
                             </a>
-                            <button type="button" class="btn btn-default" ng-repeat="action in branch.buildActions" ng-click="forceBuild(action)">
+                        </li>
+                            <li ng-show="branch.lastBuild" class="divider"></li>
+                        <li>
+                            <a ng-repeat="action in branch.buildActions" ng-click="forceBuild(action)">
                                 {{action.name}}
-                            </button>
+                            </a>
                         </li>
                     </ul>
                 </div>

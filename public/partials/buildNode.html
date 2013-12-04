@@ -1,6 +1,9 @@
 <span ng-model="showMe" ng-click="showMe=!showMe" class="label node label-{{data.status | status}}">
-<span tooltip="{{data.status | lowercase}}">{{data.name}}</span>
     <span ng-show="data.children && data.children.length > 0" class="glyphicon glyphicon-collapse-{{showMe ?'down':'up'}}"></span>
+
+    <span style="display:none">{{data|json}}</span>
+    {{data.name}}<a href="{{data.statusUrl}}" tooltip="{{data.status | lowercase}}">#</a>
+
 </span>
 
 <ul collapse="showMe">

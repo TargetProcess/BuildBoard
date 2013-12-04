@@ -250,3 +250,37 @@ table.sortable {
     border: 0;
   }
 }
+
+.icon(@url) {
+  background:url(@url);
+  background-size: 16px 16px;
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 16px;
+  height: 16px;
+}
+
+.external {
+  position: relative;
+  padding-left: 18px;
+  &.tpIcon:before{
+    .icon('//plan.tpondemand.com/favicon.ico');
+  }
+  &.github:before{
+    .icon('//github.com/favicon.ico');
+  }
+  &:after{
+    .icon('../images/external.png');
+    left:100%;
+  }
+}
+
+
+
+.btn-group-vertical.btn-group-alignment-left .btn {
+  text-align: left;
+}

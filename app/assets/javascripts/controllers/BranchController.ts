@@ -10,6 +10,7 @@ module buildBoard {
     export interface IBranchScope extends ng.IScope {
         branchName:string;
         builds: Build[];
+        branch : Branch;
     }
 
 

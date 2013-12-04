@@ -23,10 +23,36 @@
 
 
     </div>
-    <div class="col-lg-3" ng-show="branch.entity.assignments">
-        Users
-        <div ng-repeat="user in branch.entity.assignments">
-            <img ng-src="{{user.avatar}}40"> {{user.firstName}} {{user.lastName}}
-        </div>
+    <div class="col-lg-3">
+        <panel ng-show="branch.entity.assignments">
+            <panel-heading>
+                Users
+            </panel-heading>
+            <panel-body>
+                <div ng-repeat="user in branch.entity.assignments">
+                    <img ng-src="{{user.avatar}}40"> {{user.firstName}} {{user.lastName}}
+                </div>
+            </panel-body>
+        </panel>
+        <panel>
+            <panel-heading>
+                Build
+            </panel-heading>
+            <panel-body>
+                <div class="btn-group-vertical btn-group-stretch">
+                    <button type="button" class="btn btn-default" ng-repeat="action in branch.buildActions" ng-click="forceBuild(action)">
+                        {{action.name}}
+                    </button>
+                </div>
+            </panel-body>
+        </panel>
+        <panel>
+            <panel-body>
+                <div class="btn-group-vertical btn-group-alignment-left">
+                    <a class="btn btn-link" href="{{ branch | json }}" target="_blank"><span class="external github">Github</span></a>
+                    <a class="btn btn-link" ng-show="branch.entity" href="{{branch.entity.url}}" target="_blank"><span class="external tpIcon">TargetProcess</span></a>
+                </div>
+            </panel-body>
+        </panel>
     </div>
 </div>

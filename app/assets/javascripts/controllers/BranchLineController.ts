@@ -3,7 +3,6 @@ module buildBoard {
     'use strict';
 
     export interface IBranchScope extends ng.IScope {
-        branch:Branch;
         getPullRequestClass()
         getLastBuildStatus()
         forceBuild(buildAction:BuildAction)

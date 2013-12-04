@@ -15,4 +15,5 @@
 /// <reference path='models/User.ts' />
 /// <reference path='models/Filter.ts' />
 /// <reference path='directives/EntityTitle.ts' />
+/// <reference path='directives/Panel.ts' />
 /// <reference path='Application.ts' />

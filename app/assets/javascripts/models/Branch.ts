@@ -9,11 +9,13 @@ module buildBoard {
         entity:Entity
         pullRequest:PullRequest
         lastBuild:Build
+        url:string;
     }
 
     export interface PullRequest {
         id:number;
         status:PRStatus;
+        url:string;
     }
 
     export interface Entity {
@@ -38,7 +40,6 @@ module buildBoard {
     export class Build {
         timeStamp:number;
         status:string;
-        url:string;
         branch:string;
     }
 

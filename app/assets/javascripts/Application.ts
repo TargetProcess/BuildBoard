@@ -3,6 +3,7 @@
 
 module buildBoard {
     'use strict';
+console.log(PanelDirective.NAME);
 
     angular.module('buildBoard', ['ngRoute','ui.bootstrap'])
         .service(BackendService.NAME, BackendService)
@@ -12,6 +13,9 @@ module buildBoard {
         .filter('activeFilter', activeFilter)
         .filter('encode', encode)
         .directive('entityTitle', ()=>new EntityTitleDirective())
+        .directive(PanelDirective.NAME, ()=>new PanelDirective())
+        .directive(PanelHeadingDirective.NAME, ()=>new PanelHeadingDirective())
+        .directive(PanelBodyDirective.NAME, ()=>new PanelBodyDirective())
         .config(['$routeProvider',
             ($routeProvider:ng.route.IRouteProvider)=>
                 $routeProvider
