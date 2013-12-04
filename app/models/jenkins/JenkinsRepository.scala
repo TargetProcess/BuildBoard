@@ -50,7 +50,11 @@ object JenkinsRepository {
     None
   }
 
-  def forceBuild(action: models.BuildAction with Product with Serializable) = {}
+  def forceBuild(action: models.BuildAction) = Try {
+    Http.post(s"$jenkinsUrl/job/$rootJobName/buildWithParameters")
+      .params(action.parameters)
+      .asString
+  }
 
   private val jenkinsUrl = "http://jm2:8080"
   private val rootJobName = "StartBuild"
