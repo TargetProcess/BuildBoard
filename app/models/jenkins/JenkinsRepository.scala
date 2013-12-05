@@ -18,30 +18,24 @@ object JenkinsRepository {
 
   def getLastBuildsByBranch: Map[String, Option[models.Build]] = getBuilds.groupBy(b => b.branch).map(item => (item._1, item._2.headOption))
 
-  def getBuild(branch: String, number: Int): Option[models.Build] = {
-    val buildInfo = getBuildInfo
+  def getBuild(branch: String, number: Int): Option[models.Build] = getBuildInfo match {
+    case Success(buildInfo) => {
+      val runs = getRunsJobs(rootJobName, rootJobJsonUrl, buildInfo.downstreamProjects, Nil).map(runJob => {
+        getBuildRuns(runJob._2) match {
+          case Success(buildRuns) => buildInfo.builds.map(build => makeRunsBuildNodes(runJob._1, build, buildInfo.downstreamProjects, buildRuns))
+          case Failure(e) => Nil
+        }
+      })
+        .flatten
+        .flatten
+        .toList
 
-    buildInfo match {
-      case Success(buildInfo) => {
-        val runs = getRunsJobs(rootJobName, rootJobJsonUrl, buildInfo.downstreamProjects, Nil).map(runJob => {
-          getBuildRuns(runJob._2) match {
-            case Success(runs) => buildInfo.builds.map(build => makeRunsBuildNodes(runJob._1, build, buildInfo.downstreamProjects, runs))
-            case Failure(e) => Nil
-          }
-        })
-          .flatten
-          .flatten
-          .toList
+      makeBuilds(buildInfo, runs)
+        .filter((b: models.Build) => b.branch == branch || b.branch == s"origin/$branch" && b.number == number)
+        .headOption
 
-        buildInfo.builds.filter(b => b.number == number).map(build => {
-          val node = makeBuildNodeWithRuns(rootJobName, build, buildInfo.downstreamProjects, runs)
-
-          models.Build(node.number, getParameterValue(build.actions, "BRANCHNAME").get, node.status, node.statusUrl, node.timestamp, node)
-        })
-          .headOption
-      }
-      case Failure(e) => None
     }
+    case Failure(e) => None
   }
 
   def forceBuild(action: models.BuildAction) = Try {
@@ -50,20 +44,11 @@ object JenkinsRepository {
       .asString
   }
 
-  private def makeBuildNode(jobName: String, build: Build, downstreamProjects: List[DownstreamProject]): models.BuildNode = {
-    val downstreamBuildNodes = for {subBuild <- build.subBuilds
-                                    downstreamProject <- downstreamProjects if subBuild.jobName == downstreamProject.name
-                                    downstreamBuild <- downstreamProject.builds if subBuild.buildNumber == downstreamBuild.number
-    } yield makeBuildNode(subBuild.jobName, downstreamBuild, downstreamProject.downstreamProjects)
-
-    models.BuildNode(build.number, jobName, build.result, build.url, getParameterValue(build.actions, "ARTIFACTS"), build.timestamp, downstreamBuildNodes)
-  }
-
-  private def makeBuildNodeWithRuns(jobName: String, build: Build, downstreamProjects: List[DownstreamProject], runs: List[models.BuildNode]): models.BuildNode = {
+  private def makeBuildNode(jobName: String, build: Build, downstreamProjects: List[DownstreamProject], runs: List[models.BuildNode] = Nil): models.BuildNode = {
     val downstreamBuildNodes = (for {subBuild <- build.subBuilds
                                      downstreamProject <- downstreamProjects if subBuild.jobName == downstreamProject.name
                                      downstreamBuild <- downstreamProject.builds if subBuild.buildNumber == downstreamBuild.number
-    } yield makeBuildNodeWithRuns(subBuild.jobName, downstreamBuild, downstreamProject.downstreamProjects, runs))
+    } yield makeBuildNode(subBuild.jobName, downstreamBuild, downstreamProject.downstreamProjects, runs))
 
     models.BuildNode(build.number, jobName, build.result, build.url, getParameterValue(build.actions, "ARTIFACTS"), build.timestamp, downstreamBuildNodes ++ runs.filter(r => r.name == jobName))
   }
@@ -72,40 +57,50 @@ object JenkinsRepository {
     (for {subBuild <- build.subBuilds
           downstreamProject <- downstreamProjects if subBuild.jobName == downstreamProject.name
           downstreamBuild <- downstreamProject.builds if subBuild.buildNumber == downstreamBuild.number
-    } yield makeRunsBuildNodes(subBuild.jobName, downstreamBuild, downstreamProject.downstreamProjects, buildRuns) ::
-        downstreamProject.activeConfigurations match {
+    } yield makeRunsBuildNodes(subBuild.jobName, downstreamBuild, downstreamProject.downstreamProjects, buildRuns) :: downstreamProject.activeConfigurations match {
         case Nil => Nil
         case _ => for {buildRun <- buildRuns.builds
                        run <- buildRun.runs
         } yield models.BuildNode(run.number, buildRuns.name, run.result, run.url, getParameterValue(run.actions, "ARTIFACTS"), run.timestamp)
-      }
-      )
+      })
       .flatMap(nodes => nodes)
   }
 
   private def getRunsJobs(jobName: String, url: String, downstreamProjects: List[DownstreamProject], activeConfigurations: List[ActiveConfiguration]): Set[(String, String)] = {
     val childrenRuns = downstreamProjects.flatMap(p => getRunsJobs(p.name, p.url, p.downstreamProjects, p.activeConfigurations)).toSet
+
     activeConfigurations match {
       case Nil => childrenRuns
       case _ => childrenRuns + Tuple2(jobName, url)
     }
   }
 
-  private def makeBuild(build: Build, buildInfo: BuildInfo) = {
-    val node = makeBuildNode(rootJobName, build, buildInfo.downstreamProjects)
+  private def makeBuild(build: Build, buildInfo: BuildInfo, runs: List[models.BuildNode] = Nil) = {
+    val node = makeBuildNode(rootJobName, build, buildInfo.downstreamProjects, runs)
 
     models.Build(node.number, getParameterValue(build.actions, "BRANCHNAME").get, node.status, node.statusUrl, node.timestamp, node)
   }
 
-  private def makeBuilds(buildInfo: BuildInfo) = buildInfo.builds.map(build => {
-    makeBuild(build, buildInfo)
+  private def makeBuilds(buildInfo: BuildInfo, runs: List[models.BuildNode] = Nil) = buildInfo.builds.map(build => {
+    makeBuild(build, buildInfo, runs)
   })
     .sortBy(-_.number)
 
   private def getBuilds: List[models.Build] = getBuildInfo match {
     case Success(buildInfo) => makeBuilds(buildInfo)
-    case Failure(_) => List()
+    case Failure(_) => Nil
   }
+
+  private def getParameterValue(actions: List[Action], paramName: String) = actions.flatMap {
+    case Action(Some(parameters)) =>
+      parameters.map {
+        case Parameter(name, value) if name == paramName => Some(value)
+        case _ => None
+      }
+    case _ => None
+  }
+    .flatten
+    .headOption
 
   private val jenkinsUrl = "http://jm2:8080"
   private val rootJobName = "StartBuild"
@@ -214,17 +209,4 @@ object JenkinsRepository {
 
     jobBuildRunsReads.reads(json).get
   }
-
-  private def getParameterValue(actions: List[Action], paramName: String) = actions.flatMap {
-    case Action(Some(parameters)) =>
-      parameters.map {
-        case Parameter(name, value) if name == paramName => Some(value)
-        case _ => None
-      }
-    case _ => None
-  }
-    .flatten
-    .headOption
-
-
 }
