@@ -32,7 +32,7 @@ object JenkinsRepository {
                                      downstreamBuild <- downstreamProject.builds if subBuild.buildNumber == downstreamBuild.number
     } yield makeBuildNode(subBuild.jobName, downstreamBuild, downstreamProject.downstreamProjects, runs))
 
-    models.BuildNode(build.number, jobName, build.result, build.url, getParameterValue(build.actions, "ARTIFACTS"), build.timestamp, downstreamBuildNodes ++ runs.filter(r => r.name == jobName))
+    models.BuildNode(build.number, jobName, build.result, build.url, getParameterValue(build.actions, "ARTIFACTS"), build.timestamp, downstreamBuildNodes ++ runs.filter(r => r.name == jobName && r.number == build.number))
   }
 
   private def makeRunsBuildNodes(jobName: String, build: Build, downstreamProjects: List[DownstreamProject], buildRuns: JobBuildRuns): List[models.BuildNode] = {
