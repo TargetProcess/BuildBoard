@@ -14,7 +14,10 @@ module buildBoard {
     export class BranchControllerBase {
         constructor(public $scope:IBranchScope, public backendService:BackendService) {
             this.$scope.forceBuild = (buildAction:BuildAction) => {
-                backendService.forceBuild(buildAction);
+                backendService.forceBuild(buildAction).success(build=>{
+                    this.$scope.branch.lastBuild = build;
+                    this.$scope.builds.splice(0,0,build);
+                });
             };
 
             this.$scope.changeEntityState = (entity:Entity, nextState:number)=>{

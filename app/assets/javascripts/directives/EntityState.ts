@@ -32,14 +32,13 @@ module buildBoard {
     }
 
     export class EntityStateDirectiveController {
-        public $inject = ['$scope', BackendService.NAME];
+        public static $inject = ['$scope', BackendService.NAME];
 
         constructor($scope:IEntityStateDirectiveScope, backendService:BackendService) {
             $scope.changeEntityState = (entity:Entity, nextState:number)=> {
                 backendService.changeEntityState(entity.id, nextState).success(state=> {
                     entity.state = state;
                 });
-
             }
         }
     }

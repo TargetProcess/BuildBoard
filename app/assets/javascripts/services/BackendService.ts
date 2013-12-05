@@ -35,7 +35,7 @@ module buildBoard {
         }
 
 
-        forceBuild(buildAction:BuildAction):ng.IHttpPromise<string> {
+        forceBuild(buildAction:BuildAction):ng.IHttpPromise<Build> {
             return this.$http.get(this.controllers.Jenkins.forceBuild(buildAction.pullRequestId, buildAction.branchId, buildAction.fullCycle).absoluteURL());
         }
 
