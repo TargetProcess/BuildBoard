@@ -14,7 +14,7 @@ object Targetprocess extends Controller with Secured {
         val newState = repo.changeEntityState(entityId, stateId)
 
 
-        Ok(Json.obj("newState" -> newState))
+        Ok(Json.toJson(newState))
   }
 
 }

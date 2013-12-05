@@ -3,7 +3,7 @@ module buildBoard {
 
 
     export class BackendService {
-        public static NAME = "BackendService";
+        public static NAME = "backendService";
 
         public static $inject = [
             '$window',
@@ -44,8 +44,8 @@ module buildBoard {
             return this.$http.get(this.controllers.Github.pullRequestStatus(pullRequest).absoluteURL());
         }
 
-        changeEntityState(entityId:number, nextStateId:number) {
-            //return this.$http.get(this.controllers.TargetProcess.changeEntityState(entityId,nextStateId));
+        changeEntityState(entityId:number, nextStateId:number):ng.IHttpPromise<EntityState> {
+            return this.$http.post(this.controllers.Targetprocess.changeEntityState(entityId,nextStateId).absoluteURL(), {});
         }
     }
 

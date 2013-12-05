@@ -27,17 +27,19 @@ module buildBoard {
         replace = true;
     }
 
-    export interface IEntityStateDirectiveScope extends ng.IScope{
+    export interface IEntityStateDirectiveScope extends ng.IScope {
         changeEntityState(entity:Entity, nextState:number)
     }
 
-
     export class EntityStateDirectiveController {
-        public static NAME = 'EntityStateDirectiveController';
-        public static inject=['$scope'/*, BackendService.NAME*/];
-        constructor(private $scope:IEntityStateDirectiveScope /*, *private backendService:BackendService*/){
-            this.$scope.changeEntityState = (entity:Entity, nextState:number)=>{
-                //backendService.changeEntityState(entity.id, nextState);
+        public $inject = ['$scope', BackendService.NAME];
+
+        constructor($scope:IEntityStateDirectiveScope, backendService:BackendService) {
+            $scope.changeEntityState = (entity:Entity, nextState:number)=> {
+                backendService.changeEntityState(entity.id, nextState).success(state=> {
+                    entity.state = state;
+                });
+
             }
         }
     }

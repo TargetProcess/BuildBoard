@@ -11,7 +11,7 @@ module buildBoard {
         Application : IApplication;
         Github: IGithub
         Jenkins: IJenkins
-//        TargetProcess: ITargetProcess
+        Targetprocess: ITargetProcess
     }
 
     export interface ITargetProcess{
