@@ -19,7 +19,11 @@
             </li>
             <hr>
             <li ng-repeat="user in users | orderBy:'firstName+lastName'">
-                <a ng-click="setFilter(getUserFilter(user.userId))" class="{{checkCurrentFilter(getUserFilter(user.userId)) | activeFilter}}">{{user.firstName}} {{user.lastName}}
+                <a ng-click="setFilter(getUserFilter(user.userId))" class="{{checkCurrentFilter(getUserFilter(user.userId)) | activeFilter}}">
+                    <img ng-src="{{user.avatar}}30"
+                         title="{{user.role}}">
+
+                    {{user.firstName}} {{user.lastName}}
                     <span class="badge  pull-right">{{getUserFilter(user.userId).getCount(allBranches)}}</span>
                 </a>
             </li>
