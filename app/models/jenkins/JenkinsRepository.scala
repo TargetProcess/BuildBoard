@@ -18,25 +18,7 @@ object JenkinsRepository {
 
   def getLastBuildsByBranch: Map[String, Option[models.Build]] = getBuilds.groupBy(b => b.branch).map(item => (item._1, item._2.headOption))
 
-  def getBuild(branch: String, number: Int): Option[models.Build] = getBuildInfo match {
-    case Success(buildInfo) => {
-      val runs = getRunsJobs(rootJobName, rootJobJsonUrl, buildInfo.downstreamProjects, Nil).map(runJob => {
-        getBuildRuns(runJob._2) match {
-          case Success(buildRuns) => buildInfo.builds.map(build => makeRunsBuildNodes(runJob._1, build, buildInfo.downstreamProjects, buildRuns))
-          case Failure(e) => Nil
-        }
-      })
-        .flatten
-        .flatten
-        .toList
-
-      makeBuilds(buildInfo, runs)
-        .filter((b: models.Build) => b.branch == branch || b.branch == s"origin/$branch" && b.number == number)
-        .headOption
-
-    }
-    case Failure(e) => None
-  }
+  def getBuild(branch: String, number: Int): Option[models.Build] = getBuilds(branch).filter(b => b.number == number).headOption
 
   def forceBuild(action: models.BuildAction) = Try {
     Http.post(s"$jenkinsUrl/job/$rootJobName/buildWithParameters")
@@ -66,6 +48,16 @@ object JenkinsRepository {
       .flatMap(nodes => nodes)
   }
 
+  private def getRuns(buildInfo: BuildInfo): List[models.BuildNode] = getRunsJobs(rootJobName, rootJobJsonUrl, buildInfo.downstreamProjects, Nil).map(runJob => {
+    getBuildRuns(runJob._2) match {
+      case Success(buildRuns) => buildInfo.builds.map(build => makeRunsBuildNodes(runJob._1, build, buildInfo.downstreamProjects, buildRuns))
+      case Failure(e) => Nil
+    }
+  })
+    .flatten
+    .flatten
+    .toList
+
   private def getRunsJobs(jobName: String, url: String, downstreamProjects: List[DownstreamProject], activeConfigurations: List[ActiveConfiguration]): Set[(String, String)] = {
     val childrenRuns = downstreamProjects.flatMap(p => getRunsJobs(p.name, p.url, p.downstreamProjects, p.activeConfigurations)).toSet
 
@@ -87,7 +79,7 @@ object JenkinsRepository {
     .sortBy(-_.number)
 
   private def getBuilds: List[models.Build] = getBuildInfo match {
-    case Success(buildInfo) => makeBuilds(buildInfo)
+    case Success(buildInfo) => makeBuilds(buildInfo, getRuns(buildInfo))
     case Failure(_) => Nil
   }
 
