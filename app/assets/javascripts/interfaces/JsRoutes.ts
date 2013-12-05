@@ -11,6 +11,11 @@ module buildBoard {
         Application : IApplication;
         Github: IGithub
         Jenkins: IJenkins
+//        TargetProcess: ITargetProcess
+    }
+
+    export interface ITargetProcess{
+        changeEntityState(entityId:number, nextStateId:number)
     }
 
     export interface IJenkins {

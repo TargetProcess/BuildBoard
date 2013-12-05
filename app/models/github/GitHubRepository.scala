@@ -4,10 +4,17 @@ import models.tp.EntityRepo
 import models._
 import org.eclipse.egit.github.core.client.GitHubClient
 import org.eclipse.egit.github.core.service._
-import org.eclipse.egit.github.core.{RepositoryBranch, RepositoryId, PullRequest=>GhPullRequest}
+import org.eclipse.egit.github.core.{RepositoryBranch, RepositoryId, PullRequest => GhPullRequest}
 import scala.collection.JavaConverters._
 import models.jenkins.JenkinsRepository
 import scala.util.matching.Regex
+import src.Utils._
+import scala.concurrent.{Await, Future}
+import scala.concurrent.duration._
+import scala.language.postfixOps
+import scala.concurrent._
+import scala.concurrent.duration._
+import ExecutionContext.Implicits.global
 
 class GitHubRepository(implicit user: User) {
   val github = new GitHubClient().setOAuth2Token(user.githubToken)
@@ -16,14 +23,17 @@ class GitHubRepository(implicit user: User) {
 
   val EntityBranchPattern = new Regex("^(?i)feature/(us|bug|f)(\\d+).*")
   val FeatureBranchPattern = new Regex("^(?i)feature/(\\w+)")
-  val repo = new RepositoryId("TargetProcess", "TP")
+  val repo = new RepositoryId(GitHubApplication.user, GitHubApplication.repo)
 
-  def getBranch(id:String):Branch = {
-    val br: List[RepositoryBranch] = repositoryService.getBranches(repo).asScala.toList
-    val ghBranches:List[RepositoryBranch] = br.filter(_.getName == id)
+  def getBranch(id: String): Branch = {
+
+    val br: List[RepositoryBranch] = watch("get branches from github") {
+      repositoryService.getBranches(repo).asScala.toList
+    }
+
+    val ghBranches: List[RepositoryBranch] = br.filter(_.getName == id)
     getBranchesInfo(ghBranches).head
   }
-
 
 
   def getBranches: List[Branch] = {
@@ -31,16 +41,22 @@ class GitHubRepository(implicit user: User) {
       Nil
     }
     else {
-      val ghBranches:List[RepositoryBranch] = repositoryService.getBranches(repo).asScala.toList
+      val ghBranches: List[RepositoryBranch] = watch("Get branches from github") {
+        repositoryService.getBranches(repo).asScala.toList
+      }
       getBranchesInfo(ghBranches)
     }
   }
 
-  def getBranchesInfo(ghBranches: List[RepositoryBranch]): List[Branch] ={
+  def getBranchesInfo(ghBranches: List[RepositoryBranch]): List[Branch] = {
 
-    val prList:List[GhPullRequest] = prService.getPullRequests(repo, "OPEN").asScala.toList
 
-    val ghPullRequests:Map[String,GhPullRequest] = prList.map(pr => (pr.getHead.getRef, pr)).toMap
+    val futurePullRequests: Future[Map[String, GhPullRequest]] = Future {
+      val prList: List[GhPullRequest] =  watch("Get pull requests"){
+        prService.getPullRequests(repo, "open").asScala.toList
+      }
+      prList.map(pr => (pr.getHead.getRef, pr)).toMap
+    }
 
 
     val branchNames = ghBranches
@@ -53,9 +69,19 @@ class GitHubRepository(implicit user: User) {
     }
       .toList
 
-    val entities = new EntityRepo(user.token).getAssignables(entityIds)
-      .map(e => (e.id, e))
-      .toMap
+
+    val futureEntities = Future {
+      watch("Get assignables"){ new EntityRepo(user.token).getAssignables(entityIds)
+        .map(e => (e.id, e))
+        .toMap
+      }
+    }
+
+    val aggFuture = for (a <- futurePullRequests;
+                         b <- futureEntities) yield (a, b)
+
+
+    val (ghPullRequests, entities) = Await.result(aggFuture, 10 seconds)
 
     ghBranches.map(githubBranch => {
       val name = githubBranch.getName
@@ -78,9 +104,9 @@ class GitHubRepository(implicit user: User) {
           PullRequestBuildAction(pr.id, fullCycle = false)
         )
         case None => Nil
-      }     )
+      })
 
-      Branch(name, pullRequest, entity, actions)
+      Branch(name, GitHubApplication.url(name), pullRequest, entity, actions)
 
     }).toList
 

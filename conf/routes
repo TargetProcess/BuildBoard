@@ -22,7 +22,7 @@ GET         /jenkins/build                  controllers.Jenkins.build(branch:Str
 GET         /jenkins/forceBuild              controllers.Jenkins.forceBuild(pullRequestId:Option[Int],branchId:Option[String],fullCycle:Boolean)
 
 
-#POST        /tp/changeEntityState          controllers.Targetprocess.changeEntityState(entityId:Int, entityStateId:Int)
+POST        /tp/changeEntityState          controllers.Targetprocess.changeEntityState(entityId:Int, entityStateId:Int)
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                   controllers.Assets.at(path="/public", file)

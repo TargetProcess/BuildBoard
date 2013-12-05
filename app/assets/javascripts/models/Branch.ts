@@ -19,6 +19,7 @@ module buildBoard {
     }
 
     export interface Entity {
+        id: number
         assignments:Assignment[]
         state: EntityState
     }

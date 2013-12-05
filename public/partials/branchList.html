@@ -36,30 +36,19 @@
                 </div>
             </td>
             <td>
-                <div ng-show="branch.entity">
-                    <div class="btn-group btn-group-stretch">
-                        <button type="button" class="btn dropdown-toggle"
-                                data-toggle="dropdown">
-                            {{branch.entity.state.name}}
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li ng-repeat="entityState in branch.entity.state.nextStates"><a href="#">{{entityState.name}}</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+                <entity-state entity="branch.entity"></entity-state>
             </td>
             <td>
                 <div ng-show="branch.pullRequest" class="btn-group btn-group-stretch">
                     <a target="_blank" href="{{branch.pullRequest.url}}"
-                       class="btn btn-default btn-{{getPullRequestClass() | status }}">
+                       class="btn btn-default btn-{{ branch.pullRequest | pullRequestStatus | status }}">
                         #{{branch.pullRequest.id}}</a>
                 </div>
             </td>
             <td>
                 <div class="btn-group btn-group-stretch">
-                    <button type="button" class="btn dropdown-toggle btn-{{getLastBuildStatus() | status}}"
+                    <button type="button"
+                            class="btn dropdown-toggle btn-default btn-{{ branch.lastBuild.status | status}}"
                             data-toggle="dropdown">
                         <span ng-show="branch.lastBuild">{{ branch.lastBuild.timeStamp | date }}</span>
                         <span ng-show="!branch.lastBuild">Never built</span>
@@ -72,7 +61,7 @@
                                 <span class="external"></span>
                             </a>
                         </li>
-                            <li ng-show="branch.lastBuild" class="divider"></li>
+                        <li ng-show="branch.lastBuild" class="divider"></li>
                         <li>
                             <a ng-repeat="action in branch.buildActions" ng-click="forceBuild(action)">
                                 {{action.name}}

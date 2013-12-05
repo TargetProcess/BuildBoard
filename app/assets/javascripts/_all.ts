@@ -9,6 +9,7 @@
 /// <reference path='interfaces/IBranchesScope.ts' />
 /// <reference path='interfaces/IBuildBoardWindow.ts' />
 /// <reference path='interfaces/IBuildBoardRoadParamsService.ts'/>
+/// <reference path='controllers/BranchControllerBase.ts'/>
 /// <reference path='controllers/BranchesController.ts' />
 /// <reference path='controllers/BranchController.ts' />
 /// <reference path='controllers/BranchLineController.ts' />
@@ -16,4 +17,5 @@
 /// <reference path='models/Filter.ts' />
 /// <reference path='directives/EntityTitle.ts' />
 /// <reference path='directives/Panel.ts' />
+/// <reference path='directives/EntityState.ts' />
 /// <reference path='Application.ts' />

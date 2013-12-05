@@ -13,6 +13,11 @@ object GitHubApplication {
   val clientSecret = Play.configuration.getString("github.oauth.client_secret").get
   val redirectUri = Play.configuration.getString("github.oauth.redirect_url").get
 
+  val user = "TargetProcess"
+  val repo = "TP"
+
+  def url(branch:String) = s"https://github.com/$user/$repo/tree/$branch"
+
    def login(code:String) = { 
         val req = Http.post("https://github.com/login/oauth/access_token")
           .params(

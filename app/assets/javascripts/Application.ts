@@ -3,16 +3,18 @@
 
 module buildBoard {
     'use strict';
-console.log(PanelDirective.NAME);
 
     angular.module('buildBoard', ['ngRoute','ui.bootstrap'])
         .service(BackendService.NAME, BackendService)
         .controller('branchesController', BranchesController)
         .controller(BranchLineController.NAME, BranchLineController)
+        .controller(EntityStateDirectiveController.NAME, EntityStateDirectiveController)
         .filter('status', status)
         .filter('activeFilter', activeFilter)
         .filter('encode', encode)
+        .filter('pullRequestStatus', pullRequestStatus)
         .directive('entityTitle', ()=>new EntityTitleDirective())
+        .directive(EntityStateDirective.NAME, ()=>new EntityStateDirective())
         .directive(PanelDirective.NAME, ()=>new PanelDirective())
         .directive(PanelHeadingDirective.NAME, ()=>new PanelHeadingDirective())
         .directive(PanelBodyDirective.NAME, ()=>new PanelBodyDirective())

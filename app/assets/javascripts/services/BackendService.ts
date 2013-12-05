@@ -43,6 +43,10 @@ module buildBoard {
         getPullRequestStatus(pullRequest:number):ng.IHttpPromise<PRStatus> {
             return this.$http.get(this.controllers.Github.pullRequestStatus(pullRequest).absoluteURL());
         }
+
+        changeEntityState(entityId:number, nextStateId:number) {
+            //return this.$http.get(this.controllers.TargetProcess.changeEntityState(entityId,nextStateId));
+        }
     }
 
 }
