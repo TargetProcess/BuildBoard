@@ -60,22 +60,19 @@
                 </div>
             </td>
             <td>
-                <div class="btn-group btn-group-stretch">
-                    <button type="button"
-                            class="btn dropdown-toggle btn-default btn-{{ branch.lastBuild.status | status}}"
-                            data-toggle="dropdown">
-                        <span ng-show="branch.lastBuild">{{ branch.lastBuild.timeStamp | date }}</span>
-                        <span ng-show="!branch.lastBuild">Never built</span>
+                <div class="btn-group">
+                    <a ng-show="branch.lastBuild" href="{{branch.lastBuild.url}}" class="btn btn-default btn-{{ branch.lastBuild.status | status}}">
+                        {{ branch.lastBuild.timeStamp | date }}
+                    </a>
+                    <button ng-show="!branch.lastBuild" type="button" class="btn dropdown-toggle btn-default"  data-toggle="dropdown">
+                        <span>Never built</span>
                         <span class="caret"></span>
                     </button>
+                    <button ng-show="branch.lastBuild" type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" >
+                        <span class="caret"></span>
+                        <span class="sr-only">Toggle Dropdown</span>
+                    </button>
                     <ul class="dropdown-menu" role="menu">
-                        <li ng-show="branch.lastBuild">
-                            <a target="_blank" href="{{branch.lastBuild.url}}">
-                                Open in Jenkins
-                                <span class="external"></span>
-                            </a>
-                        </li>
-                        <li ng-show="branch.lastBuild" class="divider"></li>
                         <li>
                             <a ng-repeat="action in branch.buildActions" ng-click="forceBuild(action)">
                                 {{action.name}}
