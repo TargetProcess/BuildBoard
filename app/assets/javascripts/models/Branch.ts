@@ -16,6 +16,7 @@ module buildBoard {
         id:number;
         status:PRStatus;
         url:string;
+        created:number;
     }
 
     export interface Entity {
