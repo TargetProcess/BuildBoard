@@ -1,6 +1,10 @@
 /// <reference path='../_all.ts' />
 module buildBoard {
 
+    export interface IMap<T>
+    {
+        [name:string]:T
+    }
 
     export class BackendService {
         public static NAME = "backendService";
@@ -30,7 +34,7 @@ module buildBoard {
             return this.$http.get(this.controllers.Jenkins.builds(branchId).absoluteURL());
         }
 
-        buildsPerBuild():ng.IHttpPromise<{ [branch: string]: Build; }> {
+        lastBuilds():ng.IHttpPromise<IMap<Build>> {
             return this.$http.get(this.controllers.Jenkins.lastBuildInfos().absoluteURL());
         }
 

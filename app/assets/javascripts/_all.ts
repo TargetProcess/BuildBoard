@@ -4,9 +4,9 @@
 /// <reference path='libs/underscore.d.ts' />
 /// <reference path='interfaces/JsRoutes.ts' />
 /// <reference path='services/BackendService.ts'/>
+/// <reference path='services/BranchesService.ts'/>
 /// <reference path='models/Branch.ts' />
 /// <reference path='filters/Filters.ts' />
-/// <reference path='interfaces/IBranchesScope.ts' />
 /// <reference path='interfaces/IBuildBoardWindow.ts' />
 /// <reference path='interfaces/IBuildBoardRoadParamsService.ts'/>
 /// <reference path='controllers/BranchControllerBase.ts'/>

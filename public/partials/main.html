@@ -1,23 +1,27 @@
 <div class="col-lg-2">
     <ul class="nav nav-pills nav-stacked">
         <li>
-            <a href="#/branchList/all">All branches
+            <a href="#/branchList/all">All branches<span class="badge  pull-right">{{count("all")}}</span>
             </a>
         </li>
         <li>
-            <a href="#/branchList/entity">Entity branches
+            <a href="#/branchList/entity">Entity branches<span class="badge  pull-right">{{count("entity")}}</span>
             </a>
         </li>
         <li>
-            <a href="#/branchList/my">My branches
+            <a href="#/branchList/closed">Closed branches<span class="badge  pull-right">{{count("closed")}}</span>
+            </a>
+        </li>
+        <li>
+            <a href="#/branchList/my">My branches<span class="badge  pull-right">{{count("my")}}</span>
             </a>
         </li>
         <hr>
         <li ng-repeat="user in users | orderBy:'firstName+lastName'">
-            <a href="#">
+            <a href="#/branchList/{{user.userId}}">
                 <img ng-src="{{user.avatar}}30" title="{{user.role}}">
 
-                {{user.firstName}} {{user.lastName}}
+                {{user.firstName}} {{user.lastName}}  <span class="badge  pull-right">{{count(user.userId)}}</span>
             </a>
         </li>
     </ul>

@@ -6,6 +6,7 @@ module buildBoard {
 
     angular.module('buildBoard', ['ngRoute','ui.bootstrap'])
         .service(BackendService.NAME, BackendService)
+        .service(BranchesService.NAME, BranchesService)
         .controller('branchesController', BranchesController)
         .controller(BranchLineController.NAME, BranchLineController)
         .filter('status', status)
