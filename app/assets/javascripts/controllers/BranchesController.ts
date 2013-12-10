@@ -5,18 +5,12 @@ module buildBoard {
     export class BranchesController {
         public static $inject = [
             '$scope',
+            '$routeParams',
             BackendService.NAME,
             '$q'
         ];
 
-        constructor(private $scope:IBranchesScope, backendService:BackendService, q:ng.IQService) {
-            this.$scope.setFilter = this.setFilter.bind(this);
-            this.$scope.checkCurrentFilter = this.checkCurrentFilter.bind(this);
-
-            this.$scope.getUserFilter = this.getUserFilter.bind(this);
-
-            this.$scope.allBranchesFilter = new Filter(branch=>true);
-            this.$scope.entityBranchesFilter = new Filter(branch=>!!branch.entity);
+        constructor(private $scope:IBranchesScope, $routeParams:IBranchRouteParams, backendService:BackendService, q:ng.IQService) {
 
             this.$scope.loading = true;
 
@@ -26,52 +20,37 @@ module buildBoard {
             var promises:ng.IPromise<any>[] = [branches, builds];
             var allResult = q.all(promises);
             allResult.then((x:ng.IHttpPromiseCallbackArg<any>[])=> {
-                var branchesResult:Branch[] = x[0].data;
-                var buildsResult:{[branch:string]:Build
-                } = x[1].data;
+                    var branchesResult:Branch[] = x[0].data;
+                    var buildsResult:{[branch:string]:Build
+                    } = x[1].data;
 
-                _.chain(buildsResult)
-                    .keys()
-                    .each(key=> {
-                        var match = key.match(/origin\/(?:pr\/(\d*)\/merge|(.+))/i);
-                        if (match != null) {
-                            var branch = _.find(branchesResult, x=> (match[2] && x.name.toLowerCase() == match[2].toLowerCase()) || (x.pullRequest && x.pullRequest.id == match[1]));
-                            if (branch) {
-                                if (!branch.lastBuild || branch.lastBuild.timeStamp < buildsResult[key].timeStamp) {
-                                    branch.lastBuild = buildsResult[key];
+                    _.chain(buildsResult)
+                        .keys()
+                        .each(key=> {
+                            var match = key.match(/origin\/(?:pr\/(\d*)\/merge|(.+))/i);
+                            if (match != null) {
+                                var branch = _.find(branchesResult, x=> (match[2] && x.name.toLowerCase() == match[2].toLowerCase()) || (x.pullRequest && x.pullRequest.id == match[1]));
+                                if (branch) {
+                                    if (!branch.lastBuild || branch.lastBuild.timeStamp < buildsResult[key].timeStamp) {
+                                        branch.lastBuild = buildsResult[key];
+                                    }
                                 }
                             }
-                        }
-                    });
+                        });
 
 
-                this.$scope.allBranches = branchesResult;
-                this.$scope.users = _.chain(branchesResult)
-                    .filter(branch=>!!branch.entity)
-                    .map(branch=>branch.entity.assignments)
-                    .flatten()
-                    .unique(false, user=>user.userId)
-                    .value();
+                    this.$scope.allBranches = branchesResult;
+                    this.$scope.users = _.chain(branchesResult)
+                        .filter(branch=>!!branch.entity)
+                        .map(branch=>branch.entity.assignments)
+                        .flatten()
+                        .unique(false, user=>user.userId)
+                        .value();
 
-
-                this.$scope.loading = false;
-            }, x=> {
-                this.$scope.loading = false;
-            });
-        }
-
-        private getUserFilter(userId:number) {
-            return new Filter(branch=> {
-                return branch.entity && _.any(branch.entity.assignments, assignment=>assignment.userId == userId);
-            });
-        }
-
-        private setFilter(filter:IFilter) {
-            this.$scope.currentFilter = filter;
-        }
-
-        private checkCurrentFilter(filter:IFilter) {
-            return this.$scope.currentFilter == filter;
+                }
+            ).then(x=> {
+                    this.$scope.loading = false;
+                });
         }
     }
 

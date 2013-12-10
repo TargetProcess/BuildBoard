@@ -1,34 +1,26 @@
-<div ng-controller="branchesController" class="row">
-    <div class="col-lg-2">
-        <ul class="nav nav-pills nav-stacked">
-            <li>
-                <a ng-click="setFilter(allBranchesFilter)" class="{{checkCurrentFilter(allBranchesFilter) | activeFilter}}">All branches
-                    <span class="badge  pull-right">{{allBranchesFilter.getCount(allBranches)}}</span>
-                </a>
-            </li>
+<div class="col-lg-2">
+    <ul class="nav nav-pills nav-stacked">
+        <li>
+            <a href="#/branchList/all">All branches
+            </a>
+        </li>
+        <li>
+            <a href="#/branchList/entity">Entity branches
+            </a>
+        </li>
+        <li>
+            <a href="#/branchList/my">My branches
+            </a>
+        </li>
+        <hr>
+        <li ng-repeat="user in users | orderBy:'firstName+lastName'">
+            <a href="#">
+                <img ng-src="{{user.avatar}}30" title="{{user.role}}">
 
-            <li>
-                <a ng-click="setFilter(entityBranchesFilter)" class="{{checkCurrentFilter(entityBranchesFilter) | activeFilter}}">Entity branches
-                    <span class="badge  pull-right">{{entityBranchesFilter.getCount(allBranches)}}</span>
-                </a>
-            </li>
-            <li>
-                <a ng-click="setFilter(getUserFilter())" class="{{checkCurrentFilter(getUserFilter()) | activeFilter}}">My branches
-                    <span class="badge  pull-right">{{getUserFilter().getCount(allBranches)}}</span>
-                </a>
-            </li>
-            <hr>
-            <li ng-repeat="user in users | orderBy:'firstName+lastName'">
-                <a ng-click="setFilter(getUserFilter(user.userId))" class="{{checkCurrentFilter(getUserFilter(user.userId)) | activeFilter}}">
-                    <img ng-src="{{user.avatar}}30"
-                         title="{{user.role}}">
-
-                    {{user.firstName}} {{user.lastName}}
-                    <span class="badge  pull-right">{{getUserFilter(user.userId).getCount(allBranches)}}</span>
-                </a>
-            </li>
-        </ul>
-    </div>
-    <div class="col-lg-10" ng-include src='"/assets/partials/branchList.html"'>
-    </div>
+                {{user.firstName}} {{user.lastName}}
+            </a>
+        </li>
+    </ul>
+</div>
+<div class="col-lg-10" ng-include src='"/assets/partials/branchList.html"'>
 </div>

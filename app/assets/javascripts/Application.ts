@@ -20,7 +20,7 @@ module buildBoard {
         .config(['$routeProvider',
             ($routeProvider:ng.route.IRouteProvider)=>
                 $routeProvider
-                    .when('/branches', {
+                    .when('/branchList/:filter', {
                         templateUrl: '/assets/partials/main.html',
                         controller: BranchesController
                     })
@@ -33,7 +33,7 @@ module buildBoard {
                         controller: BranchController
                     })
                     .otherwise({
-                        redirectTo: '/branches'
+                        redirectTo: '/branchList/all'
                     })
         ])
 
