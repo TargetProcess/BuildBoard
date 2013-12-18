@@ -24,19 +24,11 @@ object JenkinsRepository {
   def getLastBuildsByBranch(branches: List[models.Branch]): Map[String, Option[models.Build]] = {
   val builds = getBuilds
   branches.map(b => {
-//    println(s"branch is ${b.name}")
     val pullRequestId = b.pullRequest.map(p => p.id)
     val branchBuilds = builds.filter(build => build.branch == b.name || build.branch == s"origin/${b.name}" || (pullRequestId.isDefined && build.branch == s"origin/pr/${pullRequestId.get}/merge"))
-//    println(s"builds for branch $branchBuilds")
-    (s"origin/${b.name}", branchBuilds)
-  })
-  .map(pair => {
-    val res = (pair._1, pair._2.headOption)
-    println(res)
-    res
+    (s"origin/${b.name}", branchBuilds.headOption)
   })
   .toMap
-//    val builds = getBuilds.groupBy(b => b.branch).map(item => (item._1, item._2.headOption))
   }
 
   def getBuild(branch: models.Branch, number: Int): Option[models.Build] = getBuilds(branch).filter(b => b.number == number).headOption
@@ -53,7 +45,7 @@ object JenkinsRepository {
                                      downstreamBuild <- downstreamProject.builds if subBuild.buildNumber == downstreamBuild.number
     } yield makeBuildNode(subBuild.jobName, downstreamBuild, downstreamProject.downstreamProjects, runs))
 
-    models.BuildNode(build.number, jobName, build.result, build.url, getParameterValue(build.actions, "ARTIFACTS"), build.timestamp, downstreamBuildNodes ++ runs.filter(r => r.name == jobName && r.number == build.number))
+    models.BuildNode(build.number, jobName, jobName, build.result, build.url, getParameterValue(build.actions, "ARTIFACTS"), build.timestamp, downstreamBuildNodes ++ runs.filter(r => r.runName == jobName && r.number == build.number))
   }
 
   private def makeRunsBuildNodes(jobName: String, build: Build, downstreamProjects: List[DownstreamProject], buildRuns: JobBuildRuns): List[models.BuildNode] = {
@@ -64,7 +56,11 @@ object JenkinsRepository {
         case Nil => Nil
         case _ => for {buildRun <- buildRuns.builds
                        run <- buildRun.runs
-        } yield models.BuildNode(run.number, buildRuns.name, run.result, run.url, getParameterValue(run.actions, "ARTIFACTS"), run.timestamp)
+        } yield {
+          val nameRegex = """.*PartName=(\w+),.*""".r
+          val nameRegex(name) = run.url
+          models.BuildNode(run.number, name, buildRuns.name, run.result, run.url, getParameterValue(run.actions, "ARTIFACTS"), run.timestamp)
+        }
       })
       .flatMap(nodes => nodes)
   }
@@ -94,9 +90,8 @@ object JenkinsRepository {
     models.Build(node.number, getParameterValue(build.actions, "BRANCHNAME").get, node.status, node.statusUrl, node.timestamp, node)
   }
 
-  private def makeBuilds(buildInfo: BuildInfo, runs: List[models.BuildNode] = Nil) = buildInfo.builds.map(build => {
-    makeBuild(build, buildInfo, runs)
-  })
+  private def makeBuilds(buildInfo: BuildInfo, runs: List[models.BuildNode] = Nil) = buildInfo.builds
+    .map(build => makeBuild(build, buildInfo, runs))
     .sortBy(-_.number)
 
   private def getBuilds: List[models.Build] = getBuildInfo match {

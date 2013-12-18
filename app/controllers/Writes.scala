@@ -12,6 +12,7 @@ object Writes {
   buildNodeWrite = (
     (__ \ "number").write[Int] ~
     (__ \ "name").write[String] ~
+    (__ \ "runName").write[String] ~
     (__ \ "status").writeNullable[String] ~
       (__ \ "statusUrl").write[String] ~
       (__ \ "artifactsUrl").writeNullable[String] ~

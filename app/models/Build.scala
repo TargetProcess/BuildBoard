@@ -4,7 +4,7 @@ import com.github.nscala_time.time.Imports._
 
 case class Build(number: Int, branch: String, status: Option[String], url: String, timeStamp: DateTime, node: BuildNode)
 
-case class BuildNode(number: Int, name: String, status: Option[String], statusUrl: String, artifactsUrl: Option[String], timestamp: DateTime, children: List[BuildNode] = Nil)
+case class BuildNode(number: Int, name: String, runName: String, status: Option[String], statusUrl: String, artifactsUrl: Option[String], timestamp: DateTime, children: List[BuildNode] = Nil)
 
 
 trait Cycle {
