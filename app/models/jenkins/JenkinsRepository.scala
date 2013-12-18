@@ -12,13 +12,34 @@ import scala.Some
 
 object JenkinsRepository {
 
-  def getBuilds(branch: String): List[models.Build] = getBuilds.filter((b: models.Build) => b.branch == branch || b.branch == s"origin/$branch")
+  def getBuilds(branch: models.Branch): List[models.Build] =  branch match {
+    case models.Branch(name, _, pullRequest, _, _) => {
+      val pullRequestId = pullRequest.map(p => p.id)
+      getBuilds.filter((b: models.Build) => b.branch == name || b.branch == s"origin/$name" || (pullRequestId.isDefined && b.branch == s"origin/pr/${pullRequestId.get}/merge"))
+    }
+  }
 
-  def getLastBuild(branch: String): Option[models.Build] = getBuilds(branch).headOption
+  def getLastBuild(branch: models.Branch): Option[models.Build] = getBuilds(branch).headOption
 
-  def getLastBuildsByBranch: Map[String, Option[models.Build]] = getBuilds.groupBy(b => b.branch).map(item => (item._1, item._2.headOption))
+  def getLastBuildsByBranch(branches: List[models.Branch]): Map[String, Option[models.Build]] = {
+  val builds = getBuilds
+  branches.map(b => {
+//    println(s"branch is ${b.name}")
+    val pullRequestId = b.pullRequest.map(p => p.id)
+    val branchBuilds = builds.filter(build => build.branch == b.name || build.branch == s"origin/${b.name}" || (pullRequestId.isDefined && build.branch == s"origin/pr/${pullRequestId.get}/merge"))
+//    println(s"builds for branch $branchBuilds")
+    (s"origin/${b.name}", branchBuilds)
+  })
+  .map(pair => {
+    val res = (pair._1, pair._2.headOption)
+    println(res)
+    res
+  })
+  .toMap
+//    val builds = getBuilds.groupBy(b => b.branch).map(item => (item._1, item._2.headOption))
+  }
 
-  def getBuild(branch: String, number: Int): Option[models.Build] = getBuilds(branch).filter(b => b.number == number).headOption
+  def getBuild(branch: models.Branch, number: Int): Option[models.Build] = getBuilds(branch).filter(b => b.number == number).headOption
 
   def forceBuild(action: models.BuildAction) = Try {
     Http.post(s"$jenkinsUrl/job/$rootJobName/buildWithParameters")

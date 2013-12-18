@@ -19,8 +19,6 @@ module buildBoard {
     }
 
     export interface IJenkins {
-        builds(branch:string):IAction
-        lastBuildInfos():IAction
         forceBuild(prId:number, branchId:string, fullCycle:boolean):IAction
     }
 
@@ -30,8 +28,10 @@ module buildBoard {
 
 
     export interface IApplication {
+        lastBuildInfos():IAction
         branches(): IAction;
         branch(id:string): IAction;
+        builds(branch:string):IAction
     }
 
 }

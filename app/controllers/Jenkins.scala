@@ -11,25 +11,11 @@ import scalaj.http.HttpException
 
 object Jenkins extends Controller with Secured {
 
-  def lastBuildInfo(branch: String) = IsAuthorized {
-    implicit user =>
-      request => Ok(Json.toJson(JenkinsRepository.getLastBuild(branch)))
-  }
 
-  def lastBuildInfos = IsAuthorized {
-    implicit user =>
-      request => Ok(Json.toJson(JenkinsRepository.getLastBuildsByBranch))
-  }
 
-  def builds(branch: String) = IsAuthorized {
-    implicit user =>
-      request => Ok(Json.toJson(JenkinsRepository.getBuilds(branch)))
-  }
 
-  def build(branch: String, number: Int) = IsAuthorized {
-    implicit user =>
-      request => Ok(Json.toJson(JenkinsRepository.getBuild(branch, number)))
-        }
+
+
 
   def forceBuild(pullRequestId: Option[Int], branchId: Option[String], fullCycle: Boolean) = IsAuthorized {
     implicit user =>
@@ -43,11 +29,11 @@ object Jenkins extends Controller with Secured {
           case Some(buildAction) =>
             JenkinsRepository.forceBuild(buildAction) match {
               case Success(_) => Ok(Json.toJson(
-                Build(-1,"this", Some("In progress"), "#", DateTime.now, BuildNode(-1, "this", Some("In progress"), "#", None, DateTime.now))
+                Build(-1, "this", Some("In progress"), "#", DateTime.now, BuildNode(-1, "this", Some("In progress"), "#", None, DateTime.now))
               ))
               case Failure(e: HttpException) => BadRequest(e.message)
               case Failure(e) => InternalServerError("Something going wrong " + e.toString)
-    }
+            }
           case None => BadRequest("There is no pullRequestId or branchId")
         }
   }
