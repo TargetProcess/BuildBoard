@@ -1,50 +1,60 @@
-<div class="loader" ng-show="loading">
-</div>
-<div ng-show="!loading">
-    <table class="table sortable table-condensed">
+    <table>
         <thead>
-        <tr class="header">
-            <th ng-click="orderingPredicate='name'; reverse=!reverse"
-                ng-class="{sort:orderingPredicate == 'name', reverse:reverse}">
-                Branch
-                <span ng-class="{arrow:orderingPredicate == 'name', up:reverse}"></span>
+        <tr>
+            <th colspan="2">
+                <a ng-click="orderingPredicate='name'; reverse=!reverse" href=""
+                   ng-class="{sorting:orderingPredicate == 'name', up:reverse, down:!reverse}">
+                    Branch
+                </a>
             </th>
-            <th ng-click="orderingPredicate='entity.assignments[0].lastName'; reverse=!reverse"
-                 ng-class="{sort:orderingPredicate == 'entity.assignments[0].lastName', reverse:reverse}">
-                Users
-                <span ng-class="{arrow:orderingPredicate == 'entity.assignments[0].lastName', up:reverse}"></span>
+            <th>
+                <a ng-click="orderingPredicate='entity.assignments[0].lastName'; reverse=!reverse" href=""
+                   ng-class="{sorting:orderingPredicate == 'entity.assignments[0].lastName', up:reverse, down:!reverse}">
+                    Users
+                </a>
             </th>
-
-            <th ng-click="orderingPredicate='entity.state.name'; reverse=!reverse"
-                ng-class="{sort:orderingPredicate == 'entity.state.name', reverse:reverse}">
-                State
-                <span ng-class="{arrow:orderingPredicate == 'entity.state.name', up:reverse}"></span>
+            <th>
+                <a ng-click="orderingPredicate='entity.state.name'; reverse=!reverse" href=""
+                   ng-class="{sorting:orderingPredicate == 'entity.state.name', up:reverse, down:!reverse}">
+                    Status
+                </a>
             </th>
-            <th ng-click="orderingPredicate='pullRequest.id'; reverse=!reverse"
-                ng-class="{sort:orderingPredicate == 'pullRequest.id', reverse:reverse}">
-                PR
-                <span ng-class="{arrow:orderingPredicate == 'pullRequest.id', up:reverse}"></span>
+            <th>
+                <a ng-click="orderingPredicate='pullRequest.id'; reverse=!reverse" href=""
+                   ng-class="{sorting:orderingPredicate == 'pullRequest.id', up:reverse, down:!reverse}">
+                    PR
+                </a>
             </th>
-            <th ng-click="orderingPredicate='lastBuild.timeStamp'; reverse=!reverse"
-                ng-class="{sort:orderingPredicate == 'lastBuild.timeStamp', reverse:reverse}">
-                Build
-                <span ng-class="{arrow:orderingPredicate == 'lastBuild.timeStamp', up:reverse}"></span>
+            <th>
+                <a ng-click="orderingPredicate='lastBuild.timeStamp'; reverse=!reverse" href=""
+                   ng-class="{sorting:orderingPredicate == 'lastBuild.timeStamp', up:reverse, down:!reverse}">
+                    Jenkins
+                </a>
             </th>
+            <!--th>
+                <a ng-click="orderingPredicate='name'; reverse=!reverse" href="" ng-class="{sorting:orderingPredicate == 'name', up:reverse, down:!reverse}">Review</a>
+            </th>
+            <th>
+                <a ng-click="orderingPredicate='name'; reverse=!reverse" href="" ng-class="{sorting:orderingPredicate == 'name', up:reverse, down:!reverse}">Merge</a>
+            </th-->
         </tr>
         </thead>
         <tbody>
         <tr ng-repeat="branch in allBranches | orderBy:orderingPredicate:reverse" ng-controller="branchLineController"
             ng-class="getLastBuildStatus()">
-            <td>
-                <entity-title entity="branch.entity" url="#/branches/{{branch.name | encode }}"></entity-title>
-                <span ng-show="!branch.entity"><a href="#/branches/{{branch.name | encode }}">{{branch.name}}</a></span>
-
+            <td class="entity-id-cell">
+                <a ng-show="branch.entity" target="_blank" href="{{branch.entity.url}}" class="ui-entity ui-entity-{{branch.entity.entityType.toLowerCase()}}">{{branch.entity.id}}</a>
             </td>
+            <td class="branch-name-cell">
+                <div class="entity-name">
+                    <a href="#/branches/{{branch.name | encode }}">{{branch.entity.name || branch.name}}</a>
+                </div>
+            </td>
+
             <td>
-                <div ng-show="branch.entity">
-                            <span ng-repeat="assignment in branch.entity.assignments"
-                                  class="ui-role ui-role-active-{{assignment.isResponsible}}">
-                                <img ng-src="{{assignment.avatar}}30"
+                <div class="user-list" ng-show="branch.entity">
+                            <img ng-repeat="assignment in branch.entity.assignments"
+                                 ng-src="{{assignment.avatar}}20"
                                      title="{{assignment.role}}: {{assignment.firstName}} {{assignment.lastName}}">
                             </span>
                 </div>
@@ -53,35 +63,31 @@
                 <entity-state entity="branch.entity"></entity-state>
             </td>
             <td>
-                <div ng-show="branch.pullRequest" class="btn-group btn-group-stretch" tooltip="{{branch.pullRequest.created | date}}">
-                    <a target="_blank" href="{{branch.pullRequest.url}}"
-                       class="btn btn-default btn-{{ branch.pullRequest | pullRequestStatus | status }}">
-                        #{{branch.pullRequest.id}}</a>
+                <div ng-show="branch.pullRequest" class="dropdown">
+                    <a target="_blank" href="{{branch.pullRequest.url}}" class="pr status {{ branch.pullRequest | pullRequestStatus | status }}"
+                      title="{{branch.pullRequest.created | date}}">#{{branch.pullRequest.id}}</a>
+                    <!--ul class="dropdown-menu">
+
+                        <li><a class="pr success" href="">#504</a></li>
+                        <li><a class="pr warning active" href="">#504</a></li>
+                        <li><a class="pr success" href="">#504</a></li>
+                    </ul-->
                 </div>
             </td>
             <td>
-                <div class="btn-group">
-                    <a ng-show="branch.lastBuild" href="{{branch.lastBuild.url}}" class="btn btn-default btn-{{ branch.lastBuild.status | status}}">
+                <div class="dropdown">
+                    <a ng-show="branch.lastBuild" href="" class="jenkins status {{ branch.lastBuild.status | status}} dropdown-toggle" data-toggle="dropdown" title="{{branch.lastBuild.status}}">
                         {{ branch.lastBuild.timeStamp | date }}
                     </a>
-                    <button ng-show="!branch.lastBuild" type="button" class="btn dropdown-toggle btn-default"  data-toggle="dropdown">
-                        <span>Never built</span>
-                        <span class="caret"></span>
-                    </button>
-                    <button ng-show="branch.lastBuild" type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" >
-                        <span class="caret"></span>
-                        <span class="sr-only">Toggle Dropdown</span>
-                    </button>
-                    <ul class="dropdown-menu" role="menu">
-                        <li>
-                            <a ng-repeat="action in branch.buildActions" ng-click="forceBuild(action)">
-                                {{action.name}}
-                            </a>
-                        </li>
+                    <a ng-show="!branch.lastBuild" href="" class="jenkins status warning dropdown-toggle" data-toggle="dropdown">
+                        Never built
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li ng-show="branch.lastBuild"><a href="{{branch.lastBuild.url}}" class="jenkins active">Go to Jenkins</a></li>
+                        <li ng-repeat="action in branch.buildActions"><a class="jenkins" href="" ng-click="forceBuild(action)">{{action.name}}</a></li>
                     </ul>
                 </div>
             </td>
         </tr>
         </tbody>
     </table>
-</div>

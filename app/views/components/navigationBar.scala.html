@@ -2,20 +2,11 @@
 
 @import components.githubLogin
 
-<div class="navbar navbar-default">
-    <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="@routes.Application.index()">Build Board</a>
-    </div>
-    <div class="navbar-collapse collapse">
-        <ul class="nav navbar-nav navbar-right">
-            @githubLogin(user)
-            <li><a>Hello, @user.fullName</a></li>
-            <li><form method="post" action="@routes.Login.logout"><button type="submit" class="btn btn-default navbar-btn logout">Logout</button></form></li>
-        </ul>
-    </div>
+<div class="header">
+    <div class="logo"><a href="@routes.Application.index()">Taucraft Developers</a></div>
+    <ul class="links">
+        @githubLogin(user)
+        <li><a href="">@user.fullName</a></li>
+        <li class="sign-out"><a href="@routes.Login.logout">Sign out</a></li>
+    </ul>
 </div>

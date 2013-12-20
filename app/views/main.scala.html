@@ -5,9 +5,13 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href='@routes.Assets.at("javascripts/bower_components/bootstrap/dist/css/bootstrap.css")'>
-        <link rel="stylesheet" href='@routes.Assets.at("stylesheets/main.css")'>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <link href='//fonts.googleapis.com/css?family=Roboto:400,700&subset=latin,cyrillic-ext' rel='stylesheet'
+          type='text/css'>
+    <link rel="stylesheet" href='@routes.Assets.at("stylesheets/bootstrap.css")'>
+
 
         @styles
 
@@ -32,14 +36,21 @@
         <script src='@routes.Assets.at("javascripts/ui-bootstrap-tpls-0.7.0.min.js")'></script>
 
         <script src='@routes.Assets.at("javascripts/all.js")'></script>
+
     </head>
     <body ng-app="buildBoard">
 
+<div class="wrap">
+
+
+
         @user.map { u =>
-            <div class="container">@navigationBar(u)</div>
+    <div class="header">@navigationBar(u)</div>
         }
 
-        <div class="container" ng-view>
+    <div ng-view>
+
+    </div>
         </div>
     </body>
 </html>

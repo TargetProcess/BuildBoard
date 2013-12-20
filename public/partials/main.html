@@ -1,30 +1,39 @@
-<div class="col-lg-2">
-    <ul class="nav nav-pills nav-stacked">
-        <li>
-            <a href="#/branchList/all">All branches<span class="badge  pull-right">{{count("all")}}</span>
+<div class="navigation">
+    <ul class="branches-filter">
+        <li class="active">
+            <a href="#/branchList/all">
+                <b>All branches</b>
+                <span class="counter">{{count("all")}}</span>
             </a>
         </li>
         <li>
-            <a href="#/branchList/entity">Entity branches<span class="badge  pull-right">{{count("entity")}}</span>
+            <a href="#/branchList/my">
+                <b>My branches</b>
+                <span class="counter">{{count("my")}}</span>
             </a>
         </li>
-        <li>
-            <a href="#/branchList/closed">Closed branches<span class="badge  pull-right">{{count("closed")}}</span>
-            </a>
-        </li>
-        <li>
-            <a href="#/branchList/my">My branches<span class="badge  pull-right">{{count("my")}}</span>
-            </a>
-        </li>
-        <hr>
+    </ul>
+    <ul class="persons-list">
         <li ng-repeat="user in users | orderBy:'firstName+lastName'">
             <a href="#/branchList/{{user.userId}}">
-                <img ng-src="{{user.avatar}}30" title="{{user.role}}">
-
-                {{user.firstName}} {{user.lastName}}  <span class="badge  pull-right">{{count(user.userId)}}</span>
+                        <span class="avatar">
+                            <img title="{{user.role}}" ng-src="{{user.avatar}}16">
+                            <span>{{user.firstName}} {{user.lastName}}</span>
+                        </span>
+                <span class="counter">{{count(user.userId)}}</span>
             </a>
         </li>
     </ul>
 </div>
-<div class="col-lg-10" ng-include src='"/assets/partials/branchList.html"'>
+<div class="main">
+    <div class="user-filter">
+        <div class="btn-group">
+            <a class="btn active" type="button">All branches<span class="counter">{{count("all")}}</span></a>
+            <a class="btn" type="button">Entity branches<span class="counter">{{count("entity")}}</span></a>
+            <a class="btn" type="button">Closed branches<span class="counter">{{count("closed")}}</span></a>
+        </div>
+    </div>
+
+<div class="info-table" ng-include src='"/assets/partials/branchList.html"'>
+</div>
 </div>

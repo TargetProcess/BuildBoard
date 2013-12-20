@@ -26,6 +26,7 @@ module buildBoard {
     }
 
     export interface EntityState {
+        name:string
         isClosed : boolean
     }
 

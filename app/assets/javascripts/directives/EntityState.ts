@@ -10,15 +10,10 @@ module buildBoard {
         controller = EntityStateDirectiveController;
 
         template = [
-            '<div class="btn-group btn-group-stretch" ng-show="entity">',
-            '<button type="button" class="btn dropdown-toggle" data-toggle="dropdown">',
-            '{{entity.state.name}} ',
-            '<span class="caret"></span>',
-            '</button>',
+            '<div class="dropdown">',
+            '<a href="" class="status {{getStatusStatus(entity.state)}} dropdown-toggle" data-toggle="dropdown">{{entity.state.name}}</a>',
             '<ul class="dropdown-menu">',
-            '<li ng-repeat="entityState in entity.state.nextStates">',
-            '<a ng-click="changeEntityState(entity, entityState.id)">{{entityState.name}}</a>',
-            '</li>',
+            '<li ng-repeat="entityState in entity.state.nextStates"><a class="status {{getStatusStatus(entityState)}}">{{entityState.name}}</a></li>',
             '</ul>',
             '</div>'
         ].join("");
@@ -29,6 +24,7 @@ module buildBoard {
 
     export interface IEntityStateDirectiveScope extends ng.IScope {
         changeEntityState(entity:Entity, nextState:number)
+        getStatusStatus(state:EntityState):string
     }
 
     export class EntityStateDirectiveController {
@@ -39,6 +35,15 @@ module buildBoard {
                 backendService.changeEntityState(entity.id, nextState).success(state=> {
                     entity.state = state;
                 });
+            };
+
+            $scope.getStatusStatus = (entityState:EntityState)=>{
+              if (entityState.name == "Tested")
+                return "success";
+              else if (entityState.name == "Reopen" || entityState.name == "Open" || entityState.name == "Closed" ||  entityState.name == "Done")
+                return "warning";
+              else
+                return "";
             }
         }
     }

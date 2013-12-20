@@ -3,9 +3,9 @@ module buildBoard {
 
     var statusMap:{ [s: string]: string;
     } = {
-        "failure": "danger",
-        "unstable": "danger",
-        "finished": "primary",
+        "failure": "warning",
+        "unstable": "warning",
+        "finished": "success",
         "success": "success",
         "ok": "success"
     };
