@@ -27,13 +27,17 @@ module buildBoard {
 
     export interface EntityState {
         name:string
-        isClosed : boolean
+        isFinal : boolean
     }
 
-    export interface Assignment {
+    export interface User {
         userId:number
+    }
+
+    export interface Assignment extends User{
         isResponsible:boolean
     }
+
 
     export interface PRStatus {
         isMerged:boolean;

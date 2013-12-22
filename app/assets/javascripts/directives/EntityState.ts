@@ -38,6 +38,9 @@ module buildBoard {
             };
 
             $scope.getStatusStatus = (entityState:EntityState)=>{
+              if (!entityState){
+                  return "";
+              }
               if (entityState.name == "Tested")
                 return "success";
               else if (entityState.name == "Reopen" || entityState.name == "Open" || entityState.name == "Closed" ||  entityState.name == "Done")

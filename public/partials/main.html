@@ -1,26 +1,26 @@
 <div class="navigation">
     <ul class="branches-filter">
-        <li class="active">
-            <a href="#/branchList/all">
+        <li ng-class="{active: isFilterActive('userFilter', 'all')}">
+            <a href="{{getRoute('userFilter', 'all')}}">
                 <b>All branches</b>
-                <span class="counter">{{count("all")}}</span>
+                <span class="counter">{{countByUser("all")}}</span>
             </a>
         </li>
-        <li>
-            <a href="#/branchList/my">
+        <li ng-class="{active: isFilterActive('userFilter', 'my')}">
+            <a href="{{getRoute('userFilter', 'my')}}">
                 <b>My branches</b>
-                <span class="counter">{{count("my")}}</span>
+                <span class="counter">{{countByUser("my")}}</span>
             </a>
         </li>
     </ul>
     <ul class="persons-list">
-        <li ng-repeat="user in users | orderBy:'firstName+lastName'">
-            <a href="#/branchList/{{user.userId}}">
+        <li ng-repeat="user in users | orderBy:'firstName+lastName'" ng-class="{active: isFilterActive('userFilter', user.userId)}">
+            <a href="{{getRoute('userFilter', user.userId)}}">
                         <span class="avatar">
                             <img title="{{user.role}}" ng-src="{{user.avatar}}16">
                             <span>{{user.firstName}} {{user.lastName}}</span>
                         </span>
-                <span class="counter">{{count(user.userId)}}</span>
+                <span class="counter">{{countByUser(user.userId)}}</span>
             </a>
         </li>
     </ul>
@@ -28,9 +28,14 @@
 <div class="main">
     <div class="user-filter">
         <div class="btn-group">
-            <a class="btn active" type="button">All branches<span class="counter">{{count("all")}}</span></a>
-            <a class="btn" type="button">Entity branches<span class="counter">{{count("entity")}}</span></a>
-            <a class="btn" type="button">Closed branches<span class="counter">{{count("closed")}}</span></a>
+            <a class="btn" ng-class="{active: isFilterActive('branchesFilter', 'all')}" href="{{getRoute('branchesFilter', 'all')}}">
+                All branches
+                <span class="counter">{{countByBranch("all")}}</span>
+            </a>
+            <a class="btn" ng-class="{active: isFilterActive('branchesFilter', 'entity')}" href="{{getRoute('branchesFilter', 'entity')}}">
+                Entity branches<span class="counter">{{countByBranch("entity")}}</span></a>
+            <a class="btn" ng-class="{active: isFilterActive('branchesFilter', 'closed')}" href="{{getRoute('branchesFilter', 'closed')}}">
+                Closed branches<span class="counter">{{countByBranch("closed")}}</span></a>
         </div>
     </div>
 

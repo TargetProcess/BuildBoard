@@ -3,17 +3,23 @@ module buildBoard {
     'use strict';
 
     export interface IBranchesRouteParams extends ng.IRouteParamsService {
-        filter:string;
+        userFilter:string;
+        branchesFilter:string;
     }
 
     export interface IBranchesScope extends ng.IScope {
-        allBranches:Branch[];
+        branches:Branch[];
         users:User[];
 
         getBuildClass(branch:Branch);
-        count(filterName:string):number;
+        countByUser(userFilter:string):number;
+        countByBranch(branchFilter:string):number;
 
         loading:boolean;
+
+        isFilterActive(name:string, value:any);
+
+        getRoute(name:string, value:any):string;
     }
 
 
@@ -21,22 +27,44 @@ module buildBoard {
         public static $inject = [
             '$scope',
             '$routeParams',
-            BranchesService.NAME
+            BranchesService.NAME,
+            LoggedUserService.NAME
         ];
 
-        constructor(private $scope:IBranchesScope, $routeParams:IBranchesRouteParams, branchesService:IBranchesService) {
+        constructor(private $scope:IBranchesScope, private $routeParams:IBranchesRouteParams, branchesService:IBranchesService, private loggedUserService:LoggedUserService) {
             this.$scope.loading = true;
 
-            branchesService.allBranches.then(branches=> {
+            this.$scope.isFilterActive = (name:string, value:any)=>$routeParams[name] == value;
+            this.$scope.getRoute = (name:string, value:any)=> {
+                var routeValues = {
+                    userFilter: $routeParams.userFilter,
+                    branchesFilter: $routeParams.userFilter
+                };
+                routeValues[name] = value;
+
+                var params = _.chain(routeValues)
+                    .pairs()
+                    .map(values=>values[0] + '=' + values[1])
+                    .value()
+                    .join('&');
+
+                return "#/branchList?" + params;
+
+            };
+
+            branchesService.allBranches.then((branches:Branch[])=> {
                 var usersAndBranches = _.chain(branches)
                     .filter(branch=>!!branch.entity)
-                    .map(branch=>
+                    .map((branch:Branch) =>
                         _.map(branch.entity.assignments, user=> {
                             return {user: user, branch: branch};
                         })
                 )
                     .flatten()
                     .value();
+
+                $routeParams.branchesFilter = $routeParams.branchesFilter || 'all';
+                $routeParams.userFilter = $routeParams.userFilter || 'all';
 
 
                 var counts = _.countBy(usersAndBranches, userAndBranch=>userAndBranch.user.userId);
@@ -49,10 +77,10 @@ module buildBoard {
 
                     }).value();
 
-                this.$scope.allBranches = this.filter(branches, $routeParams.filter);
+                this.$scope.branches = this.filter(branches, $routeParams.userFilter, $routeParams.branchesFilter);
 
-                this.$scope.count = (filterName:string)=>this.filter(branches, filterName).length;
-
+                this.$scope.countByUser = (userFilter:string)=>this.filter(branches, userFilter, "all").length;
+                this.$scope.countByBranch = (branchFilter:string)=>this.filter(branches, $routeParams.userFilter, branchFilter).length;
 
             }).then(x=> {
                     this.$scope.loading = false;
@@ -60,18 +88,28 @@ module buildBoard {
         }
 
 
-        filter(list:Branch[], filterName:string):Branch[] {
-            var userId = parseInt(filterName, 10);
+        filter(list:Branch[], userFilter:string, branchFilter:string):Branch[] {
+
+            var userPredicate;
+
+            var userId = userFilter == "my" ? this.loggedUserService.getLoggedUser().userId : parseInt(userFilter, 10);
             if (!isNaN(userId)) {
-                return _.filter(list, branch=>branch.entity && _.any(branch.entity.assignments, assignment=>assignment.userId == userId));
+                userPredicate = branch=>branch.entity && _.any(branch.entity.assignments, assignment=>assignment.userId == userId);
             }
-            if (filterName == "entity") {
-                return _.filter(list, branch=>branch.entity);
+            else {
+                userPredicate = branch=>true;
             }
-            if (filterName == "closed") {
-                return _.filter(list, branch=>branch.entity && branch.entity.state.isClosed);
+
+            var branchPredicate;
+            if (branchFilter == "entity") {
+                branchPredicate = branch=>branch.entity;
+            } else if (branchFilter == "closed") {
+                branchPredicate = (branch:Branch)=>branch.entity && branch.entity.state.isFinal;
+            } else {
+                branchPredicate = branch=>true;
             }
-            return list;
+
+            return _.filter(list, branch=>userPredicate(branch) && branchPredicate(branch));
         }
 
 

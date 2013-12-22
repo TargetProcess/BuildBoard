@@ -25,6 +25,14 @@
             routes.javascript.Application.builds
         )
 
+        @user.map { u =>
+        <script>
+            loggedUser = {
+                userId: @u.tpId
+            };
+        </script>
+        }
+
         <script src='@routes.Assets.at("javascripts/bower_components/jquery/jquery.min.js")'></script>
         <script src='@routes.Assets.at("javascripts/bower_components/bootstrap/dist/js/bootstrap.js")'></script>
         <script src='@routes.Assets.at("javascripts/bower_components/angular/angular.js")'></script>

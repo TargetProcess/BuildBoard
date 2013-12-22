@@ -7,6 +7,7 @@ module buildBoard {
     angular.module('buildBoard', ['ngRoute','ui.bootstrap'])
         .service(BackendService.NAME, BackendService)
         .service(BranchesService.NAME, BranchesService)
+        .service(LoggedUserService.NAME, LoggedUserService)
         .controller('branchesController', BranchesController)
         .controller(BranchLineController.NAME, BranchLineController)
         .filter('status', status)
@@ -21,7 +22,7 @@ module buildBoard {
         .config(['$routeProvider',
             ($routeProvider:ng.route.IRouteProvider)=>
                 $routeProvider
-                    .when('/branchList/:filter', {
+                    .when('/branchList', {
                         templateUrl: '/assets/partials/main.html',
                         controller: BranchesController
                     })
@@ -34,7 +35,7 @@ module buildBoard {
                         controller: BranchController
                     })
                     .otherwise({
-                        redirectTo: '/branchList/all'
+                        redirectTo: '/branchList'
                     })
         ])
 
