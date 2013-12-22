@@ -32,17 +32,17 @@ object User extends UserDAO with TpUserRepo {
     val userFromDb = User.findOneById(tpUser.id)
     val newUser =
       userFromDb match {
-        case None => {
+        case None =>
           User(tpId = tpUser.id, username = tpUser.login, token = token, fullName = tpUser.fullName)
-        }
-        case Some(user) => {
+        case Some(user) =>
           user.copy(username = tpUser.login, token = token, fullName = tpUser.fullName)
-        }
       }
     User.save(newUser)
 
   }
 }
+
+
 
 trait UserDAO extends ModelCompanion[User, ObjectId] {
   def collection = mongoCollection("users")

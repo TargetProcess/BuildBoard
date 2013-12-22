@@ -7,14 +7,14 @@ import scala.language.postfixOps
 import scala.concurrent._
 import scala.concurrent.duration._
 import ExecutionContext.Implicits.global
-import models.github.{GithubBranch, RealGithubRepository, GithubRepository}
+import models.github.{CachedGithubRepository, GithubBranch, RealGithubRepository, GithubRepository}
 
 class BranchesRepository(implicit user: User) {
 
   val EntityBranchPattern = new Regex("^(?i)feature/(us|bug|f)(\\d+).*")
   val FeatureBranchPattern = new Regex("^(?i)feature/(\\w+)")
 
-  val githubRepository: GithubRepository = new RealGithubRepository
+  val githubRepository: GithubRepository = new CachedGithubRepository
 
 
   def getBranch(id: String): Branch = {
@@ -90,8 +90,8 @@ class BranchesRepository(implicit user: User) {
         BranchBuildAction(name, fullCycle = false)
       ) ++ (pullRequest match {
         case Some(pr) => List(
-          PullRequestBuildAction(pr.id, fullCycle = true),
-          PullRequestBuildAction(pr.id, fullCycle = false)
+          PullRequestBuildAction(pr.prId, fullCycle = true),
+          PullRequestBuildAction(pr.prId, fullCycle = false)
         )
         case None => Nil
       })

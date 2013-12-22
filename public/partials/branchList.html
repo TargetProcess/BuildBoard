@@ -65,7 +65,7 @@
             <td>
                 <div ng-show="branch.pullRequest" class="dropdown">
                     <a target="_blank" href="{{branch.pullRequest.url}}" class="pr status {{ branch.pullRequest | pullRequestStatus | status }}"
-                      title="{{branch.pullRequest.created | date}}">#{{branch.pullRequest.id}}</a>
+                      title="{{branch.pullRequest.created | date}}">#{{branch.pullRequest.prId}}</a>
                     <!--ul class="dropdown-menu">
 
                         <li><a class="pr success" href="">#504</a></li>

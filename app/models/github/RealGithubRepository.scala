@@ -23,3 +23,9 @@ class RealGithubRepository(implicit user: User) extends GithubRepository{
     PullRequestStatus(pr.isMergeable, pr.isMerged)
   }
 }
+
+
+class CachedGithubRepository(implicit user: User) extends RealGithubRepository{
+  override def getPullRequests: List[PullRequest] = PullRequests.findAll().toList
+  override def getBranches: List[GithubBranch] = GithubBranches.findAll().toList
+}

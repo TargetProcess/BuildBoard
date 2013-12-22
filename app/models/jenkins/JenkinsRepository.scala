@@ -14,7 +14,7 @@ object JenkinsRepository {
 
   def getBuilds(branch: models.Branch): List[models.Build] =  branch match {
     case models.Branch(name, _, pullRequest, _, _) => {
-      val pullRequestId = pullRequest.map(p => p.id)
+      val pullRequestId = pullRequest.map(p => p.prId)
       getBuilds.filter((b: models.Build) => b.branch == name || b.branch == s"origin/$name" || (pullRequestId.isDefined && b.branch == s"origin/pr/${pullRequestId.get}/merge"))
     }
   }
@@ -24,7 +24,7 @@ object JenkinsRepository {
   def getLastBuildsByBranch(branches: List[models.Branch]): Map[String, Option[models.Build]] = {
   val builds = getBuilds
   branches.map(b => {
-    val pullRequestId = b.pullRequest.map(p => p.id)
+    val pullRequestId = b.pullRequest.map(p => p.prId)
     val branchBuilds = builds.filter(build => build.branch == b.name || build.branch == s"origin/${b.name}" || (pullRequestId.isDefined && build.branch == s"origin/pr/${pullRequestId.get}/merge"))
     (s"origin/${b.name}", branchBuilds.headOption)
   })

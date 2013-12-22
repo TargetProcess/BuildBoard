@@ -13,7 +13,7 @@ module buildBoard {
     }
 
     export interface PullRequest {
-        id:number;
+        prId:number;
         status:PRStatus;
         url:string;
         created:number;

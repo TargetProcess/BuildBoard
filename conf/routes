@@ -11,7 +11,7 @@ GET         /branch                         controllers.Application.branch(id:St
 GET         /login                          controllers.Login.index
 GET         /login/oauth                    controllers.Login.oauth(code ?= "")
 POST        /login/submit                   controllers.Login.submit
-POST        /login/logout                   controllers.Login.logout
+GET        /login/logout                   controllers.Login.logout
 
 GET         /gihtub/pullRequestStatus       controllers.Github.pullRequestStatus(id:Int)
 
