@@ -47,7 +47,7 @@ object Login extends Controller with Secured {
   def oauth(code: String) = IsAuthorized {
     user =>
       implicit request =>
-        val (login, accessToken) = GitHubApplication.login(code)
+        val (login, accessToken) = GithubApplication.login(code)
         User.save(user.copy(githubLogin = login, githubToken=accessToken))       
         Ok(views.html.closeWindow())
   }

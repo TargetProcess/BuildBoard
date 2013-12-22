@@ -8,7 +8,7 @@ import play.api.Play.current
 import play.api.Play
 
 
-object GitHubApplication {
+object GithubApplication {
   val clientId = Play.configuration.getString("github.oauth.client_id").get
   val clientSecret = Play.configuration.getString("github.oauth.client_secret").get
   val redirectUri = Play.configuration.getString("github.oauth.redirect_url").get
@@ -22,8 +22,8 @@ object GitHubApplication {
         val req = Http.post("https://github.com/login/oauth/access_token")
           .params(
             "code" -> code,
-            "client_id" -> GitHubApplication.clientId,
-            "client_secret" -> GitHubApplication.clientSecret)
+            "client_id" -> GithubApplication.clientId,
+            "client_secret" -> GithubApplication.clientSecret)
           .header("Accept", "application/xml")
           .option(HttpOptions.connTimeout(1000))
           .option(HttpOptions.readTimeout(5000))
