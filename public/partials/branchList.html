@@ -79,7 +79,7 @@
                     <a ng-show="branch.lastBuild" href="" class="jenkins status {{ branch.lastBuild.status | status}} dropdown-toggle" data-toggle="dropdown" title="{{branch.lastBuild.status}}">
                         {{ branch.lastBuild.timeStamp | date }}
                     </a>
-                    <a ng-show="!branch.lastBuild" href="" class="jenkins status warning dropdown-toggle" data-toggle="dropdown">
+                    <a ng-show="!branch.lastBuild" href="" class="jenkins status dropdown-toggle" data-toggle="dropdown">
                         Never built
                     </a>
                     <ul class="dropdown-menu">

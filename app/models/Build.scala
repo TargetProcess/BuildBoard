@@ -1,10 +1,40 @@
 package models
 
 import com.github.nscala_time.time.Imports._
+import com.novus.salat.dao.{SalatDAO, ModelCompanion}
+import se.radley.plugin.salat._
+import com.mongodb.casbah.Imports._
+import se.radley.plugin.salat.Binders.ObjectId
+import scala.Some
+import play.api.Play.current
+import com.novus.salat.dao._
+import com.mongodb.casbah.Imports._
+import se.radley.plugin.salat._
+import se.radley.plugin.salat.Binders._
+import mongoContext._
 
 case class Build(number: Int, branch: String, status: Option[String], url: String, timeStamp: DateTime, node: BuildNode)
 
 case class BuildNode(number: Int, name: String, runName: String, status: Option[String], statusUrl: String, artifactsUrl: Option[String], timestamp: DateTime, children: List[BuildNode] = Nil)
+
+
+object Builds extends BuildDAO with Collection[Build] {
+
+}
+
+
+
+trait BuildDAO extends ModelCompanion[Build, ObjectId] {
+  def collection = mongoCollection("builds")
+
+  val dao = new SalatDAO[Build, ObjectId](collection) {}
+
+  // Indexes
+  collection.ensureIndex(DBObject("number" -> 1, "branch"-> 1), "build_number", unique = true)
+}
+
+
+
 
 
 trait Cycle {

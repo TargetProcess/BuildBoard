@@ -3,6 +3,7 @@ module buildBoard {
 
     var statusMap:{ [s: string]: string;
     } = {
+        "aborted" : "warning",
         "failure": "warning",
         "unstable": "warning",
         "finished": "success",

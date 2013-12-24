@@ -35,7 +35,7 @@ trait GithubRepository {
   def getUrlForBranch(name:String) =  GithubApplication.url(name)
 }
 
-object GithubBranches extends ModelCompanion[GithubBranch, ObjectId] {
+object GithubBranches extends ModelCompanion[GithubBranch, ObjectId] with Collection[GithubBranch] {
 
   def collection = mongoCollection("branches")
 

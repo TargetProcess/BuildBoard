@@ -22,8 +22,14 @@ object PullRequest{
 }
 
 
+trait Collection[T] {
+    def save(value : T):Any
+    def remove(value : T):Any
+    def findAll : Iterator[T]
+}
 
-object PullRequests extends ModelCompanion[PullRequest, ObjectId] {
+
+object PullRequests extends ModelCompanion[PullRequest, ObjectId]  with Collection[PullRequest] {
 
   def collection = mongoCollection("pullRequests")
 

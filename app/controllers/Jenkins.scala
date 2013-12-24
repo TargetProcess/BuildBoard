@@ -5,7 +5,7 @@ import models._
 import play.api.libs.json._
 import com.github.nscala_time.time.Imports._
 import Writes._
-import models.jenkins.JenkinsRepository
+import models.jenkins.RealJenkinsRepository
 import scala.util.{Failure, Success}
 import scalaj.http.HttpException
 
@@ -20,7 +20,7 @@ object Jenkins extends Controller with Secured {
         }
         maybeAction match {
           case Some(buildAction) =>
-            JenkinsRepository.forceBuild(buildAction) match {
+            RealJenkinsRepository.forceBuild(buildAction) match {
               case Success(_) => Ok(Json.toJson(
                 Build(-1, "this", Some("In progress"), "#", DateTime.now, BuildNode(-1, "this", "this", Some("In progress"), "#", None, DateTime.now))
               ))

@@ -1,37 +1,31 @@
-<div class="container">
-    <div class="col-lg-9">
-        <h2>
-            {{branchName}}
-        </h2>
-        <h3 ng-show="branch.entity">
-            <entity-title entity="branch.entity"/>
-        </h3>
-
-        <div class="loader" ng-show="!builds">
+<div class="view">
+    <div class="action-panel">
+        <div class="caption">
+            <entity-title entity="branch.entity"></entity-title>
+            <h2>{{branchName}}</h2>
         </div>
 
-        <div ng-model="collapse" ng-repeat="build in builds" class="panel panel-{{build.status | status}}">
-            <div class="panel-heading">
-                <h4 class="panel-title">
-                    <a data-toggle="collapse" data-target=".build-{{build.number}}"> {{build.timeStamp | date:'medium'
-                        }}</a>
-                </h4>
-            </div>
-            <div class="panel-collapse collapse build-{{build.number}}">
-                <div class="panel-body tree">
-                    <ul>
-                        <li ng-repeat="data in [build.node]" ng-include="'/assets/partials/buildNode.html'"></li>
-                    </ul>
+
+        <div class="action-list">
+            <div ng-repeat="build in builds" class="item {{build.status | status}}">
+                <div class="date">{{build.timeStamp | date:'M/d/yy hh:mm' }}</div>
+                <div class="avatar">
+                    <img title="Jenkins" src="/assets/images/jenkins.png" style="width: 32px; height: 32px;">
+                </div>
+                <div class="description">
+                    <p><b>Build #{{build.number}} </b> <span class="changes"> was triggered. Status: {{build.status}}</span></p>
+                    <div class="tree">
+                        <ul>
+                            <li ng-repeat="data in [build.node]" ng-include="'/assets/partials/buildNode.html'"></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
 
 
     </div>
-    <div class="col-lg-3" ng-show="!branch">
-        <div class="loader"/>
-    </div>
-    <div class="col-lg-3" ng-show="branch">
+    <div class="info-panel">
         <span ng-show="branch.entity">
             <panel>
                 <panel-heading>
@@ -65,9 +59,13 @@
         <panel>
             <panel-body>
                 <div class="btn-group-vertical btn-group-alignment-left">
-                    <a ng-show="!branch.pullRequest" class="btn btn-link" href="{{ branch.url }}" target="_blank"><span class="external github">Github</span></a>
-                    <a ng-show="branch.pullRequest" class="btn btn-{{ branch.pullRequest | pullRequestStatus | status }}" href="{{branch.pullRequest.url}}">Pull Request #{{branch.pullRequest.id}}</a>
-                    <a class="btn btn-link" ng-show="branch.entity" href="{{branch.entity.url}}" target="_blank"><span class="external tpIcon">TargetProcess</span></a>
+                    <a ng-show="!branch.pullRequest" class="btn btn-link" href="{{ branch.url }}" target="_blank"><span
+                            class="external github">Github</span></a>
+                    <a ng-show="branch.pullRequest"
+                       class="btn btn-{{ branch.pullRequest | pullRequestStatus | status }}"
+                       href="{{branch.pullRequest.url}}">Pull Request #{{branch.pullRequest.id}}</a>
+                    <a class="btn btn-link" ng-show="branch.entity" href="{{branch.entity.url}}" target="_blank"><span
+                            class="external tpIcon">TargetProcess</span></a>
                 </div>
             </panel-body>
         </panel>

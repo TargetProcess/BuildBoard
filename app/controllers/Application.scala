@@ -4,7 +4,7 @@ import play.api.mvc._
 import models._
 import play.api.libs.json._
 import Writes._
-import models.jenkins.JenkinsRepository
+import models.jenkins.CachedJenkinsRepository
 import models.Branch
 
 object Application extends Controller with Secured {
@@ -32,27 +32,29 @@ object Application extends Controller with Secured {
           Ok(Json.toJson(branch))
   }
 
+  val jenkinsRepo = CachedJenkinsRepository
+
   def builds(branch: String) = IsAuthorized {
     implicit user =>
       val branchEntity = new BranchesRepository().getBranch(branch)
-      request => Ok(Json.toJson(JenkinsRepository.getBuilds(branchEntity)))
+      request => Ok(Json.toJson(jenkinsRepo.getBuilds(branchEntity)))
   }
 
   def lastBuildInfo(branch: String) = IsAuthorized {
     implicit user =>
       val branchEntity = new BranchesRepository().getBranch(branch)
-      request => Ok(Json.toJson(JenkinsRepository.getLastBuild(branchEntity)))
+      request => Ok(Json.toJson(jenkinsRepo.getLastBuild(branchEntity)))
   }
 
   def lastBuildInfos = IsAuthorized {
     implicit user =>
       val branches = new BranchesRepository().getBranches
-      request => Ok(Json.toJson(JenkinsRepository.getLastBuildsByBranch(branches)))
+      request => Ok(Json.toJson(jenkinsRepo.getLastBuildsByBranch(branches)))
   }
 
   def build(branch: String, number: Int) = IsAuthorized {
     implicit user =>
       val branchEntity = new BranchesRepository().getBranch(branch)
-      request => Ok(Json.toJson(JenkinsRepository.getBuild(branchEntity, number)))
+      request => Ok(Json.toJson(jenkinsRepo.getBuild(branchEntity, number)))
   }
 }
