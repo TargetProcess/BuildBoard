@@ -11,7 +11,12 @@
     display: block;
     text-overflow: ellipsis;
     width: 90%;
+    color: white;
   }
+  ul {
+    padding-left: 40px;
+  }
+
   li {
     list-style-type: none;
     margin: 0px 0;
@@ -45,6 +50,12 @@
       line-height: 14px;
       padding: 2px 4px;
       text-decoration: none;
+      &.warning {
+        background: red;
+      }
+      &.success {
+        background: green;
+      }
     }
     &.parent_li > .node {
       cursor: pointer;
