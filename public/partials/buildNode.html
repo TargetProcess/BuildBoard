@@ -5,5 +5,5 @@
 </span>
 
 <ul>
-    <li ng-repeat="data in data.children" ng-include="'/assets/partials/buildNode.html'"></li>
+    <li ng-repeat="data in data.children | orderBy:data.name" ng-include="'/assets/partials/buildNode.html'"></li>
 </ul>
