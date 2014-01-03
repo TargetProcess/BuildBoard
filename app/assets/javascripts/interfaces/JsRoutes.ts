@@ -8,6 +8,7 @@ module buildBoard {
     }
 
     export interface Controllers {
+        Login : ILogin;
         Application : IApplication;
         Github: IGithub
         Jenkins: IJenkins
@@ -32,6 +33,10 @@ module buildBoard {
         branches(): IAction;
         branch(id:string): IAction;
         builds(branch:string):IAction
+    }
+
+    export interface ILogin {
+        logout():IAction
     }
 
 }

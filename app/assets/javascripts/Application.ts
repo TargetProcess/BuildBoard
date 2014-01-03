@@ -10,6 +10,7 @@ module buildBoard {
         .service(LoggedUserService.NAME, LoggedUserService)
         .controller('branchesController', BranchesController)
         .controller(BranchLineController.NAME, BranchLineController)
+        .controller(HeaderController.NAME, HeaderController)
         .filter('status', status)
         .filter('activeFilter', activeFilter)
         .filter('encode', encode)

@@ -8,10 +8,9 @@ import views._
 import scala.util._
 import models.github._
 
-case class UserCredentials(username:String, password:String)
+case class UserCredentials(username: String, password: String)
 
 object Login extends Controller with Secured {
-
 
 
   val loginForm = Form[UserCredentials](
@@ -23,6 +22,7 @@ object Login extends Controller with Secured {
     implicit request =>
       Ok(views.html.login(loginForm))
   }
+
   def logout = Action {
     implicit request =>
       Redirect(routes.Login.index).withNewSession
@@ -34,9 +34,9 @@ object Login extends Controller with Secured {
         formWithErrors => BadRequest(html.login(formWithErrors)),
         login =>
           User.authenticate(login.username, login.password) match {
-            case Success((tpUser,token)) => {
+            case Success((tpUser, token)) => {
 
-              User.saveLogged(tpUser,token)
+              User.saveLogged(tpUser, token)
 
               Redirect(routes.Application.index).withSession("login" -> tpUser.login)
             }
@@ -48,8 +48,14 @@ object Login extends Controller with Secured {
     user =>
       implicit request =>
         val (login, accessToken) = GithubApplication.login(code)
-        User.save(user.copy(githubLogin = login, githubToken=accessToken))       
+        User.save(user.copy(githubLogin = login, githubToken = accessToken))
         Ok(views.html.closeWindow())
+  }
+
+  def githubLogin = IsAuthorized {
+    user =>
+      implicit request =>
+        Ok(views.html.components.githubLogin.render(user, request))
   }
 }
  

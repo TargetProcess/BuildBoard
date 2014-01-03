@@ -1,7 +1,5 @@
 @(title: String, user: Option[User], styles: Html = Html(""), sidebar: Html = Html(""))(content: Html)(implicit request: RequestHeader)
 
-@import components.navigationBar
-
 <!DOCTYPE html>
 <html>
     <head>
@@ -18,17 +16,19 @@
         @helper.javascriptRouter("jsRoutes")(
             routes.javascript.Application.branches,
             routes.javascript.Application.branch,
+            routes.javascript.Application.lastBuildInfos,
+            routes.javascript.Application.builds,
             routes.javascript.Github.pullRequestStatus,
             routes.javascript.Targetprocess.changeEntityState,
             routes.javascript.Jenkins.forceBuild,
-            routes.javascript.Application.lastBuildInfos,
-            routes.javascript.Application.builds
+            routes.javascript.Login.logout
         )
 
         @user.map { u =>
         <script>
             loggedUser = {
-                userId: @u.tpId
+                userId: @u.tpId,
+                fullName: '@u.fullName'
             };
         </script>
         }
@@ -49,10 +49,7 @@
     <body ng-app="buildBoard">
 
         <div class="wrap">
-            @user.map { u =>
-            <div class="header">@navigationBar(u)</div>
-            }
-
+            <div ng-include="'/assets/partials/header.html'"></div>
             <div ng-view>
 
             </div>
