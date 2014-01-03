@@ -20,18 +20,18 @@ module buildBoard {
     }
 
     export function status() {
-        return (status:string)=>((status && statusMap[status.toLowerCase()]) || "default");
+        return (status:string)=>status ? (statusMap[status.toLowerCase()] || status.toLowerCase()) : 'default';
     }
 
     export function pullRequestStatus(){
         return (pullRequest:PullRequest)=>{
                 if (pullRequest && pullRequest.status) {
                     if (pullRequest.status.isMerged) {
-                        return 'finished';
+                        return 'success';
                     } else if (pullRequest.status.isMergeable) {
                         return 'success';
                     } else {
-                        return 'failure';
+                        return 'warning';
                     }
                 }
                 else {

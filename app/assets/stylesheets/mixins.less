@@ -1,7 +1,7 @@
 // MIXINS
 // --------------------------------------------------
 
-.clearfix() {
+.clearfix {
   &:after {
     content: " ";
     display: table;
@@ -80,28 +80,10 @@
 
 // Button sizes
 // -------------------------
-.button-size (@padding-base-btn-vertical; @padding-base-btn-horizontal; @font-size-base-btn; @line-height-base-btn; @border-radius-base-btn) {
-  padding: @padding-base-btn-vertical @padding-base-btn-horizontal;
-  font-size: @font-size-base-btn;
-  line-height: @line-height-base-btn;
-  border-radius: @border-radius-base-btn;
-}
-
-
-.form-control-focus(@color: @input-border-focus) {
-  @color-rgba: rgba(red(@color), green(@color), blue(@color), .6);
-  &:focus {
-    border-color: @color;
-    outline: 0;
-    .box-shadow(~"inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px @{color-rgba}");
-  }
-}
-
-.input-size(@input-height; @padding-vertical; @padding-horizontal; @font-size; @line-height; @border-radius) {
-  height: @input-height;
+.button-size (@height; @padding-vertical; @padding-horizontal; @font-size-btn; @line-height-btn; @radius-btn) {
   padding: @padding-vertical @padding-horizontal;
-  font-size: @font-size;
-  line-height: @line-height;
-  border-radius: @border-radius;
-
+  font-size: @font-size-btn;
+  line-height: @line-height-btn;
+  border-radius: @radius-btn;
+  height: @height;
 }

@@ -48,17 +48,15 @@
     </head>
     <body ng-app="buildBoard">
 
-<div class="wrap">
+        <div class="wrap">
+            @user.map { u =>
+            <div class="header">@navigationBar(u)</div>
+            }
 
+            <div ng-view>
 
-
-        @user.map { u =>
-    <div class="header">@navigationBar(u)</div>
-        }
-
-    <div ng-view>
-
-    </div>
+            </div>
         </div>
+
     </body>
 </html>

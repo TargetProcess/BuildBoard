@@ -4,14 +4,15 @@ module buildBoard {
         static NAME = "entityState";
 
         scope = {
-            entity: "="
+            entity: "=",
+            type: "@"
         };
 
         controller = EntityStateDirectiveController;
 
         template = [
             '<div class="dropdown">',
-            '<a href="" class="status {{getStatusStatus(entity.state)}} dropdown-toggle" data-toggle="dropdown">{{entity.state.name}}</a>',
+            '<a href="" class="status {{type}} {{getStatusStatus(entity.state)}} dropdown-toggle" data-toggle="dropdown">{{entity.state.name}}</a>',
             '<ul class="dropdown-menu">',
             '<li ng-repeat="entityState in entity.state.nextStates"><a class="status {{getStatusStatus(entityState)}}">{{entityState.name}}</a></li>',
             '</ul>',

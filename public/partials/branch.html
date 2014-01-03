@@ -2,7 +2,7 @@
     <div class="action-panel">
         <div class="caption">
             <entity-title entity="branch.entity"></entity-title>
-            <h2>{{branchName}}</h2>
+            <h2 ng-show="!branch.entity">{{branchName}}</h2>
         </div>
 
 
@@ -13,11 +13,19 @@
                     <img title="Jenkins" src="/assets/images/jenkins.png" style="width: 32px; height: 32px;">
                 </div>
                 <div class="description">
-                    <p><b>Build #{{build.number}} </b> <span class="changes"> was triggered. Status: {{build.status}}</span></p>
-                    <div class="tree">
-                        <ul>
-                            <li ng-repeat="data in [build.node]" ng-include="'/assets/partials/buildNode.html'"></li>
-                        </ul>
+                    <div class="panel-group">
+                        <div class="panel">
+                            <div class="panel-heading">
+                                <h4 class="panel-title"><b>Build #{{build.number}} </b> <span class="changes"> was triggered. Status: {{build.status}}</span></h4>
+                            </div>
+                            <div class="tree" class="panel-collapse">
+                                <div class="panel-body">
+                                    <ul>
+                                        <li ng-repeat="data in [build.node]" ng-include="'/assets/partials/buildNode.html'"></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -26,48 +34,41 @@
 
     </div>
     <div class="info-panel">
-        <span ng-show="branch.entity">
-            <panel>
-                <panel-heading>
-                    Users
-                </panel-heading>
-                <panel-body>
-                    <div ng-repeat="user in branch.entity.assignments">
-                        <img ng-src="{{user.avatar}}40"> {{user.firstName}} {{user.lastName}}
-                    </div>
-                </panel-body>
-            </panel>
-            <panel>
-                <panel-body>
-                    <entity-state entity="branch.entity"></entity-state>
-                </panel-body>
-            </panel>
-        </span>
-        <panel>
-            <panel-heading>
-                Build
-            </panel-heading>
-            <panel-body>
-                <div class="btn-group-vertical btn-group-stretch">
-                    <button type="button" class="btn btn-default" ng-repeat="action in branch.buildActions"
-                            ng-click="forceBuild(action)">
-                        {{action.name}}
-                    </button>
-                </div>
-            </panel-body>
-        </panel>
-        <panel>
-            <panel-body>
-                <div class="btn-group-vertical btn-group-alignment-left">
-                    <a ng-show="!branch.pullRequest" class="btn btn-link" href="{{ branch.url }}" target="_blank"><span
-                            class="external github">Github</span></a>
-                    <a ng-show="branch.pullRequest"
-                       class="btn btn-{{ branch.pullRequest | pullRequestStatus | status }}"
-                       href="{{branch.pullRequest.url}}">Pull Request #{{branch.pullRequest.id}}</a>
-                    <a class="btn btn-link" ng-show="branch.entity" href="{{branch.entity.url}}" target="_blank"><span
-                            class="external tpIcon">TargetProcess</span></a>
-                </div>
-            </panel-body>
-        </panel>
+        <div class="item">
+            <h4>Users</h4>
+            <span ng-repeat="user in branch.entity.assignments" class="avatar">
+                <img ng-src="{{user.avatar}}20">
+                <span>{{user.firstName}} {{user.lastName}}</span>
+            </span>
+        </div>
+        <div class="item">
+            <h4>Status</h4>
+            <entity-state entity="branch.entity" type="btn"></entity-state>
+        </div>
+        <div class="item">
+           <h4>Pr</h4>
+           <a ng-show="branch.pullRequest"
+               class="btn pr {{ branch.pullRequest | pullRequestStatus | status }}"
+               href="{{branch.pullRequest.url}}">#{{branch.pullRequest.prId}}</a>
+        </div>
+
+        <div class="item">
+            <h4>Jenkins</h4>
+            <div class="dropdown">
+                <span style="display: none">
+                    {{branch|json}}
+                </span>
+                <a ng-show="branch.lastBuild" href="" class="jenkins btn status {{ branch.lastBuild.status | status}} dropdown-toggle" data-toggle="dropdown" title="{{branch.lastBuild.status}}">
+                    {{ branch.lastBuild.timeStamp | date }}
+                </a>
+                <a ng-show="!branch.lastBuild" href="" class="jenkins btn status dropdown-toggle" data-toggle="dropdown">
+                    Never built
+                </a>
+                <ul class="dropdown-menu">
+                    <li ng-show="branch.lastBuild"><a href="{{branch.lastBuild.url}}" class="jenkins active">Go to Jenkins</a></li>
+                    <li ng-repeat="action in branch.buildActions"><a class="jenkins" href="" ng-click="forceBuild(action)">{{action.name}}</a></li>
+                </ul>
+            </div>
+        </div>
     </div>
 </div>

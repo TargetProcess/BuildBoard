@@ -1,5 +1,7 @@
 @import "variables.less";
 @import "mixins.less";
+@import "dropdowns.less";
+
 //
 // Buttons
 // --------------------------------------------------
@@ -12,22 +14,23 @@
 .btn {
   display: inline-block;
   vertical-align: middle;
-  .box-sizing(border-box);
-
-  .button-size(@padding-base-btn-vertical; @padding-base-btn-horizontal; @font-size-base-btn; @line-height-base-btn; @border-radius-base-btn);
-
+  text-align: left;
+  white-space: nowrap;
+  overflow: visible;
+  color: @gray-txt;
   margin-bottom: 0;
   font-weight: normal;
   cursor: pointer;
   background-image: none;
+  background-color: @btn-default-bg;
   border: 1px solid rgba(0,0,0,0.15);
-  white-space: nowrap;
-  overflow: visible;
 
-  color: @gray-txt;
+  .box-sizing(border-box);
+  .button-size(@btn-base-height; @padding-base-btn-vertical; @padding-base-btn-horizontal; @font-size-base-btn; @line-height-base-btn; @border-radius-base-btn);
 
   &:hover {
     background-color: lighten(@btn-default-bg, 3%);
+    color: @gray-txt;
 
     text-decoration: none;
   }
@@ -71,18 +74,56 @@
     margin-left: 5px;
   }
 
+  &.success,
+  &.warning,
+  &.nothing {
+    position: relative;
+    padding-left: 33px;
+    padding-right: 25px;
+  }
+
+  &.review,
+  &.pr,
+  &.status,
+  &.jenkins {
+    margin-left: 0;
+  }
+
+  &.review:before,
+  &.pr:before {
+    left: 10px;
+  }
+
+  &.status:before,
+  &.jenkins:before {
+    left: 12px;
+  }
+
+  &.review:after,
+  &.pr:after,
+  &.status:after,
+  &.jenkins:after {
+    content: '';
+    .caret;
+    position: absolute;
+    top: 50%;
+    margin-top: -2px;
+    right: 12px;
+  }
+
+  &.merge {
+    font-weight: bold;
+    min-width: 150px;
+    padding-left: 35px;
+    position: relative;
+  }
+
+  &.merge:before {
+    left: 11px;
+    margin-left: 0;
+  }
 }
 
-
-// Alternate buttons
-// --------------------------------------------------
-
-/*default button*/
-.btn {
-  background-color: @btn-default-bg;
-}
-.btn-primary {}
-.btn-warning {}
 
 
 // Link buttons
@@ -121,4 +162,5 @@
       text-decoration: none;
     }
   }
+
 }
