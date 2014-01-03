@@ -1,7 +1,7 @@
 @(user: User)(implicit request: RequestHeader)
 @import models.github.GithubApplication
 
-@if(user.githubToken = null) {
+@if(user.githubToken == null) {
     <li class="github-login">
         <a href="https://github.com/login/oauth/authorize?client_id=@GithubApplication.clientId&scope=repo&redirect_uri=@GithubApplication.redirectUri">Login to GitHib</a>
     </li>
