@@ -35,6 +35,8 @@ module buildBoard {
                     controller:BranchController
                 })
 
+        }).run(function($rootScope, $state) {
+            $rootScope.$state = $state;
         })
 
 }

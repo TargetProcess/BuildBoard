@@ -535,6 +535,10 @@
   vertical-align: middle;
 }
 
+a.entity-name-link {
+    display: block !important;
+}
+
 .user-list {
   vertical-align: middle;
   display: inline-block;
@@ -571,9 +575,30 @@
   z-index: 150;
 }
 
-body.open-view {
-  overflow: hidden;
+@keyframes animate-customize-module-show
+{
+  from {transform: translate3d(2300px,0,0);}
+  to {transform: translate3d(320px,0,0);}
 }
+@-webkit-keyframes animate-customize-module-show
+{
+  from {-webkit-transform: translate3d(2300px,0,0);opacity: 0;}
+  to {-webkit-transform: translate3d(320px,0,0);opacity: 1;}
+}
+
+
+body[state='list.branch'] {
+  overflow: hidden;
+  .view {
+    -webkit-animation: animate-customize-module-show 100ms;
+//    -webkit-animation-timing-function:ease;
+    animation: animate-customize-module-show 100ms;
+  //  animation-timing-function:ease;
+  }
+}
+
+
+
 
 .view {
   position: fixed;
@@ -585,7 +610,6 @@ body.open-view {
   background-color: @gray-light;
   box-shadow: 0 2px 5px 0 rgba(0,0,0,0.30);
   padding-left: 20px;
-
   &:after {
     content: '';
     display: block;

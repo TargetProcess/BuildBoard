@@ -46,6 +46,7 @@
         <script src='@routes.Assets.at("javascripts/all.js")'></script>
 
     </head>
-    <body ng-app="buildBoard" ui-view>
+    <body ng-app="buildBoard" state="{{$state.current.name}}">
+        <span  ui-view></span>
     </body>
 </html>
