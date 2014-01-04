@@ -2,11 +2,6 @@
 module buildBoard {
     'use strict';
 
-    export interface IBranchRouteParams extends ng.IRouteParamsService {
-        branchType:string;
-        branchId:string;
-    }
-
 
     export class BranchController extends BranchControllerBase {
         public static $inject = [
@@ -15,11 +10,14 @@ module buildBoard {
             BackendService.NAME
         ];
 
-        constructor($scope:IBranchScope, $state:ng.ui.IState, backendService:BackendService) {
+        constructor($scope:IBranchScope, $state:ng.ui.IStateService, backendService:BackendService) {
             super($scope, backendService);
 
 
             this.$scope.branchName = $state.params['name'];
+            this.$scope.closeView = ()=>{
+                $state.go("list");
+            };
 
             backendService.branch(this.$scope.branchName).success(branch => {
                 this.$scope.branch = branch;

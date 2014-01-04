@@ -8,6 +8,7 @@ module buildBoard {
         branch: Branch;
         forceBuild(buildAction:BuildAction);
         changeEntityState(entity:Entity, nextState:number)
+        closeView():void
     }
 
 

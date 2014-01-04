@@ -1,3 +1,4 @@
+<div class="overlay" ng-click="closeView()"></div>
 <div class="view">
     <div class="action-panel">
         <div class="caption">
@@ -18,7 +19,7 @@
                             <div class="panel-heading">
                                 <h4 class="panel-title"><b>Build #{{build.number}} </b> <span class="changes"> was triggered. Status: {{build.status}}</span></h4>
                             </div>
-                            <div class="tree" class="panel-collapse">
+                            <div class="tree panel-collapse">
                                 <div class="panel-body">
                                     <ul>
                                         <li ng-repeat="data in [build.node]" ng-include="'/assets/partials/buildNode.html'"></li>
