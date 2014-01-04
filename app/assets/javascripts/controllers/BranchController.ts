@@ -11,17 +11,15 @@ module buildBoard {
     export class BranchController extends BranchControllerBase {
         public static $inject = [
             '$scope',
-            '$routeParams',
+            '$state',
             BackendService.NAME
         ];
 
-        constructor($scope:IBranchScope, $routeParams:IBranchRouteParams, backendService:BackendService) {
+        constructor($scope:IBranchScope, $state:ng.ui.IState, backendService:BackendService) {
             super($scope, backendService);
 
-            var branchType = $routeParams.branchType;
-            var branchId = $routeParams.branchId;
 
-            this.$scope.branchName = (branchId && branchType) ? branchType + '/' + branchId : (branchId || branchType);
+            this.$scope.branchName = $state.params['name'];
 
             backendService.branch(this.$scope.branchName).success(branch => {
                 this.$scope.branch = branch;

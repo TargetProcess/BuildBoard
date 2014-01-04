@@ -2,7 +2,7 @@
 module buildBoard {
     'use strict';
 
-    export interface IBranchesRouteParams extends ng.IRouteParamsService {
+    export interface IBranchesState {
         userFilter:string;
         branchesFilter:string;
     }
@@ -17,40 +17,26 @@ module buildBoard {
 
         loading:boolean;
 
-        isFilterActive(name:string, value:any);
-
-        getRoute(name:string, value:any):string;
+        userFilter:any;
+        branchesFilter:any;
     }
 
 
     export class BranchesController {
         public static $inject = [
             '$scope',
-            '$routeParams',
+            '$state',
             BranchesService.NAME,
             LoggedUserService.NAME
         ];
 
-        constructor(private $scope:IBranchesScope, private $routeParams:IBranchesRouteParams, branchesService:IBranchesService, private loggedUserService:LoggedUserService) {
+        constructor(private $scope:IBranchesScope, $state:ng.ui.IStateService, branchesService:IBranchesService, private loggedUserService:LoggedUserService) {
+            console.log($state);
             this.$scope.loading = true;
 
-            this.$scope.isFilterActive = (name:string, value:any)=>$routeParams[name] == value;
-            this.$scope.getRoute = (name:string, value:any)=> {
-                var routeValues = {
-                    userFilter: $routeParams.userFilter,
-                    branchesFilter: $routeParams.userFilter
-                };
-                routeValues[name] = value;
+            this.$scope.userFilter = $state.params['user'] || 'all';
+            this.$scope.branchesFilter = $state.params['branch'] || 'all';
 
-                var params = _.chain(routeValues)
-                    .pairs()
-                    .map(values=>values[0] + '=' + values[1])
-                    .value()
-                    .join('&');
-
-                return "#/branchList?" + params;
-
-            };
 
             branchesService.allBranches.then((branches:Branch[])=> {
                 var usersAndBranches = _.chain(branches)
@@ -63,10 +49,6 @@ module buildBoard {
                     .flatten()
                     .value();
 
-                $routeParams.branchesFilter = $routeParams.branchesFilter || 'all';
-                $routeParams.userFilter = $routeParams.userFilter || 'all';
-
-
                 var counts = _.countBy(usersAndBranches, userAndBranch=>userAndBranch.user.userId);
 
                 this.$scope.users = _.chain(usersAndBranches).unique(false, pair=>pair.user.userId)
@@ -77,10 +59,10 @@ module buildBoard {
 
                     }).value();
 
-                this.$scope.branches = this.filter(branches, $routeParams.userFilter, $routeParams.branchesFilter);
+                this.$scope.branches = this.filter(branches, this.$scope.userFilter, this.$scope.branchesFilter);
 
                 this.$scope.countByUser = (userFilter:string)=>this.filter(branches, userFilter, "all").length;
-                this.$scope.countByBranch = (branchFilter:string)=>this.filter(branches, $routeParams.userFilter, branchFilter).length;
+                this.$scope.countByBranch = (branchFilter:string)=>this.filter(branches, this.$scope.userFilter, branchFilter).length;
 
             }).then(x=> {
                     this.$scope.loading = false;

@@ -36,9 +36,9 @@
         <script src='@routes.Assets.at("javascripts/bower_components/jquery/jquery.min.js")'></script>
         <script src='@routes.Assets.at("javascripts/bower_components/bootstrap/dist/js/bootstrap.js")'></script>
         <script src='@routes.Assets.at("javascripts/bower_components/angular/angular.js")'></script>
-        <script src='@routes.Assets.at("javascripts/bower_components/angular-route/angular-route.js")'></script>
         <script src='@routes.Assets.at("javascripts/bower_components/underscore/underscore.js")'></script>
         <script src='@routes.Assets.at("javascripts/bower_components/angular-underscore/angular-underscore.js")'></script>
+        <script src='@routes.Assets.at("javascripts/bower_components/angular-ui-router/release/angular-ui-router.js")'></script>
 
         <script src='@routes.Assets.at("javascripts/ui-bootstrap-0.7.0.min.js")'></script>
         <script src='@routes.Assets.at("javascripts/ui-bootstrap-tpls-0.7.0.min.js")'></script>
@@ -46,14 +46,6 @@
         <script src='@routes.Assets.at("javascripts/all.js")'></script>
 
     </head>
-    <body ng-app="buildBoard">
-
-        <div class="wrap">
-            <div ng-include="'/assets/partials/header.html'"></div>
-            <div ng-view>
-
-            </div>
-        </div>
-
+    <body ng-app="buildBoard" ui-view>
     </body>
 </html>

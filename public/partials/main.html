@@ -1,44 +1,8 @@
-<div class="navigation">
-    <ul class="branches-filter">
-        <li ng-class="{active: isFilterActive('userFilter', 'all')}">
-            <a href="{{getRoute('userFilter', 'all')}}">
-                <b>All branches</b>
-                <span class="counter">{{countByUser("all")}}</span>
-            </a>
-        </li>
-        <li ng-class="{active: isFilterActive('userFilter', 'my')}">
-            <a href="{{getRoute('userFilter', 'my')}}">
-                <b>My branches</b>
-                <span class="counter">{{countByUser("my")}}</span>
-            </a>
-        </li>
-    </ul>
-    <ul class="persons-list">
-        <li ng-repeat="user in users | orderBy:'firstName+lastName'" ng-class="{active: isFilterActive('userFilter', user.userId)}">
-            <a href="{{getRoute('userFilter', user.userId)}}">
-                        <span class="avatar">
-                            <img title="{{user.role}}" ng-src="{{user.avatar}}16">
-                            <span>{{user.firstName}} {{user.lastName}}</span>
-                        </span>
-                <span class="counter">{{countByUser(user.userId)}}</span>
-            </a>
-        </li>
-    </ul>
+<div class="wrap">
+    <div ng-include="'/assets/partials/header.html'"></div>
+    <div ng-include="'/assets/partials/navigation.html'"></div>
+    <div ng-include="'/assets/partials/branches.html'"></div>
 </div>
-<div class="main">
-    <div class="user-filter">
-        <div class="btn-group">
-            <a class="btn" ng-class="{active: isFilterActive('branchesFilter', 'all')}" href="{{getRoute('branchesFilter', 'all')}}">
-                All branches
-                <span class="counter">{{countByBranch("all")}}</span>
-            </a>
-            <a class="btn" ng-class="{active: isFilterActive('branchesFilter', 'entity')}" href="{{getRoute('branchesFilter', 'entity')}}">
-                Entity branches<span class="counter">{{countByBranch("entity")}}</span></a>
-            <a class="btn" ng-class="{active: isFilterActive('branchesFilter', 'closed')}" href="{{getRoute('branchesFilter', 'closed')}}">
-                Closed branches<span class="counter">{{countByBranch("closed")}}</span></a>
-        </div>
-    </div>
+<span ui-view>
 
-<div class="info-table" ng-include src='"/assets/partials/branchList.html"'>
-</div>
-</div>
+</span>

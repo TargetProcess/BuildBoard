@@ -1,0 +1,120 @@
+<div class="main">
+    <div class="user-filter">
+        <div class="btn-group">
+            <a class="btn" ui-sref-active="active" ui-sref="list({user:userFilter, branch:'all'})">
+                All branches
+                <span class="counter">{{countByBranch("all")}}</span>
+            </a>
+            <a class="btn" ui-sref-active="active" ui-sref="list({user:userFilter, branch:'entity'})">
+                Entity branches<span class="counter">{{countByBranch("entity")}}</span>
+            </a>
+            <a class="btn" ui-sref-active="active" ui-sref="list({user:userFilter, branch:'closed'})">
+                Closed branches<span class="counter">{{countByBranch("closed")}}</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="info-table">
+        <table>
+            <thead>
+            <tr>
+                <th colspan="2">
+                    <a ng-click="orderingPredicate='name'; reverse=!reverse" href=""
+                       ng-class="{sorting:orderingPredicate == 'name', up:reverse, down:!reverse}">
+                        Branch
+                    </a>
+                </th>
+                <th>
+                    <a ng-click="orderingPredicate='entity.assignments[0].lastName'; reverse=!reverse" href=""
+                       ng-class="{sorting:orderingPredicate == 'entity.assignments[0].lastName', up:reverse, down:!reverse}">
+                        Users
+                    </a>
+                </th>
+                <th>
+                    <a ng-click="orderingPredicate='entity.state.name'; reverse=!reverse" href=""
+                       ng-class="{sorting:orderingPredicate == 'entity.state.name', up:reverse, down:!reverse}">
+                        Status
+                    </a>
+                </th>
+                <th>
+                    <a ng-click="orderingPredicate='pullRequest.id'; reverse=!reverse" href=""
+                       ng-class="{sorting:orderingPredicate == 'pullRequest.id', up:reverse, down:!reverse}">
+                        PR
+                    </a>
+                </th>
+                <th>
+                    <a ng-click="orderingPredicate='lastBuild.timeStamp'; reverse=!reverse" href=""
+                       ng-class="{sorting:orderingPredicate == 'lastBuild.timeStamp', up:reverse, down:!reverse}">
+                        Jenkins
+                    </a>
+                </th>
+                <!--th>
+                    <a ng-click="orderingPredicate='name'; reverse=!reverse" href="" ng-class="{sorting:orderingPredicate == 'name', up:reverse, down:!reverse}">Review</a>
+                </th>
+                <th>
+                    <a ng-click="orderingPredicate='name'; reverse=!reverse" href="" ng-class="{sorting:orderingPredicate == 'name', up:reverse, down:!reverse}">Merge</a>
+                </th-->
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="branch in branches | orderBy:orderingPredicate:reverse" ng-controller="branchLineController"
+                ng-class="getLastBuildStatus()">
+                <td class="entity-id-cell">
+                    <a ng-show="branch.entity" target="_blank" href="{{branch.entity.url}}"
+                       class="ui-entity ui-entity-{{branch.entity.entityType.toLowerCase()}}">{{branch.entity.id}}</a>
+                </td>
+                <td class="branch-name-cell">
+                    <div class="entity-name">
+                        <a ui-sref="list.branch({name:branch.name})">{{branch.entity.name || branch.name}}</a>
+                    </div>
+                </td>
+
+                <td>
+                    <div class="user-list" ng-show="branch.entity">
+                        <img ng-repeat="assignment in branch.entity.assignments"
+                             ng-src="{{assignment.avatar}}20"
+                             title="{{assignment.role}}: {{assignment.firstName}} {{assignment.lastName}}">
+                        </span>
+                    </div>
+                </td>
+                <td>
+                    <entity-state entity="branch.entity"></entity-state>
+                </td>
+                <td>
+                    <div ng-show="branch.pullRequest" class="dropdown">
+                        <a target="_blank" href="{{branch.pullRequest.url}}"
+                           class="pr status {{ branch.pullRequest | pullRequestStatus | status }}"
+                           title="{{branch.pullRequest.created | date}}">#{{branch.pullRequest.prId}}</a>
+                        <!--ul class="dropdown-menu">
+
+                            <li><a class="pr success" href="">#504</a></li>
+                            <li><a class="pr warning active" href="">#504</a></li>
+                            <li><a class="pr success" href="">#504</a></li>
+                        </ul-->
+                    </div>
+                </td>
+                <td>
+                    <div class="dropdown">
+                        <a ng-show="branch.lastBuild" href=""
+                           class="jenkins status {{ branch.lastBuild.status | status}} dropdown-toggle" data-toggle="dropdown"
+                           title="{{branch.lastBuild.status}}">
+                            {{ branch.lastBuild.timeStamp | date }}
+                        </a>
+                        <a ng-show="!branch.lastBuild" href="" class="jenkins status dropdown-toggle" data-toggle="dropdown">
+                            Never built
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li ng-show="branch.lastBuild"><a href="{{branch.lastBuild.url}}" class="jenkins active">Go
+                                to
+                                Jenkins</a></li>
+                            <li ng-repeat="action in branch.buildActions"><a class="jenkins" href=""
+                                                                             ng-click="forceBuild(action)">{{action.name}}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

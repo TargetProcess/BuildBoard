@@ -1,0 +1,27 @@
+<div class="navigation">
+    <ul class="branches-filter">
+        <li ui-sref-active="active">
+            <a ui-sref="list({user:'all', branch:branchesFilter})">
+                <b>All branches</b>
+                <span class="counter">{{countByUser("all")}}</span>
+            </a>
+        </li>
+        <li ui-sref-active="active">
+            <a ui-sref="list({user:'my', branch:branchesFilter})">
+                <b>My branches</b>
+                <span class="counter">{{countByUser("my")}}</span>
+            </a>
+        </li>
+    </ul>
+    <ul class="persons-list">
+        <li ng-repeat="user in users | orderBy:'firstName+lastName'" ui-sref-active="active">
+            <a ui-sref="list({user:user.userId, branch:branchesFilter})">
+                        <span class="avatar">
+                            <img title="{{user.role}}" ng-src="{{user.avatar}}16">
+                            <span>{{user.firstName}} {{user.lastName}}</span>
+                        </span>
+                <span class="counter">{{countByUser(user.userId)}}</span>
+            </a>
+        </li>
+    </ul>
+</div>

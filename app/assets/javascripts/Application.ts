@@ -4,7 +4,7 @@
 module buildBoard {
     'use strict';
 
-    angular.module('buildBoard', ['ngRoute','ui.bootstrap'])
+    angular.module('buildBoard', ['ui.router','ui.bootstrap'])
         .service(BackendService.NAME, BackendService)
         .service(BranchesService.NAME, BranchesService)
         .service(LoggedUserService.NAME, LoggedUserService)
@@ -20,25 +20,21 @@ module buildBoard {
         .directive(PanelDirective.NAME, ()=>new PanelDirective())
         .directive(PanelHeadingDirective.NAME, ()=>new PanelHeadingDirective())
         .directive(PanelBodyDirective.NAME, ()=>new PanelBodyDirective())
-        .config(['$routeProvider',
-            ($routeProvider:ng.route.IRouteProvider)=>
-                $routeProvider
-                    .when('/branchList', {
-                        templateUrl: '/assets/partials/main.html',
-                        controller: BranchesController
-                    })
-                    .when('/branches/:branchId', {
-                        templateUrl: '/assets/partials/branch.html',
-                        controller: BranchController
-                    })
-                    .when('/branches/:branchType/:branchId', {
-                        templateUrl: '/assets/partials/branch.html',
-                        controller: BranchController
-                    })
-                    .otherwise({
-                        redirectTo: '/branchList'
-                    })
-        ])
+        .config(($stateProvider:ng.ui.IStateProvider, $urlRouterProvider:ng.ui.IUrlRouterProvider)=>{
 
+            $urlRouterProvider.otherwise("/list");
+
+            $stateProvider.state('list', {
+                url: "/list?user&branch",
+                templateUrl: "/assets/partials/main.html",
+                controller: BranchesController
+            })
+                .state('list.branch', {
+                    url: "/branch?name",
+                    templateUrl: "/assets/partials/branch.html",
+                    controller:BranchController
+                })
+
+        })
 
 }
