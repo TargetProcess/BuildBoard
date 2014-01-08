@@ -16,10 +16,10 @@
                 <div class="description">
                     <div class="panel-group">
                         <div class="panel">
-                            <div class="panel-heading">
+                            <div class="panel-heading" ng-init="isCollapsed = $index" ng-click="isCollapsed = !isCollapsed">
                                 <h4 class="panel-title"><b>Build #{{build.number}} </b> <span class="changes"> was triggered. Status: {{build.status}}</span></h4>
                             </div>
-                            <div class="tree panel-collapse">
+                            <div class="tree panel-collapse" collapse="isCollapsed">
                                 <div class="panel-body">
                                     <ul>
                                         <li ng-repeat="data in [build.node]" ng-include="'/assets/partials/buildNode.html'"></li>
