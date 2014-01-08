@@ -30,6 +30,4 @@ module buildBoard {
             });
         }
     }
-
-
 }

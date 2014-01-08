@@ -1,9 +1,9 @@
-<span ng-model="showMe" ng-click="showMe=!showMe" class="node {{data.status | status}}">
+<span ng-model="showMe" ng-click="showMe=!showMe" class="node {{data.status | status}} collapse">
     <span ng-show="data.children && data.children.length > 0" class="glyphicon glyphicon-collapse-{{showMe ?'down':'up'}}"></span>
     <a href="{{data.statusUrl}}" title="{{data.status | lowercase}}">{{data.name}}</a>
 
 </span>
 
 <ul>
-    <li ng-repeat="data in data.children | orderBy:data.name" ng-include="'/assets/partials/buildNode.html'"></li>
+    <li ng-repeat="data in data.children | orderBy:'name'" ng-include="'/assets/partials/buildNode.html'"></li>
 </ul>

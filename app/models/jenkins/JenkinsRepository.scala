@@ -10,8 +10,6 @@ trait JenkinsRepository {
     case models.Branch(name, _, pullRequest, _, _) =>
       val pullRequestId = pullRequest.map(p => p.prId)
       getBuilds.filter((build: models.Build) => build.branch == name || build.branch == s"origin/$name" || (pullRequestId.isDefined && build.branch == s"origin/pr/${pullRequestId.get}/merge"))
-        .sortBy(_.number)
-        .reverse
   }
 
 
