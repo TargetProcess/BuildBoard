@@ -4,12 +4,14 @@ import models.{Builds, Build, Branch}
 
 
 trait JenkinsRepository {
-  def getBuilds:List[models.Build]
+  def getBuilds: List[models.Build]
 
-  def getBuilds(branch: models.Branch): List[models.Build] =  branch match {
+  def getBuilds(branch: models.Branch): List[models.Build] = branch match {
     case models.Branch(name, _, pullRequest, _, _) =>
       val pullRequestId = pullRequest.map(p => p.prId)
       getBuilds.filter((build: models.Build) => build.branch == name || build.branch == s"origin/$name" || (pullRequestId.isDefined && build.branch == s"origin/pr/${pullRequestId.get}/merge"))
+        .sortBy(_.number)
+        .reverse
   }
 
 
@@ -24,6 +26,7 @@ trait JenkinsRepository {
   }
 
   def getLastBuild(branch: models.Branch): Option[models.Build] = getBuilds(branch).headOption
+
   def getBuild(branch: models.Branch, number: Int): Option[models.Build] = getBuilds(branch).find(_.number == number)
 }
 

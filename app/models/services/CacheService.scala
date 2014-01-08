@@ -25,6 +25,7 @@ object CacheService {
     ).subscribe(tryResult => {
       tryResult match {
         case Success(data) =>
+          println("reload cache")
           collection.findAll.foreach(collection.remove)
           data.foreach(collection.save)
         case Failure(e) => play.Logger.error("Error", e)
@@ -34,7 +35,7 @@ object CacheService {
 
 
   def start = {
-    User.findOneByUsername("alex.fomin@targetprocess.com") match {
+    User.findOneByUsername("kanban@targetprocess.com") match {
       case Some(u) =>
         implicit val user = u
         val repo = new RealGithubRepository()

@@ -10,9 +10,6 @@ import com.github.nscala_time.time.Imports._
 import play.api.libs.json.JsString
 import scala.Some
 
-
-
-
 object RealJenkinsRepository extends JenkinsRepository {
 
 
@@ -33,10 +30,10 @@ object RealJenkinsRepository extends JenkinsRepository {
                                      downstreamBuild <- downstreamProject.builds if subBuild.buildNumber == downstreamBuild.number
     } yield makeBuildNode(subBuild.jobName, downstreamBuild, downstreamProject.downstreamProjects, runs))
 
-    models.BuildNode(build.number, jobName, jobName, build.result, build.url, getParameterValue(build.actions, "ARTIFACTS"), build.timestamp, downstreamBuildNodes ++ runs.filter(r => r.runName == jobName && r.number == build.number))
+    models.BuildNode(build.number, jobName, jobName, build.result, build.url, getParameterValue(build.actions, "ARTIFACTS"), build.timestamp, (downstreamBuildNodes ++ runs.filter(r => r.runName == jobName && r.number == build.number)).sortBy(_.name))
   }
 
-  private def makeRunsBuildNodes(jobName: String, build: Build, downstreamProjects: List[DownstreamProject], buildRuns: JobBuildRuns): List[models.BuildNode] = {
+  private def makeRunsBuildNodes(jobName: String, build: Build, downstreamProjects: List[DownstreamProject], buildRuns: JobBuildRuns): List[models.BuildNode] =
     (for {subBuild <- build.subBuilds
           downstreamProject <- downstreamProjects if subBuild.jobName == downstreamProject.name
           downstreamBuild <- downstreamProject.builds if subBuild.buildNumber == downstreamBuild.number
@@ -51,7 +48,6 @@ object RealJenkinsRepository extends JenkinsRepository {
         }
       })
       .flatMap(nodes => nodes)
-  }
 
   private def getRuns(buildInfo: BuildInfo): List[models.BuildNode] = getRunsJobs(rootJobName, rootJobJsonUrl, buildInfo.downstreamProjects, Nil).map(runJob => {
     getBuildRuns(runJob._2) match {
@@ -80,9 +76,6 @@ object RealJenkinsRepository extends JenkinsRepository {
 
   private def makeBuilds(buildInfo: BuildInfo, runs: List[models.BuildNode] = Nil) = buildInfo.builds
     .map(build => makeBuild(build, buildInfo, runs))
-    .sortBy(-_.number)
-
-
 
   private def getParameterValue(actions: List[Action], paramName: String) = actions.flatMap {
     case Action(Some(parameters)) =>
