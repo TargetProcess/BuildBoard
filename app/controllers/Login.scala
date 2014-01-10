@@ -39,6 +39,7 @@ object Login extends Controller with Secured {
               User.saveLogged(tpUser, token)
 
               Redirect(routes.Application.index).withSession("login" -> tpUser.login)
+
             }
             case Failure(e) => Ok(views.html.login(loginForm, Some(e.toString)))
           })

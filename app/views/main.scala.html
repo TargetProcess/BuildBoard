@@ -1,4 +1,4 @@
-@(title: String, user: Option[User], styles: Html = Html(""), sidebar: Html = Html(""))(content: Html)(implicit request: RequestHeader)
+@(title: String, user: Option[User])(content: Html)(implicit request: RequestHeader)
 
 <!DOCTYPE html>
 <html>
@@ -10,8 +10,6 @@
           type='text/css'>
     <link rel="stylesheet" href='@routes.Assets.at("stylesheets/bootstrap.css")'>
 
-
-        @styles
 
         @helper.javascriptRouter("jsRoutes")(
             routes.javascript.Application.branches,
@@ -46,7 +44,5 @@
         <script src='@routes.Assets.at("javascripts/all.js")'></script>
 
     </head>
-    <body ng-app="buildBoard" state="{{$state.current.name}}">
-        <span  ui-view></span>
-    </body>
+    @content
 </html>

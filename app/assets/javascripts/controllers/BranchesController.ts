@@ -19,6 +19,10 @@ module buildBoard {
 
         userFilter:any;
         branchesFilter:any;
+
+
+        loginToGithub(url:string):void
+        hideGithubLogin:boolean;
     }
 
 
@@ -26,11 +30,12 @@ module buildBoard {
         public static $inject = [
             '$scope',
             '$state',
+            '$window',
             BranchesService.NAME,
             LoggedUserService.NAME
         ];
 
-        constructor(private $scope:IBranchesScope, $state:ng.ui.IStateService, branchesService:IBranchesService, private loggedUserService:LoggedUserService) {
+        constructor(private $scope:IBranchesScope, $state:ng.ui.IStateService, $window:ng.IWindowService, branchesService:IBranchesService, private loggedUserService:LoggedUserService) {
             console.log($state);
             this.$scope.loading = true;
 
@@ -67,6 +72,17 @@ module buildBoard {
             }).then(x=> {
                     this.$scope.loading = false;
                 });
+
+
+            this.$scope.loginToGithub  = url=>{
+                var otherWindow = $window.open(url,"","menubar=no,location=yes,resizable=yes,scrollbars=yes,status=no");
+                otherWindow.onunload = () => {
+                    console.log('hi');
+                    this.$scope.hideGithubLogin = true;
+                    this.$scope.$apply();
+                }
+            }
+
         }
 
 

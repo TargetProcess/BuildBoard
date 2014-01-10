@@ -23,7 +23,7 @@ module buildBoard {
 
             this.$scope.changeEntityState = (entity:Entity, nextState:number)=>{
                 console.log(entity, nextState);
-            }
+            };
         }
 
         public loadPullRequestStatus(branch:Branch) {
