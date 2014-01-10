@@ -25,9 +25,36 @@ object CacheService {
     ).subscribe(tryResult => {
       tryResult match {
         case Success(data) =>
-          println("reload cache")
+//          println("reload cache")
           collection.findAll.foreach(collection.remove)
           data.foreach(collection.save)
+        case Failure(e) => play.Logger.error("Error", e)
+      }
+    })
+  }
+
+  def cacheBuilds(interval: Duration, collection: Collection[Build])(getValues: => List[Build]) = {
+    Observable.interval(interval).map(tick =>
+      Try {
+        getValues
+      }
+    ).subscribe(tryResult => {
+      tryResult match {
+        case Success(data) =>
+          println("reload builds cache")
+          val allItems = collection.findAll.toList
+
+          //update items that are in progress
+          val inProgressExisting = allItems.filter(!_.status.isDefined).toList
+          val inProgressUpdated = data.filter(i => inProgressExisting.exists(e => e.number == i.number)).toList
+          println(s"existing in progress are $inProgressExisting")
+          inProgressExisting.foreach(collection.remove)
+          inProgressUpdated.foreach(collection.save)
+
+          //insert new items
+          val newItems = data.filterNot(i => allItems.exists(a => a.number == i.number))
+          newItems.foreach(collection.save)
+
         case Failure(e) => play.Logger.error("Error", e)
       }
     })
@@ -52,7 +79,7 @@ object CacheService {
           }
         }
 
-        val sub3 = cache[Build](60 seconds, Builds) {
+        val sub3 = cacheBuilds(60 seconds, Builds) {
           watch("cache: get builds") {
             RealJenkinsRepository.getBuilds
           }
