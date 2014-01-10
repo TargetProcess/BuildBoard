@@ -16,8 +16,23 @@
                 <div class="description">
                     <div class="panel-group">
                         <div class="panel">
-                            <div class="panel-heading" ng-init="isCollapsed = $index" ng-click="isCollapsed = !isCollapsed">
-                                <h4 class="panel-title"><b>Build #{{build.number}} </b> <span class="changes"> was triggered. Status: {{build.status}}</span></h4>
+                            <div class="panel-heading" ng-init="isCollapsed = $index">
+                                <div class="dropdown">
+                                    <button data-toggle="dropdown" class="btn jenkins {{build.status | status}} dropdown-toggle">{{build.status}}</button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="status success" href="">Make green</a>
+                                        </li>
+                                        <li>
+                                            <a class="status warning" href="">Make red</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <h4 class="panel-title toggle-state">
+                                    <a ng-click="isCollapsed = !isCollapsed">
+                                        Build #{{build.number}}
+                                    </a>
+                                </h4>
                             </div>
                             <div class="tree panel-collapse" collapse="isCollapsed">
                                 <div class="panel-body">
@@ -35,20 +50,20 @@
 
     </div>
     <div class="info-panel">
-        <div class="item">
+        <div class="item" ng-show="branch.entity">
             <h4>Users</h4>
             <span ng-repeat="user in branch.entity.assignments" class="avatar">
                 <img ng-src="{{user.avatar}}20">
                 <span>{{user.firstName}} {{user.lastName}}</span>
             </span>
         </div>
-        <div class="item">
+        <div class="item" ng-show="branch.entity">
             <h4>Status</h4>
             <entity-state entity="branch.entity" type="btn"></entity-state>
         </div>
-        <div class="item">
+        <div class="item" ng-show="branch.pullRequest">
            <h4>Pr</h4>
-           <a ng-show="branch.pullRequest"
+           <a
                class="btn pr {{ branch.pullRequest | pullRequestStatus | status }}"
                href="{{branch.pullRequest.url}}">#{{branch.pullRequest.prId}}</a>
         </div>
@@ -56,9 +71,6 @@
         <div class="item">
             <h4>Jenkins</h4>
             <div class="dropdown">
-                <span style="display: none">
-                    {{branch|json}}
-                </span>
                 <a ng-show="branch.lastBuild" href="" class="jenkins btn status {{ branch.lastBuild.status | status}} dropdown-toggle" data-toggle="dropdown" title="{{branch.lastBuild.status}}">
                     {{ branch.lastBuild.timeStamp | date }}
                 </a>

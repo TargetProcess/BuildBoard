@@ -22,7 +22,7 @@ module buildBoard {
         .directive(PanelBodyDirective.NAME, ()=>new PanelBodyDirective())
         .config(($stateProvider:ng.ui.IStateProvider, $urlRouterProvider:ng.ui.IUrlRouterProvider)=> {
 
-            $urlRouterProvider.otherwise("/list");
+            $urlRouterProvider.otherwise("/list?user=my&branch=all");
 
             $stateProvider.state('list', {
                 url: "/list?user&branch",
