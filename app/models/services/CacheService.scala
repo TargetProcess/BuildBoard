@@ -13,7 +13,7 @@ import models.github.{GithubBranches, GithubBranch, RealGithubRepository}
 import scala.util.Success
 import scala.util.Failure
 import scala.Some
-import models.jenkins.RealJenkinsRepository
+import models.jenkins.{JenkinsRepository, JenkinsAdapter}
 
 
 object CacheService {
@@ -49,11 +49,16 @@ object CacheService {
           val inProgressUpdated = data.filter(i => inProgressExisting.exists(e => e.number == i.number)).toList
           println(s"existing in progress are $inProgressExisting")
           inProgressExisting.foreach(collection.remove)
+          println(s"new in progress are $inProgressUpdated")
           inProgressUpdated.foreach(collection.save)
 
           //insert new items
           val newItems = data.filterNot(i => allItems.exists(a => a.number == i.number))
+          println(s"new items are $newItems")
           newItems.foreach(collection.save)
+
+//          collection.findAll.foreach(collection.remove)
+//          data.foreach(collection.save)
 
         case Failure(e) => play.Logger.error("Error", e)
       }
@@ -81,7 +86,7 @@ object CacheService {
 
         val sub3 = cacheBuilds(60 seconds, Builds) {
           watch("cache: get builds") {
-            RealJenkinsRepository.getBuilds
+            JenkinsAdapter.getBuilds
           }
         }
 

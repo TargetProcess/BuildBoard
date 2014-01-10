@@ -55,4 +55,9 @@ module buildBoard {
         pullRequestId:number;
         fullCycle:boolean;
     }
+
+    export class ToggledBuild {
+        branchId:string;
+        buildNumber:number;
+    }
 }

@@ -13,18 +13,12 @@ import se.radley.plugin.salat._
 import se.radley.plugin.salat.Binders._
 import mongoContext._
 
-case class Build(number: Int, branch: String, status: Option[String], url: String, timeStamp: DateTime, node: BuildNode)
+case class Build(number: Int, branch: String, status: Option[String], url: String, timeStamp: DateTime, node: BuildNode, toggled: Boolean = false)
 
 case class BuildNode(number: Int, name: String, runName: String, status: Option[String], statusUrl: String, artifactsUrl: Option[String], timestamp: DateTime, children: List[BuildNode] = Nil)
 
 
-object Builds extends BuildDAO with Collection[Build] {
-
-}
-
-
-
-trait BuildDAO extends ModelCompanion[Build, ObjectId] {
+object Builds extends ModelCompanion[Build, ObjectId] with Collection[Build] {
   def collection = mongoCollection("builds")
 
   val dao = new SalatDAO[Build, ObjectId](collection) {}
@@ -32,10 +26,6 @@ trait BuildDAO extends ModelCompanion[Build, ObjectId] {
   // Indexes
   collection.ensureIndex(DBObject("number" -> 1, "branch"-> 1), "build_number", unique = true)
 }
-
-
-
-
 
 trait Cycle {
   val unitTests = "All"
@@ -48,7 +38,6 @@ case object FullCycle extends Cycle {
 
   override def toString = "Full"
 }
-
 
 case object ShortCycle extends Cycle {
   val funcTests = "\"PartComet PartViews1 PartViews2 PartViews3 PartViews4 PartViews5 PartViews6 PartViews0 PluginsPart1 PluginsPart2 PluginsPart3 PluginsPartOther PartPy1 PartPy2 PartBoard1\""
@@ -72,7 +61,6 @@ trait BuildAction {
   )
 
   val name: String
-
 }
 
 object BuildAction {
@@ -93,7 +81,3 @@ case class BranchBuildAction(branch: String, fullCycle: Boolean) extends BuildAc
 
   val name = s"Build $cycle branch"
 }
-
-
-
-

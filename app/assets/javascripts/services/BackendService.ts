@@ -43,6 +43,10 @@ module buildBoard {
             return this.$http.get(this.controllers.Jenkins.forceBuild(buildAction.pullRequestId, buildAction.branchId, buildAction.fullCycle).absoluteURL());
         }
 
+        toggleBuild(branchId:string, buildNumber: number):ng.IHttpPromise<Build> {
+            return this.$http.get(this.controllers.Jenkins.toggleBuild(branchId, buildNumber).absoluteURL());
+        }
+
 
         getPullRequestStatus(pullRequest:number):ng.IHttpPromise<PRStatus> {
             return this.$http.get(this.controllers.Github.pullRequestStatus(pullRequest).absoluteURL());
