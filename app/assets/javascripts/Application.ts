@@ -4,7 +4,7 @@
 module buildBoard {
     'use strict';
 
-    angular.module('buildBoard', ['ui.router','ui.bootstrap'])
+    angular.module('buildBoard', ['ui.router', 'ui.bootstrap'])
         .service(BackendService.NAME, BackendService)
         .service(BranchesService.NAME, BranchesService)
         .service(LoggedUserService.NAME, LoggedUserService)
@@ -20,7 +20,7 @@ module buildBoard {
         .directive(PanelDirective.NAME, ()=>new PanelDirective())
         .directive(PanelHeadingDirective.NAME, ()=>new PanelHeadingDirective())
         .directive(PanelBodyDirective.NAME, ()=>new PanelBodyDirective())
-        .config(($stateProvider:ng.ui.IStateProvider, $urlRouterProvider:ng.ui.IUrlRouterProvider)=>{
+        .config(($stateProvider:ng.ui.IStateProvider, $urlRouterProvider:ng.ui.IUrlRouterProvider)=> {
 
             $urlRouterProvider.otherwise("/list");
 
@@ -32,10 +32,10 @@ module buildBoard {
                 .state('list.branch', {
                     url: "/branch?name",
                     templateUrl: "/assets/partials/branch.html",
-                    controller:BranchController
+                    controller: BranchController
                 })
 
-        }).run(function($rootScope, $state) {
+        }).run(function ($rootScope, $state) {
             $rootScope.$state = $state;
         })
 

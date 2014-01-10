@@ -1,0 +1,30 @@
+html, body { height: 100%}
+.wrap {
+  min-height: 100%;
+  position: relative;
+}
+
+body {
+  font-family: @font-family;
+  font-size: @font-size-base;
+  color: @text-color;
+  background-color: @body-bg;
+}
+
+a {
+  color: @link-color;
+  text-decoration: none;
+
+  &:hover {
+    color: @link-hover-color;
+    text-decoration: underline;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+img {
+  vertical-align: middle;
+}

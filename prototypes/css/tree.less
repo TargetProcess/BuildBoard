@@ -1,0 +1,66 @@
+.tree {
+  position: relative;
+
+  ul {
+    padding-left: 40px;
+  }
+
+  li {
+    list-style: none;
+    margin: 0;
+    padding: 4px 0 0 2px;
+    position: relative;
+    font-size: 12px;
+
+    &:before, &:after {
+      content: '';
+      left: -20px;
+      position: absolute;
+      right: auto;
+    }
+    &:before {
+      border-left: 1px solid @tree-border-color;
+      bottom: 50px;
+      height: 100%;
+      top: 0;
+      width: 1px;
+    }
+    &:after {
+      border-top: 1px solid @tree-border-color;
+      height: 20px;
+      top: 13px;
+      width: 23px;
+    }
+    .node {
+      border: 1px solid rgba(0,0,0,0);
+      border-radius: 2px;
+      display: inline-block;
+      line-height: 14px;
+
+      text-decoration: none;
+      margin-left: 1px;
+
+      &.warning {
+        background: @tree-success;
+      }
+      &.success {
+        background: @tree-warning;
+      }
+
+      a {
+        padding: 2px 6px;
+        display: block;
+        color: white;
+      }
+    }
+
+    /*Remove connectors after last child*/
+    &:last-child:before {
+      height: 14px;
+    }
+  }
+  /*Remove connectors before root*/
+  > ul > li:before, > ul > li:after {
+    border: 0;
+  }
+}

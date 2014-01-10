@@ -1,0 +1,162 @@
+//
+// Buttons
+// --------------------------------------------------
+
+
+// Base styles
+// --------------------------------------------------
+
+// Core styles
+.btn {
+  display: inline-block;
+  vertical-align: middle;
+  text-align: left;
+  white-space: nowrap;
+  overflow: visible;
+  color: @gray-txt;
+  margin-bottom: 0;
+  font-weight: normal;
+  cursor: pointer;
+  background-image: none;
+  background-color: @btn-default-bg;
+  border: 1px solid rgba(0,0,0,0.15);
+
+  .box-sizing(border-box);
+  .button-size(@btn-base-height; @padding-base-btn-vertical; @padding-base-btn-horizontal; @font-size-base-btn; @line-height-base-btn; @border-radius-base-btn);
+
+  &:hover {
+    background-color: lighten(@btn-default-bg, 3%);
+    color: @gray-txt;
+
+    text-decoration: none;
+  }
+
+  &:hover,
+  &:focus,
+  &.active,
+  &:active {
+    outline: 0;
+  }
+
+  &:focus {
+    background-color: darken(@btn-default-bg, 5%);
+  }
+
+  &.active {
+    background-color: darken(@btn-default-bg, 10%);
+
+    .counter {
+      .counter-active;
+    }
+  }
+
+  &:active{
+    box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
+  }
+
+  &.active { font-weight: bold}
+
+  &.disabled,
+  &[disabled] {
+    cursor: not-allowed;
+    pointer-events: none;
+    opacity: 0.65;
+    box-shadow:none;
+  }
+
+  .counter {
+    position: relative;
+    margin-top: -2px;
+    margin-left: 5px;
+  }
+
+  &.success,
+  &.warning,
+  &.nothing {
+    position: relative;
+    padding-left: 33px;
+    padding-right: 25px;
+  }
+
+  &.review,
+  &.pr,
+  &.status,
+  &.jenkins {
+    margin-left: 0;
+  }
+
+  &.review:before,
+  &.pr:before {
+    left: 10px;
+  }
+
+  &.status:before,
+  &.jenkins:before {
+    left: 12px;
+  }
+
+  &.review:after,
+  &.pr:after,
+  &.status:after,
+  &.jenkins:after {
+    content: '';
+    .caret;
+    position: absolute;
+    top: 50%;
+    margin-top: -2px;
+    right: 12px;
+  }
+
+  &.merge {
+    font-weight: bold;
+    min-width: 150px;
+    padding-left: 35px;
+    position: relative;
+  }
+
+  &.merge:before {
+    left: 11px;
+    margin-left: 0;
+  }
+}
+
+
+
+// Link buttons
+// -------------------------
+
+// Make a button look and behave like a link
+.btn-link {
+  color: @link-color;
+  font-weight: normal;
+  cursor: pointer;
+  border-radius: 0;
+
+  &,
+  &:active,
+  &[disabled],
+  fieldset[disabled] & {
+    background-color: transparent;
+    //.box-shadow(none);
+  }
+  &,
+  &:hover,
+  &:focus,
+  &:active {
+    border-color: transparent;
+  }
+  &:hover,
+  &:focus {
+    color: @link-hover-color;
+    text-decoration: underline;
+    background-color: transparent;
+  }
+  &[disabled],
+  fieldset[disabled] & {
+    &:hover,
+    &:focus {
+      text-decoration: none;
+    }
+  }
+
+}

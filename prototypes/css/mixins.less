@@ -1,0 +1,89 @@
+// MIXINS
+// --------------------------------------------------
+
+.clearfix {
+  &:after {
+    content: " ";
+    display: table;
+    clear: both;
+  }
+}
+
+.center-block() {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.sprite-icon(@background-position) {
+  background: @sprite @background-position no-repeat;
+}
+
+.placeholder(@color: @input-color-placeholder) {
+  &:-moz-placeholder            { color: @color; } // Firefox 4-18
+  &::-moz-placeholder           { color: @color; } // Firefox 19+
+  &:-ms-input-placeholder       { color: @color; } // Internet Explorer 10+
+  &::-webkit-input-placeholder  { color: @color; } // Safari and Chrome
+}
+
+.counter-active {
+  background-color: #fff;
+  color: #000;
+  box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
+  font-weight: normal;
+}
+
+.text-overflow() {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.transition(@property:all,@duration:0.2s, @easing: ease) {
+  -webkit-transition: @property @duration @easing;
+     -moz-transition: @property @duration @easing;
+          transition: @property @duration @easing;
+}
+
+.translate(@x; @y) {
+  -webkit-transform: translate(@x, @y);
+      -ms-transform: translate(@x, @y); // IE9+
+          transform: translate(@x, @y);
+}
+
+.box-sizing(@boxmodel) {
+  -webkit-box-sizing: @boxmodel;
+     -moz-box-sizing: @boxmodel;
+          box-sizing: @boxmodel;
+}
+
+#gradient {
+  .vertical(@startColor: #555, @endColor: #333) {
+    background-color: mix(@startColor, @endColor, 60%);
+    background-image: -moz-linear-gradient(top, @startColor, @endColor);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(@startColor), to(@endColor));
+    background-image: -webkit-linear-gradient(top, @startColor, @endColor);
+    background-image: -o-linear-gradient(top, @startColor, @endColor);
+    background-image: linear-gradient(to bottom, @startColor, @endColor);
+    background-repeat: repeat-x;
+    filter: e(%("progid:DXImageTransform.Microsoft.gradient(startColorstr='%d', endColorstr='%d', GradientType=0)",argb(@startColor),argb(@endColor))); // IE9 and down
+  }
+}
+
+// Responsive image
+.img-responsive {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+
+// Button sizes
+// -------------------------
+.button-size (@height; @padding-vertical; @padding-horizontal; @font-size-btn; @line-height-btn; @radius-btn) {
+  padding: @padding-vertical @padding-horizontal;
+  font-size: @font-size-btn;
+  line-height: @line-height-btn;
+  border-radius: @radius-btn;
+  height: @height;
+}
