@@ -2,10 +2,11 @@
 @import models.github.GithubApplication
 
 @if(user.githubToken == null) {
-
-    <div class="overlay" ng-show="!hideGithubLogin"></div>
-    <div class="modal" ng-show="!hideGithubLogin">
-        To continue:
-        <button type="button" ng-click="loginToGithub('https://github.com/login/oauth/authorize?client_id=@GithubApplication.clientId&scope=repo&redirect_uri=@GithubApplication.redirectUri')">Login to Github</button>
+    <div class="overlay"></div>
+    <div class="modal">
+        <div class="modal-body">
+            <h3>To continue you have to login at GitHub</h3>
+            <button class="btn"  ng-click="loginToGithub('https://github.com/login/oauth/authorize?client_id=@GithubApplication.clientId&scope=repo&redirect_uri=@GithubApplication.redirectUri')">Login to GitHub</button>
+        </div>
     </div>
 }
