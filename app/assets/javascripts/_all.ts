@@ -2,7 +2,7 @@
 /// <reference path='libs/angular.d.ts' />
 /// <reference path='libs/angular-ui-router.d.ts' />
 /// <reference path='libs/underscore.d.ts' />
-/// <reference path='interfaces/JsRoutes.ts' />
+/// <reference path='interfaces/JsRoutes.d.ts' />
 /// <reference path='services/BackendService.ts'/>
 /// <reference path='services/BranchesService.ts'/>
 /// <reference path='services/LoggedUserService.ts'/>

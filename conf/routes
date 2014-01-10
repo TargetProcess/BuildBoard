@@ -16,10 +16,9 @@ GET         /login/logout                    controllers.Login.logout
 
 GET         /gihtub/pullRequestStatus        controllers.Github.pullRequestStatus(id:Int)
 
-#GET         /jenkins/lastBuild/:branch       controllers.Application.lastBuildInfo(branch:String)
-GET         /jenkins/lastBuild               controllers.Application.lastBuildInfos()
-GET         /application/builds              controllers.Application.builds(branch:String)
-GET         /application/build               controllers.Application.build(branch:String, number: Int)
+GET         /jenkins/lastBuild               controllers.Jenkins.lastBuildInfos()
+GET         /jenkins/builds                  controllers.Jenkins.builds(branch:String)
+GET         /jenkins/build                   controllers.Jenkins.build(branch:String, number: Int)
 GET         /jenkins/forceBuild              controllers.Jenkins.forceBuild(pullRequestId:Option[Int],branchId:Option[String],fullCycle:Boolean)
 
 

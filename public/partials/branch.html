@@ -8,14 +8,14 @@
 
 
         <div class="action-list">
-            <div ng-repeat="build in builds | orderBy:'-number'" class="item {{build.status | status}}">
+            <div ng-repeat="build in builds | orderBy:'-number'">
                 <div class="date">{{build.timeStamp | date:'M/d/yy HH:mm' }}</div>
                 <div class="avatar">
                     <img title="Jenkins" src="/assets/images/jenkins.png" style="width: 32px; height: 32px;">
                 </div>
                 <div class="description">
                     <div class="panel-group">
-                        <div class="panel">
+                        <div class="panel {{build.status | status}}">
                             <div class="panel-heading" ng-init="isCollapsed = !$first; build.cachedNode = $index ? null : build.node">
                                 <div class="dropdown">
                                     <button data-toggle="dropdown" class="btn jenkins {{build.status | status}} dropdown-toggle">{{build.status}}</button>

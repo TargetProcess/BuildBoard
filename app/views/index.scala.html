@@ -1,10 +1,7 @@
 @(user: User)(implicit request: RequestHeader)
-    @sidebar = {
-        <script>
-        </script>
 
-    }
-
-@main("Build board", Some(user), sidebar = sidebar) {
-
+@main("Build board", Some(user)) {
+    <body ng-app="buildBoard" state="{{$state.current.name}}">
+        <span ui-view></span>
+    </body>
 }

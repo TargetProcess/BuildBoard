@@ -5,7 +5,7 @@ import models._
 import play.api.libs.json._
 import com.github.nscala_time.time.Imports._
 import Writes._
-import models.jenkins.RealJenkinsRepository
+import models.jenkins.{CachedJenkinsRepository, RealJenkinsRepository}
 import scala.util.{Failure, Success}
 import scalaj.http.HttpException
 
@@ -29,5 +29,31 @@ object Jenkins extends Controller with Secured {
             }
           case None => BadRequest("There is no pullRequestId or branchId")
         }
+  }
+
+  val jenkinsRepo = CachedJenkinsRepository
+
+  def builds(branch: String) = IsAuthorized {
+    implicit user =>
+      val branchEntity = new BranchesRepository().getBranch(branch)
+      request => Ok(Json.toJson(jenkinsRepo.getBuilds(branchEntity)))
+  }
+
+  def lastBuildInfo(branch: String) = IsAuthorized {
+    implicit user =>
+      val branchEntity = new BranchesRepository().getBranch(branch)
+      request => Ok(Json.toJson(jenkinsRepo.getLastBuild(branchEntity)))
+  }
+
+  def lastBuildInfos = IsAuthorized {
+    implicit user =>
+      val branches = new BranchesRepository().getBranches
+      request => Ok(Json.toJson(jenkinsRepo.getLastBuildsByBranch(branches)))
+  }
+
+  def build(branch: String, number: Int) = IsAuthorized {
+    implicit user =>
+      val branchEntity = new BranchesRepository().getBranch(branch)
+      request => Ok(Json.toJson(jenkinsRepo.getBuild(branchEntity, number)))
   }
 }

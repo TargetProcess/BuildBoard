@@ -1,13 +1,13 @@
-module buildBoard {
-    export interface IAction {
+declare module buildBoard {
+    interface IAction {
         absoluteURL(): string
     }
 
-    export interface JsRoutes {
+    interface JsRoutes {
         controllers: Controllers
     }
 
-    export interface Controllers {
+    interface Controllers {
         Login : ILogin;
         Application : IApplication;
         Github: IGithub
@@ -15,24 +15,24 @@ module buildBoard {
         Targetprocess: ITargetProcess
     }
 
-    export interface ITargetProcess{
+    interface ITargetProcess{
         changeEntityState(entityId:number, nextStateId:number)
     }
 
-    export interface IJenkins {
+    interface IJenkins {
         forceBuild(prId:number, branchId:string, fullCycle:boolean):IAction
+        lastBuildInfos():IAction
+        builds(branch:string):IAction
     }
 
-    export interface IGithub {
+    interface IGithub {
         pullRequestStatus(id:number):IAction
     }
 
 
-    export interface IApplication {
-        lastBuildInfos():IAction
+    interface IApplication {
         branches(): IAction;
         branch(id:string): IAction;
-        builds(branch:string):IAction
     }
 
     export interface ILogin {

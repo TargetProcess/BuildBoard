@@ -31,11 +31,11 @@ module buildBoard {
         }
 
         builds(branchId:string):ng.IHttpPromise<Build[]> {
-            return this.$http.get(this.controllers.Application.builds(branchId).absoluteURL());
+            return this.$http.get(this.controllers.Jenkins.builds(branchId).absoluteURL());
         }
 
         lastBuilds():ng.IHttpPromise<IMap<Build>> {
-            return this.$http.get(this.controllers.Application.lastBuildInfos().absoluteURL());
+            return this.$http.get(this.controllers.Jenkins.lastBuildInfos().absoluteURL());
         }
 
 

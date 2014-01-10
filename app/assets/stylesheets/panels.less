@@ -6,10 +6,19 @@
 
 // Base class
 .panel {
+  background-color: #fff;
   margin-bottom: 10px;
   border: 1px solid #00;
   border-radius: @radius;
-  box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.2);
+  box-shadow: @panel-box-shadow-size rgba(0,0,0,0.3);
+
+  &.warning {
+    box-shadow: @panel-box-shadow-size @warning;
+  }
+
+  &.success {
+    box-shadow: @panel-box-shadow-size darken(@success, 20%);
+  }
 }
 
 // Panel contents
