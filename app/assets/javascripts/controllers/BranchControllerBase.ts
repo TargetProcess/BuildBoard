@@ -7,6 +7,7 @@ module buildBoard {
         builds: Build[];
         branch: Branch;
         forceBuild(buildAction:BuildAction);
+        toggleBuild(branchId:string, buildNumber:number);
         changeEntityState(entity:Entity, nextState:number)
         closeView():void
     }
@@ -20,6 +21,14 @@ module buildBoard {
                     this.$scope.builds.splice(0,0,build);
                 });
             };
+
+            this.$scope.toggleBuild = (branchId:string, buildNumber: number) => {
+                backendService.toggleBuild(branchId, buildNumber).success(build=>{
+                    this.$scope.builds = this.$scope.builds.filter(function(b) {
+                        return b.number != buildNumber;
+                    });
+                })
+            }
 
             this.$scope.changeEntityState = (entity:Entity, nextState:number)=>{
                 console.log(entity, nextState);

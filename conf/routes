@@ -20,6 +20,7 @@ GET         /jenkins/lastBuild               controllers.Jenkins.lastBuildInfos(
 GET         /jenkins/builds                  controllers.Jenkins.builds(branch:String)
 GET         /jenkins/build                   controllers.Jenkins.build(branch:String, number: Int)
 GET         /jenkins/forceBuild              controllers.Jenkins.forceBuild(pullRequestId:Option[Int],branchId:Option[String],fullCycle:Boolean)
+GET         /jenkins/toggleBuild             controllers.Jenkins.toggleBuild(branchId:String,buildNumber:Int)
 
 
 POST        /tp/changeEntityState            controllers.Targetprocess.changeEntityState(entityId:Int, entityStateId:Int)

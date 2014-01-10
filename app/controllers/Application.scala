@@ -4,7 +4,6 @@ import play.api.mvc._
 import models._
 import play.api.libs.json._
 import Writes._
-import models.jenkins.CachedJenkinsRepository
 import models.Branch
 
 object Application extends Controller with Secured {

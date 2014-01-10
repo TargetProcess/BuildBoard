@@ -5,11 +5,13 @@ import models._
 import play.api.libs.json._
 import com.github.nscala_time.time.Imports._
 import Writes._
-import models.jenkins.{CachedJenkinsRepository, RealJenkinsRepository}
+import models.jenkins.{JenkinsRepository}
 import scala.util.{Failure, Success}
 import scalaj.http.HttpException
 
 object Jenkins extends Controller with Secured {
+  val jenkinsRepo = JenkinsRepository
+
   def forceBuild(pullRequestId: Option[Int], branchId: Option[String], fullCycle: Boolean) = IsAuthorized {
     implicit user =>
       request =>
@@ -20,7 +22,8 @@ object Jenkins extends Controller with Secured {
         }
         maybeAction match {
           case Some(buildAction) =>
-            RealJenkinsRepository.forceBuild(buildAction) match {
+            val buildResult = jenkinsRepo.forceBuild(buildAction)
+            buildResult match {
               case Success(_) => Ok(Json.toJson(
                 Build(-1, "this", Some("In progress"), "#", DateTime.now, BuildNode(-1, "this", "this", Some("In progress"), "#", None, DateTime.now))
               ))
@@ -31,12 +34,17 @@ object Jenkins extends Controller with Secured {
         }
   }
 
-  val jenkinsRepo = CachedJenkinsRepository
+  def toggleBuild(branchId: String, buildNumber: Int) = IsAuthorized {
+    implicit user =>
+      val branch = new BranchesRepository().getBranch(branchId)
+      val build = jenkinsRepo.toggleBuild(branch, buildNumber)
+      request => Ok(Json.toJson(build))
+  }
 
   def builds(branch: String) = IsAuthorized {
     implicit user =>
       val branchEntity = new BranchesRepository().getBranch(branch)
-      request => Ok(Json.toJson(jenkinsRepo.getBuilds(branchEntity)))
+      request => Ok(Json.toJson(jenkinsRepo.getBuilds(branchEntity).toList))
   }
 
   def lastBuildInfo(branch: String) = IsAuthorized {

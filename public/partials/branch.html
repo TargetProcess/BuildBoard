@@ -21,10 +21,7 @@
                                     <button data-toggle="dropdown" class="btn jenkins {{build.status | status}} dropdown-toggle">{{build.status}}</button>
                                     <ul class="dropdown-menu">
                                         <li>
-                                            <a class="status success" href="">Make green</a>
-                                        </li>
-                                        <li>
-                                            <a class="status warning" href="">Make red</a>
+                                            <a class="status success" href="" ng-click="toggleBuild(branchName, build.number)">{{build.toggled && 'Make red' || 'Make green'}}</a>
                                         </li>
                                     </ul>
                                 </div>
