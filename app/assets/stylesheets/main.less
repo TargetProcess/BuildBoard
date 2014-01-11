@@ -299,7 +299,7 @@
     .sprite-icon(-55px -96px);
   }
 
-  &.nothing:before {
+  &.default:before {
     .sprite-icon(-95px -96px);
   }
 
@@ -375,7 +375,7 @@
     .sprite-icon(-54px -175px);
   }
 
-  &.nothing:before {
+  &.default:before {
     .sprite-icon(-94px -175px);
   }
 }
@@ -417,7 +417,7 @@
     .sprite-icon(-51px -215px);
   }
 
-  &.nothing:before {
+  &.default:before {
     .sprite-icon(-91px -215px);
   }
 }
@@ -598,9 +598,7 @@ body[state='list.branch'] {
   overflow: hidden;
   .view {
     -webkit-animation: animate-customize-module-show 100ms;
-//    -webkit-animation-timing-function:ease;
     animation: animate-customize-module-show 100ms;
-  //  animation-timing-function:ease;
   }
 }
 
@@ -613,7 +611,7 @@ body[state='list.branch'] {
   top: 46px;
   right: 0;
   bottom: 0;
-  left: 320px;
+  left: 20%;
   background-color: @gray-light;
   box-shadow: 0 2px 5px 0 rgba(0,0,0,0.30);
   padding-left: 20px;

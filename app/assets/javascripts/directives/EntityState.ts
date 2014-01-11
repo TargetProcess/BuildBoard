@@ -44,8 +44,10 @@ module buildBoard {
               }
               if (entityState.name == "Tested")
                 return "success";
-              else if (entityState.name == "Reopen" || entityState.name == "Open" || entityState.name == "Closed" ||  entityState.name == "Done")
+              else if (entityState.name == "Reopen" || entityState.name == "Closed" ||  entityState.name == "Done")
                 return "warning";
+              else if (entityState.name == "In Dev" || entityState.name == "Testing" )
+                return "default";
               else
                 return "";
             }
