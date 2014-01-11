@@ -11,14 +11,18 @@ trait BuildsRepository {
     case models.Branch(name, _, pullRequest, _, _) =>
       val pullRequestId = pullRequest.map(p => p.prId)
       getBuilds.filter((build: models.Build) => build.branch == name || build.branch == s"origin/$name" || (pullRequestId.isDefined && build.branch == s"origin/pr/${pullRequestId.get}/merge"))
+      .toList
+      .sortBy(-_.number)
+      .iterator
   }
 
   def getLastBuildsByBranch(branches: List[models.Branch]): Map[String, Option[models.Build]] = {
-    val builds = getBuilds
+    val builds = getBuilds.toList
     branches.map(b => {
       val pullRequestId = b.pullRequest.map(p => p.prId)
       val branchBuilds = builds.filter(build => build.branch == b.name || build.branch == s"origin/${b.name}" || (pullRequestId.isDefined && build.branch == s"origin/pr/${pullRequestId.get}/merge"))
-      (s"origin/${b.name}", branchBuilds.toList.headOption)
+      val lastBuild = branchBuilds.sortBy(-_.number).headOption
+      (s"origin/${b.name}", lastBuild)
     })
       .toMap
   }
