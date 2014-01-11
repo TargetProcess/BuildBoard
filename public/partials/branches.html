@@ -93,24 +93,7 @@
                     </div>
                 </td>
                 <td>
-                    <div class="dropdown">
-                        <a ng-show="branch.lastBuild" href=""
-                           class="jenkins status {{ branch.lastBuild.status | status}} dropdown-toggle" data-toggle="dropdown"
-                           title="{{branch.lastBuild.status}}">
-                            {{ branch.lastBuild.timeStamp | date }}
-                        </a>
-                        <a ng-show="!branch.lastBuild" href="" class="jenkins status dropdown-toggle" data-toggle="dropdown">
-                            Never built
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li ng-show="branch.lastBuild"><a href="{{branch.lastBuild.url}}" class="jenkins active">Go
-                                to
-                                Jenkins</a></li>
-                            <li ng-repeat="action in branch.buildActions"><a class="jenkins" href=""
-                                                                             ng-click="forceBuild(action)">{{action.name}}</a>
-                            </li>
-                        </ul>
-                    </div>
+                    <build-status build="branch.lastBuild" branch="branch" build-actions="branch.buildActions"></build-status>
                 </td>
             </tr>
             </tbody>

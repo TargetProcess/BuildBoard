@@ -20,6 +20,7 @@ module buildBoard {
         .directive(PanelDirective.NAME, ()=>new PanelDirective())
         .directive(PanelHeadingDirective.NAME, ()=>new PanelHeadingDirective())
         .directive(PanelBodyDirective.NAME, ()=>new PanelBodyDirective())
+        .directive(BuildStatusDirective.NAME, ()=>new BuildStatusDirective())
         .config(($stateProvider:ng.ui.IStateProvider, $urlRouterProvider:ng.ui.IUrlRouterProvider)=> {
 
             $urlRouterProvider.otherwise("/list?user=my&branch=all");

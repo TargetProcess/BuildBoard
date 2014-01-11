@@ -16,12 +16,12 @@ module buildBoard {
         public allBranches:ng.IPromise<Branch[]>;
 
 
-        constructor(private backendService:BackendService, $q: ng.IQService) {
+        constructor(private backendService:BackendService, $q:ng.IQService) {
             var branchesWithoutBuilds = backendService.branches();
             var lastBuildInfos = backendService.lastBuilds();
             var promises:ng.IPromise<any>[] = [branchesWithoutBuilds, lastBuildInfos];
 
-            this.allBranches = $q.all(promises).then(x=>{
+            this.allBranches = $q.all(promises).then(x=> {
                 var branchesResult:Branch[] = x[0].data;
                 var buildsResult:IMap<Build> = x[1].data;
 

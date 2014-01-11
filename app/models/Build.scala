@@ -48,7 +48,8 @@ case object FullCycle extends Cycle {
 }
 
 case object ShortCycle extends Cycle {
-  val funcTests = "\"PartComet PartViews1 PartViews2 PartViews3 PartViews4 PartViews5 PartViews6 PartViews0 PluginsPart1 PluginsPart2 PluginsPart3 PluginsPartOther PartPy1 PartPy2 PartBoard1\""
+  val funcTests = "\"PartComet PartViews1 PartViews2 PartViews3 PartViews4 PartViews5 PartViews6 PartViews0 PartPlugins1 PartPlugins2 PartPlugins3 " +
+    "PartPy1 PartPy2 PartBoard1\""
 
   override def toString = "Short"
 }

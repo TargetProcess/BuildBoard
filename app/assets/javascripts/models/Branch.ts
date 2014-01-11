@@ -45,6 +45,7 @@ module buildBoard {
     }
 
     export class Build {
+        number:number;
         timeStamp:number;
         status:string;
         branch:string;

@@ -6,8 +6,6 @@ module buildBoard {
         branchName:string;
         builds: Build[];
         branch: Branch;
-        forceBuild(buildAction:BuildAction);
-        toggleBuild(branchId:string, buildNumber:number);
         changeEntityState(entity:Entity, nextState:number)
         closeView():void
     }
@@ -15,23 +13,6 @@ module buildBoard {
 
     export class BranchControllerBase {
         constructor(public $scope:IBranchScope, public backendService:BackendService) {
-            this.$scope.forceBuild = (buildAction:BuildAction) => {
-                backendService.forceBuild(buildAction).success(build=>{
-                    this.$scope.branch.lastBuild = build;
-                    this.$scope.builds.splice(0,0,build);
-                });
-            };
-
-            this.$scope.toggleBuild = (branchId:string, buildNumber: number) => {
-                backendService.toggleBuild(branchId, buildNumber).success(build=>{
-                    this.$scope.builds
-                        .filter(function(b) {
-                            return b.number != buildNumber;
-                        })
-                        .forEach(b => b.toggled = !b.toggled);
-                })
-            }
-
             this.$scope.changeEntityState = (entity:Entity, nextState:number)=>{
                 console.log(entity, nextState);
             };

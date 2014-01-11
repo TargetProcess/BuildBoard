@@ -8,6 +8,7 @@ module buildBoard {
         "unstable": "warning",
         "finished": "success",
         "success": "success",
+        "toggled": "success",
         "ok": "success"
     };
 

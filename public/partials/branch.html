@@ -15,16 +15,9 @@
                 </div>
                 <div class="description">
                     <div class="panel-group">
-                        <div class="panel {{build.status | status}}">
+                        <div class="panel {{build.toggled? 'Toggled' : build.status | status}}">
                             <div class="panel-heading" ng-init="isCollapsed = !$first; build.cachedNode = $index ? null : build.node">
-                                <div class="dropdown">
-                                    <button data-toggle="dropdown" class="btn jenkins {{build.status | status}} dropdown-toggle">{{build.status}}</button>
-                                    <ul class="dropdown-menu">
-                                        <li>
-                                            <a class="status success" href="" ng-click="toggleBuild(branchName, build.number)">{{build.toggled && 'Make red' || 'Make green'}}</a>
-                                        </li>
-                                    </ul>
-                                </div>
+                                <build-status build="build" branch="branch" type="btn"></build-status>
                                 <h4 class="panel-title toggle-state">
                                     <a ng-click="build.cachedNode = build.node; isCollapsed = !isCollapsed">
                                         Build #{{build.number}}
@@ -67,18 +60,7 @@
 
         <div class="item">
             <h4>Jenkins</h4>
-            <div class="dropdown">
-                <a ng-show="branch.lastBuild" href="" class="jenkins btn status {{ branch.lastBuild.status | status}} dropdown-toggle" data-toggle="dropdown" title="{{branch.lastBuild.status}}">
-                    {{ branch.lastBuild.timeStamp | date }}
-                </a>
-                <a ng-show="!branch.lastBuild" href="" class="jenkins btn status dropdown-toggle" data-toggle="dropdown">
-                    Never built
-                </a>
-                <ul class="dropdown-menu">
-                    <li ng-show="branch.lastBuild"><a href="{{branch.lastBuild.url}}" class="jenkins active">Go to Jenkins</a></li>
-                    <li ng-repeat="action in branch.buildActions"><a class="jenkins" href="" ng-click="forceBuild(action)">{{action.name}}</a></li>
-                </ul>
-            </div>
+            <build-status build="branch.lastBuild" branch="branch" build-actions="branch.buildActions" type="btn"></build-status>
         </div>
     </div>
 </div>
