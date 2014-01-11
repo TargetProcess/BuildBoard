@@ -7,21 +7,30 @@ import scala.Some
 trait BuildsRepository {
   def getBuilds: Iterator[models.Build]
 
-  def getBuilds(branch: models.Branch): Iterator[models.Build] = branch match {
+  def getBranchPredicate(branch: models.Branch) = branch match {
     case models.Branch(name, _, pullRequest, _, _) =>
-      val pullRequestId = pullRequest.map(p => p.prId)
-      getBuilds.filter((build: models.Build) => build.branch == name || build.branch == s"origin/$name" || (pullRequestId.isDefined && build.branch == s"origin/pr/${pullRequestId.get}/merge"))
+      val pullRequestId = pullRequest.map(_.prId)
+      (branchName: String) => branchName == name || branchName == s"origin/$name" || (pullRequestId.isDefined && branchName == s"origin/pr/${pullRequestId.get}/merge")
+  }
+
+  def getBuilds(branch: models.Branch): Iterator[models.Build] = {
+    val predicate = getBranchPredicate(branch)
+    val toggles = BuildToggles.findAll.filter(t => predicate(t.branch)).toList
+    getBuilds.filter(b => predicate(b.branch))
       .toList
       .sortBy(-_.number)
+      .map(b => if (toggles.exists(_.buildNumber == b.number)) b.copy(toggled = true) else b)
       .iterator
   }
 
+
   def getLastBuildsByBranch(branches: List[models.Branch]): Map[String, Option[models.Build]] = {
     val builds = getBuilds.toList
+    val toggles = BuildToggles.findAll.toList
     branches.map(b => {
-      val pullRequestId = b.pullRequest.map(p => p.prId)
-      val branchBuilds = builds.filter(build => build.branch == b.name || build.branch == s"origin/${b.name}" || (pullRequestId.isDefined && build.branch == s"origin/pr/${pullRequestId.get}/merge"))
-      val lastBuild = branchBuilds.sortBy(-_.number).headOption
+      val predicate = getBranchPredicate(b)
+      val branchBuilds = builds.filter(build => predicate(build.branch))
+      val lastBuild = branchBuilds.map(b => if (toggles.exists(t => predicate(t.branch) && t.buildNumber == b.number)) b.copy(toggled = true) else b).sortBy(-_.number).headOption
       (s"origin/${b.name}", lastBuild)
     })
       .toMap
@@ -35,16 +44,13 @@ trait BuildsRepository {
 object JenkinsRepository extends BuildsRepository {
   val jenkinsAdapter = JenkinsAdapter
 
-  def getBuilds = {
-    val builds = Builds.findAll.toList
-    val toggles = BuildToggles.findAll().toList
-    builds.map(b => if (toggles.exists(t => s"origin/${t.branch}" == b.branch && t.buildNumber == b.number)) b.copy(toggled = true) else b).iterator
-  }
+  def getBuilds = Builds.findAll
 
   def forceBuild(action: models.BuildAction) = jenkinsAdapter.forceBuild(action)
 
   def toggleBuild(branch: models.Branch, number: Int): Option[models.Build] = getBuild(branch, number).map(build => {
-    BuildToggles.findAll.filter(t => t.branch == branch.name && t.buildNumber == number).toList.headOption match {
+    val predicate = getBranchPredicate(branch)
+    BuildToggles.findAll.filter(t => predicate(t.branch) && t.buildNumber == number).toList.headOption match {
       case Some(toggle) =>
         BuildToggles.remove(toggle)
         build.copy(toggled = false)
