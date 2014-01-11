@@ -17,6 +17,14 @@ case class Build(number: Int, branch: String, status: Option[String], url: Strin
 
 case class BuildNode(number: Int, name: String, runName: String, status: Option[String], statusUrl: String, artifactsUrl: Option[String], timestamp: DateTime, children: List[BuildNode] = Nil)
 
+case class BuildToggle(branch: String, buildNumber: Int)
+
+object BuildToggles extends ModelCompanion[BuildToggle, ObjectId] with Collection[BuildToggle]{
+  def collection = mongoCollection("buildToggles")
+  val dao = new SalatDAO[BuildToggle, ObjectId](collection) {}
+
+  collection.ensureIndex(DBObject("buildNumber" -> 1, "branch" -> 1), "build_number", unique = true)
+}
 
 object Builds extends ModelCompanion[Build, ObjectId] with Collection[Build] {
   def collection = mongoCollection("builds")

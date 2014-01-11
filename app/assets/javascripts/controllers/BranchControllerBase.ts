@@ -24,9 +24,11 @@ module buildBoard {
 
             this.$scope.toggleBuild = (branchId:string, buildNumber: number) => {
                 backendService.toggleBuild(branchId, buildNumber).success(build=>{
-                    this.$scope.builds = this.$scope.builds.filter(function(b) {
-                        return b.number != buildNumber;
-                    });
+                    this.$scope.builds
+                        .filter(function(b) {
+                            return b.number != buildNumber;
+                        })
+                        .forEach(b => b.toggled = !b.toggled);
                 })
             }
 
