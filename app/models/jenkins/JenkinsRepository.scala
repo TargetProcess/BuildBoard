@@ -1,6 +1,7 @@
 package models.jenkins
 
-import models.{Builds, Build, Branch, Collection}
+import models._
+import scala.Some
 
 
 trait BuildsRepository {
@@ -30,18 +31,23 @@ trait BuildsRepository {
 object JenkinsRepository extends BuildsRepository {
   val jenkinsAdapter = JenkinsAdapter
 
-  def getBuilds = Builds.findAll()
+  def getBuilds = {
+    val builds = Builds.findAll.toList
+    val toggles = BuildToggles.findAll().toList
+    builds.map(b => if (toggles.exists(t => s"origin/${t.branch}" == b.branch && t.buildNumber == b.number)) b.copy(toggled = true) else b).iterator
+  }
 
   def forceBuild(action: models.BuildAction) = jenkinsAdapter.forceBuild(action)
 
   def toggleBuild(branch: models.Branch, number: Int): Option[models.Build] = getBuild(branch, number).map(build => {
-
-
-    var newBuild = build.copy(toggled = !build.toggled)
-//    println(newBuild)
-    Builds.save(newBuild)
-
-    newBuild
+    BuildToggles.findAll.filter(t => t.branch == branch.name && t.buildNumber == number).toList.headOption match {
+      case Some(toggle) =>
+        BuildToggles.remove(toggle)
+        build.copy(toggled = false)
+      case None =>
+        BuildToggles.save(BuildToggle(branch.name, number))
+        build.copy(toggled = true)
+    }
   })
 }
 

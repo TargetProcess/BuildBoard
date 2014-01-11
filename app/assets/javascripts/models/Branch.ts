@@ -48,6 +48,7 @@ module buildBoard {
         timeStamp:number;
         status:string;
         branch:string;
+        toggled:boolean;
     }
 
     export class BuildAction {
