@@ -12,6 +12,8 @@ import com.mongodb.casbah.Imports._
 import se.radley.plugin.salat._
 import se.radley.plugin.salat.Binders._
 import mongoContext._
+import play.api.Play
+import play.api.Play.current
 
 case class Build(number: Int, branch: String, status: Option[String], url: String, timeStamp: DateTime, node: BuildNode, toggled: Boolean = false)
 
@@ -36,23 +38,27 @@ object Builds extends ModelCompanion[Build, ObjectId] with Collection[Build] {
 }
 
 trait Cycle {
-  val unitTests = "All"
-  val includeUnstable = false
+  val name: String
+  val includeUnstable: Boolean
+  val buildFullPackage: Boolean
+  val unitTests: String
   val funcTests: String
 }
 
-case object FullCycle extends Cycle {
-  val funcTests = "All"
+abstract class ConfigurableCycle(val name:String) extends Cycle {
+  val configPath = "build.cycle." + name.toLowerCase()
 
-  override def toString = "Full"
+
+  val includeUnstable = Play.configuration.getBoolean(s"$configPath.includeUnstable").getOrElse(false)
+  val unitTests = Play.configuration.getString(s"$configPath.unitTests").getOrElse("All")
+  val funcTests = Play.configuration.getString(s"$configPath.funcTests").getOrElse("All")
+  val buildFullPackage =  Play.configuration.getBoolean(s"$configPath.buildFullCycle").getOrElse(false)
+
 }
 
-case object ShortCycle extends Cycle {
-  val funcTests = "\"PartComet PartViews1 PartViews2 PartViews3 PartViews4 PartViews5 PartViews6 PartViews0 PartPlugins1 PartPlugins2 PartPlugins3 " +
-    "PartPy1 PartPy2 PartBoard1\""
+case object FullCycle extends ConfigurableCycle("Full")
 
-  override def toString = "Short"
-}
+case object ShortCycle extends ConfigurableCycle("Short")
 
 trait BuildAction {
   val fullCycle: Boolean
@@ -62,10 +68,10 @@ trait BuildAction {
 
   def parameters: List[(String, String)] = List(
     "BRANCHNAME" -> branchName,
-    "Cycle" -> cycle.toString,
+    "Cycle" -> cycle.name,
     "IncludeUnitTests" -> cycle.unitTests,
     "IncludeFuncTests" -> cycle.funcTests,
-    "BuildFullPackage" -> "False",
+    "BuildFullPackage" -> cycle.buildFullPackage.toString,
     "INCLUDE_UNSTABLE" -> cycle.includeUnstable.toString
   )
 
@@ -82,11 +88,11 @@ object BuildAction {
 case class PullRequestBuildAction(pullRequestId: Int, fullCycle: Boolean) extends BuildAction {
   val branchName: String = s"origin/pr/$pullRequestId/merge"
 
-  val name = s"Build $cycle pull request"
+  val name = s"Build ${cycle.name} pull request"
 }
 
 case class BranchBuildAction(branch: String, fullCycle: Boolean) extends BuildAction {
   val branchName: String = s"origin/$branch"
 
-  val name = s"Build $cycle branch"
+  val name = s"Build ${cycle.name} branch"
 }

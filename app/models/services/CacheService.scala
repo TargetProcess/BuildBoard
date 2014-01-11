@@ -14,7 +14,8 @@ import scala.util.Success
 import scala.util.Failure
 import scala.Some
 import models.jenkins.{JenkinsRepository, JenkinsAdapter}
-
+import play.api.Play
+import play.api.Play.current
 
 object CacheService {
   def cache[T](interval: Duration, collection: Collection[T])(getValues: => List[T]) = {
@@ -65,26 +66,30 @@ object CacheService {
     })
   }
 
+  val user =  Play.configuration.getString("cache.user").get
+  val pullRequestInterval = Play.configuration.getInt("cache.interval.pullRequests").getOrElse(30).seconds
+  val githubBranchesInterval = Play.configuration.getInt("cache.interval.githubBranches").getOrElse(10).seconds
+  val jenkinsBuildsInterval = Play.configuration.getInt("cache.interval.jenkinsBuilds").getOrElse(60).seconds
 
   def start = {
-    User.findOneByUsername("kanban@targetprocess.com") match {
+    User.findOneByUsername(user) match {
       case Some(u) =>
         implicit val user = u
         val repo = new RealGithubRepository()
 
-        val sub1 = cache[PullRequest](30 seconds, PullRequests) {
+        val sub1 = cache[PullRequest](pullRequestInterval, PullRequests) {
           watch("cache: get pull requests") {
             repo.getPullRequests
           }
         }
 
-        val sub2 = cache[GithubBranch](10 seconds, GithubBranches) {
+        val sub2 = cache[GithubBranch](githubBranchesInterval, GithubBranches) {
           watch("cache: get github branches") {
             repo.getBranches
           }
         }
 
-        val sub3 = cacheBuilds(60 seconds, Builds) {
+        val sub3 = cacheBuilds(jenkinsBuildsInterval, Builds) {
           watch("cache: get builds") {
             JenkinsAdapter.getBuilds
           }
