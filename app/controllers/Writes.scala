@@ -10,7 +10,6 @@ object Writes {
   implicit var buildNodeWrite: Writes[BuildNode] = null
 
   buildNodeWrite = (
-    (__ \ "number").write[Int] ~
     (__ \ "name").write[String] ~
     (__ \ "runName").write[String] ~
     (__ \ "status").writeNullable[String] ~

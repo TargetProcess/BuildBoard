@@ -1,7 +1,6 @@
 import models.services.CacheService
 import play.api._
 import rx.lang.scala.Subscription
-import scala.concurrent.duration._
 
 object Global extends GlobalSettings {
   var subscription:Subscription = null

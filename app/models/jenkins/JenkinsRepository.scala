@@ -5,24 +5,22 @@ import scala.Some
 
 
 trait BuildsRepository {
-  def getBuilds: Iterator[models.Build]
+  def getBuilds: List[models.Build]
 
   def getBranchPredicate(branch: models.Branch) = branch match {
     case models.Branch(name, _, pullRequest, _, _) =>
       val pullRequestId = pullRequest.map(_.prId)
-      (branchName: String) => branchName == name || branchName == s"origin/$name" || (pullRequestId.isDefined && branchName == s"origin/pr/${pullRequestId.get}/merge")
+      (branchName: String) => branchName == name || branchName == s"origin/$name" || (pullRequestId.isDefined && (branchName == s"origin/pr/${pullRequestId.get}/merge" || (branchName == s"pr/${pullRequestId.get}")))
   }
 
-  def getBuilds(branch: models.Branch): Iterator[models.Build] = {
+  def getBuilds(branch: models.Branch): List[models.Build] = {
     val predicate = getBranchPredicate(branch)
     val toggles = BuildToggles.findAll.filter(t => predicate(t.branch)).toList
     getBuilds.filter(b => predicate(b.branch))
       .toList
       .sortBy(-_.number)
       .map(b => if (toggles.exists(_.buildNumber == b.number)) b.copy(toggled = true) else b)
-      .iterator
   }
-
 
   def getLastBuildsByBranch(branches: List[models.Branch]): Map[String, Option[models.Build]] = {
     val builds = getBuilds.toList
@@ -44,7 +42,7 @@ trait BuildsRepository {
 object JenkinsRepository extends BuildsRepository {
   val jenkinsAdapter = JenkinsAdapter
 
-  def getBuilds = Builds.findAll
+  def getBuilds = jenkinsAdapter.getBuilds
 
   def forceBuild(action: models.BuildAction) = jenkinsAdapter.forceBuild(action)
 
