@@ -64,4 +64,9 @@ object Jenkins extends Controller with Secured {
       val branchEntity = new BranchesRepository().getBranch(branch)
       request => Ok(Json.toJson(jenkinsRepo.getBuild(branchEntity, number)))
   }
+
+  def artifacts(file: String) = IsAuthorized {
+    implicit user =>
+      request => Ok(Json.toJson(jenkinsRepo.getArtifact(file)))
+  }
 }

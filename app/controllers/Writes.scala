@@ -11,13 +11,16 @@ object Writes {
 
   buildNodeWrite = (
     (__ \ "name").write[String] ~
-    (__ \ "runName").write[String] ~
-    (__ \ "status").writeNullable[String] ~
+      (__ \ "runName").write[String] ~
+      (__ \ "status").writeNullable[String] ~
       (__ \ "statusUrl").write[String] ~
       (__ \ "artifactsUrl").writeNullable[String] ~
       (__ \ "timestamp").write[DateTime] ~
       (__ \ "children").lazyWrite(traversableWrites[BuildNode](buildNodeWrite))
     )(unlift(BuildNode.unapply))
+
+  implicit val testCaseWrite: Writes[TestCase] = Json.writes[TestCase]
+  implicit val testCasePackageWrite: Writes[TestCasePackage] = Json.writes[TestCasePackage]
 
   implicit val buildWrite = Json.writes[Build]
 
