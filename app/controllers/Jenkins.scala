@@ -65,7 +65,7 @@ object Jenkins extends Controller with Secured {
       request => Ok(Json.toJson(jenkinsRepo.getBuild(branchEntity, number)))
   }
 
-  def artifacts(file: String) = IsAuthorized {
+  def artifact(file: String) = IsAuthorized {
     implicit user =>
       request => Ok(Json.toJson(jenkinsRepo.getArtifact(file)))
   }

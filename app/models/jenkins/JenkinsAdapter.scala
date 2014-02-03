@@ -82,7 +82,10 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
 
   private def getTestCasePackage(node: Node): TestCasePackage = {
     val name = node.attribute("name").get.head.text
-    val children = (node \ "results" \ "test-suite").map(getTestCasePackage _).toList
+    val children = (node \ "results" \ "test-suite")
+      .filter(n => getAttribute(n, "result").get != "Inconclusive")
+      .map(getTestCasePackage _)
+      .toList
     val testCases = (node \ "results" \ "test-case").map(tcNode => {
       val result = getAttribute(tcNode, "result").get
       val (message, stackTrace) = if (result != "Success") ((tcNode \\ "message").headOption.map(_.text), (tcNode \\ "stack-trace").headOption.map(_.text)) else (None, None)

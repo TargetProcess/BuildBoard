@@ -38,7 +38,6 @@ module buildBoard {
         isResponsible:boolean
     }
 
-
     export interface PRStatus {
         isMerged:boolean;
         isMergeable:boolean;
@@ -50,6 +49,18 @@ module buildBoard {
         status:string;
         branch:string;
         toggled:boolean;
+        node: BuildNode;
+    }
+
+    export class BuildNode {
+        name: string;
+        runName: string;
+        status: string;
+        statusUrl: string;
+        artifactsUrl: string;
+        timestamp: number;
+        children: BuildNode[];
+        testCasePackage: TestCasePackage;
     }
 
     export class BuildAction {
@@ -61,5 +72,20 @@ module buildBoard {
     export class ToggledBuild {
         branchId:string;
         buildNumber:number;
+    }
+
+    export class TestCase {
+        name:string;
+        executed:boolean;
+        result:string;
+        duration:number;
+        message:string;
+        stackTrace:string;
+    }
+
+    export class TestCasePackage {
+        name:string;
+        packages:TestCasePackage[];
+        testCases:TestCase[];
     }
 }

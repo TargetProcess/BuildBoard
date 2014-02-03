@@ -20,7 +20,6 @@ module buildBoard {
             this.controllers = $window.jsRoutes.controllers;
         }
 
-
         branch(id:string):ng.IHttpPromise<Branch> {
             var url = this.controllers.Application.branch(id).absoluteURL();
             return this.$http.get(url);
@@ -38,7 +37,6 @@ module buildBoard {
             return this.$http.get(this.controllers.Jenkins.lastBuildInfos().absoluteURL());
         }
 
-
         forceBuild(buildAction:BuildAction):ng.IHttpPromise<Build> {
             return this.$http.get(this.controllers.Jenkins.forceBuild(buildAction.pullRequestId, buildAction.branchId, buildAction.fullCycle).absoluteURL());
         }
@@ -47,13 +45,16 @@ module buildBoard {
             return this.$http.get(this.controllers.Jenkins.toggleBuild(branchId, buildNumber).absoluteURL());
         }
 
-
         getPullRequestStatus(pullRequest:number):ng.IHttpPromise<PRStatus> {
             return this.$http.get(this.controllers.Github.pullRequestStatus(pullRequest).absoluteURL());
         }
 
         changeEntityState(entityId:number, nextStateId:number):ng.IHttpPromise<EntityState> {
             return this.$http.post(this.controllers.Targetprocess.changeEntityState(entityId,nextStateId).absoluteURL(), {});
+        }
+
+        getArtifact(file:string): ng.IHttpPromise<TestCasePackage[]> {
+            return this.$http.get(this.controllers.Jenkins.artifact(file).absoluteURL())
         }
     }
 

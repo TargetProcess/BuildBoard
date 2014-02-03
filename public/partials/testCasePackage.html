@@ -1,0 +1,22 @@
+<div class="overlay" ng-click="closeView()"></div>
+<div class="view">
+
+    <span ng-show="data.testCases.length">{{data.name}}</span>
+    <ul>
+        <li ng-repeat="data in data.packages" ng-include="'/assets/partials/testCasePackage.html'"></li>
+    </ul>
+</div>
+
+<!--<span ng-model="showMe" ng-click="showMe=!showMe" class="node {{data.status | status}} collapse">-->
+<!--<span ng-show="data.children && data.children.length > 0" class="glyphicon glyphicon-collapse-{{showMe ?'down':'up'}}"></span>-->
+<!--<a href="{{data.statusUrl}}" title="{{data.status | lowercase}}" ng-click="getArtifact(data)">{{data.name}}</a>-->
+<!--<div ng-show="data.testCasePackage">-->
+<!--<ul>-->
+<!--<li ng-repeat="data in data.testCasePackage.children" ng-include="'/assets/partials/testCasePackage.html'"></li>-->
+<!--</ul>-->
+<!--</div>-->
+<!--</span>-->
+
+<!--<ul>-->
+<!--<li ng-repeat="data in data.children | orderBy:'name'" ng-include="'/assets/partials/buildNode.html'"></li>-->
+<!--</ul>-->

@@ -15,15 +15,16 @@ declare module buildBoard {
         Targetprocess: ITargetProcess
     }
 
-    interface ITargetProcess{
+    interface ITargetProcess {
         changeEntityState(entityId:number, nextStateId:number)
     }
 
     interface IJenkins {
         forceBuild(prId:number, branchId:string, fullCycle:boolean):IAction
-        toggleBuild(branchId:string,buildNumber:number):IAction
+        toggleBuild(branchId:string, buildNumber:number):IAction
         lastBuildInfos():IAction
         builds(branch:string):IAction
+        artifact(file:string):IAction
     }
 
     interface IGithub {

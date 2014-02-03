@@ -20,7 +20,6 @@ module buildBoard {
         userFilter:any;
         branchesFilter:any;
 
-
         loginToGithub(url:string):void
         hideGithubLogin:boolean;
     }
@@ -41,7 +40,6 @@ module buildBoard {
 
             this.$scope.userFilter = $state.params['user'] || 'all';
             this.$scope.branchesFilter = $state.params['branch'] || 'all';
-
 
             branchesService.allBranches.then((branches:Branch[])=> {
                 var usersAndBranches = _.chain(branches)
@@ -82,12 +80,9 @@ module buildBoard {
                     this.$scope.$apply();
                 }
             }
-
         }
 
-
         filter(list:Branch[], userFilter:string, branchFilter:string):Branch[] {
-
             var userPredicate;
 
             var userId = userFilter == "my" ? this.loggedUserService.getLoggedUser().userId : parseInt(userFilter, 10);
@@ -109,9 +104,5 @@ module buildBoard {
 
             return _.filter(list, branch=>userPredicate(branch) && branchPredicate(branch));
         }
-
-
     }
-
-
 }
