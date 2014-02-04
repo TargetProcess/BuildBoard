@@ -7,6 +7,8 @@ import play.api.libs.json.Writes._
 import org.joda.time.DateTime
 
 object Writes {
+
+  implicit val artifactWrite: Writes[Artifact] = Json.writes[Artifact]
   implicit var buildNodeWrite: Writes[BuildNode] = null
 
   buildNodeWrite = (
@@ -14,7 +16,7 @@ object Writes {
       (__ \ "runName").write[String] ~
       (__ \ "status").writeNullable[String] ~
       (__ \ "statusUrl").write[String] ~
-      (__ \ "artifactsUrl").writeNullable[String] ~
+      (__ \ "artifacts").write(list[Artifact]) ~
       (__ \ "timestamp").write[DateTime] ~
       (__ \ "children").lazyWrite(traversableWrites[BuildNode](buildNodeWrite))
     )(unlift(BuildNode.unapply))

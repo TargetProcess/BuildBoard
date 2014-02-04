@@ -1,6 +1,19 @@
 @import "variables.less";
 @import "mixins.less";
 
+/*Common*/
+.txt-overflow {
+  .text-overflow();
+}
+
+.txt-success {
+  color: @success;
+}
+
+.txt-warning {
+  color: @warning;
+}
+
 
 /*HEADER*/
 .header {
@@ -50,6 +63,35 @@
 
   .sign-out a, .github-login a {
     color: fadeout(#fff, 50%);
+  }
+
+  .branch-status {
+    float: left;
+    position: relative;
+    top: -5px;
+    padding: 0 15px;
+
+    .btn {
+      color: #fff;
+      background: none;
+
+      &.warning {
+        border-color: @warning;
+      }
+
+      &.success {
+        border-color: @success;
+      }
+
+      &.default {
+        border-color: #ccc;
+      }
+
+      &:after {
+        display: none;
+      }
+    }
+
   }
 
 }
@@ -225,7 +267,7 @@
       line-height: 16px;
     }
 
-    .nothing {
+    .default {
       color: @gray-light-txt;
     }
   }
@@ -274,6 +316,34 @@
     padding-left: 5px;
     width: 50%;
     white-space: normal;
+  }
+
+  .fixed {
+    table-layout: fixed;
+
+    .w-10 {width: 10%;}
+    .w-15 {width: 15%;}
+    .w-20 {width: 20%;}
+    .w-25 {width: 25%;}
+    .w-30 {width: 30%;}
+    .w-35 {width: 35%;}
+    .w-40 {width: 40%;}
+    .w-45 {width: 45%;}
+    .w-50 {width: 50%;}
+    .w-55 {width: 55%;}
+    .w-60 {width: 60%;}
+    .w-65 {width: 65%;}
+    .w-70 {width: 70%;}
+    .w-75 {width: 75%;}
+    .w-80 {width: 80%;}
+    .w-85 {width: 85%;}
+    .w-90 {width: 90%;}
+    .w-95 {width: 95%;}
+    .w-100 {width: 100%;}
+
+    .txt-overflow {
+      a { display: inline;}
+    }
   }
 }
 
@@ -337,7 +407,7 @@
   &.warning:before {
     .sprite-icon(-53px -132px);
   }
-  &.nothing:before {
+  &.default:before {
     .sprite-icon(-93px -132px);
   }
 
@@ -573,7 +643,7 @@ a.entity-name-link {
 
 /*-------VIEW----------------*/
 .overlay {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.2);
   position: fixed;
   top: 0;
   bottom: 0;
@@ -594,16 +664,17 @@ a.entity-name-link {
 }
 
 
-body[state='list.branch'] {
+body.open-view {
   overflow: hidden;
-  .view {
-    -webkit-animation: animate-customize-module-show 100ms;
-    animation: animate-customize-module-show 100ms;
-  }
 }
 
-
-
+body[state='list.branch'] {
+    overflow: hidden;
+    .view {
+      -webkit-animation: animate-customize-module-show 100ms;
+      animation: animate-customize-module-show 100ms;
+  }
+}
 
 .view {
   position: fixed;
@@ -611,10 +682,11 @@ body[state='list.branch'] {
   top: 46px;
   right: 0;
   bottom: 0;
-  left: 20%;
+  left: 320px;
   background-color: @gray-light;
   box-shadow: 0 2px 5px 0 rgba(0,0,0,0.30);
   padding-left: 20px;
+
   &:after {
     content: '';
     display: block;
@@ -627,6 +699,52 @@ body[state='list.branch'] {
     right: 240px;
   }
 
+  .info-table table {
+    margin-bottom: 30px;
+
+    th {
+      background-color: darken(@gray-light, 2%); ;
+    }
+  }
+
+  h2 {
+    line-height: 20px;
+    font-size: 1;
+    font-weight: normal;
+    padding-bottom: 15px;
+  }
+
+  h3 {
+    line-height: 1;
+    font-size: 14px;
+    text-transform: uppercase;
+    padding-bottom: 15px;
+  }
+
+  &.common {
+    padding: 20px 30px;
+    max-height: 100%;
+    overflow: auto;
+
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+
+    .info-table td a {
+      color: @link-color;
+      text-decoration: underline;
+
+      &:hover {
+        color: @link-hover-color;
+        text-decoration: none;
+      }
+    }
+
+    &.common:after {
+      display: none;
+    }
+
+  }
 }
 
 .action-panel {
@@ -645,9 +763,7 @@ body[state='list.branch'] {
     h2 {
       display: inline-block;
       vertical-align: middle;
-      line-height: 20px;
-      font-size: 20px;
-      font-weight: normal;
+      padding: 0;
     }
   }
 
@@ -756,6 +872,25 @@ body[state='list.branch'] {
 
 }
 
+
+.main-preloader,
+.view-preloader {
+  position: absolute;
+  top: 46px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url(../images/loader.gif) center center no-repeat #fff;
+  z-index: 200;
+}
+
+.view-preloader {
+  top: 0;
+  background-color: @gray-light;
+  background-image: url(../images/loader2.gif);
+}
+
+
 .modal {
   background-color: #fff;
   position: absolute;
@@ -777,8 +912,68 @@ body[state='list.branch'] {
   }
 
   h3 {
-    font-size: 20px;
-    font-weight: normal;
-    margin-bottom: 40px;
+      font-size: 20px;
+      font-weight: normal;
+      margin-bottom: 40px;
   }
 }
+
+.tests-results {
+
+  overflow: hidden;
+  padding-bottom: 30px;
+  line-height: 20px;
+
+  .info {
+    float: left;
+    font-size: 20px;
+    padding-bottom: 15px;
+
+    span {
+      font-size: 14px;
+    }
+  }
+
+  .time {
+    float: right;
+    color: @gray-light-txt;
+    padding-bottom: 15px;
+  }
+
+  .line {
+    height: 4px;
+    clear: both;
+    background-color: @success;
+    border-radius: @radius;
+    overflow: hidden;
+
+    & > div {
+      float: left;
+      height: 4px;
+      border-right: solid 1px @gray;
+      .box-sizing(border-box)
+    }
+
+    .failed {
+      background-color: @warning;
+    }
+
+    .skipped {
+      background-color: #ffbc00;
+    }
+  }
+
+}
+
+.test-info {
+  line-height: 20px;
+  padding-bottom: 20px;
+
+  .time {
+    color: @gray-light-txt;
+  }
+}
+
+
+
+

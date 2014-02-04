@@ -18,16 +18,6 @@ module buildBoard {
                 $state.go("list");
             };
 
-            this.$scope.getArtifact = (node:BuildNode) => {
-                if (node.artifactsUrl && !node.testCasePackage) {
-                    backendService.getArtifact(node.artifactsUrl).success(testCasePackage => {
-                        if (testCasePackage.length) {
-                            node.testCasePackage = testCasePackage[0];
-                        }
-                    });
-                }
-            };
-
             backendService.branch(this.$scope.branchName).success(branch => {
                 this.$scope.branch = branch;
                 this.loadPullRequestStatus(this.$scope.branch);

@@ -52,12 +52,17 @@ module buildBoard {
         node: BuildNode;
     }
 
+    export class Artifact {
+        name: string;
+        url: string;
+    }
+
     export class BuildNode {
         name: string;
         runName: string;
         status: string;
         statusUrl: string;
-        artifactsUrl: string;
+        artifacts: Artifact[];
         timestamp: number;
         children: BuildNode[];
         testCasePackage: TestCasePackage;
@@ -87,5 +92,10 @@ module buildBoard {
         name:string;
         packages:TestCasePackage[];
         testCases:TestCase[];
+        totalCount: number;
+        passedCount: number;
+        skippedCount: number;
+        failedCount: number;
+        duration: number;
     }
 }

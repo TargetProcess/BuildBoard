@@ -4,13 +4,18 @@ import scala.util.Try
 import scalaj.http.Http
 import scala.Some
 import play.api.Play
-import models.{TestCase, TestCasePackage, BuildNode, Build}
+import models._
 import java.io.File
 import com.github.nscala_time.time.StaticForwarderImports.DateTime
 import com.github.nscala_time.time.TypeImports.DateTime
 import scala.io.Source
 import play.api.Play.current
 import scala.xml.{Node, XML, Elem}
+import models.BuildNode
+import scala.Some
+import models.TestCase
+import models.Build
+import models.TestCasePackage
 
 object JenkinsAdapter extends BuildsRepository with JenkinsApi {
   private val directory = Play.configuration.getString("jenkins.data.path").get
@@ -53,18 +58,28 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
         .filter(f => f.isDirectory && !f.getName.startsWith("."))
         .map(f => getBuildNodeInner(f, file.getPath)).toList
 
-      val artifactsUrl = contents.filter(f => f.getName == ".TestResults").headOption match {
-        case Some(folder) => folder.listFiles
-          .filter(_.getName.endsWith(".xml"))
-          .headOption
-          .map(_.getPath.substring(directory.length + 1))
-        case None => None
-      }
+      val artifacts = getArtifacts(contents)
 
-      BuildNode(name, runName, status, statusUrl.getOrElse(""), artifactsUrl, new DateTime(timestamp), children)
+      BuildNode(name, runName, status, statusUrl.getOrElse(""), artifacts, new DateTime(timestamp), children)
     }
 
+    //todo: add artifacts to root node
     getBuildNodeInner(new File(f, rootJobName), f.getPath)
+  }
+
+  private def getArtifacts(contents: List[File]): List[Artifact] = {
+    val testResultsUrl = contents.filter(f => f.getName == ".TestResults").headOption match {
+      case Some(folder) => folder.listFiles
+        .filter(_.getName.endsWith(".xml"))
+        .headOption
+        .map(_.getPath.substring(directory.length + 1))
+      case None => None
+    }
+
+    testResultsUrl match {
+      case Some(url) => List(Artifact("testResults", url))
+      case None => List()
+    }
   }
 
   private def read(f: File): Option[String] = Try {
@@ -81,19 +96,28 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
   }
 
   private def getTestCasePackage(node: Node): TestCasePackage = {
-    val name = node.attribute("name").get.head.text
-    val children = (node \ "results" \ "test-suite")
-      .filter(n => getAttribute(n, "result").get != "Inconclusive")
-      .map(getTestCasePackage _)
-      .toList
-    val testCases = (node \ "results" \ "test-case").map(tcNode => {
-      val result = getAttribute(tcNode, "result").get
-      val (message, stackTrace) = if (result != "Success") ((tcNode \\ "message").headOption.map(_.text), (tcNode \\ "stack-trace").headOption.map(_.text)) else (None, None)
+    def getTestCasePackageInner(node: Node, namespace: String = ""): TestCasePackage = {
+      val name = node.attribute("name").get.head.text
+      val currentNamespace = getAttribute(node, "type") match {
+        case Some("Namespace") => if (namespace.isEmpty) name else s"$namespace.$name"
+        case _ => namespace
+      }
 
-      TestCase(getAttribute(tcNode, "name").get, getAttribute(tcNode, "executed").get.toBoolean, result, getAttribute(tcNode, "duration").getOrElse("0").toDouble, message, stackTrace)
-    }).toList
+      val children = (node \ "results" \ "test-suite")
+        .filter(n => getAttribute(n, "result").get != "Inconclusive")
+        .map(n => getTestCasePackageInner(n, currentNamespace))
+        .toList
+      val testCases = (node \ "results" \ "test-case").map(tcNode => {
+        val result = getAttribute(tcNode, "result").get
+        val (message, stackTrace) = if (result != "Success") ((tcNode \\ "message").headOption.map(_.text), (tcNode \\ "stack-trace").headOption.map(_.text)) else (None, None)
 
-    TestCasePackage(name, children, testCases)
+        TestCase(getAttribute(tcNode, "name").get, getAttribute(tcNode, "executed").get.toBoolean, result, getAttribute(tcNode, "time").getOrElse("0").toDouble, message, stackTrace)
+      }).toList
+
+      TestCasePackage(if (currentNamespace.isEmpty) name else s"$namespace.$name", children, testCases)
+    }
+
+    getTestCasePackageInner(node)
   }
 
   private def getAttribute(n: Node, key: String): Option[String] = n.attribute(key).map(_.headOption.map(_.text)).flatten

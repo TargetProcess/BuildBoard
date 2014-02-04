@@ -25,7 +25,7 @@ object Jenkins extends Controller with Secured {
             val buildResult = jenkinsRepo.forceBuild(buildAction)
             buildResult match {
               case Success(_) => Ok(Json.toJson(
-                Build(-1, "this", Some("In progress"), "#", DateTime.now, BuildNode("this", "this", Some("In progress"), "#", None, DateTime.now))
+                Build(-1, "this", Some("In progress"), "#", DateTime.now, BuildNode("this", "this", Some("In progress"), "#", List(), DateTime.now))
               ))
               case Failure(e: HttpException) => BadRequest(e.message)
               case Failure(e) => InternalServerError("Something going wrong " + e.toString)

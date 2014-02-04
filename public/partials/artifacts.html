@@ -1,0 +1,98 @@
+<div class="overlay" ng-click="closeView()"></div>
+<div class="view common">
+    <div class="tests-results">
+        <div class="info">{{totalCount}} tests <span>{{failedCount}} failed, {{skippedCount}} skipped</span></div>
+        <div class="info"><span><a href="{{statusUrl}}" target="_blank">{{statusUrl}}</a></span></div>
+        <div class="time">Took <span ng-show="totalTime/3600 > 1">{{totalTime/3600 | number:0}}h</span> <span
+                ng-show="totalTime/60 > 1">{{(totalTime%3600)/60 | number: 0}}m</span> {{totalTime % 60 | number:0}}s
+        </div>
+        <div class="line">
+            <div class="failed" ng-style="{width: failedCount/totalCount*100 + '%'}"></div>
+            <div class="skipped" style="width: 0;"></div>
+        </div>
+    </div>
+    <div class="info-table" ng-show="failedTests.length">
+        <table class="fixed">
+            <colgroup>
+                <col class="w-80">
+                <col class="w-20">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>
+                        <a ng-click="orderingPredicate='name'; reverse=!reverse" href=""
+                           ng-class="{sorting:orderingPredicate == 'name', up:reverse, down:!reverse}">Failed Tests</a>
+                    </th>
+                    <th>
+                        <a ng-click="orderingPredicate='duration'; reverse=!reverse" href=""
+                           ng-class="{sorting:orderingPredicate == 'duration', up:reverse, down:!reverse}">Duration</a>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="data in failedTests | orderBy:orderingPredicate:reverse">
+                    <td>
+                        <div class="txt-overflow">
+                            <a href="">{{data.name}}</a>
+                        </div>
+                    </td>
+                    <td>{{data.duration | number:1}} sec</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="info-table">
+        <table class="fixed">
+            <colgroup>
+                <col class="w-45">
+                <col class="w-15">
+                <col class="w-10">
+                <col class="w-10">
+                <col class="w-10">
+                <col class="w-10">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>
+                        <a ng-click="orderingPredicate='name'; reverse=!reverse" href=""
+                           ng-class="{sorting:orderingPredicate == 'name', up:reverse, down:!reverse}">All Tests</a>
+                    </th>
+                    <th>
+                        <a ng-click="orderingPredicate='duration'; reverse=!reverse" href=""
+                           ng-class="{sorting:orderingPredicate == 'duration', up:reverse, down:!reverse}">Duration</a>
+                    </th>
+                    <th>
+                        <a ng-click="orderingPredicate='failedCount'; reverse=!reverse" href=""
+                           ng-class="{sorting:orderingPredicate == 'failedCount', up:reverse, down:!reverse}">Fail</a>
+                    </th>
+                    <th>
+                        <a ng-click="orderingPredicate='skippedCount'; reverse=!reverse" href=""
+                           ng-class="{sorting:orderingPredicate == 'skippedCount', up:reverse, down:!reverse}">Skip</a>
+                    </th>
+                    <th>
+                        <a ng-click="orderingPredicate='passedCount'; reverse=!reverse" href=""
+                           ng-class="{sorting:orderingPredicate == 'passedCount', up:reverse, down:!reverse}">Pass</a>
+                    </th>
+                    <th>
+                        <a ng-click="orderingPredicate='totalCount'; reverse=!reverse" href=""
+                           ng-class="{sorting:orderingPredicate == 'totalCount', up:reverse, down:!reverse}">Total</a>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="data in testCasePackages | orderBy:orderingPredicate:reverse">
+                    <td>
+                        <div class="txt-overflow">
+                            <a href="">{{data.name}}</a>
+                        </div>
+                    </td>
+                    <td>{{data.duration | number:1}} sec</td>
+                    <td>{{data.failedCount}}</td>
+                    <td>{{data.skippedCount}}</td>
+                    <td>{{data.passedCount}}</td>
+                    <td>{{data.totalCount}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -8,7 +8,6 @@ module buildBoard {
         branch: Branch;
         changeEntityState(entity:Entity, nextState:number);
         closeView():void;
-        getArtifact(file:BuildNode);
     }
 
     export class BranchControllerBase {
