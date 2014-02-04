@@ -8,7 +8,7 @@
         </div>
         <div class="line">
             <div class="failed" ng-style="{width: failedCount/totalCount*100 + '%'}"></div>
-            <div class="skipped" style="width: 0;"></div>
+            <div class="skipped" ng-style="{width: skippedCount/totalCount*100 + '%'}"></div>
         </div>
     </div>
     <div class="info-table" ng-show="failedTests.length">
