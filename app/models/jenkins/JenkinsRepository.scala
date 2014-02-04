@@ -42,7 +42,7 @@ trait BuildsRepository {
   def getBuild(branch: models.Branch, number: Int): Option[models.Build] = getBuilds(branch).find(_.number == number)
 }
 
-object JenkinsRepository extends BuildsRepository {
+class JenkinsRepository extends BuildsRepository {
   val jenkinsAdapter = JenkinsAdapter
 
   def getBuilds = jenkinsAdapter.getBuilds
@@ -63,6 +63,8 @@ object JenkinsRepository extends BuildsRepository {
     }
   })
 }
-
+class CachedJenkinsRepository extends JenkinsRepository {
+  override def getBuilds: List[Build] = Builds.findAll().toList
+}
 
 

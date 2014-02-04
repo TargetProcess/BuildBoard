@@ -2,7 +2,6 @@ package models.jenkins
 
 import scala.util.Try
 import scalaj.http.Http
-import scala.Some
 import play.api.Play
 import models._
 import java.io.File
@@ -10,7 +9,7 @@ import com.github.nscala_time.time.StaticForwarderImports.DateTime
 import com.github.nscala_time.time.TypeImports.DateTime
 import scala.io.Source
 import play.api.Play.current
-import scala.xml.{Node, XML, Elem}
+import scala.xml.{Node, XML}
 import models.BuildNode
 import scala.Some
 import models.TestCase
