@@ -16,7 +16,6 @@ module buildBoard {
         ];
 
         constructor(private $scope:ITestCaseScope, $state:ng.ui.IStateService) {
-            console.log('test case');
             var testName = $state.params["testCase"];
             var parentScope = <IArtifactsScope>$scope.$parent;
             this.$scope.testCase = _.chain(parentScope.testCasePackages).map(p => p.testCases).flatten().filter(tc => tc.name == testName).head().value();

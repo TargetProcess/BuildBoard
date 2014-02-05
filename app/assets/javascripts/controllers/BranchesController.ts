@@ -35,7 +35,6 @@ module buildBoard {
         ];
 
         constructor(private $scope:IBranchesScope, $state:ng.ui.IStateService, $window:ng.IWindowService, branchesService:IBranchesService, private loggedUserService:LoggedUserService) {
-            console.log($state);
             this.$scope.loading = true;
 
             this.$scope.userFilter = $state.params['user'] || 'all';
@@ -75,7 +74,6 @@ module buildBoard {
             this.$scope.loginToGithub  = url=>{
                 var otherWindow = $window.open(url,"","menubar=no,location=yes,resizable=yes,scrollbars=yes,status=no");
                 otherWindow.onunload = () => {
-                    console.log('hi');
                     this.$scope.hideGithubLogin = true;
                     this.$scope.$apply();
                 }
