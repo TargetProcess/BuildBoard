@@ -3,8 +3,7 @@
     <div class="tests-results">
         <div class="info">{{totalCount}} tests <span>{{failedCount}} failed, {{skippedCount}} skipped</span></div>
         <div class="info"><span><a href="{{statusUrl}}" target="_blank">{{statusUrl}}</a></span></div>
-        <div class="time">Took <span ng-show="totalTime/3600 > 1">{{totalTime/3600 | number:0}}h</span> <span
-                ng-show="totalTime/60 > 1">{{(totalTime%3600)/60 | number: 0}}m</span> {{totalTime % 60 | number:0}}s
+        <div class="time">Took {{totalTime | duration}}
         </div>
         <div class="line">
             <div class="failed" ng-style="{width: failedCount/totalCount*100 + '%'}"></div>
@@ -36,7 +35,7 @@
                             <a href="" ui-sref="list.branch.artifacts.testCase({testCase:data.name})">{{data.name}}</a>
                         </div>
                     </td>
-                    <td>{{data.duration | number:1}} sec</td>
+                    <td>{{data.duration | duration}}</td>
                 </tr>
             </tbody>
         </table>
@@ -86,7 +85,7 @@
                             <a href="">{{data.name}}</a>
                         </div>
                     </td>
-                    <td>{{data.duration | number:1}} sec</td>
+                    <td>{{data.duration | duration}}</td>
                     <td>{{data.failedCount}}</td>
                     <td>{{data.skippedCount}}</td>
                     <td>{{data.passedCount}}</td>

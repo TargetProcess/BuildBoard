@@ -17,6 +17,7 @@ module buildBoard {
         .filter('activeFilter', activeFilter)
         .filter('encode', encode)
         .filter('pullRequestStatus', pullRequestStatus)
+        .filter('duration', duration)
         .directive('entityTitle', ()=>new EntityTitleDirective())
         .directive(EntityStateDirective.NAME, ()=>new EntityStateDirective())
         .directive(PanelDirective.NAME, ()=>new PanelDirective())
