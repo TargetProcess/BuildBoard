@@ -24,7 +24,7 @@ declare module buildBoard {
         toggleBuild(branchId:string, buildNumber:number):IAction
         lastBuildInfos():IAction
         builds(branch:string):IAction
-        artifact(file:string):IAction
+        testCasePackages(file:string):IAction
     }
 
     interface IGithub {

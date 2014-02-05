@@ -49,7 +49,7 @@ class JenkinsRepository extends BuildsRepository {
 
   def forceBuild(action: models.BuildAction) = jenkinsAdapter.forceBuild(action)
 
-  def getArtifact(file: String) = jenkinsAdapter.getArtifact(file)
+  def getTestCasePackages(file: String) = jenkinsAdapter.getTestCasePackages(file)
 
   def toggleBuild(branch: models.Branch, number: Int): Option[models.Build] = getBuild(branch, number).map(build => {
     val predicate = getBranchPredicate(branch)

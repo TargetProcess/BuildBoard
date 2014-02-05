@@ -53,8 +53,8 @@ module buildBoard {
             return this.$http.post(this.controllers.Targetprocess.changeEntityState(entityId,nextStateId).absoluteURL(), {});
         }
 
-        getArtifact(file:string): ng.IHttpPromise<TestCasePackage[]> {
-            return this.$http.get(this.controllers.Jenkins.artifact(file).absoluteURL())
+        getTestCasePackages(file:string): ng.IHttpPromise<TestCasePackage[]> {
+            return this.$http.get(this.controllers.Jenkins.testCasePackages(file).absoluteURL())
         }
     }
 

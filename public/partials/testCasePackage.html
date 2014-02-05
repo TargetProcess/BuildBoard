@@ -32,7 +32,7 @@
                 <tr ng-repeat="data in failedTests | orderBy:orderingPredicate:reverse">
                     <td>
                         <div class="txt-overflow">
-                            <a href="" ui-sref="list.branch.artifacts.testCase({testCase:data.name})">{{data.name}}</a>
+                            <a href="" ui-sref="list.branch.testCasePackage.testCase({testCase:data.name})">{{data.name}}</a>
                         </div>
                     </td>
                     <td>{{data.duration | duration}}</td>
@@ -86,7 +86,7 @@
                         </div>
                         <ul ng-show="!isCollapsed">
                             <li ng-repeat="testCase in data.testCases">
-                                <a href="" ui-sref="list.branch.artifacts.testCase({testCase:testCase.name})">{{testCase.name}}</a>
+                                <a href="" ui-sref="list.branch.testCasePackage.testCase({testCase:testCase.name})">{{testCase.name}}</a>
                             </li>
                         </ul>
                     </td>

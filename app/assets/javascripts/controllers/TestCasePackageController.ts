@@ -13,8 +13,8 @@ module buildBoard {
         closeView():void;
     }
 
-    export class ArtifactsController {
-        public static NAME = "ArtifactsController";
+    export class TestCasePackageController {
+        public static NAME = "TestCasePackageController";
 
         public static $inject = [
             '$scope',
@@ -31,10 +31,10 @@ module buildBoard {
             var testResults = node.artifacts.filter(a => a.name == 'testResults');
             this.$scope.statusUrl = node.statusUrl;
             if (testResults.length > 0) {
-                backendService.getArtifact(testResults[0].url).success(testCasePackages => {
+                backendService.getTestCasePackages(testResults[0].url).success(testCasePackages => {
                     if (testCasePackages.length > 0) {
-                        var testCasePackage = testCasePackages[0];
-                        this.$scope.testCasePackages = this.getPackagesWithTests(testCasePackage);
+                        this.$scope.testCasePackages = _.chain(testCasePackages
+                        ).map(p => this.getPackagesWithTests(p)).flatten().value();
                         this.$scope.failedTests = this.getFailedTests(this.$scope.testCasePackages);
                         //todo: refactor
                         this.$scope.totalCount = _.reduce(this.$scope.testCasePackages, function (sum, p) {

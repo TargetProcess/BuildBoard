@@ -5,7 +5,7 @@ import models._
 import play.api.libs.json._
 import com.github.nscala_time.time.Imports._
 import Writes._
-import models.jenkins.CachedJenkinsRepository
+import models.jenkins.{JenkinsRepository, CachedJenkinsRepository}
 import scala.util.{Failure, Success}
 import scalaj.http.HttpException
 
@@ -65,8 +65,8 @@ object Jenkins extends Controller with Secured {
       request => Ok(Json.toJson(jenkinsRepo.getBuild(branchEntity, number)))
   }
 
-  def artifact(file: String) = IsAuthorized {
+  def testCasePackages(file: String) = IsAuthorized {
     implicit user =>
-      request => Ok(Json.toJson(jenkinsRepo.getArtifact(file)))
+      request => Ok(Json.toJson(jenkinsRepo.getTestCasePackages(file)))
   }
 }

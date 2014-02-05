@@ -22,7 +22,7 @@ GET         /jenkins/build                   controllers.Jenkins.build(branch:St
 GET         /jenkins/forceBuild              controllers.Jenkins.forceBuild(pullRequestId:Option[Int],branchId:Option[String],fullCycle:Boolean)
 GET         /jenkins/toggleBuild             controllers.Jenkins.toggleBuild(branchId:String,buildNumber:Int)
 
-GET         /jenkins/artifact               controllers.Jenkins.artifact(file:String)
+GET         /jenkins/testCasePackages         controllers.Jenkins.testCasePackages(file:String)
 
 
 POST        /tp/changeEntityState            controllers.Targetprocess.changeEntityState(entityId:Int, entityStateId:Int)

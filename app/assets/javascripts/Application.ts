@@ -11,7 +11,7 @@ module buildBoard {
         .controller('branchesController', BranchesController)
         .controller(BranchLineController.NAME, BranchLineController)
         .controller(HeaderController.NAME, HeaderController)
-        .controller(ArtifactsController.NAME, ArtifactsController)
+        .controller(TestCasePackageController.NAME, TestCasePackageController)
         .controller(TestCaseController.NAME, TestCaseController)
         .filter('status', status)
         .filter('activeFilter', activeFilter)
@@ -38,12 +38,12 @@ module buildBoard {
                     templateUrl: "/assets/partials/branch.html",
                     controller: BranchController
                 })
-                .state('list.branch.artifacts', {
+                .state('list.branch.testCasePackage', {
                     params: ["name", "user", "branch", "build", "buildNode"],
-                    templateUrl: "/assets/partials/artifacts.html",
-                    controller: ArtifactsController
+                    templateUrl: "/assets/partials/testCasePackage.html",
+                    controller: TestCasePackageController
                 })
-                .state('list.branch.artifacts.testCase', {
+                .state('list.branch.testCasePackage.testCase', {
                     params: ["name", "user", "branch", "build", "buildNode", "testCase"],
                     templateUrl: "/assets/partials/testCase.html",
                     controller: TestCaseController

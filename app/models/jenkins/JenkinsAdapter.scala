@@ -21,6 +21,7 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
 
   override def getBuilds: List[Build] = new File(directory)
     .listFiles
+    .filter(_.isDirectory)
     .map(getBuild _)
     .toList
 
@@ -67,25 +68,32 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
   }
 
   private def getArtifacts(contents: List[File]): List[Artifact] = {
-    val testResultsUrl = contents.filter(f => f.getName == ".TestResults").headOption match {
+    val testResultsUrl = (contents.filter(f => f.getName == ".TestResults").headOption match {
       case Some(folder) => folder.listFiles
         .filter(_.getName.endsWith(".xml"))
         .headOption
         .map(_.getPath.substring(directory.length + 1))
       case None => None
-    }
+    }).map(url => List(Artifact("testResults", url)))
+    .getOrElse(List())
 
-    testResultsUrl match {
-      case Some(url) => List(Artifact("testResults", url))
-      case None => List()
-    }
+    val logs = (contents.filter(f => f.getName == ".Logs").headOption match {
+      case Some(folder) => folder.listFiles
+        .filter(_.getName.startsWith("SessionLogs"))
+        .headOption
+        .map(_.getPath.substring(directory.length + 1))
+      case None => None
+    }).map(url => List(Artifact("logs", url)))
+    .getOrElse(List())
+
+    testResultsUrl:::logs
   }
 
   private def read(f: File): Option[String] = Try {
     Some(Source.fromFile(f).mkString)
   }.getOrElse(None)
 
-  def getArtifact(file: String): List[TestCasePackage] = {
+  def getTestCasePackages(file: String): List[TestCasePackage] = {
     read(new File(directory, file)) match {
       case None => List()
       case Some(xmlString) =>

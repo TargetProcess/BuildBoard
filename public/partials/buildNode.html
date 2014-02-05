@@ -1,7 +1,7 @@
 <span ng-model="showMe" ng-click="showMe=!showMe" class="node {{data.status | status}} collapse">
     <span ng-show="data.children && data.children.length > 0" class="glyphicon glyphicon-collapse-{{showMe ?'down':'up'}}"></span>
     <a target="_blank" ng-show="!data.artifacts.length" title="{{data.status | lowercase}}" href="{{data.statusUrl}}">{{data.name}}</a>
-    <a target="_blank" ng-show="data.artifacts.length" ui-sref="list.branch.artifacts({buildNode:data.name,build:build.number})"  title="{{data.status | lowercase}}">{{data.name}}</a>
+    <a target="_blank" ng-show="data.artifacts.length" ui-sref="list.branch.testCasePackage({buildNode:data.name,build:build.number})"  title="{{data.status | lowercase}}">{{data.name}}</a>
 </span>
 
 <ul>
