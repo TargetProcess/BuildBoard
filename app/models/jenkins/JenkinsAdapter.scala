@@ -107,10 +107,11 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
         .map(n => getTestCasePackageInner(n, currentNamespace))
         .toList
       val testCases = (node \ "results" \ "test-case").map(tcNode => {
-        val result = getAttribute(tcNode, "result").get
-        val (message, stackTrace) = if (result != "Success") ((tcNode \\ "message").headOption.map(_.text), (tcNode \\ "stack-trace").headOption.map(_.text)) else (None, None)
+        val executed = getAttribute(tcNode, "executed").get.toBoolean
+        val result = if (!executed) "Ignored" else if (getAttribute(tcNode, "success").get != "True") "Failure" else "Success"
+        val (message, stackTrace) = if (result == "Failure") ((tcNode \\ "message").headOption.map(_.text), (tcNode \\ "stack-trace").headOption.map(_.text)) else (None, None)
 
-        TestCase(getAttribute(tcNode, "name").get, getAttribute(tcNode, "executed").get.toBoolean, result, getAttribute(tcNode, "time").getOrElse("0").toDouble, message, stackTrace)
+        TestCase(getAttribute(tcNode, "name").get, result, getAttribute(tcNode, "time").getOrElse("0").toDouble, message, stackTrace)
       }).toList
 
       TestCasePackage(if (currentNamespace.isEmpty) name else s"$namespace.$name", children, testCases)

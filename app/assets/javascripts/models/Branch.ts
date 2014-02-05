@@ -81,7 +81,6 @@ module buildBoard {
 
     export class TestCase {
         name:string;
-        executed:boolean;
         result:string;
         duration:number;
         message:string;
