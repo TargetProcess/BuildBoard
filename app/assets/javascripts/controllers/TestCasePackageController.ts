@@ -10,6 +10,7 @@ module buildBoard {
         skippedCount: number;
         totalTime: number;
         statusUrl: string;
+        logsUrl: string;
         closeView():void;
     }
 
@@ -31,6 +32,10 @@ module buildBoard {
             var node = this.getBuildNode(build.node, nodeName, runName);
             var testResults = node.artifacts.filter(a => a.name == 'testResults');
             this.$scope.statusUrl = node.statusUrl;
+            var logsArtifacts = node.artifacts.filter(a => a.name == 'logs');
+            if (logsArtifacts.length > 0){
+                this.$scope.logsUrl = logsArtifacts[0].url;
+            }
             if (testResults.length > 0) {
                 backendService.getTestCasePackages(testResults[0].url).success(testCasePackages => {
                     if (testCasePackages.length > 0) {

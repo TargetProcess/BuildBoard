@@ -51,6 +51,8 @@ class JenkinsRepository extends BuildsRepository {
 
   def getTestCasePackages(file: String) = jenkinsAdapter.getTestCasePackages(file)
 
+  def getArtifact(file: String) = jenkinsAdapter.getArtifact(file)
+
   def toggleBuild(branch: models.Branch, number: Int): Option[models.Build] = getBuild(branch, number).map(build => {
     val predicate = getBranchPredicate(branch)
     BuildToggles.findAll.filter(t => predicate(t.branch) && t.buildNumber == number).toList.headOption match {

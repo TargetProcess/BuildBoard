@@ -2,7 +2,8 @@
 <div class="view common" style="left: 400px; z-index: 250;">
     <div class="tests-results">
         <div class="info">{{totalCount}} tests <span>{{failedCount}} failed, {{skippedCount}} skipped</span></div>
-        <div class="info"><span><a href="{{statusUrl}}" target="_blank">{{statusUrl}}</a></span></div>
+        <div class="info"><span><a href="{{statusUrl}}" target="_blank">View in Jenkins</a></span></div>
+        <div class="info" ng-show="logsUrl"><span><a ng-href="jenkins/artifact?file={{logsUrl}}" target="_blank">Logs</a></span></div>
         <div class="time">Took {{totalTime | duration}}
         </div>
         <div class="line">

@@ -10,7 +10,7 @@ import scala.util.{Failure, Success}
 import scalaj.http.HttpException
 
 object Jenkins extends Controller with Secured {
-  val jenkinsRepo = new JenkinsRepository
+  val jenkinsRepo = new CachedJenkinsRepository
 
   def forceBuild(pullRequestId: Option[Int], branchId: Option[String], fullCycle: Boolean) = IsAuthorized {
     implicit user =>
@@ -68,5 +68,10 @@ object Jenkins extends Controller with Secured {
   def testCasePackages(file: String) = IsAuthorized {
     implicit user =>
       request => Ok(Json.toJson(jenkinsRepo.getTestCasePackages(file)))
+  }
+
+  def artifact(file: String) = IsAuthorized {
+    implicit user =>
+      request => Ok.sendFile(content = jenkinsRepo.getArtifact(file))
   }
 }

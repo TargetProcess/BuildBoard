@@ -102,13 +102,15 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
   }.getOrElse(None)
 
   def getTestCasePackages(file: String): List[TestCasePackage] = {
-    read(new File(directory, file)) match {
+    read(this.getArtifact(file)) match {
       case None => List()
       case Some(xmlString) =>
         val xml = XML.loadString(xmlString)
         (xml \ "test-suite").map(getTestCasePackage _).toList
     }
   }
+
+  def getArtifact(file: String): File = new File(directory, file)
 
   private def getTestCasePackage(node: Node): TestCasePackage = {
     def getTestCasePackageInner(node: Node, namespace: String = ""): TestCasePackage = {
