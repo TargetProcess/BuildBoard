@@ -1,5 +1,5 @@
-<div class="overlay" ng-click="closeView()"></div>
-<div class="view common">
+<div class="overlay" style="z-index: 200;" ng-click="closeView()"></div>
+<div class="view common" style="left: 400px; z-index: 250;">
     <div class="tests-results">
         <div class="info">{{totalCount}} tests <span>{{failedCount}} failed, {{skippedCount}} skipped</span></div>
         <div class="info"><span><a href="{{statusUrl}}" target="_blank">{{statusUrl}}</a></span></div>
@@ -33,7 +33,7 @@
                 <tr ng-repeat="data in failedTests | orderBy:orderingPredicate:reverse">
                     <td>
                         <div class="txt-overflow">
-                            <a href="">{{data.name}}</a>
+                            <a href="" ui-sref="list.branch.artifacts.testCase({testCase:data.name})">{{data.name}}</a>
                         </div>
                     </td>
                     <td>{{data.duration | number:1}} sec</td>
@@ -96,3 +96,4 @@
         </table>
     </div>
 </div>
+<div ui-view></div>

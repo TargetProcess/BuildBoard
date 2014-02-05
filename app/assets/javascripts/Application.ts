@@ -12,6 +12,7 @@ module buildBoard {
         .controller(BranchLineController.NAME, BranchLineController)
         .controller(HeaderController.NAME, HeaderController)
         .controller(ArtifactsController.NAME, ArtifactsController)
+        .controller(TestCaseController.NAME, TestCaseController)
         .filter('status', status)
         .filter('activeFilter', activeFilter)
         .filter('encode', encode)
@@ -40,6 +41,11 @@ module buildBoard {
                     params: ["name", "user", "branch", "build", "buildNode"],
                     templateUrl: "/assets/partials/artifacts.html",
                     controller: ArtifactsController
+                })
+                .state('list.branch.artifacts.testCase', {
+                    params: ["name", "user", "branch", "build", "buildNode", "testCase"],
+                    templateUrl: "/assets/partials/testCase.html",
+                    controller: TestCaseController
                 })
 
         }).run(function ($rootScope, $state) {

@@ -16,6 +16,7 @@
 /// <reference path='controllers/BranchLineController.ts' />
 /// <reference path='controllers/HeaderController.ts' />
 /// <reference path='controllers/ArtifactsController.ts' />
+/// <reference path='controllers/TestCaseController.ts' />
 /// <reference path='directives/EntityTitle.ts' />
 /// <reference path='directives/Panel.ts' />
 /// <reference path='directives/EntityState.ts' />
