@@ -43,12 +43,12 @@
     <div class="info-table">
         <table class="fixed">
             <colgroup>
-                <col class="w-45">
-                <col class="w-15">
-                <col class="w-10">
-                <col class="w-10">
-                <col class="w-10">
-                <col class="w-10">
+                <col class="w-75">
+                <col class="w-5">
+                <col class="w-5">
+                <col class="w-5">
+                <col class="w-5">
+                <col class="w-5">
             </colgroup>
             <thead>
                 <tr>
@@ -80,10 +80,15 @@
             </thead>
             <tbody>
                 <tr ng-repeat="data in testCasePackages | orderBy:orderingPredicate:reverse">
-                    <td>
+                    <td ng-init="isCollapsed = true">
                         <div class="txt-overflow">
-                            <a href="">{{data.name}}</a>
+                            <a href="" ng-click="isCollapsed = !isCollapsed">{{data.name}}</a>
                         </div>
+                        <ul ng-show="!isCollapsed">
+                            <li ng-repeat="testCase in data.testCases">
+                                <a href="" ui-sref="list.branch.artifacts.testCase({testCase:testCase.name})">{{testCase.name}}</a>
+                            </li>
+                        </ul>
                     </td>
                     <td>{{data.duration | duration}}</td>
                     <td>{{data.failedCount}}</td>
