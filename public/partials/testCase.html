@@ -1,8 +1,8 @@
 <div class="overlay" style="z-index: 300;" ng-click="closeView()"></div>
 <div class="view common" style="left: 480px; z-index: 350;">
-    <h2 class="txt-overflow">{{testCase.name}}</h2>
+    <h2 class="txt-overflow">{{testCase.name}} <span class="txt-{{testCase.result | status}}">{{testCase.result}}</span></h2>
     <div class="test-info">
-        <div class="time">Took {{testCase.duration | number:1}} sec</div>
+        <div class="time">Took {{testCase.duration | duration}} sec</div>
     </div>
     <h3>StackTrace</h3>
     <pre>{{testCase.message}}</pre>
