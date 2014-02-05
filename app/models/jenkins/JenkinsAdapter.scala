@@ -37,25 +37,25 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
   }
 
   private def getBuildNode(f: File): BuildNode = {
-    def getBuildNodeInner(file: File, path: String): BuildNode = {
+    def getBuildNodeInner(folder: File, path: String): BuildNode = {
       val complexNameRegex = "(.+)_(.+)".r
-      val (runName, name) = file.getName match {
+      val (runName, name) = folder.getName match {
         case complexNameRegex(runName, name) => (runName, name)
         case runName => (runName, runName)
       }
-      val contents = file.listFiles.sortBy(_.getName).toList
-      val (startedStatus, statusUrl, timestamp) = contents.filter(f => f.getName.endsWith("started")) match {
+      val contents = folder.listFiles.sortBy(_.getName).toList
+      val (startedStatus, statusUrl, timestamp) = contents.filter(file => file.getName.endsWith("started")) match {
         case file :: Nil =>
           val (statusUrl, ts) = read(file)
-          .map(fc => {
+            .map(fc => {
             val rows = fc.split('\n')
             val statusUrl = rows(0)
             val ts = if (rows.length > 1) Some(new java.text.SimpleDateFormat("MM/dd/yyyy hh:mm:ss").parse(rows(1)).getTime) else None
             (Some(statusUrl), ts)
           })
-          .getOrElse((None, Some(file.lastModified)))
+            .getOrElse((None, Some(file.lastModified)))
           (None, statusUrl, ts.getOrElse(file.lastModified))
-        case Nil => (Some("FAILURE"), None, file.lastModified)
+        case Nil => (Some("FAILURE"), None, folder.lastModified)
       }
       val status = if (startedStatus.isDefined) startedStatus
       else contents.filter(f => f.getName.endsWith("finished")) match {
@@ -64,9 +64,11 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
       }
       val children = contents
         .filter(f => f.isDirectory && !f.getName.startsWith("."))
-        .map(f => getBuildNodeInner(f, file.getPath)).toList
+        .map(f => getBuildNodeInner(f, folder.getPath)).toList
 
       val artifacts = getArtifacts(contents)
+
+      //todo: associate screenshots with tests
 
       BuildNode(name, runName, status, statusUrl.getOrElse(""), artifacts, new DateTime(timestamp), children)
     }
@@ -76,25 +78,19 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
   }
 
   private def getArtifacts(contents: List[File]): List[Artifact] = {
-    val testResultsUrl = (contents.filter(f => f.getName == ".TestResults").headOption match {
-      case Some(folder) => folder.listFiles
-        .filter(_.getName.endsWith(".xml"))
-        .headOption
-        .map(_.getPath.substring(directory.length + 1))
-      case None => None
-    }).map(url => List(Artifact("testResults", url)))
-    .getOrElse(List())
+    def getArtifactsInner(file: File, filter: File => Boolean, artifactName: String): List[Artifact] = file.listFiles
+      .filter(filter(_))
+      .map(_.getPath.substring(directory.length + 1))
+      .map(Artifact(artifactName, _))
+      .toList
 
-    val logs = (contents.filter(f => f.getName == ".Logs").headOption match {
-      case Some(folder) => folder.listFiles
-        .filter(_.getName.startsWith("SessionLogs"))
-        .headOption
-        .map(_.getPath.substring(directory.length + 1))
-      case None => None
-    }).map(url => List(Artifact("logs", url)))
-    .getOrElse(List())
-
-    testResultsUrl:::logs
+    contents.map(file => file.getName match {
+      case name if name == ".TestResults" => getArtifactsInner(file, f => f.getName.endsWith(".xml"), "testResults")
+      case name if name == ".Logs" => getArtifactsInner(file, f => f.getName.startsWith("SessionLogs"), "logs")
+      case name if name == ".Screenshots" => getArtifactsInner(file, _ => true, "screenshot")
+      case _ => List()
+    })
+      .flatten
   }
 
   private def read(f: File): Option[String] = Try {

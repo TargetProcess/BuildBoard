@@ -3,7 +3,7 @@
     <div class="tests-results">
         <div class="info">{{totalCount}} tests <span>{{failedCount}} failed, {{skippedCount}} skipped</span></div>
         <div class="info"><span><a href="{{statusUrl}}" target="_blank">View in Jenkins</a></span></div>
-        <div class="info" ng-show="logsUrl"><span><a ng-href="jenkins/artifact?file={{logsUrl}}" target="_blank">Logs</a></span></div>
+        <div class="info" ng-show="logsUrl"><span><a href="jenkins/artifact?file={{logsUrl}}" target="_blank">Logs</a></span></div>
         <div class="time">Took {{totalTime | duration}}
         </div>
         <div class="line">
@@ -11,6 +11,11 @@
             <div class="skipped" ng-style="{width: skippedCount/totalCount*100 + '%'}"></div>
         </div>
     </div>
+    <!--<ul ng-show="screenshots.length">-->
+        <!--<li ng-repeat="screenshot in screenshots">-->
+            <!--<a href="jenkins/artifact?file={{screenshot.url}}">{{screenshot.name}}</a>-->
+        <!--</li>-->
+    <!--</ul>-->
     <div class="info-table" ng-show="failedTests.length">
         <table class="fixed">
             <colgroup>

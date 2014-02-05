@@ -11,6 +11,7 @@ module buildBoard {
         totalTime: number;
         statusUrl: string;
         logsUrl: string;
+        screenshots: Artifact[]
         closeView():void;
     }
 
@@ -36,6 +37,7 @@ module buildBoard {
             if (logsArtifacts.length > 0){
                 this.$scope.logsUrl = logsArtifacts[0].url;
             }
+            this.$scope.screenshots = node.artifacts.filter(a => a.name == 'screenshot');
             if (testResults.length > 0) {
                 backendService.getTestCasePackages(testResults[0].url).success(testCasePackages => {
                     if (testCasePackages.length > 0) {
