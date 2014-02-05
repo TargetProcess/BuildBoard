@@ -5,8 +5,6 @@ import scalaj.http.Http
 import play.api.Play
 import models._
 import java.io.File
-import com.github.nscala_time.time.StaticForwarderImports.DateTime
-import com.github.nscala_time.time.TypeImports.DateTime
 import scala.io.Source
 import play.api.Play.current
 import scala.xml.{Node, XML}
@@ -15,6 +13,7 @@ import scala.Some
 import models.TestCase
 import models.Build
 import models.TestCasePackage
+import org.joda.time.DateTime
 
 object JenkinsAdapter extends BuildsRepository with JenkinsApi {
   private val directory = Play.configuration.getString("jenkins.data.path").get
@@ -34,7 +33,7 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
     }
     val node = getBuildNode(new File(f, "Build"))
 
-    Build(number, branch, node.status, node.statusUrl, DateTime.now, node)
+    Build(number, branch, node.status, node.statusUrl, node.timestamp, node)
   }
 
   private def getBuildNode(f: File): BuildNode = {
@@ -46,7 +45,16 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
       }
       val contents = file.listFiles.sortBy(_.getName).toList
       val (startedStatus, statusUrl, timestamp) = contents.filter(f => f.getName.endsWith("started")) match {
-        case file :: Nil => (None, read(file), file.lastModified)
+        case file :: Nil =>
+          val (statusUrl, ts) = read(file)
+          .map(fc => {
+            val rows = fc.split('\n')
+            val statusUrl = rows(0)
+            val ts = if (rows.length > 1) Some(new java.text.SimpleDateFormat("MM/dd/yyyy hh:mm:ss").parse(rows(1)).getTime) else None
+            (Some(statusUrl), ts)
+          })
+          .getOrElse((None, Some(file.lastModified)))
+          (None, statusUrl, ts.getOrElse(file.lastModified))
         case Nil => (Some("FAILURE"), None, file.lastModified)
       }
       val status = if (startedStatus.isDefined) startedStatus

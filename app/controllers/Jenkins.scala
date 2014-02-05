@@ -10,7 +10,7 @@ import scala.util.{Failure, Success}
 import scalaj.http.HttpException
 
 object Jenkins extends Controller with Secured {
-  val jenkinsRepo = new CachedJenkinsRepository
+  val jenkinsRepo = new JenkinsRepository
 
   def forceBuild(pullRequestId: Option[Int], branchId: Option[String], fullCycle: Boolean) = IsAuthorized {
     implicit user =>

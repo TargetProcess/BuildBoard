@@ -24,10 +24,11 @@ module buildBoard {
 
         constructor(private $scope:IArtifactsScope, $state:ng.ui.IStateService, backendService:BackendService) {
             var nodeName = $state.params['buildNode'];
+            var runName = $state.params['run'];
             var buildNumber = $state.params['build'];
             var $parentScope = <IBranchScope>this.$scope.$parent;
             var build = $parentScope.builds.filter(b => b.number == buildNumber)[0];
-            var node = this.getBuildNode(build.node, nodeName);
+            var node = this.getBuildNode(build.node, nodeName, runName);
             var testResults = node.artifacts.filter(a => a.name == 'testResults');
             this.$scope.statusUrl = node.statusUrl;
             if (testResults.length > 0) {
@@ -58,13 +59,13 @@ module buildBoard {
             };
         }
 
-        getBuildNode(node:BuildNode, nodeName:string):BuildNode {
-            if (node.name == nodeName) {
+        getBuildNode(node:BuildNode, nodeName:string, runName: string):BuildNode {
+            if (node.name == nodeName && node.runName == runName) {
                 return node;
             }
             else {
                 var candidates = _.chain(node.children)
-                    .map(child => this.getBuildNode(child, nodeName))
+                    .map(child => this.getBuildNode(child, nodeName, runName))
                     .filter(child => child != null)
                     .value();
 

@@ -39,12 +39,12 @@ module buildBoard {
                     controller: BranchController
                 })
                 .state('list.branch.testCasePackage', {
-                    params: ["name", "user", "branch", "build", "buildNode"],
+                    params: ["name", "user", "branch", "build", "buildNode", "run"],
                     templateUrl: "/assets/partials/testCasePackage.html",
                     controller: TestCasePackageController
                 })
                 .state('list.branch.testCasePackage.testCase', {
-                    params: ["name", "user", "branch", "build", "buildNode", "testCase"],
+                    params: ["name", "user", "branch", "build", "buildNode", "run", "testCase"],
                     templateUrl: "/assets/partials/testCase.html",
                     controller: TestCaseController
                 })
