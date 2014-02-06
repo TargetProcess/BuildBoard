@@ -85,7 +85,7 @@ module buildBoard {
         duration:number;
         message:string;
         stackTrace:string;
-        screenshots:string[];
+        screenshots:Artifact[];
     }
 
     export class TestCasePackage {

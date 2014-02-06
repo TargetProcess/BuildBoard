@@ -22,7 +22,23 @@ case class Build(number: Int, branch: String, status: Option[String], url: Strin
   }
 }
 
-case class BuildNode(name: String, runName: String, status: Option[String], statusUrl: String, artifacts: List[Artifact], timestamp: DateTime, children: List[BuildNode] = Nil, testResults: List[TestCasePackage] = Nil)
+case class BuildNode(name: String, runName: String, status: Option[String], statusUrl: String, artifacts: List[Artifact], timestamp: DateTime, children: List[BuildNode] = Nil, testResults: List[TestCasePackage] = Nil) {
+  def getTestCase(name: String): Option[TestCase] = {
+    def getTestCaseInner(tcPackage: TestCasePackage): Option[TestCase] = {
+      tcPackage.testCases.filter(tc => tc.name == name) match {
+        case tc::_ => Some(tc)
+        case Nil => getTestCasesInner(tcPackage.packages)
+      }
+    }
+    def getTestCasesInner(packages: List[TestCasePackage]): Option[TestCase] = packages
+      .map(getTestCaseInner(_))
+      .filter(tc => tc.isDefined)
+      .flatten
+      .headOption
+
+    getTestCasesInner(testResults)
+  }
+}
 
 case class BuildToggle(branch: String, buildNumber: Int)
 

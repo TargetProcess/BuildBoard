@@ -12,15 +12,16 @@ module buildBoard {
 
         public static $inject = [
             '$scope',
-            '$state'
+            '$state',
+            BackendService.NAME
         ];
 
-        constructor(private $scope:ITestCaseScope, $state:ng.ui.IStateService) {
-            var testName = $state.params["testCase"];
-            var parentScope = <IArtifactsScope>$scope.$parent;
-            this.$scope.testCase = _.chain(parentScope.testCasePackages).map(p => p.testCases).flatten().filter(tc => tc.name == testName).head().value();
+        constructor(private $scope:ITestCaseScope, $state:ng.ui.IStateService, backendService:BackendService) {
+            backendService.testCase($state.params['name'], $state.params['build'], $state.params['part'], $state.params['run'], $state.params['test']).success(testCase => {
+                this.$scope.testCase = testCase;
+            });
 
-            this.$scope.closeView = ()=> {
+            this.$scope.closeView = () => {
                 $state.go("list.branch.run");
             };
         }

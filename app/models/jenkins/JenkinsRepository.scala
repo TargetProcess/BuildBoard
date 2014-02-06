@@ -51,6 +51,11 @@ class JenkinsRepository extends BuildsRepository {
 
   def getTestCasePackages(testRunBuildNode: BuildNode) = jenkinsAdapter.getTestCasePackages(testRunBuildNode)
 
+  def getTestRunBuildNode(branch: models.Branch, build: Int, part: String, run: String) = getBuild(branch, build)
+    .map(b => b.getTestRunBuildNode(part, run))
+    .flatMap(b => b)
+    .map(testRunBuildNode => testRunBuildNode.copy(testResults = getTestCasePackages(testRunBuildNode)))
+
   def getArtifact(file: String) = jenkinsAdapter.getArtifact(file)
 
   def toggleBuild(branch: models.Branch, number: Int): Option[models.Build] = getBuild(branch, number).map(build => {
@@ -65,6 +70,7 @@ class JenkinsRepository extends BuildsRepository {
     }
   })
 }
+
 class CachedJenkinsRepository extends JenkinsRepository {
   override def getBuilds: List[Build] = Builds.findAll().toList
 }

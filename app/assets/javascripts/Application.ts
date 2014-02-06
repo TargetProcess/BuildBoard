@@ -44,7 +44,7 @@ module buildBoard {
                     controller: RunController
                 })
                 .state('list.branch.run.testCase', {
-                    params: ["name", "user", "branch", "build", "part", "run", "testCase"],
+                    url: "/testCase?test",
                     templateUrl: "/assets/partials/testCase.html",
                     controller: TestCaseController
                 })

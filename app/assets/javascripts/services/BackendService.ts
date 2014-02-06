@@ -56,6 +56,10 @@ module buildBoard {
         run(branch: string, build: number, part: string, run: string): ng.IHttpPromise<BuildNode> {
             return this.$http.get(this.controllers.Jenkins.run(branch, build, part, run).absoluteURL())
         }
+
+        testCase(branch: string, build: number, part: string, run: string, test: string): ng.IHttpPromise<TestCase> {
+            return this.$http.get(this.controllers.Jenkins.testCase(branch, build, part, run, test).absoluteURL())
+        }
     }
 
 }

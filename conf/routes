@@ -23,6 +23,7 @@ GET         /jenkins/forceBuild              controllers.Jenkins.forceBuild(pull
 GET         /jenkins/toggleBuild             controllers.Jenkins.toggleBuild(branchId:String,buildNumber:Int)
 
 GET         /jenkins/run                     controllers.Jenkins.run(branch: String, build: Int, part: String, run: String)
+GET         /jenkins/testCase                controllers.Jenkins.testCase(branch: String, build: Int, part: String, run: String, test: String)
 GET         /jenkins/artifact                controllers.Jenkins.artifact(file: String)
 
 

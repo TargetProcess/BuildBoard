@@ -4,10 +4,10 @@
     <div class="test-info">
         <div class="time">Took {{testCase.duration | duration}} sec</div>
     </div>
-    <div ng-show="{{testCase.screenshots.length}}" ng-init="isCollapsed = true">
+    <div ng-show="testCase.screenshots.length" ng-init="isCollapsed = true">
         <h3 ng-click="isCollapsed = !isCollapsed">Screenshots</h3>
         <div ng-show="!isCollapsed" ng-repeat="screenshot in testCase.screenshots">
-            <img src="/jenkins/artifact?file={{screenshot.url}}" title="{{screenshot.name}}">
+            <img ng-src="/jenkins/artifact?file={{screenshot.url}}" title="{{screenshot.name}}" />
         </div>
     </div>
     <h3>StackTrace</h3>
