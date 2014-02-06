@@ -1,12 +1,7 @@
 package models
 
 import com.github.nscala_time.time.Imports._
-import com.novus.salat.dao.{SalatDAO, ModelCompanion}
-import se.radley.plugin.salat._
-import com.mongodb.casbah.Imports._
-import se.radley.plugin.salat.Binders.ObjectId
 import scala.Some
-import play.api.Play.current
 import com.novus.salat.dao._
 import com.mongodb.casbah.Imports._
 import se.radley.plugin.salat._
@@ -17,14 +12,23 @@ import play.api.Play.current
 
 case class Artifact(name: String, url: String)
 
-case class Build(number: Int, branch: String, status: Option[String], url: String, timeStamp: DateTime, node: BuildNode, toggled: Boolean = false)
+case class Build(number: Int, branch: String, status: Option[String], url: String, timeStamp: DateTime, node: BuildNode, toggled: Boolean = false) {
+  def getTestRunBuildNode(part: String, run: String): Option[BuildNode] = {
+    def getTestRunBuildNodeInner(node: BuildNode): Option[BuildNode] = node match {
+      case n: BuildNode if (n.name == part && n.runName == run) => Some(n)
+      case n => n.children.map(getTestRunBuildNodeInner(_)).filter(_.isDefined).flatten.headOption
+    }
+    getTestRunBuildNodeInner(node)
+  }
+}
 
-case class BuildNode(name: String, runName: String, status: Option[String], statusUrl: String, artifacts: List[Artifact], timestamp: DateTime, children: List[BuildNode] = Nil)
+case class BuildNode(name: String, runName: String, status: Option[String], statusUrl: String, artifacts: List[Artifact], timestamp: DateTime, children: List[BuildNode] = Nil, testResults: List[TestCasePackage] = Nil)
 
 case class BuildToggle(branch: String, buildNumber: Int)
 
-object BuildToggles extends ModelCompanion[BuildToggle, ObjectId] with Collection[BuildToggle]{
+object BuildToggles extends ModelCompanion[BuildToggle, ObjectId] with Collection[BuildToggle] {
   def collection = mongoCollection("buildToggles")
+
   val dao = new SalatDAO[BuildToggle, ObjectId](collection) {}
 
   collection.ensureIndex(DBObject("buildNumber" -> 1, "branch" -> 1), "build_number", unique = true)
@@ -36,7 +40,7 @@ object Builds extends ModelCompanion[Build, ObjectId] with Collection[Build] {
   val dao = new SalatDAO[Build, ObjectId](collection) {}
 
   // Indexes
-  collection.ensureIndex(DBObject("number" -> 1, "branch"-> 1), "build_number", unique = true)
+  collection.ensureIndex(DBObject("number" -> 1, "branch" -> 1), "build_number", unique = true)
 }
 
 trait Cycle {
@@ -47,14 +51,14 @@ trait Cycle {
   val funcTests: String
 }
 
-abstract class ConfigurableCycle(val name:String) extends Cycle {
+abstract class ConfigurableCycle(val name: String) extends Cycle {
   val configPath = "build.cycle." + name.toLowerCase()
 
 
   val includeUnstable = Play.configuration.getBoolean(s"$configPath.includeUnstable").getOrElse(false)
   val unitTests = Play.configuration.getString(s"$configPath.unitTests").getOrElse("All")
   val funcTests = Play.configuration.getString(s"$configPath.funcTests").getOrElse("All")
-  val buildFullPackage =  Play.configuration.getBoolean(s"$configPath.buildFullCycle").getOrElse(false)
+  val buildFullPackage = Play.configuration.getBoolean(s"$configPath.buildFullCycle").getOrElse(false)
 
 }
 

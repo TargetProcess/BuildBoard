@@ -11,7 +11,7 @@ module buildBoard {
         .controller('branchesController', BranchesController)
         .controller(BranchLineController.NAME, BranchLineController)
         .controller(HeaderController.NAME, HeaderController)
-        .controller(TestCasePackageController.NAME, TestCasePackageController)
+        .controller(RunController.NAME, RunController)
         .controller(TestCaseController.NAME, TestCaseController)
         .filter('status', status)
         .filter('activeFilter', activeFilter)
@@ -38,13 +38,13 @@ module buildBoard {
                     templateUrl: "/assets/partials/branch.html",
                     controller: BranchController
                 })
-                .state('list.branch.testCasePackage', {
-                    params: ["name", "user", "branch", "build", "buildNode", "run"],
-                    templateUrl: "/assets/partials/testCasePackage.html",
-                    controller: TestCasePackageController
+                .state('list.branch.run', {
+                    url: "/run?build&part&run",
+                    templateUrl: "/assets/partials/run.html",
+                    controller: RunController
                 })
-                .state('list.branch.testCasePackage.testCase', {
-                    params: ["name", "user", "branch", "build", "buildNode", "run", "testCase"],
+                .state('list.branch.run.testCase', {
+                    params: ["name", "user", "branch", "build", "part", "run", "testCase"],
                     templateUrl: "/assets/partials/testCase.html",
                     controller: TestCaseController
                 })

@@ -65,7 +65,7 @@ module buildBoard {
         artifacts: Artifact[];
         timestamp: number;
         children: BuildNode[];
-        testCasePackage: TestCasePackage;
+        testResults: TestCasePackage[];
     }
 
     export class BuildAction {

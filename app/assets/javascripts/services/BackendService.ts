@@ -45,7 +45,7 @@ module buildBoard {
             return this.$http.get(this.controllers.Jenkins.toggleBuild(branchId, buildNumber).absoluteURL());
         }
 
-        getPullRequestStatus(pullRequest:number):ng.IHttpPromise<PRStatus> {
+        pullRequestStatus(pullRequest:number):ng.IHttpPromise<PRStatus> {
             return this.$http.get(this.controllers.Github.pullRequestStatus(pullRequest).absoluteURL());
         }
 
@@ -53,8 +53,8 @@ module buildBoard {
             return this.$http.post(this.controllers.Targetprocess.changeEntityState(entityId,nextStateId).absoluteURL(), {});
         }
 
-        getTestCasePackages(file:string): ng.IHttpPromise<TestCasePackage[]> {
-            return this.$http.get(this.controllers.Jenkins.testCasePackages(file).absoluteURL())
+        run(branch: string, build: number, part: string, run: string): ng.IHttpPromise<BuildNode> {
+            return this.$http.get(this.controllers.Jenkins.run(branch, build, part, run).absoluteURL())
         }
     }
 

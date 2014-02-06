@@ -19,7 +19,7 @@ module buildBoard {
 
         public loadPullRequestStatus(branch:Branch) {
             if (branch.pullRequest && !branch.pullRequest.status) {
-                this.backendService.getPullRequestStatus(branch.pullRequest.prId).success(data=> {
+                this.backendService.pullRequestStatus(branch.pullRequest.prId).success(data=> {
                     branch.pullRequest.status = data;
                 })
             }

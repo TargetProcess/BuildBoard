@@ -16,6 +16,7 @@ import models.TestCasePackage
 import org.joda.time.DateTime
 
 object JenkinsAdapter extends BuildsRepository with JenkinsApi {
+  private val SCREENSHOT: String = "screenshot"
   private val directory = Play.configuration.getString("jenkins.data.path").get
 
   override def getBuilds: List[Build] = new File(directory)
@@ -39,10 +40,6 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
   private def getBuildNode(f: File): BuildNode = {
     def getBuildNodeInner(folder: File, path: String): BuildNode = {
       val complexNameRegex = "(.+)_(.+)".r
-      val (runName, name) = folder.getName match {
-        case complexNameRegex(runName, name) => (runName, name)
-        case runName => (runName, runName)
-      }
       val contents = folder.listFiles.sortBy(_.getName).toList
       val (startedStatus, statusUrl, timestamp) = contents.filter(file => file.getName.endsWith("started")) match {
         case file :: Nil =>
@@ -70,7 +67,10 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
 
       //todo: associate screenshots with tests
 
-      BuildNode(name, runName, status, statusUrl.getOrElse(""), artifacts, new DateTime(timestamp), children)
+      folder.getName match {
+        case complexNameRegex(runName, name) => BuildNode(name, runName, status, statusUrl.getOrElse(""), artifacts, new DateTime(timestamp), children)
+        case name => BuildNode(name, name, status, statusUrl.getOrElse(""), artifacts, new DateTime(timestamp), children)
+      }
     }
 
     //todo: add artifacts to root node
@@ -87,7 +87,7 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
     contents.map(file => file.getName match {
       case name if name == ".TestResults" => getArtifactsInner(file, f => f.getName.endsWith(".xml"), "testResults")
       case name if name == ".Logs" => getArtifactsInner(file, f => f.getName.startsWith("SessionLogs"), "logs")
-      case name if name == ".Screenshots" => getArtifactsInner(file, _ => true, "screenshot")
+      case name if name == ".Screenshots" => getArtifactsInner(file, _ => true, SCREENSHOT)
       case _ => List()
     })
       .flatten
@@ -97,42 +97,60 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
     Some(Source.fromFile(f).mkString)
   }.getOrElse(None)
 
-  def getTestCasePackages(file: String): List[TestCasePackage] = {
-    read(this.getArtifact(file)) match {
-      case None => List()
-      case Some(xmlString) =>
-        val xml = XML.loadString(xmlString)
-        (xml \ "test-suite").map(getTestCasePackage _).toList
+  def getTestCasePackages(testRunBuildNode: BuildNode): List[TestCasePackage] = {
+    val screenshots = testRunBuildNode.artifacts.filter(a => a.name == SCREENSHOT)
+
+    def getTestCasePackage(node: Node): TestCasePackage = {
+      def getTestCasePackageInner(node: Node, namespace: String = ""): TestCasePackage = {
+        val name = node.attribute("name").get.head.text
+        val currentNamespace = getAttribute(node, "type") match {
+          case Some("Namespace") => {
+            if (namespace.isEmpty) name else s"$namespace.$name"
+          }
+          case _ => namespace
+        }
+        val children = (node \ "results" \ "test-suite")
+          .filter(n => getAttribute(n, "result").get != "Inconclusive")
+          .map(n => getTestCasePackageInner(n, currentNamespace))
+          .toList
+        val testCases = (node \ "results" \ "test-case").map(tcNode => {
+          val executed = getAttribute(tcNode, "executed").get.toBoolean
+          val result = if (!executed) "Ignored" else if (getAttribute(tcNode, "success").get != "True") "Failure" else "Success"
+          val (message, stackTrace) = if (result == "Failure") ((tcNode \\ "message").headOption.map(_.text), (tcNode \\ "stack-trace").headOption.map(_.text)) else (None, None)
+          val tcName: String = getAttribute(tcNode, "name").get
+          val testNameRegex = ".*\\.(\\w+).(\\w+)$".r
+          val tcScreenshots = (tcName match {
+            case testNameRegex(className, methodName) => {
+              val screenshotFileNameRegex = s"$className\\.$methodName-[\\d|-]*".r
+              screenshots.filter(s => s.name match {
+                case screenshotFileNameRegex() => true
+                case _ => false
+              })
+            }
+            case _ => Nil
+          }).map(s => s.url)
+
+          TestCase(tcName, result, getAttribute(tcNode, "time").getOrElse("0").toDouble, message, tcScreenshots, stackTrace)
+        }).toList
+
+        TestCasePackage(if (currentNamespace.isEmpty) name else s"$namespace.$name", children, testCases)
+      }
+
+      getTestCasePackageInner(node)
+    }
+
+    testRunBuildNode.artifacts.find(a => a.name == "testResults") match {
+      case Some(file) => read(this.getArtifact(file.url)) match {
+        case None => List()
+        case Some(xmlString) =>
+          val xml = XML.loadString(xmlString)
+          (xml \ "test-suite").map(getTestCasePackage _).toList
+      }
+      case None => Nil
     }
   }
 
   def getArtifact(file: String): File = new File(directory, file)
-
-  private def getTestCasePackage(node: Node): TestCasePackage = {
-    def getTestCasePackageInner(node: Node, namespace: String = ""): TestCasePackage = {
-      val name = node.attribute("name").get.head.text
-      val currentNamespace = getAttribute(node, "type") match {
-        case Some("Namespace") => if (namespace.isEmpty) name else s"$namespace.$name"
-        case _ => namespace
-      }
-
-      val children = (node \ "results" \ "test-suite")
-        .filter(n => getAttribute(n, "result").get != "Inconclusive")
-        .map(n => getTestCasePackageInner(n, currentNamespace))
-        .toList
-      val testCases = (node \ "results" \ "test-case").map(tcNode => {
-        val executed = getAttribute(tcNode, "executed").get.toBoolean
-        val result = if (!executed) "Ignored" else if (getAttribute(tcNode, "success").get != "True") "Failure" else "Success"
-        val (message, stackTrace) = if (result == "Failure") ((tcNode \\ "message").headOption.map(_.text), (tcNode \\ "stack-trace").headOption.map(_.text)) else (None, None)
-
-        TestCase(getAttribute(tcNode, "name").get, result, getAttribute(tcNode, "time").getOrElse("0").toDouble, message, stackTrace)
-      }).toList
-
-      TestCasePackage(if (currentNamespace.isEmpty) name else s"$namespace.$name", children, testCases)
-    }
-
-    getTestCasePackageInner(node)
-  }
 
   private def getAttribute(n: Node, key: String): Option[String] = n.attribute(key).map(_.headOption.map(_.text)).flatten
 }

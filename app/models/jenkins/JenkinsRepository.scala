@@ -49,7 +49,7 @@ class JenkinsRepository extends BuildsRepository {
 
   def forceBuild(action: models.BuildAction) = jenkinsAdapter.forceBuild(action)
 
-  def getTestCasePackages(file: String) = jenkinsAdapter.getTestCasePackages(file)
+  def getTestCasePackages(testRunBuildNode: BuildNode) = jenkinsAdapter.getTestCasePackages(testRunBuildNode)
 
   def getArtifact(file: String) = jenkinsAdapter.getArtifact(file)
 

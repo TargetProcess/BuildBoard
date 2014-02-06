@@ -21,7 +21,7 @@ module buildBoard {
             this.$scope.testCase = _.chain(parentScope.testCasePackages).map(p => p.testCases).flatten().filter(tc => tc.name == testName).head().value();
 
             this.$scope.closeView = ()=> {
-                $state.go("list.branch.testCasePackage");
+                $state.go("list.branch.run");
             };
         }
     }
