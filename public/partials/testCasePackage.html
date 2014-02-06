@@ -2,10 +2,10 @@
 <div class="view common" style="left: 400px; z-index: 250;">
     <div class="tests-results">
         <div class="info">{{totalCount}} tests <span>{{failedCount}} failed, {{skippedCount}} skipped</span></div>
-        <div class="info"><span><a href="{{statusUrl}}" target="_blank">View in Jenkins</a></span></div>
-        <div class="info" ng-show="logsUrl"><span><a href="jenkins/artifact?file={{logsUrl}}" target="_blank">Logs</a></span></div>
-        <div class="time">Took {{totalTime | duration}}
-        </div>
+
+        <div class="time">Took {{totalTime | duration}}</div>
+        <div class="logs" ng-show="logsUrl"><span><a href="jenkins/artifact?file={{logsUrl}}" target="_blank">Logs</a></span></div>
+        <div class="view-in-jenkins"><span><a href="{{statusUrl}}" target="_blank">View in Jenkins</a></span></div>
         <div class="line">
             <div class="failed" ng-style="{width: failedCount/totalCount*100 + '%'}"></div>
             <div class="skipped" ng-style="{width: skippedCount/totalCount*100 + '%'}"></div>
@@ -46,7 +46,7 @@
             </tbody>
         </table>
     </div>
-    <div class="info-table">
+    <div class="info-table all-tests-list">
         <table class="fixed">
             <colgroup>
                 <col class="w-75">
@@ -88,11 +88,11 @@
                 <tr ng-repeat="data in testCasePackages | orderBy:orderingPredicate:reverse">
                     <td ng-init="isCollapsed = true">
                         <div class="txt-overflow">
-                            <a href="" ng-click="isCollapsed = !isCollapsed">{{data.name}}</a>
+                            <a href="" ng-click="isCollapsed = !isCollapsed" class="{{!data.failedCount || 'txt-warning'}}">{{data.name}}</a>
                         </div>
-                        <ul ng-show="!isCollapsed">
+                        <ul ng-show="!isCollapsed" class="test-cases-list">
                             <li ng-repeat="testCase in data.testCases">
-                                <a href="" ui-sref="list.branch.testCasePackage.testCase({testCase:testCase.name})">{{testCase.name}}</a>
+                                <a href="" ui-sref="list.branch.testCasePackage.testCase({testCase:testCase.name})" class="txt-{{testCase.result | status}}">{{testCase.name}}</a>
                             </li>
                         </ul>
                     </td>

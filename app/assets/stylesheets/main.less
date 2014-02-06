@@ -272,6 +272,10 @@
     }
   }
 
+  &.all-tests-list td {
+    vertical-align: top;
+  }
+
   a.ui-entity {
     line-height: 20px;
   }
@@ -345,6 +349,11 @@
       a { display: inline;}
     }
   }
+
+  .test-cases-list {
+    padding: 10px 0 0 20px;
+  }
+
 }
 
 /*status*/
@@ -668,7 +677,7 @@ body.open-view {
   overflow: hidden;
 }
 
-body[state='list.branch'] {
+body[state='list.branch'], body[state='list.branch.testCasePackage'], body[state='list.branch.testCasePackage.testCase']  {
     overflow: hidden;
     .view {
       -webkit-animation: animate-customize-module-show 100ms;
@@ -737,6 +746,10 @@ body[state='list.branch'] {
       &:hover {
         color: @link-hover-color;
         text-decoration: none;
+      }
+
+      &.txt-warning {
+        color:@warning;
       }
     }
 
@@ -963,6 +976,14 @@ body[state='list.branch'] {
     }
   }
 
+  .logs {
+    float: right;
+    margin: 0 10px;
+  }
+
+  .view-in-jenkins {
+    float: right;
+  }
 }
 
 .test-info {
@@ -973,7 +994,3 @@ body[state='list.branch'] {
     color: @gray-light-txt;
   }
 }
-
-
-
-
