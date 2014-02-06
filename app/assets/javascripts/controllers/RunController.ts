@@ -3,15 +3,14 @@ module buildBoard {
     'use strict';
 
     export interface IArtifactsScope extends ng.IScope {
+        buildNode: BuildNode;
         failedTests: TestCase[];
         testCasePackages: TestCasePackage[];
         totalCount: number;
         failedCount: number;
         skippedCount: number;
         totalTime: number;
-        statusUrl: string;
         logsUrl: string;
-//        screenshots: Artifact[]
         closeView():void;
     }
 
@@ -26,7 +25,7 @@ module buildBoard {
 
         constructor(private $scope:IArtifactsScope, $state:ng.ui.IStateService, backendService:BackendService) {
             backendService.run($state.params['name'], $state.params['build'], $state.params['part'], $state.params['run']).success(buildNode => {
-                this.$scope.statusUrl = buildNode.statusUrl;
+                this.$scope.buildNode = buildNode;
                 var logsArtifacts = buildNode.artifacts.filter(a => a.name == 'logs');
                 if (logsArtifacts.length > 0) {
                     this.$scope.logsUrl = logsArtifacts[0].url;

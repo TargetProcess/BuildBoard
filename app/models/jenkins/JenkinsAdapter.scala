@@ -118,17 +118,18 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
           val result = if (!executed) "Ignored" else if (getAttribute(tcNode, "success").get != "True") "Failure" else "Success"
           val (message, stackTrace) = if (result == "Failure") ((tcNode \\ "message").headOption.map(_.text), (tcNode \\ "stack-trace").headOption.map(_.text)) else (None, None)
           val tcName: String = getAttribute(tcNode, "name").get
-          val testNameRegex = ".*\\.(\\w+).(\\w+)$".r
-          val tcScreenshots = (tcName match {
+
+          val testNameRegex = """.*\.(\w+)\.(\w+)$""".r
+          val tcScreenshots = tcName match {
             case testNameRegex(className, methodName) => {
-              val screenshotFileNameRegex = s"$className\\.$methodName-[\\d|-]*".r
-              screenshots.filter(s => s.name match {
-                case screenshotFileNameRegex() => true
+              val screenshotFileNameRegex = """.*\\(\w+)\.(\w+)[-].*$""".r
+              screenshots.filter(s => s.url match {
+                case screenshotFileNameRegex(scrClassName, scrMethodName) if (className == scrClassName && methodName == scrMethodName) => true
                 case _ => false
-              })
+              }).map(s => Artifact(s"$className.$methodName", s.url))
             }
             case _ => Nil
-          }).map(s => s.url)
+          }
 
           TestCase(tcName, result, getAttribute(tcNode, "time").getOrElse("0").toDouble, message, tcScreenshots, stackTrace)
         }).toList

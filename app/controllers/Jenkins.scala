@@ -72,7 +72,7 @@ object Jenkins extends Controller with Secured {
         .map(b => b.getTestRunBuildNode(part, run))
         .flatMap(b => b)
         .map(testRunBuildNode => testRunBuildNode.copy(testResults = jenkinsRepo.getTestCasePackages(testRunBuildNode)))
-    println(maybeBuildNode)
+
       request => Ok(Json.toJson(maybeBuildNode))
   }
 

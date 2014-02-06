@@ -7,9 +7,9 @@ import play.api.libs.json.Writes._
 import org.joda.time.DateTime
 
 object Writes {
+  implicit val artifactWrite: Writes[Artifact] = Json.writes[Artifact]
   implicit val testCaseWrite: Writes[TestCase] = Json.writes[TestCase]
   implicit val testCasePackageWrite: Writes[TestCasePackage] = Json.writes[TestCasePackage]
-  implicit val artifactWrite: Writes[Artifact] = Json.writes[Artifact]
   implicit val buildNodeWrite: Writes[BuildNode] = Json.writes[BuildNode]
   implicit val buildWrite = Json.writes[Build]
 
