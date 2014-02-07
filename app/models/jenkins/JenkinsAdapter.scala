@@ -4,7 +4,7 @@ import scala.util.Try
 import scalaj.http.Http
 import play.api.Play
 import models._
-import java.io.File
+import java.io.{Serializable, File}
 import scala.io.Source
 import play.api.Play.current
 import scala.xml.{Node, XML}
@@ -16,21 +16,29 @@ import models.TestCasePackage
 import org.joda.time.DateTime
 
 object JenkinsAdapter extends BuildsRepository with JenkinsApi {
+  val screenshotQualifiedFileNameRegex = """.*\\(\w+)\.(\w+)[-].*$""".r
+  val screenshotFileNameRegex = """.*\\(\w+)[-].*$""".r
+
+  val complexNameRegex = "(.+)_(.+)".r
+
+  val testNameRegex = """.*\.(\w+)\.(\w+)$""".r
+
+
   private val SCREENSHOT: String = "screenshot"
   private val directory = Play.configuration.getString("jenkins.data.path").get
 
   override def getBuilds: List[Build] = new File(directory)
     .listFiles
     .filter(_.isDirectory)
-    .map(getBuild _)
+    .map(getBuild)
     .toList
 
   private def getBuild(f: File): Build = {
     val prRegex = "pr_(\\d+)_(\\d+)".r
     val branchRegex = "(\\w+)_(\\d+)".r
     val (number, branch) = f.getName match {
-      case prRegex(prId, number) => (number.toInt, s"pr/$prId")
-      case branchRegex(branch, number) => (number.toInt, branch)
+      case prRegex(prId, n) => (n.toInt, s"pr/$prId")
+      case branchRegex(br, n) => (n.toInt, br)
     }
     val node = getBuildNode(new File(f, "Build"))
 
@@ -39,7 +47,6 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
 
   private def getBuildNode(f: File): BuildNode = {
     def getBuildNodeInner(folder: File, path: String): BuildNode = {
-      val complexNameRegex = "(.+)_(.+)".r
       val contents = folder.listFiles.sortBy(_.getName).toList
       val (startedStatus, statusUrl, timestamp) = contents.filter(file => file.getName.endsWith("started")) match {
         case file :: Nil =>
@@ -47,18 +54,17 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
             .map(fc => {
             val rows = fc.split('\n')
             val statusUrl = rows(0)
-            val ts = if (rows.length > 1) Some(new java.text.SimpleDateFormat("MM/dd/yyyy hh:mm:ss").parse(rows(1)).getTime) else None
+            val ts = if (rows.length > 1) Some(new java.text.SimpleDateFormat("MM/dd/yyyy HH:mm:ss").parse(rows(1)).getTime) else None
             (Some(statusUrl), ts)
           })
             .getOrElse((None, Some(file.lastModified)))
           (None, statusUrl, ts.getOrElse(file.lastModified))
         case Nil => (Some("FAILURE"), None, folder.lastModified)
       }
-      val status = if (startedStatus.isDefined) startedStatus
-      else contents.filter(f => f.getName.endsWith("finished")) match {
-        case file :: Nil => read(file)
-        case Nil => startedStatus
-      }
+      val status: Option[String] = startedStatus.orElse(contents.find(_.getName.endsWith("finished")).flatMap(read))
+
+
+
       val children = contents
         .filter(f => f.isDirectory && !f.getName.startsWith("."))
         .map(f => getBuildNodeInner(f, folder.getPath)).toList
@@ -79,23 +85,23 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
 
   private def getArtifacts(contents: List[File]): List[Artifact] = {
     def getArtifactsInner(file: File, filter: File => Boolean, artifactName: String): List[Artifact] = file.listFiles
-      .filter(filter(_))
+      .filter(filter)
       .map(_.getPath.substring(directory.length + 1))
       .map(Artifact(artifactName, _))
       .toList
 
     contents.map(file => file.getName match {
-      case name if name == ".TestResults" => getArtifactsInner(file, f => f.getName.endsWith(".xml"), "testResults")
-      case name if name == ".Logs" => getArtifactsInner(file, f => f.getName.startsWith("SessionLogs"), "logs")
-      case name if name == ".Screenshots" => getArtifactsInner(file, _ => true, SCREENSHOT)
+      case ".TestResults" => getArtifactsInner(file, f => f.getName.endsWith(".xml"), "testResults")
+      case ".Logs" => getArtifactsInner(file, f => f.getName.startsWith("SessionLogs"), "logs")
+      case ".Screenshots" => getArtifactsInner(file, _ => true, SCREENSHOT)
       case _ => List()
     })
       .flatten
   }
 
   private def read(f: File): Option[String] = Try {
-    Some(Source.fromFile(f).mkString)
-  }.getOrElse(None)
+    Source.fromFile(f).mkString
+  }.toOption
 
   def getTestCasePackages(testRunBuildNode: BuildNode): List[TestCasePackage] = {
     val screenshots = testRunBuildNode.artifacts.filter(a => a.name == SCREENSHOT)
@@ -104,34 +110,34 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
       def getTestCasePackageInner(node: Node, namespace: String = ""): TestCasePackage = {
         val name = node.attribute("name").get.head.text
         val currentNamespace = getAttribute(node, "type") match {
-          case Some("Namespace") => {
-            if (namespace.isEmpty) name else s"$namespace.$name"
-          }
+          case Some("Namespace") => if (namespace.isEmpty) name else s"$namespace.$name"
           case _ => namespace
         }
+
         val children = (node \ "results" \ "test-suite")
           .filter(n => getAttribute(n, "result").get != "Inconclusive")
           .map(n => getTestCasePackageInner(n, currentNamespace))
           .toList
+
         val testCases = (node \ "results" \ "test-case").map(tcNode => {
           val executed = getAttribute(tcNode, "executed").get.toBoolean
           val result = if (!executed) "Ignored" else if (getAttribute(tcNode, "success").get != "True") "Failure" else "Success"
-          val (message, stackTrace) = if (result == "Failure") ((tcNode \\ "message").headOption.map(_.text), (tcNode \\ "stack-trace").headOption.map(_.text)) else (None, None)
+          val (message, stackTrace) = if (result == "Failure")
+            ((tcNode \\ "message").headOption.map(_.text), (tcNode \\ "stack-trace").headOption.map(_.text))
+          else (None, None)
           val tcName: String = getAttribute(tcNode, "name").get
 
-          val testNameRegex = """.*\.(\w+)\.(\w+)$""".r
           val tcScreenshots = tcName match {
-            case testNameRegex(className, methodName) => {
-              val screenshotFileNameRegex = """.*\\(\w+)\.(\w+)[-].*$""".r
+            case testNameRegex(className, methodName) =>
               screenshots.filter(s => s.url match {
-                case screenshotFileNameRegex(scrClassName, scrMethodName) if (className == scrClassName && methodName == scrMethodName) => true
+                case screenshotQualifiedFileNameRegex(scrClassName, scrMethodName) => className == scrClassName && methodName == scrMethodName
+                case screenshotFileNameRegex(scrMethodName) => methodName == scrMethodName
                 case _ => false
               }).map(s => Artifact(s"$className.$methodName", s.url))
-            }
             case _ => Nil
           }
 
-          TestCase(tcName, result, getAttribute(tcNode, "time").getOrElse("0").toDouble, message, tcScreenshots, stackTrace)
+          TestCase(tcName, result, getAttribute(tcNode, "time").map(_.toDouble).getOrElse(0.0), message, tcScreenshots, stackTrace)
         }).toList
 
         TestCasePackage(if (currentNamespace.isEmpty) name else s"$namespace.$name", children, testCases)
@@ -140,15 +146,11 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
       getTestCasePackageInner(node)
     }
 
-    testRunBuildNode.artifacts.find(a => a.name == "testResults") match {
-      case Some(file) => read(this.getArtifact(file.url)) match {
-        case None => List()
-        case Some(xmlString) =>
-          val xml = XML.loadString(xmlString)
-          (xml \ "test-suite").map(getTestCasePackage _).toList
-      }
-      case None => Nil
-    }
+    testRunBuildNode.artifacts
+      .find(a => a.name == "testResults")
+      .flatMap(file => read(this.getArtifact(file.url)))
+      .map(xmlString => (XML.loadString(xmlString) \ "test-suite").map(getTestCasePackage).toList)
+      .getOrElse(Nil)
   }
 
   def getArtifact(file: String): File = new File(directory, file)

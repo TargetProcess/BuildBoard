@@ -87,7 +87,7 @@ object CacheService {
           sub3.unsubscribe()
         }
 
-      case None => Subscription {}
+      case None => play.Logger.error(s"Could not find user $user for cache service"); Subscription {}
     }
   }
 
