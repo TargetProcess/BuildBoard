@@ -48,19 +48,31 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
   private def getBuildNode(f: File): BuildNode = {
     def getBuildNodeInner(folder: File, path: String): BuildNode = {
       val contents = folder.listFiles.sortBy(_.getName).toList
-      val (startedStatus, statusUrl, timestamp) = contents.filter(file => file.getName.endsWith("started")) match {
-        case file :: Nil =>
-          val (statusUrl, ts) = read(file)
-            .map(fc => {
-            val rows = fc.split('\n')
-            val statusUrl = rows(0)
-            val ts = if (rows.length > 1) Some(new java.text.SimpleDateFormat("MM/dd/yyyy HH:mm:ss").parse(rows(1)).getTime) else None
-            (Some(statusUrl), ts)
-          })
-            .getOrElse((None, Some(file.lastModified)))
-          (None, statusUrl, ts.getOrElse(file.lastModified))
-        case Nil => (Some("FAILURE"), None, folder.lastModified)
-      }
+
+
+      val (startedStatus, statusUrl, timestamp) =
+
+        contents.find(_.getName.endsWith("started"))
+          .map {
+          file =>
+
+            val (statusUrl, ts) = read(file).map(fc => {
+              val rows = fc.split('\n')
+              val statusUrl = rows(0)
+              val ts = if (rows.length > 1)
+                Some(new java.text.SimpleDateFormat("MM/dd/yyyy HH:mm:ss").parse(rows(1)).getTime)
+              else
+                None
+
+              (Some(statusUrl), ts)
+            })
+              .getOrElse((None, None))
+
+            (None, statusUrl, ts.getOrElse(file.lastModified))
+        }
+          .getOrElse((Some("FAILURE"), None, folder.lastModified))
+
+
       val status: Option[String] = startedStatus.orElse(contents.find(_.getName.endsWith("finished")).flatMap(read))
 
 
