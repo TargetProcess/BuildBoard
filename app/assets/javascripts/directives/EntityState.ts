@@ -14,7 +14,7 @@ module buildBoard {
             '<div class="dropdown">',
             '<a href="" class="status {{type}} {{getStatusStatus(entity.state)}} dropdown-toggle" data-toggle="dropdown">{{entity.state.name}}</a>',
             '<ul class="dropdown-menu">',
-            '<li ng-repeat="entityState in entity.state.nextStates"><a class="status {{getStatusStatus(entityState)}}">{{entityState.name}}</a></li>',
+            '<li ng-repeat="entityState in entity.state.nextStates"><a ng-click="changeEntityState(entityState.id)" class="status {{getStatusStatus(entityState)}}">{{entityState.name}}</a></li>',
             '</ul>',
             '</div>'
         ].join("");
@@ -24,7 +24,8 @@ module buildBoard {
     }
 
     export interface IEntityStateDirectiveScope extends ng.IScope {
-        changeEntityState(entity:Entity, nextState:number)
+        entity: Entity
+        changeEntityState(nextState:number)
         getStatusStatus(state:EntityState):string
     }
 
@@ -32,9 +33,9 @@ module buildBoard {
         public static $inject = ['$scope', BackendService.NAME];
 
         constructor($scope:IEntityStateDirectiveScope, backendService:BackendService) {
-            $scope.changeEntityState = (entity:Entity, nextState:number)=> {
-                backendService.changeEntityState(entity.id, nextState).success(state=> {
-                    entity.state = state;
+            $scope.changeEntityState = (nextState:number)=> {
+                backendService.changeEntityState($scope.entity.id, nextState).success(state=> {
+                    $scope.entity.state = state
                 });
             };
 
