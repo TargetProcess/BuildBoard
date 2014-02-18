@@ -83,8 +83,6 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
 
       val artifacts = getArtifacts(contents)
 
-      //todo: associate screenshots with tests
-
       folder.getName match {
         case complexNameRegex(runName, name) => BuildNode(name, runName, status, statusUrl.getOrElse(""), artifacts, new DateTime(timestamp), children)
         case name => BuildNode(name, name, status, statusUrl.getOrElse(""), artifacts, new DateTime(timestamp), children)
