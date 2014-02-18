@@ -36,9 +36,11 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
   private def getBuild(f: File): Build = {
     val prRegex = "pr_(\\d+)_(\\d+)".r
     val branchRegex = "(\\w+)_(\\d+)".r
+    val releaseRegex =  "release_([\\d|\\.]+)_(\\d+)".r
     val (number, branch) = f.getName match {
       case prRegex(prId, n) => (n.toInt, s"pr/$prId")
       case branchRegex(br, n) => (n.toInt, br)
+      case releaseRegex(release, n) => (n.toInt, s"release/$release")
     }
     val node = getBuildNode(new File(f, "Build"))
 
@@ -49,10 +51,7 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
     def getBuildNodeInner(folder: File, path: String): BuildNode = {
       val contents = folder.listFiles.sortBy(_.getName).toList
 
-
-      val (startedStatus, statusUrl, timestamp) =
-
-        contents.find(_.getName.endsWith("started"))
+      val (startedStatus, statusUrl, timestamp) = contents.find(_.getName.endsWith("started"))
           .map {
           file =>
 
@@ -74,8 +73,6 @@ object JenkinsAdapter extends BuildsRepository with JenkinsApi {
 
 
       val status: Option[String] = startedStatus.orElse(contents.find(_.getName.endsWith("finished")).flatMap(read))
-
-
 
       val children = contents
         .filter(f => f.isDirectory && !f.getName.startsWith("."))
