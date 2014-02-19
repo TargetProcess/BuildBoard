@@ -52,7 +52,7 @@
         <div class="item" ng-show="branch.pullRequest">
            <h4>Pr</h4>
            <a
-               class="btn pr {{ branch.pullRequest | pullRequestStatus | status }}"
+               class="btn pr status {{ branch.pullRequest | pullRequestStatus | status }}"
                href="{{branch.pullRequest.url}}">#{{branch.pullRequest.prId}}</a>
         </div>
 
