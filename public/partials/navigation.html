@@ -1,15 +1,21 @@
 <div class="navigation">
     <ul class="branches-filter">
         <li ui-sref-active="active">
-            <a ui-sref="list({user:'all', branch:branchesFilter})">
+            <a ui-sref="list({user:'all', branch:'all'})">
                 <b>All branches</b>
-                <span class="counter">{{countByUser("all")}}</span>
+                <span class="counter">{{countBy("all")}}</span>
             </a>
         </li>
         <li ui-sref-active="active">
-            <a ui-sref="list({user:'my', branch:branchesFilter})">
+            <a ui-sref="list({user:'all', branch:'special'})">
+                <b>Special branches</b>
+                <span class="counter">{{countBy('all', 'special')}}</span>
+            </a>
+        </li>
+        <li ui-sref-active="active">
+            <a ui-sref="list({user:'my', branch:'all'})">
                 <b>My branches</b>
-                <span class="counter">{{countByUser("my")}}</span>
+                <span class="counter">{{countBy("my")}}</span>
             </a>
         </li>
     </ul>
@@ -20,7 +26,7 @@
                             <img title="{{user.role}}" ng-src="{{user.avatar}}16">
                             <span>{{user.firstName}} {{user.lastName}}</span>
                         </span>
-                <span class="counter">{{countByUser(user.userId)}}</span>
+                <span class="counter">{{countBy(user.userId)}}</span>
             </a>
         </li>
     </ul>

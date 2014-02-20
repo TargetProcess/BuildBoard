@@ -4,7 +4,7 @@ import scala.util.Try
 import scalaj.http.Http
 import play.api.Play
 import models._
-import java.io.{Serializable, File}
+import java.io.File
 import scala.io.Source
 import play.api.Play.current
 import scala.xml.{Node, XML}

@@ -1,15 +1,15 @@
 <div class="main">
-    <div class="user-filter">
+    <div class="user-filter" ng-hide="branchesFilter == 'special'">
         <div class="btn-group">
             <a class="btn" ui-sref-active="active" ui-sref="list({user:userFilter, branch:'all'})">
                 All branches
-                <span class="counter">{{countByBranch("all")}}</span>
+                <span class="counter">{{countBy(null,"all")}}</span>
             </a>
             <a class="btn" ui-sref-active="active" ui-sref="list({user:userFilter, branch:'entity'})">
-                Entity branches<span class="counter">{{countByBranch("entity")}}</span>
+                Entity branches<span class="counter">{{countBy(null,"entity")}}</span>
             </a>
             <a class="btn" ui-sref-active="active" ui-sref="list({user:userFilter, branch:'closed'})">
-                Closed branches<span class="counter">{{countByBranch("closed")}}</span>
+                Closed branches<span class="counter">{{countBy(null,"closed")}}</span>
             </a>
         </div>
     </div>

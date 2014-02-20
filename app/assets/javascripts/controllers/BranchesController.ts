@@ -12,8 +12,9 @@ module buildBoard {
         users:User[];
 
         getBuildClass(branch:Branch);
-        countByUser(userFilter:string):number;
-        countByBranch(branchFilter:string):number;
+
+
+        countBy(userFilter:string, branchFilter:string):number;
 
         loading:boolean;
 
@@ -63,16 +64,16 @@ module buildBoard {
 
                 this.$scope.branches = this.filter(branches, this.$scope.userFilter, this.$scope.branchesFilter);
 
-                this.$scope.countByUser = (userFilter:string)=>this.filter(branches, userFilter, "all").length;
-                this.$scope.countByBranch = (branchFilter:string)=>this.filter(branches, this.$scope.userFilter, branchFilter).length;
+                this.$scope.countBy = (userFilter:string, branchesFilter:string)=>this.filter(branches, userFilter||this.$scope.userFilter, branchesFilter||"all").length;
 
-            }).then(x=> {
+            })
+                .then(x=> {
                     this.$scope.loading = false;
                 });
 
 
-            this.$scope.loginToGithub  = url=>{
-                var otherWindow = $window.open(url,"","menubar=no,location=yes,resizable=yes,scrollbars=yes,status=no");
+            this.$scope.loginToGithub = url=> {
+                var otherWindow = $window.open(url, "", "menubar=no,location=yes,resizable=yes,scrollbars=yes,status=no");
                 otherWindow.onunload = () => {
                     this.$scope.hideGithubLogin = true;
                     this.$scope.$apply();
@@ -92,12 +93,25 @@ module buildBoard {
             }
 
             var branchPredicate;
-            if (branchFilter == "entity") {
-                branchPredicate = branch=>branch.entity;
-            } else if (branchFilter == "closed") {
-                branchPredicate = (branch:Branch)=>branch.entity && branch.entity.state.isFinal;
-            } else {
-                branchPredicate = branch=>true;
+            switch (branchFilter) {
+                case "entity":
+                    branchPredicate = branch=>branch.entity;
+                    break;
+
+                case "closed":
+                    branchPredicate = (branch:Branch)=>branch.entity && branch.entity.state.isFinal;
+                    break;
+
+                case "special":
+                    branchPredicate = (branch:Branch)=>branch.name.indexOf("release") == 0 ||
+                        branch.name.indexOf("hotfix") == 0 ||
+                        branch.name.indexOf("vs") == 0 ||
+                        branch.name=="develop" ||
+                        branch.name=="master";
+                    break;
+                default:
+                    branchPredicate = branch=>true;
+                    break;
             }
 
             return _.filter(list, branch=>userPredicate(branch) && branchPredicate(branch));
