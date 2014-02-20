@@ -12,6 +12,8 @@ import play.api.Play.current
 
 case class Artifact(name: String, url: String)
 
+case class BuildInfo(number: Int, status: Option[String], timeStamp: DateTime, isPullRequest: Boolean = false, toggled: Boolean = false)
+
 case class Build(number: Int, branch: String, status: Option[String], url: String, timeStamp: DateTime, node: BuildNode, toggled: Boolean = false) {
   def getTestRunBuildNode(part: String, run: String): Option[BuildNode] = {
     def getTestRunBuildNodeInner(node: BuildNode): Option[BuildNode] = node match {

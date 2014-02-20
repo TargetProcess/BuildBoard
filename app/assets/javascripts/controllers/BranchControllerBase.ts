@@ -4,7 +4,7 @@ module buildBoard {
 
     export interface IBranchScope extends ng.IScope {
         branchName:string;
-        builds: Build[];
+        builds: BuildInfo[];
         branch: Branch;
         changeEntityState(entity:Entity, nextState:number);
         closeView():void;

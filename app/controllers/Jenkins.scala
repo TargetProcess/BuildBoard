@@ -5,12 +5,12 @@ import models._
 import play.api.libs.json._
 import com.github.nscala_time.time.Imports._
 import Writes._
-import models.jenkins.{JenkinsRepository, CachedJenkinsRepository}
+import models.jenkins.JenkinsRepository
 import scala.util.{Failure, Success}
 import scalaj.http.HttpException
 
 object Jenkins extends Controller with Secured {
-  val jenkinsRepo = new CachedJenkinsRepository
+  val jenkinsRepo = new JenkinsRepository
 
   def forceBuild(pullRequestId: Option[Int], branchId: Option[String], fullCycle: Boolean) = IsAuthorized {
     implicit user =>

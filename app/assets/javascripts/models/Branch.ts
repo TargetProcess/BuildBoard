@@ -5,10 +5,10 @@
 
 module buildBoard {
     export interface Branch {
-        name:string
-        entity:Entity
-        pullRequest:PullRequest
-        lastBuild:Build
+        name:string;
+        entity:Entity;
+        pullRequest:PullRequest;
+        lastBuild:BuildInfo;
         url:string;
     }
 
@@ -50,6 +50,15 @@ module buildBoard {
         branch:string;
         toggled:boolean;
         node:BuildNode;
+    }
+
+    export class BuildInfo {
+        number:number;
+        timeStamp:number;
+        status:string;
+        isPullRequest: boolean;
+        toggled:boolean;
+        build: Build;
     }
 
     export class Artifact {

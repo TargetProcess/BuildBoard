@@ -16,18 +16,16 @@
                 <div class="description">
                     <div class="panel-group">
                         <div class="panel {{ StatusHelper.parse(build) | status2Class }}">
-                            <div class="panel-heading" ng-init="isCollapsed = !$first; build.cachedNode = $index ? null : build.node">
+                            <div class="panel-heading" ng-init="isCollapsed = !$first">
                                 <build-status build="build" branch="branch" type="btn"></build-status>
                                 <h4 class="panel-title toggle-state">
-                                    <a ng-click="build.cachedNode = build.node; isCollapsed = !isCollapsed">
-                                        Build #{{build.number}}
-                                    </a>
+                                    <a ng-click="loadBuild(build); isCollapsed = !isCollapsed">{{build.isPullRequest ? "PR " : "" }}Build #{{build.number}}</a>
                                 </h4>
                             </div>
                             <div class="tree panel-collapse" ng-show="!isCollapsed">
                                 <div class="panel-body">
                                     <ul>
-                                        <li ng-repeat="data in [build.cachedNode]" ng-include="'/assets/partials/buildNode.html'"></li>
+                                        <li ng-repeat="data in [build.build.node]" ng-include="'/assets/partials/buildNode.html'"></li>
                                     </ul>
                                 </div>
                             </div>

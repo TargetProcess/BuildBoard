@@ -12,6 +12,7 @@ object Writes {
   implicit val testCasePackageWrite: Writes[TestCasePackage] = Json.writes[TestCasePackage]
   implicit val buildNodeWrite: Writes[BuildNode] = Json.writes[BuildNode]
   implicit val buildWrite = Json.writes[Build]
+  implicit val buildInfoWrite = Json.writes[BuildInfo]
 
   implicit val buildActionWrite = (
     (__ \ "name").write[String] ~

@@ -28,14 +28,10 @@ module buildBoard {
                 _.chain(buildsResult)
                     .keys()
                     .each(key=> {
-                        var match = key.match(/origin\/(?:pr\/(\d*)\/merge|(.+))/i);
-                        if (match != null) {
-                            var branch = _.find(branchesResult, x=> (match[2] && x.name.toLowerCase() == match[2].toLowerCase()) || (x.pullRequest &&
-                                x.pullRequest.prId == match[1]));
-                            if (branch) {
-                                if (!branch.lastBuild || branch.lastBuild.timeStamp < buildsResult[key].timeStamp) {
-                                    branch.lastBuild = buildsResult[key];
-                                }
+                        var branch = _.find(branchesResult, x => x.name.toLowerCase() == key.toLowerCase());
+                        if (branch) {
+                            if (!branch.lastBuild || branch.lastBuild.timeStamp < buildsResult[key].timeStamp) {
+                                branch.lastBuild = buildsResult[key];
                             }
                         }
                     });

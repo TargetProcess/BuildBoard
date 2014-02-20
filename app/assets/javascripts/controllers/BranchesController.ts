@@ -38,17 +38,17 @@ module buildBoard {
 
             branchesService.allBranches
                 .then((branches:Branch[])=> {
-                    var usersAndBranches = _.chain(branches)
-                        .filter(branch=>!!branch.entity)
-                        .map((branch:Branch) =>
-                            _.map(branch.entity.assignments, user=> {
-                                return {user: user, branch: branch};
-                            })
-                    )
-                        .flatten()
-                        .value();
+                var usersAndBranches = _.chain(branches)
+                    .filter(branch=>!!branch.entity)
+                    .map((branch:Branch) =>
+                        _.map(branch.entity.assignments, user=> {
+                            return {user: user, branch: branch};
+                        })
+                )
+                    .flatten()
+                    .value();
 
-                    var counts = _.countBy(usersAndBranches, userAndBranch=>userAndBranch.user.userId);
+                var counts = _.countBy(usersAndBranches, userAndBranch=>userAndBranch.user.userId);
 
                     var users = _.chain(usersAndBranches)
                         .unique(false, pair=>pair.user.userId)
@@ -56,14 +56,14 @@ module buildBoard {
                         .value();
 
                     _.forEach(users, user=>{
-                       user.count = counts[user.userId];
+                        user.count = counts[user.userId];
                     });
 
                     this.$scope.users = users;
 
                     this.$scope.allBranches = branches;
 
-                    this.$scope.branches = this.filter(branches, this.$scope.userFilter, this.$scope.branchesFilter);
+                this.$scope.branches = this.filter(branches, this.$scope.userFilter, this.$scope.branchesFilter);
 
                     this.$scope.countBy = (userFilter:string, branchesFilter:string)=>this.filter(branches, userFilter || this.$scope.userFilter, branchesFilter || "all").length;
 
@@ -73,8 +73,8 @@ module buildBoard {
                 });
 
 
-            this.$scope.loginToGithub = url=> {
-                var otherWindow = $window.open(url, "", "menubar=no,location=yes,resizable=yes,scrollbars=yes,status=no");
+            this.$scope.loginToGithub  = url=>{
+                var otherWindow = $window.open(url,"","menubar=no,location=yes,resizable=yes,scrollbars=yes,status=no");
                 otherWindow.onunload = () => {
                     this.$scope.hideGithubLogin = true;
                     this.$scope.$apply();
@@ -96,11 +96,11 @@ module buildBoard {
             var branchPredicate;
             switch (branchFilter) {
                 case "entity":
-                    branchPredicate = branch=>branch.entity;
+                branchPredicate = branch=>branch.entity;
                     break;
 
                 case "closed":
-                    branchPredicate = (branch:Branch)=>branch.entity && branch.entity.state.isFinal;
+                branchPredicate = (branch:Branch)=>branch.entity && branch.entity.state.isFinal;
                     break;
 
                 case "special":
@@ -111,7 +111,7 @@ module buildBoard {
                         branch.name == "master";
                     break;
                 default:
-                    branchPredicate = branch=>true;
+                branchPredicate = branch=>true;
                     break;
             }
 
