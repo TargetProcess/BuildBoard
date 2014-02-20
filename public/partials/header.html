@@ -1,5 +1,10 @@
 <div class="header" ng-controller="headerController">
-    <div class="logo"><a href="#">Taucraft Developers</a></div>
+    <a class="logo" href="#"></a>
+    <div ui-sref="list.branch({name:'develop'})" class="global-status pointer {{ getLastStatus('develop') | status2Class }}">
+        <span class="status {{ getLastStatus('develop') | status2Class }}">
+           Develop is {{ getLastStatus('develop') | status2text }}
+        </span>
+    </div>
     <ul class="links">
         <li>{{user.fullName}}</li>
         <li class="sign-out"><a href="{{logout}}">Sign out</a></li>

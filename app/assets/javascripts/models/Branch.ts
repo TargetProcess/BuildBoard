@@ -34,7 +34,7 @@ module buildBoard {
         userId:number
     }
 
-    export interface Assignment extends User{
+    export interface Assignment extends User {
         isResponsible:boolean
     }
 
@@ -43,29 +43,29 @@ module buildBoard {
         isMergeable:boolean;
     }
 
-    export class Build {
+    export interface Build {
         number:number;
         timeStamp:number;
         status:string;
         branch:string;
         toggled:boolean;
-        node: BuildNode;
+        node:BuildNode;
     }
 
     export class Artifact {
-        name: string;
-        url: string;
+        name:string;
+        url:string;
     }
 
-    export class BuildNode {
-        name: string;
-        runName: string;
-        status: string;
-        statusUrl: string;
-        artifacts: Artifact[];
-        timestamp: number;
-        children: BuildNode[];
-        testResults: TestCasePackage[];
+    export interface BuildNode {
+        name:string;
+        runName:string;
+        status:string;
+        statusUrl:string;
+        artifacts:Artifact[];
+        timestamp:number;
+        children:BuildNode[];
+        testResults:TestCasePackage[];
     }
 
     export class BuildAction {
@@ -79,7 +79,7 @@ module buildBoard {
         buildNumber:number;
     }
 
-    export class TestCase {
+    export interface TestCase {
         name:string;
         result:string;
         duration:number;
@@ -92,10 +92,55 @@ module buildBoard {
         name:string;
         packages:TestCasePackage[];
         testCases:TestCase[];
-        totalCount: number;
-        passedCount: number;
-        skippedCount: number;
-        failedCount: number;
-        duration: number;
+        totalCount:number;
+        passedCount:number;
+        skippedCount:number;
+        failedCount:number;
+        duration:number;
+    }
+
+    export enum Status {
+        Failed,
+        Toggled,
+        Success,
+        InProgress,
+        Unknown,
+        Aborted
+    }
+
+    export class StatusHelper {
+        static parse(build:Build):Status {
+            return build ? StatusHelper.parseInfo(build.status, build.toggled):Status.Unknown;
+        }
+
+        static parseBuildNode(node:BuildNode):Status {
+            return node ? StatusHelper.parseInfo(node.status) : Status.Unknown;
+
+        }
+
+        static parseInfo(status:string, toggled?:boolean):Status {
+            if (toggled)
+                return Status.Toggled;
+
+            if (!status)
+                return Status.InProgress;
+
+
+            switch (status.toString().toLowerCase()) {
+                case 'in progress':
+                    return Status.InProgress;
+                case 'fail':
+                case 'failed':
+                case 'failure':
+                    return Status.Failed;
+                case 'success':
+                case 'ok':
+                    return Status.Success;
+                case 'aborted':
+                    return Status.Aborted;
+                default:
+                    return Status.Unknown;
+            }
+        }
     }
 }

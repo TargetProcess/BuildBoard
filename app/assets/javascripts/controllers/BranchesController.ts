@@ -2,16 +2,11 @@
 module buildBoard {
     'use strict';
 
-    export interface IBranchesState {
-        userFilter:string;
-        branchesFilter:string;
-    }
-
     export interface IBranchesScope extends ng.IScope {
         branches:Branch[];
         users:User[];
 
-        getBuildClass(branch:Branch);
+        allBranches:Branch[];
 
 
         countBy(userFilter:string, branchFilter:string):number;
@@ -41,32 +36,38 @@ module buildBoard {
             this.$scope.userFilter = $state.params['user'] || 'all';
             this.$scope.branchesFilter = $state.params['branch'] || 'all';
 
-            branchesService.allBranches.then((branches:Branch[])=> {
-                var usersAndBranches = _.chain(branches)
-                    .filter(branch=>!!branch.entity)
-                    .map((branch:Branch) =>
-                        _.map(branch.entity.assignments, user=> {
-                            return {user: user, branch: branch};
-                        })
-                )
-                    .flatten()
-                    .value();
+            branchesService.allBranches
+                .then((branches:Branch[])=> {
+                    var usersAndBranches = _.chain(branches)
+                        .filter(branch=>!!branch.entity)
+                        .map((branch:Branch) =>
+                            _.map(branch.entity.assignments, user=> {
+                                return {user: user, branch: branch};
+                            })
+                    )
+                        .flatten()
+                        .value();
 
-                var counts = _.countBy(usersAndBranches, userAndBranch=>userAndBranch.user.userId);
+                    var counts = _.countBy(usersAndBranches, userAndBranch=>userAndBranch.user.userId);
 
-                this.$scope.users = _.chain(usersAndBranches).unique(false, pair=>pair.user.userId)
-                    .map(x=> {
-                        var user = x.user;
-                        user.count = counts[user.userId];
-                        return user;
+                    var users = _.chain(usersAndBranches)
+                        .unique(false, pair=>pair.user.userId)
+                        .pluck('user')
+                        .value();
 
-                    }).value();
+                    _.forEach(users, user=>{
+                       user.count = counts[user.userId];
+                    });
 
-                this.$scope.branches = this.filter(branches, this.$scope.userFilter, this.$scope.branchesFilter);
+                    this.$scope.users = users;
 
-                this.$scope.countBy = (userFilter:string, branchesFilter:string)=>this.filter(branches, userFilter||this.$scope.userFilter, branchesFilter||"all").length;
+                    this.$scope.allBranches = branches;
 
-            })
+                    this.$scope.branches = this.filter(branches, this.$scope.userFilter, this.$scope.branchesFilter);
+
+                    this.$scope.countBy = (userFilter:string, branchesFilter:string)=>this.filter(branches, userFilter || this.$scope.userFilter, branchesFilter || "all").length;
+
+                })
                 .then(x=> {
                     this.$scope.loading = false;
                 });
@@ -106,8 +107,8 @@ module buildBoard {
                     branchPredicate = (branch:Branch)=>branch.name.indexOf("release") == 0 ||
                         branch.name.indexOf("hotfix") == 0 ||
                         branch.name.indexOf("vs") == 0 ||
-                        branch.name=="develop" ||
-                        branch.name=="master";
+                        branch.name == "develop" ||
+                        branch.name == "master";
                     break;
                 default:
                     branchPredicate = branch=>true;

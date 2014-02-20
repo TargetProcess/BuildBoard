@@ -15,7 +15,7 @@
                 </div>
                 <div class="description">
                     <div class="panel-group">
-                        <div class="panel {{build.toggled? 'Toggled' : build.status | status}}">
+                        <div class="panel {{ StatusHelper.parse(build) | status2Class }}">
                             <div class="panel-heading" ng-init="isCollapsed = !$first; build.cachedNode = $index ? null : build.node">
                                 <build-status build="build" branch="branch" type="btn"></build-status>
                                 <h4 class="panel-title toggle-state">
@@ -52,7 +52,7 @@
         <div class="item" ng-show="branch.pullRequest">
            <h4>Pr</h4>
            <a
-               class="btn pr status {{ branch.pullRequest | pullRequestStatus | status }}"
+               class="btn pr status {{ branch.pullRequest | pullRequestStatus | status2Class }}"
                href="{{branch.pullRequest.url}}">#{{branch.pullRequest.prId}}</a>
         </div>
 

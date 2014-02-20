@@ -1,17 +1,6 @@
 /// <reference path='../_all.ts' />
 module buildBoard {
 
-    var statusMap:{ [s: string]: string;
-    } = {
-        "aborted" : "warning",
-        "failure": "warning",
-        "unstable": "warning",
-        "finished": "success",
-        "success": "success",
-        "toggled": "success",
-        "ok": "success"
-    };
-
     export function activeFilter() {
         return (isActive:boolean)=>isActive ? 'active' : '';
     }
@@ -20,23 +9,63 @@ module buildBoard {
         return encodeURIComponent;
     }
 
-    export function status() {
-        return (status:string)=>status ? (statusMap[status.toLowerCase()] || status.toLowerCase()) : 'default';
+    export function status2Class() {
+        return (status:Status)=>{
+            switch (status){
+                case Status.Toggled:
+                case Status.Success:
+                    return "success";
+                case Status.Failed:
+                case Status.Aborted:
+                    return "warning";
+                case Status.InProgress:
+                    return "in_progress";
+                case Status.Unknown:
+                default:
+                    return "default";
+            }
+        }
     }
+
+    export function parseBuildNodeStatus(){
+        return (node:BuildNode)=>status2Class()(StatusHelper.parseBuildNode(node));
+    }
+
+    export function status2text() {
+        return (status:Status)=>{
+            switch (status){
+                case Status.Toggled:
+                    return "Toggled";
+                case Status.Success:
+                    return "Success";
+                case Status.Failed:
+                    return "Failed";
+                case Status.Aborted:
+                    return "Aborted";
+                case Status.InProgress:
+                    return "In progress";
+                case Status.Unknown:
+                default:
+                    return "Unknown";
+            }
+        }
+    }
+
+
 
     export function pullRequestStatus(){
         return (pullRequest:PullRequest)=>{
                 if (pullRequest && pullRequest.status) {
                     if (pullRequest.status.isMerged) {
-                        return 'success';
+                        return Status.Success;
                     } else if (pullRequest.status.isMergeable) {
-                        return 'success';
+                        return Status.Success;
                     } else {
-                        return 'warning';
+                        return Status.Failed;
                     }
                 }
                 else {
-                    return '';
+                    return Status.Unknown;
                 }
         }
     }
@@ -45,7 +74,7 @@ module buildBoard {
         return (seconds: number) => {
             var result = '';
 
-            var hours = (seconds / 3600) / 1;
+            var hours = (seconds / 3600);
             if (hours > 1){
                 result = Math.round(hours) + 'h ';
             }
@@ -55,7 +84,7 @@ module buildBoard {
                 result = result + Math.round(minutes) + "m ";
             }
 
-            var seconds = (seconds % 60) / 1;
+            var seconds = (seconds % 60);
             result = result + Math.round(seconds) + 's';
 
             return result;
