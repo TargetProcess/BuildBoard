@@ -52,6 +52,15 @@ module buildBoard {
             this.$scope.toggleBuild = (branch:Branch, build:Build)=> {
                 backendService.toggleBuild(branch.name, build.number).success(b=> {
                     build.toggled = !build.toggled;
+                    if (build.number == branch.lastBuild.number){
+                        branch.lastBuild.toggled = build.toggled;
+
+                        //todo: ugly, should be reworked
+                        var parentBranch = _($scope.$parent.$parent.$parent.allBranches).find((b:Branch)=>b.name==branch.name);
+                        if (parentBranch.lastBuild){
+                            parentBranch.lastBuild.toggled = build.toggled;
+                        }
+                    }
                 });
             }
         }
