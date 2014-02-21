@@ -56,7 +56,8 @@ module buildBoard {
                         branch.lastBuild.toggled = build.toggled;
 
                         //todo: ugly, should be reworked
-                        var parentBranch = _($scope.$parent.$parent.$parent.allBranches).find((b:Branch)=>b.name==branch.name);
+                        var parentScope = <IBranchesScope> $scope.$parent.$parent.$parent;
+                        var parentBranch = _(parentScope.allBranches).find((b:Branch)=>b.name==branch.name);
                         if (parentBranch.lastBuild){
                             parentBranch.lastBuild.toggled = build.toggled;
                         }

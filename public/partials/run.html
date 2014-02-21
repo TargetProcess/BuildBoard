@@ -87,7 +87,7 @@
                         </div>
                         <ul ng-show="!isCollapsed" class="test-cases-list">
                             <li ng-repeat="testCase in data.testCases">
-                                <a href="" ui-sref="list.branch.run.testCase({test:testCase.name})" class="txt-{{testCase.result | status}}">{{testCase.name}}</a>
+                                <a href="" ui-sref="list.branch.run.testCase({test:testCase.name})" class="txt-{{buildBoard.StatusHelper.parse(testCase) | status2Class}}">{{testCase.name}}</a>
                             </li>
                         </ul>
                     </td>

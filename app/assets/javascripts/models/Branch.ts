@@ -56,9 +56,9 @@ module buildBoard {
         number:number;
         timeStamp:number;
         status:string;
-        isPullRequest: boolean;
+        isPullRequest:boolean;
         toggled:boolean;
-        build: Build;
+        build:Build;
     }
 
     export class Artifact {
@@ -118,13 +118,16 @@ module buildBoard {
     }
 
     export class StatusHelper {
-        static parse(build:Build):Status {
-            return build ? StatusHelper.parseInfo(build.status, build.toggled):Status.Unknown;
+        static parse(build:BuildInfo):Status {
+            return build ? StatusHelper.parseInfo(build.status, build.toggled) : Status.Unknown;
         }
 
         static parseBuildNode(node:BuildNode):Status {
             return node ? StatusHelper.parseInfo(node.status) : Status.Unknown;
+        }
 
+        static parseTestCase(testCase:TestCase):Status {
+            return testCase ? StatusHelper.parseInfo(testCase.result) : Status.Unknown;
         }
 
         static parseInfo(status:string, toggled?:boolean):Status {

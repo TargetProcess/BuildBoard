@@ -12,7 +12,7 @@ module buildBoard {
         ];
 
 
-        findBuild (branches:Branch[], branchName:string, buildFinder:(b:Branch)=>Build) {
+        findBuild (branches:Branch[], branchName:string, buildFinder:(b:Branch)=>BuildInfo) {
             var branch = _.find(branches, br=>br.name == branchName);
             if (branch){
                 return StatusHelper.parse(buildFinder(branch));
@@ -25,7 +25,8 @@ module buildBoard {
         constructor($scope:any, loggedUser:LoggedUserService, backendService:BackendService) {
             $scope.user = loggedUser.getLoggedUser();
             $scope.logout = backendService.controllers.Login.logout().absoluteURL();
-            $scope.getLastStatus = (branchName:string)=>this.findBuild($scope.$parent.allBranches, branchName, branch=>branch.lastBuild);
+            var parentScope = <IBranchesScope>$scope.$parent;
+            $scope.getLastStatus = (branchName:string) => this.findBuild(parentScope.allBranches, branchName, branch=> branch.lastBuild);
         }
     }
 
