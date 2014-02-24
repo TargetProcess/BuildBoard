@@ -26,45 +26,68 @@ module buildBoard {
             '$scope',
             '$state',
             '$window',
-            BranchesService.NAME,
-            LoggedUserService.NAME
+            LoggedUserService.NAME,
+            BackendService.NAME
         ];
 
-        constructor(private $scope:IBranchesScope, $state:ng.ui.IStateService, $window:ng.IWindowService, branchesService:IBranchesService, private loggedUserService:LoggedUserService) {
+        constructor(private $scope:IBranchesScope, $state:ng.ui.IStateService, $window:ng.IWindowService, private loggedUserService:LoggedUserService, backendService:BackendService) {
             this.$scope.loading = true;
 
             this.$scope.userFilter = $state.params['user'] || 'all';
             this.$scope.branchesFilter = $state.params['branch'] || 'all';
 
-            branchesService.allBranches
-                .then((branches:Branch[])=> {
-                var usersAndBranches = _.chain(branches)
-                    .filter(branch=>!!branch.entity)
-                    .map((branch:Branch) =>
-                        _.map(branch.entity.assignments, user=> {
-                            return {user: user, branch: branch};
-                        })
-                )
-                    .flatten()
-                    .value();
+            var lastBuilds = backendService.lastBuilds();
 
-                var counts = _.countBy(usersAndBranches, userAndBranch=>userAndBranch.user.userId);
+            backendService.branches()
+                .success(branches=> {
+                    lastBuilds.success(builds => {
+                        _.each(branches, branch => {
+                            var build = builds[branch.name.toLowerCase()];
+                            if (build) {
+                                if ((!branch.lastBuild || branch.lastBuild.timeStamp < build.timeStamp)) {
+                                    branch.lastBuild = build;
+                                }
+                            }
+                            else {
+                                branch.lastBuild = null;
+                            }
+                        });
+//                        _.chain(builds)
+//                            .keys()
+//                            .each(key=> {
+//                                var branch = _.find(branches, x => x.name.toLowerCase() == key.toLowerCase());
+//                                if (branch) {
+//                                    if (!branch.lastBuild || branch.lastBuild.timeStamp < builds[key].timeStamp) {
+//                                        branch.lastBuild = builds[key];
+//                                    }
+//                                }
+//                            });
+                    });
+
+                    var usersAndBranches = _.chain(branches)
+                        .filter(branch=>!!branch.entity)
+                        .map((branch:Branch) =>
+                            _.map(branch.entity.assignments, user=> {
+                                return {user: user, branch: branch};
+                            })
+                    )
+                        .flatten()
+                        .value();
+
+                    var counts = _.countBy(usersAndBranches, userAndBranch=>userAndBranch.user.userId);
 
                     var users = _.chain(usersAndBranches)
                         .unique(false, pair=>pair.user.userId)
                         .pluck('user')
                         .value();
 
-                    _.forEach(users, user=>{
+                    _.forEach(users, user=> {
                         user.count = counts[user.userId];
                     });
 
                     this.$scope.users = users;
-
                     this.$scope.allBranches = branches;
-
-                this.$scope.branches = this.filter(branches, this.$scope.userFilter, this.$scope.branchesFilter);
-
+                    this.$scope.branches = this.filter(branches, this.$scope.userFilter, this.$scope.branchesFilter);
                     this.$scope.countBy = (userFilter:string, branchesFilter:string)=>this.filter(branches, userFilter || this.$scope.userFilter, branchesFilter || "all").length;
 
                 })
@@ -73,8 +96,8 @@ module buildBoard {
                 });
 
 
-            this.$scope.loginToGithub  = url=>{
-                var otherWindow = $window.open(url,"","menubar=no,location=yes,resizable=yes,scrollbars=yes,status=no");
+            this.$scope.loginToGithub = url=> {
+                var otherWindow = $window.open(url, "", "menubar=no,location=yes,resizable=yes,scrollbars=yes,status=no");
                 otherWindow.onunload = () => {
                     this.$scope.hideGithubLogin = true;
                     this.$scope.$apply();
@@ -96,22 +119,22 @@ module buildBoard {
             var branchPredicate;
             switch (branchFilter) {
                 case "entity":
-                branchPredicate = branch=>branch.entity;
+                    branchPredicate = branch=>branch.entity;
                     break;
 
                 case "closed":
-                branchPredicate = (branch:Branch)=>branch.entity && branch.entity.state.isFinal;
+                    branchPredicate = (branch:Branch)=>branch.entity && branch.entity.state.isFinal;
                     break;
 
                 case "special":
-                    branchPredicate = (branch:Branch)=>branch.name.indexOf("release") == 0 ||
+                    branchPredicate = (branch:Branch)=> branch.name.indexOf("release") == 0 ||
                         branch.name.indexOf("hotfix") == 0 ||
                         branch.name.indexOf("vs") == 0 ||
                         branch.name == "develop" ||
                         branch.name == "master";
                     break;
                 default:
-                branchPredicate = branch=>true;
+                    branchPredicate = branch=>true;
                     break;
             }
 
