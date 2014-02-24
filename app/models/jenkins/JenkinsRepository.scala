@@ -15,181 +15,38 @@ import models.Build
 import models.TestCasePackage
 import org.joda.time.DateTime
 
-class JenkinsRepository extends BuildsRepository with JenkinsApi {
+trait JenkinsApi {
+  self: JenkinsRepository =>
 
-  val screenshotQualifiedFileNameRegex = """.*\\(\w+)\.(\w+)[-].*$""".r
-  val screenshotFileNameRegex = """.*\\(\w+)[-].*$""".r
+  private val jenkinsUrl = Play.configuration.getString("jenkins.url").get
+  protected val rootJobName = "StartBuild"
 
-  val complexNameRegex = "(.+)_(.+)".r
-  val testNameRegex = """.*\.(\w+)\.(\w+)$""".r
-
-  private val screenshot = "screenshot"
-  private val directory = Play.configuration.getString("jenkins.data.path").get
-
-  def getBuilds(branch: models.Branch): List[models.BuildInfo] = {
-    val parsedBranchName = branch.name.replace('/', '_')
-    val prRegex = "pr_(\\d+)_(\\d+)$".r
-    val branchRegex = "(.+)_(\\d+)$".r
-    val featureBranchRegex = "feature_(\\w+\\d+)$".r
-    val pullRequestId = branch.pullRequest.map(_.prId)
-
-    val toggles = BuildToggles.findAll.find(t => t.branch == branch.name).toList
-
-    new File(directory)
-      .listFiles()
-      .filter(f => f.isDirectory)
-      .map(f => f.getName match {
-        case prRegex(prId, number) if pullRequestId.isDefined && pullRequestId.get == prId.toInt =>
-          Some(getBuildInfo(f, number.toInt, pullRequestId))
-        case branchRegex(b, number) => parsedBranchName match {
-          case featureBranchRegex(featureName) if featureName == b =>
-            Some(getBuildInfo(f, number.toInt))
-          case branchName if branchName == b =>
-            Some(getBuildInfo(f, number.toInt))
-          case _ => None
-        }
-        case b =>
-          println(b)
-          None
-      })
-      .flatten
-      .map(build => if (toggles.find(t => t.buildNumber == build.number).isDefined) build.copy(toggled = true) else build)
-      .sortBy(-_.number)
-      .toList
+  def forceBuild(action: models.BuildAction) = Try {
+    Http.post(s"$jenkinsUrl/job/$rootJobName/buildWithParameters")
+      .params(action.parameters)
+      .asString
   }
+}
 
-  private def getBuildInfo(f: File, number: Int, prId: Option[Int] = None): BuildInfo = {
-    val folder = new File(f, "Build/StartBuild")
-    val contents = folder.listFiles.toList
+trait FileApi {
+  self: JenkinsRepository =>
 
-    val (startedStatus, statusUrl, timestamp) = contents
-      .find(_.getName.endsWith("started"))
-      .map(file => {
-      val (statusUrl, ts) = read(file).map(fc => {
-        val rows = fc.split('\n')
-        val statusUrl = rows(0)
-        val ts = if (rows.length > 1)
-          Some(new java.text.SimpleDateFormat("MM/dd/yyyy HH:mm:ss").parse(rows(1)).getTime)
-        else
-          None
+  val directory = Play.configuration.getString("jenkins.data.path").get
 
-        (Some(statusUrl), ts)
-      })
-        .getOrElse((None, None))
+  def read(f: File): Option[String] = Try {
+    Source.fromFile(f).mkString
+  }.toOption
+}
 
-      (None, statusUrl, ts.getOrElse(file.lastModified))
-    })
-      .getOrElse((Some("FAILURE"), None, folder.lastModified))
+trait Artifacts {
+  self: JenkinsRepository =>
 
-    val status: Option[String] = startedStatus.orElse(contents.find(_.getName.endsWith("finished")).flatMap(read))
+  protected val screenshot = "screenshot"
+  protected val testNameRegex = """.*\.(\w+)\.(\w+)$""".r
+  protected val screenshotQualifiedFileNameRegex = """.*\\(\w+)\.(\w+)[-].*$""".r
+  protected val screenshotFileNameRegex = """.*\\(\w+)[-].*$""".r
 
-    BuildInfo(number, status, new DateTime(timestamp), prId.isDefined)
-  }
-
-  def getBuild(branch: models.Branch, number: Int): Option[Build] = {
-    val parsedBranchName = branch.name.replace('/', '_')
-    val prRegex = "pr_(\\d+)_(\\d+)$".r
-    val branchRegex = "(.+)_(\\d+)$".r
-    val featureBranchRegex = "feature_(\\w+\\d+)$".r
-    val pullRequestId = branch.pullRequest.map(_.prId)
-
-    val toggle = BuildToggles.findAll.find(t => t.branch == branch.name && t.buildNumber == number)
-
-    new File(directory)
-      .listFiles()
-      .filter(f => f.isDirectory)
-      .map(f => f.getName match {
-        case prRegex(prId, num) if pullRequestId.isDefined && pullRequestId.get == prId.toInt && number == num.toInt =>
-          Some(getBuild(f))
-        case branchRegex(b, num) => parsedBranchName match {
-          case featureBranchRegex(featureName) if featureName == b =>
-            Some(getBuild(f))
-          case branchName if branchName == b =>
-            Some(getBuild(f))
-          case _ => None
-        }
-        case b => {
-          None
-        }
-      })
-      .flatten
-      .map(build => if (toggle.isDefined) build.copy(toggled = true) else build)
-      .headOption
-  }
-
-
-  def getTestRunBuildNode(branch: models.Branch, build: Int, part: String, run: String) = getBuild(branch, build)
-    .map(b => b.getTestRunBuildNode(part, run))
-    .flatMap(b => b)
-    .map(testRunBuildNode => testRunBuildNode.copy(testResults = getTestCasePackages(testRunBuildNode)))
-
-  def toggleBuild(branch: models.Branch, number: Int): Option[models.Build] = getBuild(branch, number).map(build => {
-    BuildToggles.findAll.find(t => t.branch == branch.name && t.buildNumber == number) match {
-      case Some(toggle) =>
-        BuildToggles.remove(toggle)
-        build.copy(toggled = false)
-      case None =>
-        BuildToggles.save(BuildToggle(branch.name, number))
-        build.copy(toggled = true)
-    }
-  })
-
-  private def getBuild(f: File): Build = {
-    val prRegex = "pr_(\\d+)_(\\d+)".r
-    val branchRegex = "(\\w+)_(\\d+)".r
-    val releaseRegex = "release_([\\d|\\.]+)_(\\d+)".r
-    val (number, branch) = f.getName match {
-      case prRegex(prId, n) => (n.toInt, s"pr/$prId")
-      case branchRegex(br, n) => (n.toInt, br)
-      case releaseRegex(release, n) => (n.toInt, s"release/$release")
-    }
-    val node = getBuildNode(new File(f, "Build"))
-
-    Build(number, branch, node.status, node.statusUrl, node.timestamp, node)
-  }
-
-  private def getBuildNode(f: File): BuildNode = {
-    def getBuildNodeInner(folder: File, path: String): BuildNode = {
-      val contents = folder.listFiles.sortBy(_.getName).toList
-
-      val (startedStatus, statusUrl, timestamp) = contents
-        .find(_.getName.endsWith("started"))
-        .map(file => {
-          val (statusUrl, ts) = read(file).map(fc => {
-            val rows = fc.split('\n')
-            val statusUrl = rows(0)
-            val ts = if (rows.length > 1)
-              Some(new java.text.SimpleDateFormat("MM/dd/yyyy HH:mm:ss").parse(rows(1)).getTime)
-            else
-              None
-
-            (Some(statusUrl), ts)
-          })
-            .getOrElse((None, None))
-
-          (None, statusUrl, ts.getOrElse(file.lastModified))
-        })
-        .getOrElse((Some("FAILURE"), None, folder.lastModified))
-
-      val status: Option[String] = startedStatus.orElse(contents.find(_.getName.endsWith("finished")).flatMap(read))
-
-      val children = contents
-        .filter(f => f.isDirectory && !f.getName.startsWith("."))
-        .map(f => getBuildNodeInner(f, folder.getPath)).toList
-
-      val artifacts = getArtifacts(contents)
-
-      folder.getName match {
-        case complexNameRegex(runName, name) => BuildNode(name, runName, status, statusUrl.getOrElse(""), artifacts, new DateTime(timestamp), children)
-        case name => BuildNode(name, name, status, statusUrl.getOrElse(""), artifacts, new DateTime(timestamp), children)
-      }
-    }
-
-    //todo: add artifacts to root node
-    getBuildNodeInner(new File(f, rootJobName), f.getPath)
-  }
-
-  private def getArtifacts(contents: List[File]): List[Artifact] = {
+  def getArtifacts(contents: List[File]): List[Artifact] = {
     def getArtifactsInner(file: File, filter: File => Boolean, artifactName: String): List[Artifact] = file.listFiles
       .filter(filter)
       .map(_.getPath.substring(directory.length + 1))
@@ -205,9 +62,44 @@ class JenkinsRepository extends BuildsRepository with JenkinsApi {
       .flatten
   }
 
-  private def read(f: File): Option[String] = Try {
-    Source.fromFile(f).mkString
-  }.toOption
+  def getArtifact(file: String): File = new File(directory, file)
+
+  def getAttribute(n: Node, key: String): Option[String] = n.attribute(key).map(_.headOption.map(_.text)).flatten
+}
+
+class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
+
+  private case class BuildSource(branch: Branch, number: Int, pullRequestId: Option[Int], file: File)
+
+  def getBuilds(branch: models.Branch): List[BuildInfo] = {
+    val builds = getBuildsSources(branch)
+      .map(getBuildInfo)
+
+    getToggledBuilds(branch, builds)
+      .toList
+      .sortBy(-_.number)
+  }
+
+  def getBuild(branch: models.Branch, number: Int): Option[Build] = {
+    val builds = getBuildsSources[Build](branch)
+      .filter(_.number == number)
+      .map(getBuild)
+
+    getToggledBuilds[Build](branch, builds)
+      .headOption
+  }
+
+  def getLastBuildsByBranch(branches: List[Branch]): Map[String, Option[BuildInfo]] = branches
+    .map(b => (b.name, getLastBuild(b)))
+    .toMap
+
+  def getLastBuild(branch: Branch): Option[BuildInfo] = {
+    getBuildsSources(branch)
+      .toList
+      .sortBy(-_.number)
+      .headOption
+      .map(getBuildInfo)
+  }
 
   def getTestCasePackages(testRunBuildNode: BuildNode): List[TestCasePackage] = {
     val screenshots = testRunBuildNode.artifacts.filter(a => a.name == screenshot)
@@ -259,18 +151,117 @@ class JenkinsRepository extends BuildsRepository with JenkinsApi {
       .getOrElse(Nil)
   }
 
-  def getArtifact(file: String): File = new File(directory, file)
+  def getTestRun(branch: models.Branch, build: Int, part: String, run: String) = getBuild(branch, build)
+    .map(b => b.getTestRunBuildNode(part, run))
+    .flatten
+    .map(testRunBuildNode => testRunBuildNode.copy(testResults = getTestCasePackages(testRunBuildNode)))
 
-  private def getAttribute(n: Node, key: String): Option[String] = n.attribute(key).map(_.headOption.map(_.text)).flatten
-}
+  def toggleBuild(branch: models.Branch, number: Int): Option[models.Build] = getBuild(branch, number).map(build => {
+    BuildToggles.findAll.find(t => t.branch == branch.name && t.buildNumber == number) match {
+      case Some(toggle) =>
+        BuildToggles.remove(toggle)
+        build.copy(toggled = false)
+      case None =>
+        BuildToggles.save(BuildToggle(branch.name, number))
+        build.copy(toggled = true)
+    }
+  })
 
-trait JenkinsApi {
-  private val jenkinsUrl = Play.configuration.getString("jenkins.url").get
-  val rootJobName = "StartBuild"
+  private def getBuildsSources[TBuild <: BuildBase[TBuild]](branch: Branch): Traversable[BuildSource] = {
+    val parsedBranchName = branch.name.replace('/', '_')
+    val prRegex = "pr_(\\d+)_(\\d+)$".r
+    val branchRegex = "(.+)_(\\d+)$".r
+    val featureBranchRegex = "feature_(\\w+\\d+)$".r
+    val pullRequestId = branch.pullRequest.map(_.prId)
 
-  def forceBuild(action: models.BuildAction) = Try {
-    Http.post(s"$jenkinsUrl/job/$rootJobName/buildWithParameters")
-      .params(action.parameters)
-      .asString
+    new File(directory)
+      .listFiles()
+      .view
+      .filter(f => f.isDirectory)
+      .map(f => f.getName match {
+      case prRegex(prId, number) if pullRequestId.isDefined && pullRequestId.get == prId.toInt =>
+        Some(f, branch, number.toInt, pullRequestId)
+      case branchRegex(b, number) => parsedBranchName match {
+        case featureBranchRegex(featureName) if featureName == b =>
+          Some(f, branch, number.toInt, None)
+        case branchName if branchName == b =>
+          Some(f, branch, number.toInt, None)
+        case _ => None
+      }
+      case _ => None
+    })
+      .flatten
+      .map(data => BuildSource(data._2, data._3, data._4, data._1))
+  }
+
+  private def getBuild(buildSource: BuildSource): Build = {
+    val node = getBuildNode(new File(buildSource.file, "Build"))
+
+    Build(buildSource.number, buildSource.branch.name, node.status, node.statusUrl, node.timestamp, node)
+  }
+
+  private def getBuildInfo(buildSource: BuildSource): BuildInfo = {
+    val folder = new File(buildSource.file, "Build/StartBuild")
+    val (status, _, timestamp) = getBuildDetails(folder)
+
+    BuildInfo(buildSource.number, buildSource.branch.name, status, new DateTime(timestamp), buildSource.pullRequestId.isDefined)
+  }
+
+  private def getToggledBuilds[TBuild <: BuildBase[TBuild]](branch: Branch, builds: Traversable[TBuild]): Traversable[TBuild] = builds match {
+    case Nil => Nil
+    case builds => {
+      val toggles = BuildToggles.findAll.find(t => t.branch == branch.name).toList
+
+      builds.map(build => if (toggles.exists(t => t.buildNumber == build.number)) build.toggle else build)
+    }
+  }
+
+  private def getBuildNode(f: File): BuildNode = {
+    val complexNameRegex = "(.+)_(.+)".r
+
+    def getBuildNodeInner(folder: File, path: String): BuildNode = {
+      val (status, statusUrl, timestamp) = getBuildDetails(folder)
+
+      val contents = folder.listFiles.sortBy(_.getName).toList
+      val children = contents
+        .filter(f => f.isDirectory && !f.getName.startsWith("."))
+        .map(f => getBuildNodeInner(f, folder.getPath)).toList
+
+      val artifacts = getArtifacts(contents)
+
+      folder.getName match {
+        case complexNameRegex(runName, name) => BuildNode(name, runName, status, statusUrl.getOrElse(""), artifacts, new DateTime(timestamp), children)
+        case name => BuildNode(name, name, status, statusUrl.getOrElse(""), artifacts, new DateTime(timestamp), children)
+      }
+    }
+
+    //todo: add artifacts to root node
+    getBuildNodeInner(new File(f, rootJobName), f.getPath)
+  }
+
+  private def getBuildDetails(folder: File): (Option[String], Option[String], Long) = {
+    val contents = folder.listFiles.toList
+    val (startedStatus, statusUrl, timestamp): (Option[String], Option[String], Long) = contents
+      .find(_.getName.endsWith("started"))
+      .map(file => {
+      val (statusUrl, ts) = read(file).map(fc => {
+        val rows = fc.split('\n')
+        val statusUrl = rows(0)
+        val ts = if (rows.length > 1)
+          Some(new java.text.SimpleDateFormat("MM/dd/yyyy HH:mm:ss").parse(rows(1)).getTime)
+        else
+          None
+
+        (Some(statusUrl), ts)
+      })
+        .getOrElse((None, None))
+
+      (None, statusUrl, ts.getOrElse(file.lastModified))
+    })
+      .getOrElse((Some("FAILURE"), None, folder.lastModified))
+
+    val status: Option[String] = startedStatus.orElse(contents.find(_.getName.endsWith("finished")).flatMap(read))
+
+    (status, statusUrl, timestamp)
   }
 }

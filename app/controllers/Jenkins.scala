@@ -68,13 +68,13 @@ object Jenkins extends Controller with Secured {
   def run(branch: String, build: Int, part: String, run: String) = IsAuthorized {
     implicit user =>
       val branchEntity = new BranchesRepository().getBranch(branch)
-      request => Ok(Json.toJson(jenkinsRepo.getTestRunBuildNode(branchEntity, build, part, run)))
+      request => Ok(Json.toJson(jenkinsRepo.getTestRun(branchEntity, build, part, run)))
   }
 
   def testCase(branch: String, build: Int, part: String, run: String, test: String) = IsAuthorized {
     implicit user =>
       val branchEntity = new BranchesRepository().getBranch(branch)
-      val buildNode = jenkinsRepo.getTestRunBuildNode(branchEntity, build, part, run)
+      val buildNode = jenkinsRepo.getTestRun(branchEntity, build, part, run)
       val testCase = buildNode.map(n => n.getTestCase(test)).flatMap(t => t)
       request => Ok(Json.toJson(testCase))
   }

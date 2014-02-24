@@ -12,28 +12,39 @@ import play.api.Play.current
 
 case class Artifact(name: String, url: String)
 
-case class BuildInfo(number: Int, status: Option[String], timeStamp: DateTime, isPullRequest: Boolean = false, toggled: Boolean = false)
+trait BuildBase[TBuild <: BuildBase[TBuild]] {
+  val number: Int
+  val branch: String
+  val toggled: Boolean = false
+  def toggle: TBuild
+}
 
-case class Build(number: Int, branch: String, status: Option[String], url: String, timeStamp: DateTime, node: BuildNode, toggled: Boolean = false) {
+case class BuildInfo(override val number: Int, override val branch: String, status: Option[String], timeStamp: DateTime, isPullRequest: Boolean = false, override val toggled: Boolean = false) extends BuildBase[BuildInfo] {
+  override def toggle: BuildInfo = this.copy(toggled = !toggled)
+}
+
+case class Build(override val number: Int, override val branch: String, status: Option[String], url: String, timeStamp: DateTime, node: BuildNode, override val toggled: Boolean = false) extends BuildBase[Build] {
   def getTestRunBuildNode(part: String, run: String): Option[BuildNode] = {
     def getTestRunBuildNodeInner(node: BuildNode): Option[BuildNode] = node match {
-      case n: BuildNode if (n.name == part && n.runName == run) => Some(n)
-      case n => n.children.map(getTestRunBuildNodeInner(_)).filter(_.isDefined).flatten.headOption
+      case n: BuildNode if n.name == part && n.runName == run => Some(n)
+      case n => n.children.map(getTestRunBuildNodeInner).filter(_.isDefined).flatten.headOption
     }
     getTestRunBuildNodeInner(node)
   }
+
+  override def toggle: Build = this.copy(toggled = !toggled)
 }
 
 case class BuildNode(name: String, runName: String, status: Option[String], statusUrl: String, artifacts: List[Artifact], timestamp: DateTime, children: List[BuildNode] = Nil, testResults: List[TestCasePackage] = Nil) {
   def getTestCase(name: String): Option[TestCase] = {
     def getTestCaseInner(tcPackage: TestCasePackage): Option[TestCase] = {
       tcPackage.testCases.filter(tc => tc.name == name) match {
-        case tc::_ => Some(tc)
+        case tc :: _ => Some(tc)
         case Nil => getTestCasesInner(tcPackage.packages)
       }
     }
     def getTestCasesInner(packages: List[TestCasePackage]): Option[TestCase] = packages
-      .map(getTestCaseInner(_))
+      .map(getTestCaseInner)
       .filter(tc => tc.isDefined)
       .flatten
       .headOption
