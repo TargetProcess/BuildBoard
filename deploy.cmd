@@ -1,3 +1,4 @@
+call grunt typescript
 call dist.cmd
 if ERRORLEVEL 1 goto :eof
 set /p pid=<\\srv5\BuildBoard-1.0-SNAPSHOT\bin\RUNNING_PID
