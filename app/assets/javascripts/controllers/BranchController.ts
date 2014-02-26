@@ -37,8 +37,11 @@ module buildBoard {
                 this.loadPullRequestStatus(this.$scope.branch);
                 buildsRequest.success(builds => {
                     this.$scope.builds = builds;
-                    this.$scope.branch.lastBuild = _.first(builds);
-                    this.$scope.loadBuild(this.$scope.branch.lastBuild);
+                    var lastBuild = _.first(builds);
+                    this.$scope.branch.lastBuild = lastBuild;
+                    if (lastBuild){
+                        this.$scope.loadBuild(lastBuild);
+                    }
                 });
             });
         }
