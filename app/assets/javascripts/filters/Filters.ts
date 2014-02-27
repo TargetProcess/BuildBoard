@@ -10,8 +10,8 @@ module buildBoard {
     }
 
     export function status2Class() {
-        return (status:Status)=>{
-            switch (status){
+        return (status:Status)=> {
+            switch (status) {
                 case Status.Toggled:
                 case Status.Success:
                     return "success";
@@ -27,13 +27,17 @@ module buildBoard {
         }
     }
 
-    export function parseBuildNodeStatus(){
+    export function parseBuildNodeStatus() {
         return (node:BuildNode)=>status2Class()(StatusHelper.parseBuildNode(node));
     }
 
+    export function parseTestCaseStatus() {
+        return (testCase:TestCase) => status2Class()(StatusHelper.parseTestCase(testCase));
+    }
+
     export function status2text() {
-        return (status:Status)=>{
-            switch (status){
+        return (status:Status)=> {
+            switch (status) {
                 case Status.Toggled:
                     return "Toggled";
                 case Status.Success:
@@ -52,35 +56,34 @@ module buildBoard {
     }
 
 
-
-    export function pullRequestStatus(){
-        return (pullRequest:PullRequest)=>{
-                if (pullRequest && pullRequest.status) {
-                    if (pullRequest.status.isMerged) {
-                        return Status.Success;
-                    } else if (pullRequest.status.isMergeable) {
-                        return Status.Success;
-                    } else {
-                        return Status.Failed;
-                    }
+    export function pullRequestStatus() {
+        return (pullRequest:PullRequest)=> {
+            if (pullRequest && pullRequest.status) {
+                if (pullRequest.status.isMerged) {
+                    return Status.Success;
+                } else if (pullRequest.status.isMergeable) {
+                    return Status.Success;
+                } else {
+                    return Status.Failed;
                 }
-                else {
-                    return Status.Unknown;
-                }
+            }
+            else {
+                return Status.Unknown;
+            }
         }
     }
 
     export function duration() {
-        return (seconds: number) => {
+        return (seconds:number) => {
             var result = '';
 
             var hours = (seconds / 3600);
-            if (hours > 1){
+            if (hours > 1) {
                 result = Math.round(hours) + 'h ';
             }
 
             var minutes = (seconds % 3600) / 60;
-            if (hours > 1 || minutes > 1){
+            if (hours > 1 || minutes > 1) {
                 result = result + Math.round(minutes) + "m ";
             }
 

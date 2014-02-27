@@ -15,6 +15,7 @@ module buildBoard {
         .controller(TestCaseController.NAME, TestCaseController)
         .filter('status2Class', status2Class)
         .filter('parseBuildNodeStatus', parseBuildNodeStatus)
+        .filter('parseTestCaseStatus', parseTestCaseStatus)
         .filter('status2text', status2text)
         .filter('activeFilter', activeFilter)
         .filter('encode', encode)
