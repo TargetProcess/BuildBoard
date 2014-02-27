@@ -26,64 +26,22 @@ module buildBoard {
             '$state',
             '$window',
             LoggedUserService.NAME,
-            BackendService.NAME
+            BranchesService.NAME
         ];
 
-        constructor(private $scope:IBranchesScope, $state:ng.ui.IStateService, $window:ng.IWindowService, private loggedUserService:LoggedUserService, backendService:BackendService) {
+        constructor(private $scope:IBranchesScope, $state:ng.ui.IStateService, $window:ng.IWindowService, private loggedUserService:LoggedUserService, branchesService:BranchesService) {
             this.$scope.loading = true;
 
             this.$scope.userFilter = $state.params['user'] || 'all';
             this.$scope.branchesFilter = $state.params['branch'] || 'all';
 
-            var lastBuilds = backendService.lastBuilds();
-
-            backendService.branches()
-                .success(branches=> {
-                    lastBuilds.success(builds => {
-                        _.each(branches, branch => {
-                            var build = builds[branch.name.toLowerCase()];
-                            if (build) {
-                                if ((!branch.lastBuild || branch.lastBuild.timeStamp < build.timeStamp)) {
-                                    branch.lastBuild = build;
-                                }
-                            }
-                            else {
-                                branch.lastBuild = null;
-                            }
-                        });
-                    });
-
-                    var usersAndBranches = _.chain(branches)
-                        .filter(branch=>!!branch.entity)
-                        .map((branch:Branch) =>
-                            _.map(branch.entity.assignments, user=> {
-                                return {user: user, branch: branch};
-                            })
-                    )
-                        .flatten()
-                        .value();
-
-                    var counts = _.countBy(usersAndBranches, userAndBranch=>userAndBranch.user.userId);
-
-                    var users = _.chain(usersAndBranches)
-                        .unique(false, pair=>pair.user.userId)
-                        .pluck('user')
-                        .value();
-
-                    _.forEach(users, user=> {
-                        user.count = counts[user.userId];
-                    });
-
-                    this.$scope.users = users;
-                    this.$scope.allBranches = branches;
-                    this.$scope.branches = this.filter(branches, this.$scope.userFilter, this.$scope.branchesFilter);
-                    this.$scope.countBy = (userFilter:string, branchesFilter:string)=>this.filter(branches, userFilter || this.$scope.userFilter, branchesFilter || "all").length;
-
-                })
-                .then(x=> {
-                    this.$scope.loading = false;
-                });
-
+            var lastBuildsPromise = branchesService.allBranchesWithLastBuilds;
+            branchesService.allBranches.then(branches => {
+                lastBuildsPromise.then(lastBuilds => this.lastBuildsCallback(branches, lastBuilds));
+                this.branchesCallback(branches);
+            }).then(x=> {
+                this.$scope.loading = false;
+            });
 
             this.$scope.loginToGithub = url=> {
                 var otherWindow = $window.open(url, "", "menubar=no,location=yes,resizable=yes,scrollbars=yes,status=no");
@@ -92,6 +50,47 @@ module buildBoard {
                     this.$scope.$apply();
                 }
             }
+        }
+
+        private branchesCallback(branches:Branch[]) {
+            var usersAndBranches = _.chain(branches)
+                .filter(branch=>!!branch.entity)
+                .map((branch:Branch) =>
+                    _.map(branch.entity.assignments, user=> {
+                        return {user: user, branch: branch};
+                    }))
+                .flatten()
+                .value();
+
+            var counts = _.countBy(usersAndBranches, userAndBranch=>userAndBranch.user.userId);
+
+            var users = _.chain(usersAndBranches)
+                .unique(false, pair=>pair.user.userId)
+                .pluck('user')
+                .value();
+
+            _.forEach(users, user=> {
+                user.count = counts[user.userId];
+            });
+
+            this.$scope.users = users;
+            this.$scope.allBranches = branches;
+            this.$scope.branches = this.filter(branches, this.$scope.userFilter, this.$scope.branchesFilter);
+            this.$scope.countBy = (userFilter:string, branchesFilter:string)=>this.filter(branches, userFilter || this.$scope.userFilter, branchesFilter || "all").length;
+        }
+
+        lastBuildsCallback(branches:Branch[], builds:IMap<Build>) {
+            _.each(branches, branch => {
+                var build = builds[branch.name.toLowerCase()];
+                if (build) {
+                    if ((!branch.lastBuild || branch.lastBuild.timeStamp < build.timeStamp)) {
+                        branch.lastBuild = build;
+                    }
+                }
+                else {
+                    branch.lastBuild = null;
+                }
+            });
         }
 
         filter(list:Branch[], userFilter:string, branchFilter:string):Branch[] {

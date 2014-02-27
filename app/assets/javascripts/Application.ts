@@ -7,6 +7,7 @@ module buildBoard {
     angular.module('buildBoard', ['ui.router', 'ui.bootstrap'])
         .service(BackendService.NAME, BackendService)
         .service(LoggedUserService.NAME, LoggedUserService)
+        .service(BranchesService.NAME, BranchesService)
         .controller('branchesController', BranchesController)
         .controller(BranchLineController.NAME, BranchLineController)
         .controller(HeaderController.NAME, HeaderController)
