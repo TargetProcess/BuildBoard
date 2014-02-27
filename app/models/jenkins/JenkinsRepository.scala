@@ -73,7 +73,7 @@ class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
 
   def getBuilds(branch: models.Branch): List[BuildInfo] = {
     val builds = getBuildsSources(branch)
-      .map(getBuildInfo)
+      .flatMap(getBuildInfo)
 
     getToggledBuilds(branch, builds)
       .toList
@@ -85,7 +85,7 @@ class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
       .filter(_.number == number)
       .map(getBuild)
 
-    getToggledBuilds[Build](branch, builds)
+    getToggledBuilds(branch, builds)
       .headOption
   }
 
@@ -98,7 +98,7 @@ class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
       .toList
       .sortBy(-_.number)
       .headOption
-      .map(getBuildInfo)
+      .flatMap(getBuildInfo)
   }
 
   def getTestCasePackages(testRunBuildNode: BuildNode): List[TestCasePackage] = {
@@ -171,7 +171,7 @@ class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
     val parsedBranchName = branch.name.replace('/', '_')
     val prRegex = "pr_(\\d+)_(\\d+)$".r
     val branchRegex = "(.+)_(\\d+)$".r
-    val featureBranchRegex = "feature_(\\w+\\d+)$".r
+    val featureBranchRegex = "feature_(\\w+\\d*)$".r
     val pullRequestId = branch.pullRequest.map(_.prId)
 
     new File(directory)
@@ -186,7 +186,9 @@ class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
           Some(f, branch, number.toInt, None)
         case branchName if branchName == b =>
           Some(f, branch, number.toInt, None)
-        case _ => None
+        case branchName if b == parsedBranchName =>
+          Some(f, branch, number.toInt, None)
+        case branchName => None
       }
       case _ => None
     })
@@ -200,11 +202,14 @@ class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
     Build(buildSource.number, buildSource.branch.name, node.status, node.statusUrl, node.timestamp, node)
   }
 
-  private def getBuildInfo(buildSource: BuildSource): BuildInfo = {
+  private def getBuildInfo(buildSource: BuildSource): Option[BuildInfo] = {
     val folder = new File(buildSource.file, "Build/StartBuild")
-    val (status, _, timestamp) = getBuildDetails(folder)
+    if (folder.exists) {
+      val (status, _, timestamp) = getBuildDetails(folder)
 
-    BuildInfo(buildSource.number, buildSource.branch.name, status, new DateTime(timestamp), buildSource.pullRequestId.isDefined)
+      Some(BuildInfo(buildSource.number, buildSource.branch.name, status, new DateTime(timestamp), buildSource.pullRequestId.isDefined))
+    }
+    else None
   }
 
   private def getToggledBuilds[TBuild <: BuildBase[TBuild]](branch: Branch, builds: Traversable[TBuild]): Traversable[TBuild] = builds match {
@@ -240,7 +245,7 @@ class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
   }
 
   private def getBuildDetails(folder: File): (Option[String], Option[String], Long) = {
-    val contents = folder.listFiles.toList
+    val contents = folder.listFiles
     val (startedStatus, statusUrl, timestamp): (Option[String], Option[String], Long) = contents
       .find(_.getName.endsWith("started"))
       .map(file => {
