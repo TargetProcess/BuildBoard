@@ -19,7 +19,7 @@ module buildBoard {
             '<span ng-show="buildActions">{{ build.timeStamp | date }}</span>' +
             '<span ng-hide="buildActions">{{ getBuildStatus(build) | status2text }}</span>' +
             '</a>' +
-            '<a ng-show="build === null" href="" class="jenkins status {{type}} dropdown-toggle" data-toggle="dropdown">' +
+            '<a ng-show="!build" href="" class="jenkins status {{type}} dropdown-toggle" data-toggle="dropdown">' +
             'Never built' +
             '</a>' +
             '<ul class="dropdown-menu">' +

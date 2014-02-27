@@ -16,10 +16,9 @@ module buildBoard {
         userFilter:any;
         branchesFilter:any;
 
-        loginToGithub(url:string):void
+        loginToGithub(url:string):void;
         hideGithubLogin:boolean;
     }
-
 
     export class BranchesController {
         public static $inject = [
@@ -52,16 +51,6 @@ module buildBoard {
                                 branch.lastBuild = null;
                             }
                         });
-//                        _.chain(builds)
-//                            .keys()
-//                            .each(key=> {
-//                                var branch = _.find(branches, x => x.name.toLowerCase() == key.toLowerCase());
-//                                if (branch) {
-//                                    if (!branch.lastBuild || branch.lastBuild.timeStamp < builds[key].timeStamp) {
-//                                        branch.lastBuild = builds[key];
-//                                    }
-//                                }
-//                            });
                     });
 
                     var usersAndBranches = _.chain(branches)
