@@ -18,7 +18,7 @@ object Writes {
     (__ \ "name").write[String] ~
       (__ \ "pullRequestId").writeNullable[Int] ~
       (__ \ "branchId").writeNullable[String] ~
-      (__ \ "fullCycle").write[Boolean]
+      (__ \ "cycleName").write[String]
     )(unlift(BuildAction.unapply))
 
   implicit val entityAssignment = Json.writes[Assignment]

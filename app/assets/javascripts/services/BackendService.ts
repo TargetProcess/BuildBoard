@@ -42,7 +42,7 @@ module buildBoard {
         }
 
         forceBuild(buildAction:BuildAction):ng.IHttpPromise<Build> {
-            return this.$http.get(this.controllers.Jenkins.forceBuild(buildAction.pullRequestId, buildAction.branchId, buildAction.fullCycle).absoluteURL());
+            return this.$http.get(this.controllers.Jenkins.forceBuild(buildAction.pullRequestId, buildAction.branchId, buildAction.cycleName).absoluteURL());
         }
 
         toggleBuild(branchId:string, buildNumber: number):ng.IHttpPromise<Build> {

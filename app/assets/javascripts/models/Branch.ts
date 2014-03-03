@@ -80,7 +80,7 @@ module buildBoard {
     export class BuildAction {
         branchId:string;
         pullRequestId:number;
-        fullCycle:boolean;
+        cycleName:string;
     }
 
     export class ToggledBuild {

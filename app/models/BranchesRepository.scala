@@ -86,12 +86,13 @@ class BranchesRepository(implicit user: User) {
       }
 
       val actions = List(
-        BranchBuildAction(name, fullCycle = true),
-        BranchBuildAction(name, fullCycle = false)
+        BranchBuildAction(name, BuildPackageOnly),
+        BranchBuildAction(name, FullCycle),
+        BranchBuildAction(name, ShortCycle)
       ) ++ (pullRequest match {
         case Some(pr) => List(
-          PullRequestBuildAction(pr.prId, fullCycle = true),
-          PullRequestBuildAction(pr.prId, fullCycle = false)
+          PullRequestBuildAction(pr.prId, FullCycle),
+          PullRequestBuildAction(pr.prId, ShortCycle)
         )
         case None => Nil
       })
