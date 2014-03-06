@@ -38,7 +38,12 @@ trait BuildAction {
     "IncludeUnitTests" -> cycle.unitTests,
     "IncludeFuncTests" -> cycle.funcTests,
     "BuildFullPackage" -> (if (cycle.buildFullPackage) "true" else "false"),
-    "INCLUDE_UNSTABLE" -> (if (cycle.includeUnstable) "true" else "false")
+    "INCLUDE_UNSTABLE" -> (if (cycle.includeUnstable) "true" else "false"),
+    "Cycle" -> (cycle match {
+      case FullCycle => "Full"
+      case ShortCycle => "Short"
+      case BuildPackageOnly => "Short"
+    })
   )
 
   val name: String
