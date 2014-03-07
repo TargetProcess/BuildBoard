@@ -72,6 +72,11 @@
       background-color: fadeout(@in_progress, 40%);
       border-bottom-color: #fff;
     }
+    &.timed_out {
+      border-radius: 2px;
+      background-color: fadeout(@timed_out, 40%);
+      border-bottom-color: #fff;
+    }
   }
 }
 
@@ -102,6 +107,9 @@ a {
 
       &.in_progress {
         border-color: @in_progress;
+      }
+      &.timed_out {
+        border-color: @timed_out;
       }
 
       &.success {
@@ -335,6 +343,14 @@ a {
       border-radius: 2px;
       td {
         background-color: fadeout(@in_progress, 90%);
+        border-bottom-color: #fff;
+      }
+    }
+
+    &.timed_out {
+      border-radius: 2px;
+      td {
+        background-color: fadeout(@timed_out, 90%);
         border-bottom-color: #fff;
       }
     }

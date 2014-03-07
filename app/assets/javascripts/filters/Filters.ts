@@ -20,6 +20,8 @@ module buildBoard {
                     return "warning";
                 case Status.InProgress:
                     return "in_progress";
+                case Status.TimedOut:
+                    return "timed_out";
                 case Status.Unknown:
                 default:
                     return "default";
@@ -48,6 +50,8 @@ module buildBoard {
                     return "Aborted";
                 case Status.InProgress:
                     return "In progress";
+                case Status.TimedOut:
+                    return "Timed out";
                 case Status.Unknown:
                 default:
                     return "Unknown";

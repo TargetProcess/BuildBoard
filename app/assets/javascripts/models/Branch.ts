@@ -114,7 +114,8 @@ module buildBoard {
         Success,
         InProgress,
         Unknown,
-        Aborted
+        Aborted,
+        TimedOut
     }
 
     export class StatusHelper {
@@ -150,6 +151,8 @@ module buildBoard {
                     return Status.Success;
                 case 'aborted':
                     return Status.Aborted;
+                case 'timed out':
+                    return Status.TimedOut;
                 default:
                     return Status.Unknown;
             }

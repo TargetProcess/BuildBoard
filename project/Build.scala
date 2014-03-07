@@ -18,7 +18,8 @@ object ApplicationBuild extends Build {
       "org.eclipse.mylyn.github" % "org.eclipse.egit.github.core" % "2.1.5",
       "org.scalaj" %% "scalaj-http" % "0.3.9" exclude("junit", "junit"),
       "com.github.nscala-time" %% "nscala-time" % "0.6.0",
-      "com.netflix.rxjava" % "rxjava-scala" % "0.15.0"
+      "com.netflix.rxjava" % "rxjava-scala" % "0.15.0",
+      "com.github.nscala-time" %% "nscala-time" % "0.8.0"
     ),
     routesImport += "se.radley.plugin.salat.Binders._",
     templatesImport += "org.bson.types.ObjectId"

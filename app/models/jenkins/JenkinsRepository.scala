@@ -14,6 +14,7 @@ import models.TestCase
 import models.Build
 import models.TestCasePackage
 import org.joda.time.DateTime
+import com.github.nscala_time.time.Imports._
 
 trait JenkinsApi {
   self: JenkinsRepository =>
@@ -68,6 +69,7 @@ trait Artifacts {
 }
 
 class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
+  private val timeout = 5.hours
 
   private case class BuildSource(branch: Branch, number: Int, pullRequestId: Option[Int], file: File)
 
@@ -244,16 +246,16 @@ class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
     getBuildNodeInner(new File(f, rootJobName), f.getPath)
   }
 
-  private def getBuildDetails(folder: File): (Option[String], Option[String], Long) = {
+  private def getBuildDetails(folder: File): (Option[String], Option[String], DateTime) = {
     val contents = folder.listFiles
-    val (startedStatus, statusUrl, timestamp): (Option[String], Option[String], Long) = contents
+    val (startedStatus, statusUrl, timestamp): (Option[String], Option[String], DateTime) = contents
       .find(_.getName.endsWith("started"))
       .map(file => {
       val (statusUrl, ts) = read(file).map(fc => {
         val rows = fc.split('\n')
         val statusUrl = rows(0)
         val ts = if (rows.length > 1)
-          Some(new java.text.SimpleDateFormat("MM/dd/yyyy HH:mm:ss").parse(rows(1)).getTime)
+          Some(new DateTime(new java.text.SimpleDateFormat("MM/dd/yyyy HH:mm:ss").parse(rows(1)).getTime))
         else
           None
 
@@ -261,11 +263,13 @@ class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
       })
         .getOrElse((None, None))
 
-      (None, statusUrl, ts.getOrElse(file.lastModified))
+      (None, statusUrl, ts.getOrElse(new DateTime(file.lastModified)))
     })
-      .getOrElse((Some("FAILURE"), None, folder.lastModified))
+      .getOrElse((Some("FAILURE"), None, new DateTime(folder.lastModified)))
 
-    val status: Option[String] = startedStatus.orElse(contents.find(_.getName.endsWith("finished")).flatMap(read))
+    val status: Option[String] = startedStatus
+      .orElse(contents.find(_.getName.endsWith("finished")).flatMap(read))
+      .orElse(if ((DateTime.now - timeout) > timestamp) Some("TIMED OUT") else None)
 
     (status, statusUrl, timestamp)
   }
