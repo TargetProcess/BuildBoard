@@ -5,9 +5,11 @@ module buildBoard {
     'use strict';
 
     angular.module('buildBoard', ['ui.router', 'ui.bootstrap'])
+        .service(HttpServiceNotificationDecorator.NAME, HttpServiceNotificationDecorator)
         .service(BackendService.NAME, BackendService)
         .service(LoggedUserService.NAME, LoggedUserService)
         .service(BranchesService.NAME, BranchesService)
+        .controller(StatusController.NAME, StatusController)
         .controller('branchesController', BranchesController)
         .controller(BranchLineController.NAME, BranchLineController)
         .controller(HeaderController.NAME, HeaderController)

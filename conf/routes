@@ -19,8 +19,8 @@ GET         /gihtub/pullRequestStatus        controllers.Github.pullRequestStatu
 GET         /jenkins/lastBuild               controllers.Jenkins.lastBuildInfos()
 GET         /jenkins/builds                  controllers.Jenkins.builds(branch:String)
 GET         /jenkins/build                   controllers.Jenkins.build(branch:String, number: Int)
-GET         /jenkins/forceBuild              controllers.Jenkins.forceBuild(pullRequestId:Option[Int],branchId:Option[String],cycleName:String)
-GET         /jenkins/toggleBuild             controllers.Jenkins.toggleBuild(branchId:String,buildNumber:Int)
+POST        /jenkins/forceBuild              controllers.Jenkins.forceBuild(pullRequestId:Option[Int],branchId:Option[String],cycleName:String)
+POST        /jenkins/toggleBuild             controllers.Jenkins.toggleBuild(branchId:String,buildNumber:Int)
 
 GET         /jenkins/run                     controllers.Jenkins.run(branch: String, build: Int, part: String, run: String)
 GET         /jenkins/testCase                controllers.Jenkins.testCase(branch: String, build: Int, part: String, run: String, test: String)

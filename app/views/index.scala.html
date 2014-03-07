@@ -2,6 +2,9 @@
 
 @main("Build board", Some(user)) {
     <body ng-app="buildBoard" state="{{$state.current.name}}">
+        <div class="status-bar" ng-controller="statusController" ng-show="status != ''">
+            <div>{{status}}</div>
+        </div>
         <span ui-view></span>
     </body>
 }

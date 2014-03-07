@@ -3,6 +3,7 @@
 /// <reference path='libs/angular-ui-router.d.ts' />
 /// <reference path='libs/underscore.d.ts' />
 /// <reference path='interfaces/JsRoutes.d.ts' />
+/// <reference path='services/HttpServiceNotificationDecorator.ts'/>
 /// <reference path='services/BackendService.ts'/>
 /// <reference path='services/LoggedUserService.ts'/>
 /// <reference path='services/BranchesService.ts'/>
@@ -10,6 +11,7 @@
 /// <reference path='filters/Filters.ts' />
 /// <reference path='interfaces/IBuildBoardWindow.ts' />
 /// <reference path='interfaces/IBuildBoardRoadParamsService.ts'/>
+/// <reference path='controllers/StatusController.ts'/>
 /// <reference path='controllers/BranchControllerBase.ts'/>
 /// <reference path='controllers/BranchesController.ts' />
 /// <reference path='controllers/BranchController.ts' />

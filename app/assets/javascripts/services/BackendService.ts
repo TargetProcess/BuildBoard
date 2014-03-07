@@ -11,12 +11,12 @@ module buildBoard {
 
         public static $inject = [
             '$window',
-            '$http'
+            'httpNotifiable'
         ];
 
         controllers:Controllers;
 
-        constructor(private $window:IBuildBoardWindow, private $http:ng.IHttpService) {
+        constructor(private $window:IBuildBoardWindow, private $http:HttpServiceNotificationDecorator) {
             this.controllers = $window.jsRoutes.controllers;
         }
 
@@ -42,11 +42,11 @@ module buildBoard {
         }
 
         forceBuild(buildAction:BuildAction):ng.IHttpPromise<Build> {
-            return this.$http.get(this.controllers.Jenkins.forceBuild(buildAction.pullRequestId, buildAction.branchId, buildAction.cycleName).absoluteURL());
+            return this.$http.post(this.controllers.Jenkins.forceBuild(buildAction.pullRequestId, buildAction.branchId, buildAction.cycleName).absoluteURL(), {});
         }
 
         toggleBuild(branchId:string, buildNumber: number):ng.IHttpPromise<Build> {
-            return this.$http.get(this.controllers.Jenkins.toggleBuild(branchId, buildNumber).absoluteURL());
+            return this.$http.post(this.controllers.Jenkins.toggleBuild(branchId, buildNumber).absoluteURL(), {});
         }
 
         pullRequestStatus(pullRequest:number):ng.IHttpPromise<PRStatus> {
