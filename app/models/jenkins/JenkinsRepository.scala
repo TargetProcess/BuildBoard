@@ -217,7 +217,7 @@ class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
   private def getToggledBuilds[TBuild <: BuildBase[TBuild]](branch: Branch, builds: Traversable[TBuild]): Traversable[TBuild] = builds match {
     case Nil => Nil
     case builds => {
-      val toggles = BuildToggles.findAll.find(t => t.branch == branch.name).toList
+      val toggles = BuildToggles.findAll.filter(t => t.branch == branch.name).toList
 
       builds.map(build => if (toggles.exists(t => t.buildNumber == build.number)) build.toggle else build)
     }
