@@ -6,6 +6,7 @@
 module buildBoard {
 
     export interface Branch {
+        _id:number;
         name:string;
         entity:Entity;
         pullRequest:PullRequest;

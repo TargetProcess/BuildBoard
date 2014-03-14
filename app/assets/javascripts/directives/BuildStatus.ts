@@ -24,7 +24,7 @@ module buildBoard {
             '</a>' +
             '<ul class="dropdown-menu">' +
             '<li ng-show="build"><a href="{{build.url}}" class="jenkins active">Go to Jenkins</a></li>' +
-            '<li ng-show="build"><a href="" ng-click="toggleBuild(branch, build)" class="jenkins">Toggle build</a></li>' +
+            '<li ng-show="build"><a href="" ng-click="toggleBuild(build)" class="jenkins">Toggle build</a></li>' +
             '<hr ng-show="build && buildActions">' +
             '<li ng-repeat="action in buildActions">' +
             '<a class="jenkins" href=""ng-click="forceBuild(action)">{{action.name}}</a>' +
@@ -49,18 +49,12 @@ module buildBoard {
 
             this.$scope.getBuildStatus = StatusHelper.parse;
 
-            this.$scope.toggleBuild = (branch:Branch, build:Build)=> {
+            this.$scope.toggleBuild = (build:Build)=> {
+                var branch = this.$scope.branch;
                 backendService.toggleBuild(branch.name, build.number).success(b=> {
                     build.toggled = !build.toggled;
                     if (build.number == branch.lastBuild.number){
                         branch.lastBuild.toggled = build.toggled;
-
-                        //todo: ugly, should be reworked
-                        var parentScope = <IBranchesScope> $scope.$parent.$parent.$parent;
-                        var parentBranch = _(parentScope.allBranches).find((b:Branch)=>b.name==branch.name);
-                        if (parentBranch.lastBuild){
-                            parentBranch.lastBuild.toggled = build.toggled;
-                        }
                     }
                 });
             }

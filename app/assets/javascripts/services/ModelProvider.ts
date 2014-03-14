@@ -15,6 +15,8 @@ module buildBoard {
         constructor($q:ng.IQService, $branchesService:BranchesService) {
             this.$branches = $branchesService.allBranches;
             this.$branches.then((branches:Branch[])=> {
+                _.each(branches, (b,i)=>{b._id = i});
+
                 var $buildsPerBranchName = $branchesService.allBranchesWithLastBuilds;
 
                 $buildsPerBranchName.then((builds:IMap<Build>)=>{
@@ -31,6 +33,12 @@ module buildBoard {
                     })
                 });
             });
+        }
+
+
+
+        public findBranch(branchName:string):ng.IPromise<Branch> {
+            return this.$branches.then(branches=> _.find(branches, b=>b.name == branchName));
         }
     }
 

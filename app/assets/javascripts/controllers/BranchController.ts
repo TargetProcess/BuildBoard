@@ -10,10 +10,11 @@ module buildBoard {
         public static $inject = [
             '$scope',
             '$state',
-            BackendService.NAME
+            BackendService.NAME,
+            ModelProvider.NAME,
         ];
 
-        constructor(public $scope:IBranchDetailsScope, $state: ng.ui.IStateService, backendService: BackendService) {
+        constructor(public $scope:IBranchDetailsScope, $state: ng.ui.IStateService, backendService: BackendService, modelProvider:ModelProvider) {
             super($scope, backendService);
 
 
@@ -32,8 +33,9 @@ module buildBoard {
 
             var buildsRequest = backendService.builds(this.$scope.branchName);
 
-            backendService.branch(this.$scope.branchName).success(branch => {
+            modelProvider.findBranch(this.$scope.branchName).then(branch=>{
                 this.$scope.branch = branch;
+
                 this.loadPullRequestStatus(this.$scope.branch);
                 buildsRequest.success(builds => {
                     this.$scope.builds = builds;

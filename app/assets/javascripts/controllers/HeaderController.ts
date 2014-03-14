@@ -8,25 +8,19 @@ module buildBoard {
         public static $inject = [
             '$scope',
             LoggedUserService.NAME,
-            BackendService.NAME
+            BackendService.NAME,
+            ModelProvider.NAME
         ];
 
-
-        findBuild (branches:Branch[], branchName:string, buildFinder:(b:Branch)=>BuildInfo) {
-            var branch = _.find(branches, br=>br.name == branchName);
-            if (branch){
-                return StatusHelper.parse(buildFinder(branch));
-            }
-            else {
-                return Status.Unknown;
-            }
-        }
-
-        constructor($scope:any, loggedUser:LoggedUserService, backendService:BackendService) {
+        constructor($scope:any, loggedUser:LoggedUserService, backendService:BackendService, modelProvider:ModelProvider) {
             $scope.user = loggedUser.getLoggedUser();
             $scope.logout = backendService.controllers.Login.logout().absoluteURL();
-            var parentScope = <IBranchesScope>$scope.$parent;
-            $scope.getLastStatus = (branchName:string) => this.findBuild(parentScope.allBranches, branchName, branch=> branch.lastBuild);
+
+            var $branch = modelProvider.findBranch('develop');
+
+            $scope.getLastStatus = () => Status.Unknown;
+            $branch.then(branch=>$scope.getLastStatus = () => StatusHelper.parse(branch.lastBuild));
+
         }
     }
 

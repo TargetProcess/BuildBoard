@@ -1,8 +1,8 @@
 <div class="header" ng-controller="headerController">
     <a class="logo" href="#"></a>
-    <div ui-sref="list.branch({name:'develop'})" class="global-status pointer {{ getLastStatus('develop') | status2Class }}">
-        <span class="status {{ getLastStatus('develop') | status2Class }}">
-           Develop is {{ getLastStatus('develop') | status2text }}
+    <div ui-sref="list.branch({name:'develop'})" class="global-status pointer {{ getLastStatus() | status2Class }}">
+        <span class="status {{ getLastStatus() | status2Class }}">
+           Develop is {{ getLastStatus() | status2text }}
         </span>
     </div>
     <ul class="links">
