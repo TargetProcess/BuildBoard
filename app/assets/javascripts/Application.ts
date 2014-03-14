@@ -1,4 +1,5 @@
 /// <reference path='_all.ts' />
+/// <reference path='services/BranchesService.ts'/>
 
 
 module buildBoard {
@@ -9,6 +10,7 @@ module buildBoard {
         .service(BackendService.NAME, BackendService)
         .service(LoggedUserService.NAME, LoggedUserService)
         .service(BranchesService.NAME, BranchesService)
+        .service(ModelProvider.NAME, ModelProvider)
         .controller(StatusController.NAME, StatusController)
         .controller('branchesController', BranchesController)
         .controller(BranchLineController.NAME, BranchLineController)

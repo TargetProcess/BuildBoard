@@ -26,20 +26,17 @@ module buildBoard {
             '$state',
             '$window',
             LoggedUserService.NAME,
-            BranchesService.NAME
+            ModelProvider.NAME
         ];
 
-        constructor(private $scope:IBranchesScope, $state:ng.ui.IStateService, $window:ng.IWindowService, private loggedUserService:LoggedUserService, branchesService:BranchesService) {
+        constructor(private $scope:IBranchesScope, $state:ng.ui.IStateService, $window:ng.IWindowService, private loggedUserService:LoggedUserService, modelProvider:ModelProvider) {
             this.$scope.loading = true;
 
             this.$scope.userFilter = $state.params['user'] || 'all';
             this.$scope.branchesFilter = $state.params['branch'] || 'all';
 
-            var lastBuildsPromise = branchesService.allBranchesWithLastBuilds;
-            branchesService.allBranches.then(branches => {
-                lastBuildsPromise.then(lastBuilds => this.lastBuildsCallback(branches, lastBuilds));
+            modelProvider.$branches.then(branches => {
                 this.branchesCallback(branches);
-            }).then(x=> {
                 this.$scope.loading = false;
             });
 
@@ -77,20 +74,6 @@ module buildBoard {
             this.$scope.allBranches = branches;
             this.$scope.branches = this.filter(branches, this.$scope.userFilter, this.$scope.branchesFilter);
             this.$scope.countBy = (userFilter:string, branchesFilter:string)=>this.filter(branches, userFilter || this.$scope.userFilter, branchesFilter || "all").length;
-        }
-
-        lastBuildsCallback(branches:Branch[], builds:IMap<Build>) {
-            _.each(branches, branch => {
-                var build = builds[branch.name.toLowerCase()];
-                if (build) {
-                    if ((!branch.lastBuild || branch.lastBuild.timeStamp < build.timeStamp)) {
-                        branch.lastBuild = build;
-                    }
-                }
-                else {
-                    branch.lastBuild = null;
-                }
-            });
         }
 
         filter(list:Branch[], userFilter:string, branchFilter:string):Branch[] {

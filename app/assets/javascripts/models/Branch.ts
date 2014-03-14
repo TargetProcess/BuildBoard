@@ -4,6 +4,7 @@
 // loaded from server
 
 module buildBoard {
+
     export interface Branch {
         name:string;
         entity:Entity;
@@ -52,12 +53,8 @@ module buildBoard {
         node:BuildNode;
     }
 
-    export class BuildInfo {
-        number:number;
-        timeStamp:number;
-        status:string;
+    export interface BuildInfo extends Build {
         isPullRequest:boolean;
-        toggled:boolean;
         build:Build;
     }
 

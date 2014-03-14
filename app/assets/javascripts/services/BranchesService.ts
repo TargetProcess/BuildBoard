@@ -1,4 +1,5 @@
 /// <reference path='../_all.ts' />
+
 module buildBoard {
 
     export class BranchesService {
@@ -17,4 +18,6 @@ module buildBoard {
             this.allBranchesWithLastBuilds = this.$backendService.lastBuilds().then(lastBuilds => lastBuilds.data);
         }
     }
+
+
 }

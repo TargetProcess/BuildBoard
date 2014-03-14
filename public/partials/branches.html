@@ -50,10 +50,10 @@
                 </th>
                 <!--th>
                     <a ng-click="orderingPredicate='name'; reverse=!reverse" href="" ng-class="{sorting:orderingPredicate == 'name', up:reverse, down:!reverse}">Review</a>
-                </th>
+                </th>-->
                 <th>
-                    <a ng-click="orderingPredicate='name'; reverse=!reverse" href="" ng-class="{sorting:orderingPredicate == 'name', up:reverse, down:!reverse}">Merge</a>
-                </th-->
+                    Merge
+                </th>
             </tr>
             </thead>
             <tbody>
@@ -94,6 +94,9 @@
                 </td>
                 <td>
                     <build-status build="branch.lastBuild" branch="branch" build-actions="branch.buildActions"></build-status>
+                </td>
+                <td>
+                    <button class="merge" disabled=""></button>
                 </td>
             </tr>
             </tbody>

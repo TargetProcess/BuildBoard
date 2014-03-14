@@ -6,7 +6,9 @@
 /// <reference path='services/HttpServiceNotificationDecorator.ts'/>
 /// <reference path='services/BackendService.ts'/>
 /// <reference path='services/LoggedUserService.ts'/>
-/// <reference path='services/BranchesService.ts'/>
+
+/// <reference path='services/ModelProvider.ts'/>
+
 /// <reference path='models/Branch.ts' />
 /// <reference path='filters/Filters.ts' />
 /// <reference path='interfaces/IBuildBoardWindow.ts' />
