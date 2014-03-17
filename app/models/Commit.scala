@@ -1,5 +1,7 @@
 package models
 
-case class Commit(sha1: String) {
+import org.joda.time.DateTime
 
-}
+case class Commit(sha1: String, message: String, committerEmail: String, timestamp: DateTime) extends ActivityEntry
+
+

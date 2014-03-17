@@ -7,12 +7,13 @@ import models._
 
 import src.Utils._
 import rx.lang.scala.subscriptions.Subscription
-import models.github.{GithubBranches, GithubBranch, RealGithubRepository}
+import models.github.RealGithubRepository
 import scala.util.Success
 import scala.util.Failure
 import scala.Some
 import play.api.Play
 import play.api.Play.current
+import models.mongo.{Users, GithubBranches, PullRequests, Collection}
 
 object CacheService {
   def cache[T](interval: Duration, collection: Collection[T])(getValues: => List[T]) = {
@@ -30,7 +31,7 @@ object CacheService {
   val githubBranchesInterval = Play.configuration.getInt("cache.interval.githubBranches").getOrElse(10).seconds
 
   def start = {
-    User.findOneByUsername(user) match {
+    Users.findOneByUsername(user) match {
       case Some(u) =>
         implicit val user = u
         val repo = new RealGithubRepository()
@@ -41,7 +42,7 @@ object CacheService {
           }
         }
 
-        val sub2 = cache[GithubBranch](githubBranchesInterval, GithubBranches) {
+        val sub2 = cache[Branch](githubBranchesInterval, GithubBranches) {
           watch("cache: get github branches") {
             repo.getBranches
           }

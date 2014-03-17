@@ -3,6 +3,7 @@ package controllers
 import play.api.mvc._
 import models._
 import play.api.mvc.BodyParsers.parse
+import models.mongo.Users
 
 trait Secured {
 
@@ -18,7 +19,7 @@ trait Secured {
   def IsAuthorized[A](bodyParser: BodyParser[A])(f: => User => Request[A] => Result) =
     IsAuthenticated(bodyParser) {
       username => {
-        User.findOneByUsername(username) match {
+        Users.findOneByUsername(username) match {
           case Some(user) => request => f(user)(request)
           case None => request => onUnauthorized(request)
         }

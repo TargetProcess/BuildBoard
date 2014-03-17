@@ -15,6 +15,7 @@ import models.Build
 import models.TestCasePackage
 import org.joda.time.DateTime
 import com.github.nscala_time.time.Imports._
+import models.mongo.BuildToggles
 
 trait JenkinsApi {
   self: JenkinsRepository =>

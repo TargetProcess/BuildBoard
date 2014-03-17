@@ -15,12 +15,9 @@ trait TpUserRepo {
       .asString
 
     val json = Json.parse(response)
-
-
     val token = (json \ "Token").as[String]
-
-
     val user = new EntityRepo(token).getLoggedUser
+
     user
   }
 }

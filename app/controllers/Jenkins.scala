@@ -39,20 +39,22 @@ object Jenkins extends Controller with Secured {
   def toggleBuild(branchId: String, buildNumber: Int) = IsAuthorized {
     implicit user =>
       val branch = new BranchesRepository().getBranch(branchId)
-      val build = jenkinsRepo.toggleBuild(branch, buildNumber)
+      val build = branch.map(jenkinsRepo.toggleBuild(_, buildNumber))
       request => Ok(Json.toJson(build))
   }
 
   def builds(branch: String) = IsAuthorized {
     implicit user =>
       val branchEntity = new BranchesRepository().getBranch(branch)
-      request => Ok(Json.toJson(jenkinsRepo.getBuilds(branchEntity).toList))
+      val builds = branchEntity.map(jenkinsRepo.getBuilds(_).toList)
+      request => Ok(Json.toJson(builds))
   }
 
   def lastBuildInfo(branch: String) = IsAuthorized {
     implicit user =>
       val branchEntity = new BranchesRepository().getBranch(branch)
-      request => Ok(Json.toJson(jenkinsRepo.getLastBuild(branchEntity)))
+      val buildInfo = branchEntity.map(jenkinsRepo.getLastBuild)
+      request => Ok(Json.toJson(buildInfo))
   }
 
   def lastBuildInfos = IsAuthorized {
@@ -64,20 +66,22 @@ object Jenkins extends Controller with Secured {
   def build(branch: String, number: Int) = IsAuthorized {
     implicit user =>
       val branchEntity = new BranchesRepository().getBranch(branch)
-      request => Ok(Json.toJson(jenkinsRepo.getBuild(branchEntity, number)))
+      val build = branchEntity.map(jenkinsRepo.getBuild(_, number))
+      request => Ok(Json.toJson(build))
   }
 
   def run(branch: String, build: Int, part: String, run: String) = IsAuthorized {
     implicit user =>
       val branchEntity = new BranchesRepository().getBranch(branch)
-      request => Ok(Json.toJson(jenkinsRepo.getTestRun(branchEntity, build, part, run)))
+      val runEntity = branchEntity.map(jenkinsRepo.getTestRun(_, build, part, run))
+      request => Ok(Json.toJson(runEntity))
   }
 
   def testCase(branch: String, build: Int, part: String, run: String, test: String) = IsAuthorized {
     implicit user =>
       val branchEntity = new BranchesRepository().getBranch(branch)
-      val buildNode = jenkinsRepo.getTestRun(branchEntity, build, part, run)
-      val testCase = buildNode.map(n => n.getTestCase(test)).flatMap(t => t)
+      val buildNode = branchEntity.map(jenkinsRepo.getTestRun(_, build, part, run)).flatten
+      val testCase = buildNode.map(n => n.getTestCase(test)).flatten
       request => Ok(Json.toJson(testCase))
   }
 

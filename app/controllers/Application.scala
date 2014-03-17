@@ -4,7 +4,6 @@ import play.api.mvc._
 import models._
 import play.api.libs.json._
 import Writes._
-import models.Branch
 
 object Application extends Controller with Secured {
 
@@ -26,7 +25,7 @@ object Application extends Controller with Secured {
   def branch(id:String) = IsAuthorized {
       implicit user =>
         implicit request =>
-          val branch: Branch = new BranchesRepository().getBranch(id)
+          val branch = new BranchesRepository().getBranch(id)
 
           Ok(Json.toJson(branch))
   }

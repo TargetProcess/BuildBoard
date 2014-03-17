@@ -1,25 +1,15 @@
 package models.tp
 
-import models.Login
 import scalaj.http.Http
 import TargetprocessApplication._
-import scala.util.Try
 import play.api.libs.json._
-import play.api.libs.json.util._
 import play.api.libs.json.Reads._
-import play.api.data.validation.ValidationError
 import play.api.libs.functional.syntax._
 import models.EntityState
 import models.Entity
-import models.Entity._
 import models.Assignment
 import scalaj.http.HttpOptions
 import scalaj.http.Http.Request
-import scala.concurrent._
-import ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration
-import scala.concurrent.duration._
-import java.util.concurrent.TimeUnit._
 
 trait EntityRepository {
   def changeEntityState(entityId: Int, stateId: Int): EntityState
@@ -69,7 +59,9 @@ object EntityRepo {
 }
 
 class EntityRepo(token: String) extends EntityRepository {
+
   import EntityRepo._
+
   val stateSelector = "EntityState[Id,IsFinal,Role,Name,NextStates]"
 
 
@@ -131,7 +123,6 @@ class EntityRepo(token: String) extends EntityRepository {
         val json = get("Assignables", include, where = "Id%20in%20(" + group.mkString(",") + ")")
         json.validate((__ \ "Items").read(list[Entity])).get
     }
-
   }
 
   def getLoggedUser: (TpUser, String) = {

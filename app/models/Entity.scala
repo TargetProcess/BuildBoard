@@ -57,5 +57,4 @@ object EntityState {
 
 case class Assignment(userId: Int, role: String, avatar: String, firstName: String, lastName: String, isResponsible: Boolean = false) {
   val fullName = firstName + " " + lastName
-
 }

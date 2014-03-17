@@ -19,7 +19,6 @@ abstract class ConfigurableCycle(val name: String) extends Cycle {
   val unitTests = Play.configuration.getString(s"$configPath.unitTests").getOrElse("All")
   val funcTests = Play.configuration.getString(s"$configPath.funcTests").getOrElse("All")
   val buildFullPackage = Play.configuration.getBoolean(s"$configPath.buildFullPackage").getOrElse(false)
-
 }
 
 case object BuildPackageOnly extends ConfigurableCycle("PackageOnly") {

@@ -1,10 +1,3 @@
 package models
 
-case class Branch(
-                   name: String,
-                   url: String,
-                   pullRequest: Option[PullRequest],
-                   entity: Option[Entity],
-                   buildActions:List[BuildAction]=Nil) {
-}
-
+case class Branch(name:String, url: String, pullRequest: Option[PullRequest] = None, entity: Option[Entity] = None, activity: List[ActivityEntry] = Nil)

@@ -3,10 +3,10 @@ package controllers
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
-import models._
 import views._
 import scala.util._
 import models.github._
+import models.mongo.Users
 
 case class UserCredentials(username: String, password: String)
 
@@ -33,10 +33,10 @@ object Login extends Controller with Secured {
       loginForm.bindFromRequest.fold(
         formWithErrors => BadRequest(html.login(formWithErrors)),
         login =>
-          User.authenticate(login.username, login.password) match {
+          Users.authenticate(login.username, login.password) match {
             case Success((tpUser, token)) => {
 
-              User.saveLogged(tpUser, token)
+              Users.saveLogged(tpUser, token)
 
               Redirect(routes.Application.index).withSession("login" -> tpUser.login)
 
@@ -49,7 +49,7 @@ object Login extends Controller with Secured {
     user =>
       implicit request =>
         val (login, accessToken) = GithubApplication.login(code)
-        User.save(user.copy(githubLogin = login, githubToken = accessToken))
+        Users.save(user.copy(githubLogin = login, githubToken = accessToken))
         Ok(views.html.closeWindow())
   }
 

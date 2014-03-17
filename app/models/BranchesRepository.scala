@@ -7,7 +7,8 @@ import scala.language.postfixOps
 import scala.concurrent._
 import scala.concurrent.duration._
 import ExecutionContext.Implicits.global
-import models.github.{CachedGithubRepository, GithubBranch, RealGithubRepository, GithubRepository}
+import models.github._
+import scala.Some
 
 class BranchesRepository(implicit user: User) {
 
@@ -17,13 +18,13 @@ class BranchesRepository(implicit user: User) {
   val githubRepository: GithubRepository = new CachedGithubRepository
 
 
-  def getBranch(id: String): Branch = {
+  def getBranch(id: String): Option[Branch] = {
 
     val br = watch("get branches from github") {
       githubRepository.getBranches
     }
 
-    getBranchesInfo(br.filter(_.name == id)).head
+    getBranchesInfo(br.filter(_.name == id)).headOption
   }
 
 
@@ -39,16 +40,13 @@ class BranchesRepository(implicit user: User) {
     }
   }
 
-  def getBranchesInfo(ghBranches: List[GithubBranch]): List[Branch] = {
-
-
+  def getBranchesInfo(ghBranches: List[Branch]): List[Branch] = {
     val futurePullRequests = Future {
       val prList = watch("Get pull requests") {
         githubRepository.getPullRequests
       }
       prList.map(pr => (pr.name, pr)).toMap
     }
-
 
     val branchNames = ghBranches
       .map(br => br.name)
@@ -60,7 +58,6 @@ class BranchesRepository(implicit user: User) {
     }
       .toList
 
-
     val futureEntities = Future {
       watch("Get assignables") {
         new EntityRepo(user.token).getAssignables(entityIds)
@@ -71,7 +68,6 @@ class BranchesRepository(implicit user: User) {
 
     val aggFuture = for (a <- futurePullRequests;
                          b <- futureEntities) yield (a, b)
-
 
     val (ghPullRequests, entities) = Await.result(aggFuture, 10 seconds)
 
@@ -97,7 +93,8 @@ class BranchesRepository(implicit user: User) {
         case None => Nil
       })
 
-      Branch(name, githubRepository.getUrlForBranch(name), pullRequest, entity, actions)
+      //todo: add actions to branch
+      Branch(name, githubRepository.getUrlForBranch(name), pullRequest, entity/*, actions*/)
 
     }).toList
 
