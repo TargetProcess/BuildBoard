@@ -33,7 +33,7 @@ module buildBoard {
             return this.$http.get(this.controllers.Jenkins.builds(branchId).absoluteURL());
         }
 
-        build(branchId:string, buildNumber: number):ng.IHttpPromise<Build> {
+        build(branchId:string, buildNumber: number):ng.IHttpPromise<BuildInfo> {
             return this.$http.get(this.controllers.Jenkins.build(branchId, buildNumber).absoluteURL());
         }
 

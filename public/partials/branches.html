@@ -96,7 +96,7 @@
                     <build-status build="branch.lastBuild" branch="branch" build-actions="branch.buildActions"></build-status>
                 </td>
                 <td>
-                    <button class="merge" disabled=""></button>
+                    <button class="merge" ng-show="isPossibleToMerge()" ng-disabled="!isMergeable()"></button>
                 </td>
             </tr>
             </tbody>

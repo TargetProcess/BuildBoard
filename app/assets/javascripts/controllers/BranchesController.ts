@@ -3,15 +3,13 @@ module buildBoard {
     'use strict';
 
     export interface IBranchesScope extends ng.IScope {
-        branches:Branch[];
-        users:User[];
+        getBranches():Branch[];
+        getUsers():User[];
 
-        allBranches:Branch[];
+        getAllBranches():Branch[];
 
 
         countBy(userFilter:string, branchFilter:string):number;
-
-        loading:boolean;
 
         userFilter:any;
         branchesFilter:any;
@@ -29,16 +27,9 @@ module buildBoard {
             ModelProvider.NAME
         ];
 
-        constructor(private $scope:IBranchesScope, $state:ng.ui.IStateService, $window:ng.IWindowService, private loggedUserService:LoggedUserService, modelProvider:ModelProvider) {
-            this.$scope.loading = true;
-
+        constructor(private $scope:IBranchesScope, $state:ng.ui.IStateService, $window:ng.IWindowService, private loggedUserService:LoggedUserService, private modelProvider:ModelProvider) {
             this.$scope.userFilter = $state.params['user'] || 'all';
             this.$scope.branchesFilter = $state.params['branch'] || 'all';
-
-            modelProvider.$branches.then(branches => {
-                this.branchesCallback(branches);
-                this.$scope.loading = false;
-            });
 
             this.$scope.loginToGithub = url=> {
                 var otherWindow = $window.open(url, "", "menubar=no,location=yes,resizable=yes,scrollbars=yes,status=no");
@@ -47,9 +38,19 @@ module buildBoard {
                     this.$scope.$apply();
                 }
             }
+
+
+            this.$scope.getUsers = ()=>this.getUsers(modelProvider.branches);
+
+            this.$scope.getAllBranches = () => modelProvider.branches;
+            this.$scope.getBranches = () => this.filter(modelProvider.branches, this.$scope.userFilter, this.$scope.branchesFilter);
+            this.$scope.countBy = (userFilter:string, branchesFilter:string)=>this.filter(modelProvider.branches, userFilter || this.$scope.userFilter, branchesFilter || "all").length;
+
+
         }
 
-        private branchesCallback(branches:Branch[]) {
+        private getUsers(branches:Branch[]){
+
             var usersAndBranches = _.chain(branches)
                 .filter(branch=>!!branch.entity)
                 .map((branch:Branch) =>
@@ -70,11 +71,9 @@ module buildBoard {
                 user.count = counts[user.userId];
             });
 
-            this.$scope.users = users;
-            this.$scope.allBranches = branches;
-            this.$scope.branches = this.filter(branches, this.$scope.userFilter, this.$scope.branchesFilter);
-            this.$scope.countBy = (userFilter:string, branchesFilter:string)=>this.filter(branches, userFilter || this.$scope.userFilter, branchesFilter || "all").length;
+            return users;
         }
+
 
         filter(list:Branch[], userFilter:string, branchFilter:string):Branch[] {
             var userPredicate;

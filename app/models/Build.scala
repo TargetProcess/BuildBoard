@@ -19,11 +19,25 @@ trait BuildBase[TBuild <: BuildBase[TBuild]] {
   def toggle: TBuild
 }
 
-case class BuildInfo(override val number: Int, override val branch: String, status: Option[String], timeStamp: DateTime, isPullRequest: Boolean = false, override val toggled: Boolean = false) extends BuildBase[BuildInfo] {
+case class BuildInfo(
+                      override val number: Int,
+                      override val branch: String,
+                      status: Option[String],
+                      timeStamp: DateTime,
+                      isPullRequest: Boolean = false,
+                      override val toggled: Boolean = false)
+  extends BuildBase[BuildInfo] {
   override def toggle: BuildInfo = this.copy(toggled = !toggled)
 }
 
-case class Build(override val number: Int, override val branch: String, status: Option[String], url: String, timeStamp: DateTime, node: BuildNode, override val toggled: Boolean = false) extends BuildBase[Build] {
+case class Build(
+                  override val number: Int,
+                  override val branch: String,
+                  status: Option[String],
+                  url: String,
+                  timeStamp: DateTime,
+                  node: BuildNode,
+                  override val toggled: Boolean = false) extends BuildBase[Build] {
   def getTestRunBuildNode(part: String, run: String): Option[BuildNode] = {
     def getTestRunBuildNodeInner(node: BuildNode): Option[BuildNode] = node match {
       case n: BuildNode if n.name == part && n.runName == run => Some(n)

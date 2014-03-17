@@ -14,38 +14,34 @@ module buildBoard {
             ModelProvider.NAME,
         ];
 
-        constructor(public $scope:IBranchDetailsScope, $state: ng.ui.IStateService, backendService: BackendService, modelProvider:ModelProvider) {
+        constructor(public $scope:IBranchDetailsScope, $state: ng.ui.IStateService, backendService: BackendService, private modelProvider:ModelProvider) {
             super($scope, backendService);
-
 
             this.$scope.branchName = $state.params['name'];
             this.$scope.closeView = ()=> {
                 $state.go("list");
             };
 
-            this.$scope.loadBuild = (buildInfo: BuildInfo) => {
-                if (buildInfo.build == null) {
+            /*this.$scope.loadBuild = (buildInfo: BuildInfo) => {
+                if (buildInfo.buildNode == null) {
                     backendService.build(this.$scope.branch.name, buildInfo.number).success(build => {
-                        buildInfo.build = build;
+                        buildInfo.buildNode = build;
                     });
                 }
-            };
+            };*/
 
             var buildsRequest = backendService.builds(this.$scope.branchName);
 
-            modelProvider.findBranch(this.$scope.branchName).then(branch=>{
-                this.$scope.branch = branch;
-
-                this.loadPullRequestStatus(this.$scope.branch);
-                buildsRequest.success(builds => {
-                    this.$scope.builds = builds;
-                    var lastBuild = _.first(builds);
-                    this.$scope.branch.lastBuild = lastBuild;
-                    if (lastBuild){
-                        this.$scope.loadBuild(lastBuild);
-                    }
-                });
+            this.$scope.branch = modelProvider.findBranch(this.$scope.branchName);
+            this.loadPullRequestStatus(this.$scope.branch);
+            buildsRequest.success(builds => {
+                this.$scope.builds = builds;
+                var lastBuild = _.first(builds);
+                this.$scope.branch.lastBuild = lastBuild;
+                if (lastBuild){
+                    this.$scope.loadBuild(lastBuild);
+                }
             });
-        }
+    }
     }
 }

@@ -8,22 +8,28 @@ module buildBoard {
         public static $inject = [
             '$q',
             BranchesService.NAME,
+            BackendService.NAME,
         ];
 
-        public $branches:ng.IPromise<Branch[]>
+        public branches:Branch[];
 
-        constructor($q:ng.IQService, $branchesService:BranchesService) {
-            this.$branches = $branchesService.allBranches;
-            this.$branches.then((branches:Branch[])=> {
-                _.each(branches, (b,i)=>{b._id = i});
+        constructor($q:ng.IQService, $branchesService:BranchesService, $backendService:BackendService) {
+            var $branches = $branchesService.allBranches;
+            var $buildsPerBranchName = $branchesService.allBranchesWithLastBuilds;
+            var $developBuilds = $backendService.builds('develop');
 
-                var $buildsPerBranchName = $branchesService.allBranchesWithLastBuilds;
-
-                $buildsPerBranchName.then((builds:IMap<Build>)=>{
-                    _.each(branches, branch=>{
+            $branches.then(branches=>{
+                this.branches = branches;
+                console.log(branches);
+                $buildsPerBranchName.then(builds=>{
+                    _.each(builds, build=>{
+                        if (build)
+                            build.getStatus = () => StatusHelper.parse(build)
+                        });
+                    _.each(this.branches, branch=> {
                         var build = builds[branch.name.toLowerCase()];
                         if (build) {
-                            if ((!branch.lastBuild || branch.lastBuild.timeStamp < build.timeStamp)) {
+                            if (!branch.lastBuild || branch.lastBuild.timeStamp < build.timeStamp) {
                                 branch.lastBuild = build;
                             }
                         }
@@ -32,13 +38,19 @@ module buildBoard {
                         }
                     })
                 });
+
+                $developBuilds.success(develop=>{
+                    var developBranch:Branch = _.find(this.branches, b=>b.name=='develop');
+                    _.each(develop, build=>{build.getStatus = () => StatusHelper.parse(build)});
+                    developBranch.builds = develop;
+                    developBranch.lastBuild = _.chain(develop).sortBy(x=>-x.timeStamp).first().value();
+                })
             });
         }
 
 
-
-        public findBranch(branchName:string):ng.IPromise<Branch> {
-            return this.$branches.then(branches=> _.find(branches, b=>b.name == branchName));
+        public findBranch(branchName:string):Branch {
+            return _.find(this.branches, b=>b.name == branchName);
         }
     }
 

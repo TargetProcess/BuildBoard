@@ -12,6 +12,7 @@ module buildBoard {
         pullRequest:PullRequest;
         lastBuild:BuildInfo;
         url:string;
+        builds:BuildInfo[];
     }
 
     export interface PullRequest {
@@ -45,18 +46,21 @@ module buildBoard {
         isMergeable:boolean;
     }
 
-    export interface Build {
+    export interface BuildBase {
         number:number;
-        timeStamp:number;
-        status:string;
         branch:string;
         toggled:boolean;
-        node:BuildNode;
+        timeStamp:number;
+        status:string;
+        getStatus():Status
     }
 
-    export interface BuildInfo extends Build {
+    export interface BuildInfo extends BuildBase{
+    }
+
+    export interface Build extends BuildBase {
         isPullRequest:boolean;
-        build:Build;
+        node:BuildNode;
     }
 
     export class Artifact {
