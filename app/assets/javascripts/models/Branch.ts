@@ -56,11 +56,11 @@ module buildBoard {
     }
 
     export interface BuildInfo extends BuildBase{
+        node:BuildNode
     }
 
     export interface Build extends BuildBase {
         isPullRequest:boolean;
-        node:BuildNode;
     }
 
     export class Artifact {

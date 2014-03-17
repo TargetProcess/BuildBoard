@@ -6,9 +6,6 @@ module buildBoard {
         getBranches():Branch[];
         getUsers():User[];
 
-        getAllBranches():Branch[];
-
-
         countBy(userFilter:string, branchFilter:string):number;
 
         userFilter:any;
@@ -39,14 +36,9 @@ module buildBoard {
                 }
             }
 
-
             this.$scope.getUsers = ()=>this.getUsers(modelProvider.branches);
-
-            this.$scope.getAllBranches = () => modelProvider.branches;
             this.$scope.getBranches = () => this.filter(modelProvider.branches, this.$scope.userFilter, this.$scope.branchesFilter);
             this.$scope.countBy = (userFilter:string, branchesFilter:string)=>this.filter(modelProvider.branches, userFilter || this.$scope.userFilter, branchesFilter || "all").length;
-
-
         }
 
         private getUsers(branches:Branch[]){

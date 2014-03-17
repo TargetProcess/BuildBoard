@@ -8,7 +8,7 @@
 
 
         <div class="action-list">
-            <div ng-repeat="build in builds | orderBy:'-number'">
+            <div ng-repeat="build in getBuilds() | orderBy:'-number'">
                 <div class="date">{{build.timeStamp | date:'M/d/yy HH:mm' }}</div>
                 <div class="avatar">
                     <img title="Jenkins" src="/assets/images/jenkins.png" style="width: 32px; height: 32px;">
@@ -25,7 +25,7 @@
                             <div class="tree panel-collapse" ng-show="!isCollapsed">
                                 <div class="panel-body">
                                     <ul>
-                                        <li ng-repeat="data in [build.build.node]" ng-include="'/assets/partials/buildNode.html'"></li>
+                                        <li ng-repeat="data in [build.node]" ng-include="'/assets/partials/buildNode.html'"></li>
                                     </ul>
                                 </div>
                             </div>

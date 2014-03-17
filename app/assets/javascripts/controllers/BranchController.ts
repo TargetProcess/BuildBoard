@@ -3,7 +3,8 @@ module buildBoard {
     'use strict';
 
     export interface IBranchDetailsScope extends IBranchScope {
-        loadBuild(buildInfo: BuildInfo): void;
+        loadBuild(buildInfo:BuildInfo): void;
+        getBuilds(): BuildInfo[];
     }
 
     export class BranchController extends BranchControllerBase {
@@ -11,37 +12,55 @@ module buildBoard {
             '$scope',
             '$state',
             BackendService.NAME,
-            ModelProvider.NAME,
+            ModelProvider.NAME
         ];
 
-        constructor(public $scope:IBranchDetailsScope, $state: ng.ui.IStateService, backendService: BackendService, private modelProvider:ModelProvider) {
-            super($scope, backendService);
+        constructor(public $scope:IBranchDetailsScope, $state:ng.ui.IStateService, backendService:BackendService, modelProvider:ModelProvider) {
+            super($scope, backendService, modelProvider);
 
             this.$scope.branchName = $state.params['name'];
             this.$scope.closeView = ()=> {
                 $state.go("list");
             };
 
-            /*this.$scope.loadBuild = (buildInfo: BuildInfo) => {
-                if (buildInfo.buildNode == null) {
-                    backendService.build(this.$scope.branch.name, buildInfo.number).success(build => {
-                        buildInfo.buildNode = build;
+
+            var defer = null;
+
+            this.$scope.loadBuild = (buildInfo:BuildInfo) => {
+                if (buildInfo.node == null && !defer) {
+                    defer = backendService.build(this.$scope.getBranch().name, buildInfo.number).success((build:BuildInfo) => {
+                        buildInfo.node = build.node;
                     });
                 }
-            };*/
+            };
 
-            var buildsRequest = backendService.builds(this.$scope.branchName);
+            var buildsRequest = null;
 
-            this.$scope.branch = modelProvider.findBranch(this.$scope.branchName);
-            this.loadPullRequestStatus(this.$scope.branch);
-            buildsRequest.success(builds => {
-                this.$scope.builds = builds;
-                var lastBuild = _.first(builds);
-                this.$scope.branch.lastBuild = lastBuild;
-                if (lastBuild){
-                    this.$scope.loadBuild(lastBuild);
+
+            this.$scope.getBuilds = () =>{
+                var branch = this.$scope.getBranch();
+                if (!branch)
+                    return null;
+
+                if (!branch.builds){
+                    if (!buildsRequest) {
+                        buildsRequest = backendService.builds(this.$scope.branchName);
+                        buildsRequest.success(builds => {
+                            branch.builds = builds;
+                            var lastBuild = _.first(builds);
+                            branch.lastBuild = lastBuild;
+                        });
+                    }
+                    return null;
                 }
-            });
-    }
+
+                var lastBuild = _.first(branch.builds);
+                this.$scope.loadBuild(lastBuild);
+                return branch.builds;
+
+            }
+
+            this.loadPullRequestStatus(this.$scope.branchName);
+        }
     }
 }

@@ -20,7 +20,6 @@ module buildBoard {
 
             $branches.then(branches=>{
                 this.branches = branches;
-                console.log(branches);
                 $buildsPerBranchName.then(builds=>{
                     _.each(builds, build=>{
                         if (build)

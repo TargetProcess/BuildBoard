@@ -10,13 +10,14 @@ module buildBoard {
 
         public static $inject = [
             '$scope',
-            BackendService.NAME
+            BackendService.NAME,
+            ModelProvider.NAME
         ];
 
-        constructor($scope:IBranchScope, backendService:BackendService) {
-            super($scope, backendService);
+        constructor($scope:IBranchScope, backendService:BackendService, modelProvider:ModelProvider) {
+            super($scope, backendService, modelProvider);
 
-            this.loadPullRequestStatus(this.$scope.branch);
+            this.loadPullRequestStatus(this.$scope.branchName);
         }
 
     }

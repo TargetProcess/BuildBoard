@@ -20,7 +20,7 @@
         </li>
     </ul>
     <ul class="persons-list">
-        <li ng-repeat="user in users | orderBy:'firstName+lastName'" ui-sref-active="active">
+        <li ng-repeat="user in getUsers() | orderBy:'firstName+lastName'" ui-sref-active="active">
             <a ui-sref="list({user:user.userId, branch:branchesFilter})">
                         <span class="avatar">
                             <img title="{{user.role}}" ng-src="{{user.avatar}}16">
