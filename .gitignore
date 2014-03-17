@@ -19,7 +19,7 @@ bin/*
 .target/
 .worksheet/
 app/worksheets/
-mongo/
+/mongo/
 conf/dev.conf
 conf/prod.conf
 .idea
