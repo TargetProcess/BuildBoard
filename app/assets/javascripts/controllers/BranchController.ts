@@ -59,8 +59,6 @@ module buildBoard {
                 return branch.builds;
 
             }
-
-            this.loadPullRequestStatus(this.$scope.branchName);
         }
     }
 }

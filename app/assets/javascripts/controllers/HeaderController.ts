@@ -32,7 +32,7 @@ module buildBoard {
                 var result = _.chain(branch.builds)
                     .find(x=> {
                         var lastBuild = $scope.getLastStatus();
-                        if (lastBuild && lastBuild.timeStamp == x.timeStamp)
+                        if (lastBuild && lastBuild.timestamp == x.timestamp)
                             return false;
                         var status = x.getStatus();
                         return status != Status.Unknown && status != Status.InProgress

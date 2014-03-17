@@ -17,7 +17,7 @@ module buildBoard {
 
     export interface PullRequest {
         prId:number;
-        status:PRStatus;
+        status:PullRequestStatus;
         url:string;
         created:number;
     }
@@ -41,7 +41,7 @@ module buildBoard {
         isResponsible:boolean
     }
 
-    export interface PRStatus {
+    export interface PullRequestStatus {
         isMerged:boolean;
         isMergeable:boolean;
     }
@@ -50,7 +50,7 @@ module buildBoard {
         number:number;
         branch:string;
         toggled:boolean;
-        timeStamp:number;
+        timestamp:number;
         status:string;
         getStatus():Status
     }

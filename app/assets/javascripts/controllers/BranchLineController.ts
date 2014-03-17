@@ -16,9 +16,6 @@ module buildBoard {
 
         constructor($scope:IBranchScope, backendService:BackendService, modelProvider:ModelProvider) {
             super($scope, backendService, modelProvider);
-
-            this.loadPullRequestStatus(this.$scope.branchName);
         }
-
     }
 }

@@ -19,8 +19,6 @@ class RealGithubRepository(implicit user: User) extends GithubRepository{
   def getBranches: List[Branch] = {
     val branches = repositoryService.getBranches(repo).asScala.toList.map(GithubBranch.create)
     val pullRequests = prService.getPullRequests(repo, "open").asScala.toList.map(GithubPullRequest.create)
-    println(branches.map(_.name).sortBy(b => b))
-    println(pullRequests.map(_.name).sortBy(p => p))
 
     branches.map(b => {
       val pr = pullRequests.find(p => p.name == b.name)

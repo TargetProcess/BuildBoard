@@ -2,13 +2,13 @@
     <a class="logo" href="#"></a>
     <div ng-show="getLastStatus()" ui-sref="list.branch({name:'develop'})" class="global-status pointer {{ getLastStatus().getStatus() | status2Class }}">
         <span class="status {{ getLastStatus().getStatus() | status2Class }}">
-           Develop is {{ getLastStatus().getStatus() | status2text }} since {{  getLastStatus().timeStamp | date:'M/d/yy HH:mm' }}
+           Develop is {{ getLastStatus().getStatus() | status2text }} since {{  getLastStatus().timestamp | date:'M/d/yy HH:mm' }}
         </span>
     </div>
 
     <div ng-show="getPrevStatus()" ui-sref="list.branch({name:'develop'})" class="global-status pointer {{ getPrevStatus().getStatus() | status2Class }}">
         <span class="status {{ getPrevStatus().getStatus() | status2Class }}">
-           Develop was {{ getPrevStatus().getStatus() | status2text }} at {{ getPrevStatus().timeStamp | date:'M/d/yy HH:mm' }}
+           Develop was {{ getPrevStatus().getStatus() | status2text }} at {{ getPrevStatus().timestamp | date:'M/d/yy HH:mm' }}
         </span>
     </div>
 

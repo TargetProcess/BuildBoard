@@ -28,7 +28,7 @@ module buildBoard {
                     _.each(this.branches, branch=> {
                         var build = builds[branch.name.toLowerCase()];
                         if (build) {
-                            if (!branch.lastBuild || branch.lastBuild.timeStamp < build.timeStamp) {
+                            if (!branch.lastBuild || branch.lastBuild.timestamp < build.timestamp) {
                                 branch.lastBuild = build;
                             }
                         }
@@ -42,7 +42,7 @@ module buildBoard {
                     var developBranch:Branch = _.find(this.branches, b=>b.name=='develop');
                     _.each(develop, build=>{build.getStatus = () => StatusHelper.parse(build)});
                     developBranch.builds = develop;
-                    developBranch.lastBuild = _.chain(develop).sortBy(x=>-x.timeStamp).first().value();
+                    developBranch.lastBuild = _.chain(develop).sortBy(x=>-x.timestamp).first().value();
                 })
             });
         }

@@ -2,14 +2,14 @@
 <div class="view">
     <div class="action-panel">
         <div class="caption">
-            <entity-title entity="branch.entity"></entity-title>
-            <h2 ng-show="!branch.entity">{{branchName}}</h2>
+            <entity-title entity="getBranch().entity"></entity-title>
+            <h2 ng-show="!getBranch().entity">{{branchName}}</h2>
         </div>
 
 
         <div class="action-list">
             <div ng-repeat="build in getBuilds() | orderBy:'-number'">
-                <div class="date">{{build.timeStamp | date:'M/d/yy HH:mm' }}</div>
+                <div class="date">{{build.timestamp | date:'M/d/yy HH:mm' }}</div>
                 <div class="avatar">
                     <img title="Jenkins" src="/assets/images/jenkins.png" style="width: 32px; height: 32px;">
                 </div>
@@ -17,7 +17,7 @@
                     <div class="panel-group">
                         <div class="panel {{ StatusHelper.parse(build) | status2Class }}">
                             <div class="panel-heading" ng-init="isCollapsed = !$first">
-                                <build-status build="build" branch="branch" type="btn"></build-status>
+                                <build-status build="build" branch="getBranch()" type="btn"></build-status>
                                 <h4 class="panel-title toggle-state">
                                     <a ng-click="loadBuild(build); isCollapsed = !isCollapsed">{{build.isPullRequest ? "PR " : "" }}Build #{{build.number}}</a>
                                 </h4>
@@ -38,29 +38,29 @@
     <div class="info-panel">
         <div class="item">
             <h4>Branch</h4>
-            <span>{{branch.name}}</span>
+            <span>{{getBranch().name}}</span>
         </div>
-        <div class="item" ng-show="branch.entity">
+        <div class="item" ng-show="getBranch().entity">
             <h4>Users</h4>
-            <span ng-repeat="user in branch.entity.assignments" class="avatar">
+            <span ng-repeat="user in getBranch().entity.assignments" class="avatar">
                 <img ng-src="{{user.avatar}}20">
                 <span>{{user.firstName}} {{user.lastName}}</span>
             </span>
         </div>
-        <div class="item" ng-show="branch.entity">
+        <div class="item" ng-show="getBranch().entity">
             <h4>Status</h4>
-            <entity-state entity="branch.entity" type="btn"></entity-state>
+            <entity-state entity="getBranch().entity" type="btn"></entity-state>
         </div>
-        <div class="item" ng-show="branch.pullRequest">
+        <div class="item" ng-show="getBranch().pullRequest">
            <h4>Pr</h4>
            <a
-               class="btn pr status {{ branch.pullRequest | pullRequestStatus | status2Class }}"
-               href="{{branch.pullRequest.url}}">#{{branch.pullRequest.prId}}</a>
+               class="btn pr status {{ getBranch().pullRequest | pullRequestStatus | status2Class }}"
+               href="{{getBranch().pullRequest.url}}">#{{getBranch().pullRequest.prId}}</a>
         </div>
 
         <div class="item">
             <h4>Jenkins</h4>
-            <build-status build="branch.lastBuild" branch="branch" build-actions="branch.buildActions" type="btn"></build-status>
+            <build-status build="getBranch().lastBuild" branch="getBranch()" build-actions="getBranch().buildActions" type="btn"></build-status>
         </div>
     </div>
 </div>

@@ -49,7 +49,7 @@ module buildBoard {
             return this.$http.post(this.controllers.Jenkins.toggleBuild(branchId, buildNumber).absoluteURL(), {});
         }
 
-        pullRequestStatus(pullRequest:number):ng.IHttpPromise<PRStatus> {
+        pullRequestStatus(pullRequest:number):ng.IHttpPromise<PullRequestStatus> {
             return this.$http.get(this.controllers.Github.pullRequestStatus(pullRequest).absoluteURL());
         }
 

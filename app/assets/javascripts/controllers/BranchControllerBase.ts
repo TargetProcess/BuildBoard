@@ -53,13 +53,5 @@ module buildBoard {
                 return true;
             };
         }
-
-        public loadPullRequestStatus(branchName:string) {
-            if (branch && branch.pullRequest && !branch.pullRequest.status) {
-                this.backendService.pullRequestStatus(branch.pullRequest.prId).success(data=> {
-                    branch.pullRequest.status = data;
-                })
-            }
-        }
     }
 }

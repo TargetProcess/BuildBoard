@@ -16,7 +16,7 @@ module buildBoard {
             '<div class="dropdown">' +
             '<a ng-show="build" href="" class="jenkins status {{type}} {{ getBuildStatus(build) | status2Class }} dropdown-toggle" data-toggle="dropdown"' +
             ' title="{{ getBuildStatus(build) | status2text }}">' +
-            '<span ng-show="buildActions">{{ build.timeStamp | date }}</span>' +
+            '<span ng-show="buildActions">{{ build.timestamp | date }}</span>' +
             '<span ng-hide="buildActions">{{ getBuildStatus(build) | status2text }}</span>' +
             '</a>' +
             '<a ng-show="!build" href="" class="jenkins status {{type}} dropdown-toggle" data-toggle="dropdown">' +
