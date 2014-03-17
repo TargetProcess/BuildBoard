@@ -15,7 +15,7 @@ class BranchesRepository(implicit user: User) {
   val EntityBranchPattern = new Regex("^(?i)feature/(us|bug|f)(\\d+).*")
   val FeatureBranchPattern = new Regex("^(?i)feature/(\\w+)")
 
-  val githubRepository: GithubRepository = new CachedGithubRepository
+  val githubRepository: GithubRepository = new RealGithubRepository
 
 
   def getBranch(id: String): Option[Branch] = {
@@ -41,13 +41,6 @@ class BranchesRepository(implicit user: User) {
   }
 
   def getBranchesInfo(ghBranches: List[Branch]): List[Branch] = {
-    val futurePullRequests = Future {
-      val prList = watch("Get pull requests") {
-        githubRepository.getPullRequests
-      }
-      prList.map(pr => (pr.name, pr)).toMap
-    }
-
     val branchNames = ghBranches
       .map(br => br.name)
 
@@ -58,23 +51,15 @@ class BranchesRepository(implicit user: User) {
     }
       .toList
 
-    val futureEntities = Future {
-      watch("Get assignables") {
+    val entities =
         new EntityRepo(user.token).getAssignables(entityIds)
           .map(e => (e.id, e))
           .toMap
-      }
-    }
-
-    val aggFuture = for (a <- futurePullRequests;
-                         b <- futureEntities) yield (a, b)
-
-    val (ghPullRequests, entities) = Await.result(aggFuture, 10 seconds)
 
     ghBranches.map(githubBranch => {
       val name = githubBranch.name
 
-      val pullRequest = ghPullRequests.get(name)
+      val pullRequest = githubBranch.pullRequest
 
       val entity = name match {
         case EntityBranchPattern(_, id) => entities.get(id.toInt)
@@ -94,11 +79,12 @@ class BranchesRepository(implicit user: User) {
       })
 
       //todo: add actions to branch
-      Branch(name, githubRepository.getUrlForBranch(name), pullRequest, entity/*, actions*/)
+      Branch(name, githubBranch.url, pullRequest, entity/*, actions*/)
 
     }).toList
 
   }
 
-  def getPullRequestStatus(id: Int): PullRequestStatus = githubRepository.getPullRequestStatus(id)
+  //todo
+  def getPullRequestStatus(id: Int): PullRequestStatus = ??? // githubRepository.getPullRequestStatus(id)
 }

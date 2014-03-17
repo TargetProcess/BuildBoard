@@ -7,8 +7,6 @@ import Writes._
 import models.PullRequestStatus
 
 object Github extends Controller with Secured {
-
-
   def pullRequestStatus(id: Int) = IsAuthorized {
     implicit user =>
       request =>

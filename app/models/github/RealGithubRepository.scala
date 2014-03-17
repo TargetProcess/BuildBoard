@@ -6,7 +6,7 @@ import org.eclipse.egit.github.core.service._
 import org.eclipse.egit.github.core.RepositoryId
 import scala.collection.JavaConverters._
 import org.joda.time.DateTime
-import models.mongo.{GithubBranches, PullRequests}
+import models.mongo.GithubBranches
 
 
 class RealGithubRepository(implicit user: User) extends GithubRepository{
@@ -16,13 +16,16 @@ class RealGithubRepository(implicit user: User) extends GithubRepository{
   val commitService = new CommitService(github)
   val repo = new RepositoryId(GithubApplication.user, GithubApplication.repo)
 
-  def getBranches: List[Branch] = repositoryService.getBranches(repo).asScala.toList.map(GithubBranch.create _)
+  def getBranches: List[Branch] = {
+    val branches = repositoryService.getBranches(repo).asScala.toList.map(GithubBranch.create)
+    val pullRequests = prService.getPullRequests(repo, "open").asScala.toList.map(GithubPullRequest.create)
+    println(branches.map(_.name).sortBy(b => b))
+    println(pullRequests.map(_.name).sortBy(p => p))
 
-  def getPullRequests: List[PullRequest] = prService.getPullRequests(repo, "open").asScala.toList.map(GithubPullRequest.create _)
-
-  def getPullRequestStatus(id: Int) = {
-    val pr = prService.getPullRequest(repo, id)
-    PullRequestStatus(pr.isMergeable, pr.isMerged)
+    branches.map(b => {
+      val pr = pullRequests.find(p => p.name == b.name)
+      b.copy(pullRequest = pr)
+    })
   }
 
   override def getCommits(hashes: List[String]): List[Commit] = hashes.map(commitService.getCommit(repo, _)).map(c => Commit(c.getSha, c.getCommit.getMessage, c.getCommitter.getEmail, new DateTime(c.getCommitter.getCreatedAt)))
@@ -30,6 +33,5 @@ class RealGithubRepository(implicit user: User) extends GithubRepository{
 
 
 class CachedGithubRepository(implicit user: User) extends RealGithubRepository{
-  override def getPullRequests: List[PullRequest] = PullRequests.findAll().toList
   override def getBranches: List[Branch] = GithubBranches.findAll().toList
 }

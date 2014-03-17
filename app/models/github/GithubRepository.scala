@@ -8,8 +8,5 @@ object GithubBranch {
 
 trait GithubRepository {
   def getBranches: List[Branch]
-  def getPullRequests: List[PullRequest]
-  def getPullRequestStatus(id: Int):PullRequestStatus
-  def getUrlForBranch(name:String) =  GithubApplication.url(name)
   def getCommits(hashes: List[String]): List[Commit]
 }
