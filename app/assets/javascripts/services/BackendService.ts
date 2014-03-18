@@ -29,16 +29,8 @@ module buildBoard {
             return this.$http.get(this.controllers.Application.branches().absoluteURL());
         }
 
-        builds(branchId:string):ng.IHttpPromise<BuildInfo[]> {
-            return this.$http.get(this.controllers.Jenkins.builds(branchId).absoluteURL());
-        }
-
         build(branchId:string, buildNumber: number):ng.IHttpPromise<BuildInfo> {
             return this.$http.get(this.controllers.Jenkins.build(branchId, buildNumber).absoluteURL());
-        }
-
-        lastBuilds():ng.IHttpPromise<IMap<Build>> {
-            return this.$http.get(this.controllers.Jenkins.lastBuildInfos().absoluteURL());
         }
 
         forceBuild(buildAction:BuildAction):ng.IHttpPromise<Build> {

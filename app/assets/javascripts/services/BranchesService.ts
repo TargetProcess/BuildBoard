@@ -10,12 +10,10 @@ module buildBoard {
         ];
 
         public allBranches:ng.IPromise<Branch[]>;
-        public allBranchesWithLastBuilds:ng.IPromise<IMap<Build>>;
 
         constructor(private $backendService:BackendService) {
             this.$backendService = $backendService;
             this.allBranches = this.$backendService.branches().then(branches => branches.data);
-            this.allBranchesWithLastBuilds = this.$backendService.lastBuilds().then(lastBuilds => lastBuilds.data);
         }
     }
 

@@ -3,17 +3,14 @@ package models.services
 import scala.concurrent.duration._
 import scala.util.Try
 import rx.lang.scala.Observable
-import models._
-
-import src.Utils._
 import rx.lang.scala.subscriptions.Subscription
-import models.github.RealGithubRepository
 import scala.util.Success
 import scala.util.Failure
 import scala.Some
 import play.api.Play
 import play.api.Play.current
-import models.mongo.{Users, GithubBranches, Collection}
+import models.mongo.{Users, Branches, Collection}
+import com.mongodb.casbah.commons.MongoDBObject
 
 object CacheService {
   def cache[T](interval: Duration, collection: Collection[T])(getValues: => List[T]) = {
@@ -22,6 +19,7 @@ object CacheService {
     })
       .subscribe(tryResult => tryResult match {
       case Success(data) =>
+        println(s"saving to mongo ${data.length}")
         collection.findAll.foreach(collection.remove)
         data.foreach(collection.save)
       case Failure(e) => play.Logger.error("Error", e)
@@ -36,12 +34,22 @@ object CacheService {
     Users.findOneByUsername(user) match {
       case Some(u) =>
         implicit val user = u
-        val repo = new RealGithubRepository()
+        val repo = new BranchesService()
 
-        val sub2 = cache[Branch](githubBranchesInterval, GithubBranches) {
-          watch("cache: get github branches") {
+        //        val sub2 = cache[Branch](githubBranchesInterval, Branches) {
+        //          watch("cache: get github branches") {
+        //            repo.getBranches
+        //          }
+        //        }
+
+        val sub2 = {
+          Observable.interval(githubBranchesInterval).map(tick => Try {
             repo.getBranches
-          }
+          })
+            .subscribe(tryResult => tryResult match {
+            case Success(data) => data.foreach(branch => Branches.update(MongoDBObject("name" -> branch.name), branch, upsert = true, multi = false, Branches.dao.collection.writeConcern))
+            case Failure(e) => play.Logger.error("Error", e)
+          })
         }
 
         Subscription {

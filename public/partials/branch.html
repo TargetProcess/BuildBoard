@@ -8,26 +8,37 @@
 
 
         <div class="action-list">
-            <div ng-repeat="build in getBuilds() | orderBy:'-number'">
-                <div class="date">{{build.timestamp | date:'M/d/yy HH:mm' }}</div>
-                <div class="avatar">
+            <div ng-repeat="entry in getActivity() | orderBy:'-timestamp'">
+                <div class="date">{{entry.timestamp | date:'M/d/yy HH:mm' }}</div>
+                <div class="avatar" ng-show="entry.number">
                     <img title="Jenkins" src="/assets/images/jenkins.png" style="width: 32px; height: 32px;">
                 </div>
-                <div class="description">
+                <div class="description" ng-show="entry.number">
                     <div class="panel-group">
-                        <div class="panel {{ StatusHelper.parse(build) | status2Class }}">
-                            <div class="panel-heading" ng-init="isCollapsed = !$first">
-                                <build-status build="build" branch="getBranch()" type="btn"></build-status>
+                        <div class="panel {{ StatusHelper.parse(entry) | status2Class }}">
+                            <div class="panel-heading" ng-init="isCollapsed = !$first; !$first || loadBuild(entry);">
+                                <build-status build="entry" branch="getBranch()" type="btn"></build-status>
                                 <h4 class="panel-title toggle-state">
-                                    <a ng-click="loadBuild(build); isCollapsed = !isCollapsed">{{build.isPullRequest ? "PR " : "" }}Build #{{build.number}}</a>
+                                    <a ng-click="loadBuild(entry); isCollapsed = !isCollapsed">{{entry.isPullRequest ? "PR " : "" }}Build #{{entry.number}}</a>
                                 </h4>
                             </div>
                             <div class="tree panel-collapse" ng-show="!isCollapsed">
                                 <div class="panel-body">
                                     <ul>
-                                        <li ng-repeat="data in [build.node]" ng-include="'/assets/partials/buildNode.html'"></li>
+                                        <li ng-repeat="data in [entry.node]" ng-include="'/assets/partials/buildNode.html'"></li>
                                     </ul>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="description" ng-show="entry.prId">
+                    <div class="panel-group">
+                        <div class="panel default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a>Pull request #{{entry.prId}} created</a>
+                                </h4>
                             </div>
                         </div>
                     </div>

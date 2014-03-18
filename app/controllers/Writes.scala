@@ -36,14 +36,17 @@ object Writes {
     override def writes(o: ActivityEntry): JsValue = o match {
       case b@Build(_, _, _, _, _, _, _) => buildWrite.writes(b)
       case b@PullRequest(_, _, _, _, _) => prWrite.writes(b)
+      case b@BuildInfo(_, _, _, _, _, _, _) => buildInfoWrite.writes(b)
     }
   }
 
-  implicit val branchWrite = (
-    (__ \ "name").write[String] ~
-      (__ \ "url").write[String] ~
-      (__ \ "pullRequest").writeNullable[PullRequest] ~
-      (__ \ "entity").writeNullable[Entity] ~
-      (__ \ "activity").write(list(activityEntryWrites))
-    )(unlift(Branch.unapply))
+  implicit val branchWrite =
+    (
+      (__ \ "name").write[String] ~
+        (__ \ "url").write[String] ~
+        (__ \ "pullRequest").writeNullable[PullRequest] ~
+        (__ \ "entity").writeNullable[Entity] ~
+        (__ \ "lastBuild").writeNullable[BuildInfo] ~
+        (__ \ "activity").write(list(activityEntryWrites))
+      )(unlift(Branch.unapply))
 }

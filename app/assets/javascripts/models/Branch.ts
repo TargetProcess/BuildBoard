@@ -5,7 +5,11 @@
 
 module buildBoard {
 
-    export interface Branch {
+    export class ActivityEntry {
+        timestamp:number;
+    }
+
+    export class Branch {
         _id:number;
         name:string;
         entity:Entity;
@@ -13,53 +17,56 @@ module buildBoard {
         lastBuild:BuildInfo;
         url:string;
         builds:BuildInfo[];
+        activity:ActivityEntry[];
     }
 
-    export interface PullRequest {
+    export class PullRequest extends ActivityEntry {
         prId:number;
         status:PullRequestStatus;
         url:string;
         created:number;
     }
 
-    export interface Entity {
-        id: number
-        assignments:Assignment[]
-        state: EntityState
+    export class Entity {
+        id:number;
+        assignments:Assignment[];
+        state:EntityState;
     }
 
-    export interface EntityState {
-        name:string
-        isFinal : boolean
+    export class EntityState {
+        name:string;
+        isFinal:boolean;
     }
 
-    export interface User {
-        userId:number
+    export class User {
+        userId:number;
     }
 
-    export interface Assignment extends User {
-        isResponsible:boolean
+    export class Assignment extends User {
+        isResponsible:boolean;
     }
 
-    export interface PullRequestStatus {
+    export class PullRequestStatus {
         isMerged:boolean;
         isMergeable:boolean;
     }
 
-    export interface BuildBase {
+    export class BuildBase extends ActivityEntry {
         number:number;
         branch:string;
         toggled:boolean;
-        timestamp:number;
         status:string;
-        getStatus():Status
+
+        getStatus():Status {
+            throw new Error('This method is abstract');
+        }
     }
 
-    export interface BuildInfo extends BuildBase{
-        node:BuildNode
+    export class BuildInfo extends BuildBase {
+        node:BuildNode;
     }
 
-    export interface Build extends BuildBase {
+    export class Build extends BuildBase {
         isPullRequest:boolean;
     }
 
@@ -68,7 +75,7 @@ module buildBoard {
         url:string;
     }
 
-    export interface BuildNode {
+    export class BuildNode {
         name:string;
         runName:string;
         status:string;
@@ -90,7 +97,7 @@ module buildBoard {
         buildNumber:number;
     }
 
-    export interface TestCase {
+    export class TestCase {
         name:string;
         result:string;
         duration:number;

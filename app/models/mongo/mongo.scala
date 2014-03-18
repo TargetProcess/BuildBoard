@@ -8,13 +8,12 @@ import models._
 import se.radley.plugin.salat._
 import com.mongodb.casbah.Imports._
 import se.radley.plugin.salat.Binders.ObjectId
-import models.PullRequest
 import models.Branch
 import models.BuildToggle
-import models.Commit
 import com.novus.salat.StringTypeHintStrategy
 import models.Build
 import models.tp.{TpUser, TpUserRepo}
+import com.mongodb.casbah.commons.conversions.scala.RegisterJodaTimeConversionHelpers
 
 object mongoContext {
   implicit val context = {
@@ -24,6 +23,7 @@ object mongoContext {
     }
     context.registerGlobalKeyOverride(remapThis = "id", toThisInstead = "_id")
     context.registerClassLoader(Play.classloader)
+    RegisterJodaTimeConversionHelpers()
 
     context
   }
@@ -39,17 +39,17 @@ trait Collection[T] {
   def findAll: Iterator[T]
 }
 
-object PullRequests extends ModelCompanion[PullRequest, ObjectId] with Collection[PullRequest] {
-  def collection = mongoCollection("pullRequests")
-
-  val dao = new SalatDAO[PullRequest, ObjectId](collection) {}
-
-  // Indexes
-  collection.ensureIndex(DBObject("prId" -> 1), "", unique = true)
-
-  com.mongodb.casbah.commons.conversions.scala.RegisterConversionHelpers()
-  com.mongodb.casbah.commons.conversions.scala.RegisterJodaTimeConversionHelpers()
-}
+//object PullRequests extends ModelCompanion[PullRequest, ObjectId] with Collection[PullRequest] {
+//  def collection = mongoCollection("pullRequests")
+//
+//  val dao = new SalatDAO[PullRequest, ObjectId](collection) {}
+//
+//  // Indexes
+//  collection.ensureIndex(DBObject("prId" -> 1), "", unique = true)
+//
+//  com.mongodb.casbah.commons.conversions.scala.RegisterConversionHelpers()
+//  com.mongodb.casbah.commons.conversions.scala.RegisterJodaTimeConversionHelpers()
+//}
 
 object BuildToggles extends ModelCompanion[BuildToggle, ObjectId] with Collection[BuildToggle] {
   def collection = mongoCollection("buildToggles")
@@ -68,24 +68,22 @@ object Builds extends ModelCompanion[Build, ObjectId] with Collection[Build] {
   collection.ensureIndex(DBObject("number" -> 1, "branch" -> 1), "build_number", unique = true)
 }
 
-object GithubBranches extends ModelCompanion[Branch, ObjectId] with Collection[Branch] {
-
+object Branches extends ModelCompanion[Branch, ObjectId] with Collection[Branch] {
   def collection = mongoCollection("branches")
 
-
-  val dao = new SalatDAO[Branch, ObjectId](collection) {}
+  val dao = new SalatDAO[Branch, ObjectId](collection){}
 
   // Indexes
   collection.ensureIndex(DBObject("name" -> 1), "", unique = true)
 }
 
-object Commits extends ModelCompanion[Commit, ObjectId] with Collection[Commit] {
-  def collection = mongoCollection("commits")
-
-  val dao = new SalatDAO[Commit, ObjectId](collection) {}
-
-  collection.ensureIndex(DBObject("sha1" -> 1), "sha1", unique = true)
-}
+//object Commits extends ModelCompanion[Commit, ObjectId] with Collection[Commit] {
+//  def collection = mongoCollection("commits")
+//
+//  val dao = new SalatDAO[Commit, ObjectId](collection) {}
+//
+//  collection.ensureIndex(DBObject("sha1" -> 1), "sha1", unique = true)
+//}
 
 trait UserDAO extends ModelCompanion[User, ObjectId] {
   def collection = mongoCollection("users")

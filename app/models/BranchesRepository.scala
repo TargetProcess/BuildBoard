@@ -4,9 +4,6 @@ import models.tp.EntityRepo
 import scala.util.matching.Regex
 import src.Utils._
 import scala.language.postfixOps
-import scala.concurrent._
-import scala.concurrent.duration._
-import ExecutionContext.Implicits.global
 import models.github._
 import scala.Some
 
@@ -15,7 +12,7 @@ class BranchesRepository(implicit user: User) {
   val EntityBranchPattern = new Regex("^(?i)feature/(us|bug|f)(\\d+).*")
   val FeatureBranchPattern = new Regex("^(?i)feature/(\\w+)")
 
-  val githubRepository: GithubRepository = new RealGithubRepository
+  val githubRepository: GithubRepository = new CachedGithubRepository
 
 
   def getBranch(id: String): Option[Branch] = {
@@ -24,9 +21,9 @@ class BranchesRepository(implicit user: User) {
       githubRepository.getBranches
     }
 
-    getBranchesInfo(br.filter(_.name == id)).headOption
+    br.filter(_.name == id).headOption
+//    getBranchesInfo(br.filter(_.name == id)).headOption
   }
-
 
   def getBranches: List[Branch] = {
     if (user.githubToken == null) {
@@ -36,7 +33,9 @@ class BranchesRepository(implicit user: User) {
       val ghBranches = watch("Get branches from github") {
         githubRepository.getBranches
       }
-      getBranchesInfo(ghBranches)
+
+      ghBranches
+//      getBranchesInfo(ghBranches)
     }
   }
 

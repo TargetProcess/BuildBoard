@@ -15,7 +15,7 @@ import models.Build
 import models.TestCasePackage
 import org.joda.time.DateTime
 import com.github.nscala_time.time.Imports._
-import models.mongo.BuildToggles
+//import models.mongo.BuildToggles
 
 trait JenkinsApi {
   self: JenkinsRepository =>
@@ -78,17 +78,19 @@ class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
     val builds = getBuildsSources(branch)
       .flatMap(getBuildInfo)
 
-    getToggledBuilds(branch, builds)
+//    getToggledBuilds(branch, builds)
+      builds
       .toList
       .sortBy(-_.number)
   }
 
   def getBuild(branch: models.Branch, number: Int): Option[Build] = {
-    val builds = getBuildsSources[Build](branch)
+    val builds = getBuildsSources(branch)
       .filter(_.number == number)
       .map(getBuild)
 
-    getToggledBuilds(branch, builds)
+//    getToggledBuilds(branch, builds)
+      builds
       .headOption
   }
 
@@ -160,17 +162,18 @@ class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
     .map(testRunBuildNode => testRunBuildNode.copy(testResults = getTestCasePackages(testRunBuildNode)))
 
   def toggleBuild(branch: models.Branch, number: Int): Option[models.Build] = getBuild(branch, number).map(build => {
-    BuildToggles.findAll.find(t => t.branch == branch.name && t.buildNumber == number) match {
-      case Some(toggle) =>
-        BuildToggles.remove(toggle)
-        build.copy(toggled = false)
-      case None =>
-        BuildToggles.save(BuildToggle(branch.name, number))
-        build.copy(toggled = true)
-    }
+//    BuildToggles.findAll.find(t => t.branch == branch.name && t.buildNumber == number) match {
+//      case Some(toggle) =>
+//        BuildToggles.remove(toggle)
+//        build.copy(toggled = false)
+//      case None =>
+//        BuildToggles.save(BuildToggle(branch.name, number))
+//        build.copy(toggled = true)
+//    }
+    build
   })
 
-  private def getBuildsSources[TBuild <: BuildBase[TBuild]](branch: Branch): Traversable[BuildSource] = {
+  private def getBuildsSources(branch: Branch): Traversable[BuildSource] = {
     val parsedBranchName = branch.name.replace('/', '_')
     val prRegex = "pr_(\\d+)_(\\d+)$".r
     val branchRegex = "(.+)_(\\d+)$".r
@@ -210,19 +213,20 @@ class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
     if (folder.exists) {
       val (status, _, timestamp) = getBuildDetails(folder)
 
+      //todo: get commits' sha1
       Some(BuildInfo(buildSource.number, buildSource.branch.name, status, new DateTime(timestamp), buildSource.pullRequestId.isDefined))
     }
     else None
   }
 
-  private def getToggledBuilds[TBuild <: BuildBase[TBuild]](branch: Branch, builds: Traversable[TBuild]): Traversable[TBuild] = builds match {
-    case Nil => Nil
-    case builds => {
-      val toggles = BuildToggles.findAll.filter(t => t.branch == branch.name).toList
-
-      builds.map(build => if (toggles.exists(t => t.buildNumber == build.number)) build.toggle else build)
-    }
-  }
+//  private def getToggledBuilds(branch: Branch, builds: Traversable[BuildBase]): Traversable[BuildBase] = builds match {
+//    case Nil => Nil
+//    case builds => {
+//      val toggles = BuildToggles.findAll.filter(t => t.branch == branch.name).toList
+//
+//      builds.map(build => if (toggles.exists(t => t.buildNumber == build.number)) build.toggle else build)
+//    }
+//  }
 
   private def getBuildNode(f: File): BuildNode = {
     val complexNameRegex = "(.+)_(.+)".r
