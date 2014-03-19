@@ -36,14 +36,14 @@ object Jenkins extends Controller with Secured {
   def toggleBuild(branchId: String, buildNumber: Int) = IsAuthorized {
     implicit user =>
       val branch = new BranchRepository().getBranch(branchId)
-      val build = branch.map(jenkinsRepo.toggleBuild(_, buildNumber))
+      val build = branch.map(new BuildRepository().toggleBuild(_, buildNumber))
       request => Ok(Json.toJson(build))
   }
 
   def build(branch: String, number: Int) = IsAuthorized {
     implicit user =>
       val branchEntity = new BranchRepository().getBranch(branch)
-      val build = branchEntity.map(jenkinsRepo.getBuild(_, number))
+      val build = branchEntity.map(new BuildRepository().getBuild(_, number))
       request => Ok(Json.toJson(build))
   }
 

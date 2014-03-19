@@ -10,8 +10,8 @@ trait BuildBase[TBuild <: BuildBase[TBuild]] extends ActivityEntry {
   val timestamp: DateTime
 }
 
-case class BuildInfo(override val number: Int, branch: String, status: Option[String], override val timestamp: DateTime, isPullRequest: Boolean = false, toggled: Boolean = false, commits: List[String] = Nil) extends BuildBase[BuildInfo] {
-  def toggle: BuildInfo = this.copy(toggled = !toggled)
+case class BuildInfo(override val number: Int, branch: String, status: Option[String], override val timestamp: DateTime, isPullRequest: Boolean = false, var toggled: Boolean = false, commits: List[String] = Nil) extends BuildBase[BuildInfo] {
+  def toggle: Unit = this.toggled = !this.toggled
 }
 
 case class Build(override val number: Int, branch: String, timestamp: DateTime, node: BuildNode) extends BuildBase[Build] {

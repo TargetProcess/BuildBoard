@@ -27,7 +27,6 @@ object CacheService {
   }
 
   val user = Play.configuration.getString("cache.user").get
-//  val pullRequestInterval = Play.configuration.getInt("cache.interval.pullRequests").getOrElse(30).seconds
   val githubBranchesInterval = Play.configuration.getInt("cache.interval.githubBranches").getOrElse(5).minutes
 
   def start = {
