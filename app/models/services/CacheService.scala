@@ -9,36 +9,21 @@ import scala.util.Failure
 import scala.Some
 import play.api.Play
 import play.api.Play.current
-import models.mongo.{Builds, Users, Branches, Collection}
+import models.mongo.{Builds, Branches}
 import com.mongodb.casbah.commons.MongoDBObject
-import models.{AuthInfo, User}
+import models.AuthInfo
 
 object CacheService {
-  def cache[T](interval: Duration, collection: Collection[T])(getValues: => List[T]) = {
-    Observable.interval(interval).map(tick => Try {
-      getValues
-    })
-      .subscribe(tryResult => tryResult match {
-      case Success(data) =>
-        println(s"saving to mongo ${data.length}")
-        collection.findAll.foreach(collection.remove)
-        data.foreach(collection.save)
-      case Failure(e) => play.Logger.error("Error", e)
-    })
-  }
-
-  val githubBranchesInterval = Play.configuration.getInt("cache.interval.githubBranches").getOrElse(5).minutes
+  val githubBranchesInterval = Play.configuration.getInt("cache.interval.githubBranches").getOrElse(1).minutes
 
   def start = {
 
-    val authInfo = for(tpToken <- Play.configuration.getString("cache.user.tp.token");
+    val authInfo = for (
+      tpToken <- Play.configuration.getString("cache.user.tp.token");
                 gToken <- Play.configuration.getString("cache.user.github.token")
                 ) yield new AuthInfo {override val githubToken: String = gToken
         override val token: String = tpToken
       }
-
-
-
 
     authInfo match {
       case Some(u) =>

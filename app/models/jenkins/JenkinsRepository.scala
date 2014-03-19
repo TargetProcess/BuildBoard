@@ -15,6 +15,7 @@ import models.Build
 import models.TestCasePackage
 import org.joda.time.DateTime
 import com.github.nscala_time.time.Imports._
+
 //import models.mongo.BuildToggles
 
 trait JenkinsApi {
@@ -155,18 +156,6 @@ class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
     .flatten
     .map(testRunBuildNode => testRunBuildNode.copy(testResults = getTestCasePackages(testRunBuildNode)))
 
-  def toggleBuild(branch: models.Branch, number: Int): Option[models.Build] = getBuild(branch, number).map(build => {
-//    BuildToggles.findAll.find(t => t.branch == branch.name && t.buildNumber == number) match {
-//      case Some(toggle) =>
-//        BuildToggles.remove(toggle)
-//        build.copy(toggled = false)
-//      case None =>
-//        BuildToggles.save(BuildToggle(branch.name, number))
-//        build.copy(toggled = true)
-//    }
-    build
-  })
-
   private def getBuildsSources(branch: Branch): Traversable[BuildSource] = {
     val parsedBranchName = branch.name.replace('/', '_')
     val prRegex = "pr_(\\d+)_(\\d+)$".r
@@ -207,20 +196,25 @@ class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
     if (folder.exists) {
       val (status, _, timestamp) = getBuildDetails(folder)
 
+      val commits = getCommits(new File(folder, "Checkout/GitChanges.log"))
+
       //todo: get commits' sha1
-      Some(BuildInfo(buildSource.number, buildSource.branch.name, status, new DateTime(timestamp), buildSource.pullRequestId.isDefined))
+      Some(BuildInfo(buildSource.number, buildSource.branch.name, status, new DateTime(timestamp), buildSource.pullRequestId.isDefined, commits = commits))
     }
     else None
   }
 
-//  private def getToggledBuilds(branch: Branch, builds: Traversable[BuildBase]): Traversable[BuildBase] = builds match {
-//    case Nil => Nil
-//    case builds => {
-//      val toggles = BuildToggles.findAll.filter(t => t.branch == branch.name).toList
-//
-//      builds.map(build => if (toggles.exists(t => t.buildNumber == build.number)) build.toggle else build)
-//    }
-//  }
+  private def getCommits(file: File): List[String] = {
+    val regex = "^commit (\\w+)$".r
+
+    read(file).map(fc => fc.split('\n')
+      .toList
+      .map {
+        case regex(sha1) => Some(sha1)
+        case _ => None
+      }.flatten
+    ).getOrElse(Nil)
+  }
 
   private def getBuildNode(f: File): BuildNode = {
     val complexNameRegex = "(.+)_(.+)".r
