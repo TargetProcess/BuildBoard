@@ -10,8 +10,16 @@ trait BuildBase[TBuild <: BuildBase[TBuild]] extends ActivityEntry {
   val timestamp: DateTime
 }
 
-case class BuildInfo(override val number: Int, branch: String, status: Option[String], override val timestamp: DateTime, isPullRequest: Boolean = false, var toggled: Boolean = false, commits: List[String] = Nil) extends BuildBase[BuildInfo] {
-  override val activityType = "build"
+case class BuildInfo(override val number: Int,
+                     branch: String,
+                     status: Option[String],
+                     override val timestamp: DateTime,
+                     isPullRequest: Boolean = false,
+                     var toggled: Boolean = false,
+                     commits: List[String] = Nil,
+                     activityType:String = "build"
+                      ) extends BuildBase[BuildInfo] {
+
   def toggle: Unit = this.toggled = !this.toggled
 }
 
@@ -19,8 +27,9 @@ case class Build(
                   override val number: Int,
                   branch: String,
                   timestamp: DateTime,
-                  node: BuildNode) extends BuildBase[Build] {
-  override val activityType = "build"
+                  node: BuildNode,
+                  activityType:String = "build") extends BuildBase[Build] {
+
   def getTestRunBuildNode(part: String, run: String): Option[BuildNode] = {
     def getTestRunBuildNodeInner(node: BuildNode): Option[BuildNode] = node match {
       case n: BuildNode if n.name == part && n.runName == run => Some(n)

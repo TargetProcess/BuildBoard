@@ -16,7 +16,7 @@
                 <div class="description" ng-show="entry.number">
                     <div class="panel-group">
                         <div class="panel {{ StatusHelper.parse(entry) | status2Class }}">
-                            <div class="panel-heading" ng-init="isCollapsed = !$first; !$first || loadBuild(entry);">
+                            <div class="panel-heading" ng-init="isCollapsed = !$first; !$first || (entry.activityType=='build' && loadBuild(entry));">
                                 <build-status build="entry" branch="getBranch()" type="btn"></build-status>
                                 <h4 class="panel-title toggle-state">
                                     <a ng-click="loadBuild(entry); isCollapsed = !isCollapsed">{{entry.isPullRequest ? "PR " : "" }}Build #{{entry.number}}</a>

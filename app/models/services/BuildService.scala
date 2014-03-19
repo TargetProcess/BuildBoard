@@ -9,7 +9,7 @@ class BuildService {
   def getBuilds(branch: Branch): List[Build] = {
     branch.activity
       .map {
-      case b@BuildInfo(_, _, _, _, _, _, _) => Some(b)
+      case b@BuildInfo(_, _, _, _, _, _, _, _) => Some(b)
       case _ => None
     }
       .flatten

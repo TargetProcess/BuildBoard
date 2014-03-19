@@ -26,17 +26,15 @@ object Writes {
   implicit val entityStateWrite = Json.writes[EntityState]
   implicit val entityWrite = Json.writes[Entity]
 
-  implicit val statusWrites = (
-    (__ \ "isMergeable").write[Boolean] ~
-      (__ \ "isMerged").write[Boolean])(unlift(PullRequestStatus.unapply))
+  implicit val statusWrites = Json.writes[PullRequestStatus]
 
   implicit val prWrite = Json.writes[PullRequest]
 
   val activityEntryWrites = new Writes[ActivityEntry] {
     override def writes(o: ActivityEntry): JsValue = o match {
-      case b@Build(_, _, _, _) => buildWrite.writes(b)
-      case b@PullRequest(_, _, _, _, _) => prWrite.writes(b)
-      case b@BuildInfo(_, _, _, _, _, _, _) => buildInfoWrite.writes(b)
+      case b@Build(_,_,_,_,_) => buildWrite.writes(b)
+      case b@PullRequest(_,_,_,_,_,_) => prWrite.writes(b)
+      case b@BuildInfo(_,_,_,_,_,_,_,_) => buildInfoWrite.writes(b)
     }
   }
 
