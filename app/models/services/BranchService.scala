@@ -1,12 +1,12 @@
 package models.services
 
-import models.{ActivityEntry, User}
+import models.{AuthInfo, ActivityEntry, User}
 import models.github.GithubRepository
 import models.tp.EntityRepo
 import scala.util.matching.Regex
 import models.jenkins.JenkinsRepository
 
-class BranchService(implicit user: User) {
+class BranchService(implicit user: AuthInfo) {
   val EntityBranchPattern = new Regex("^(?i)feature/(us|bug|f)(\\d+).*")
   val FeatureBranchPattern = new Regex("^(?i)feature/(\\w+)")
 

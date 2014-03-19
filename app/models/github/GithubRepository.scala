@@ -8,7 +8,7 @@ import org.joda.time.DateTime
 import org.eclipse.egit.github.core.{PullRequest => PR, RepositoryId}
 import models.{PullRequestStatus, PullRequest}
 
-class GithubRepository(implicit user: User) {
+class GithubRepository(implicit user: AuthInfo) {
   private val github = new GitHubClient().setOAuth2Token(user.githubToken)
   private val repositoryService = new RepositoryService(github)
   private val prService = new PullRequestService(github)

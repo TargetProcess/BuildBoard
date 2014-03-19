@@ -25,8 +25,6 @@ module buildBoard {
                     }
                 });
 
-
-                console.log(branches);
                 this.branches = branches;
             });
         }

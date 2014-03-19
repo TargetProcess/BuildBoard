@@ -12,6 +12,7 @@ import play.api.Play.current
 import models.mongo.{Builds, Users, Branches, Collection}
 import com.mongodb.casbah.commons.MongoDBObject
 import javax.security.auth.Subject
+import models.{AuthInfo, User}
 
 object CacheService {
   def cache[T](interval: Duration, collection: Collection[T])(getValues: => List[T]) = {
@@ -27,11 +28,20 @@ object CacheService {
     })
   }
 
-  val user = Play.configuration.getString("cache.user").get
   val githubBranchesInterval = Play.configuration.getInt("cache.interval.githubBranches").getOrElse(5).minutes
 
   def start = {
-    Users.findOneByUsername(user) match {
+
+    val authInfo = for(tpToken <- Play.configuration.getString("cache.user.tp.token");
+                githubToken <- Play.configuration.getString("cache.user.github.token")
+                ) yield new AuthInfo {override val githubToken: String = githubToken
+        override val token: String = tpToken
+      }
+
+
+
+
+    authInfo match {
       case Some(u) =>
         implicit val user = u
         val branchesService = new BranchService
@@ -58,7 +68,7 @@ object CacheService {
           subscription.unsubscribe()
         }
 
-      case None => play.Logger.error(s"Could not find user $user for cache service"); Subscription {}
+      case None => play.Logger.error(s"Could not read cache user info from config. Check 'cache.user.tp.token' and 'cache.user.github.token'"); Subscription {}
     }
   }
 

@@ -7,6 +7,12 @@ trait Login {
   val token: String
 }
 
+trait AuthInfo {
+  val token: String
+  val githubToken: String
+}
+
+
 case class User(
   id: ObjectId = new ObjectId,
 
@@ -17,7 +23,7 @@ case class User(
 
   githubLogin: String = null,
   githubToken: String = null,
-  fullName: String = null) extends Login
+  fullName: String = null) extends Login with AuthInfo
 
 
 
