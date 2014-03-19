@@ -30,21 +30,25 @@ module buildBoard {
                 }
 
                 var lastBuild = $scope.getLastStatus();
+                if (!lastBuild) {
+                    return null;
+                }
 
                 return _.chain(branch.activity)
                     .find(x=> {
-                        if (lastBuild && lastBuild.timestamp == x.timestamp)
+                        if (lastBuild.timestamp == x.timestamp)
                             return false;
 
-                        if (x.activityType == "build" || x.parsedStatus) {
-
-                            var status = (<BuildBase>(x)).parsedStatus;
-                            return !(status == Status.Unknown || status == Status.InProgress);
-
-
+                        if (x.activityType != "build" && _.isUndefined(x.parsedStatus)) {
+                            return false;
                         }
+
+                        var status = (<BuildBase>(x)).parsedStatus;
+                        return !(status == Status.Unknown || status == Status.InProgress);
+
                     })
                     .value();
+
             };
         }
     }
