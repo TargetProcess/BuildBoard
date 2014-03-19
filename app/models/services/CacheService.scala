@@ -11,7 +11,6 @@ import play.api.Play
 import play.api.Play.current
 import models.mongo.{Builds, Users, Branches, Collection}
 import com.mongodb.casbah.commons.MongoDBObject
-import javax.security.auth.Subject
 import models.{AuthInfo, User}
 
 object CacheService {
