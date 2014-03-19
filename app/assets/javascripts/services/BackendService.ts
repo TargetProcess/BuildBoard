@@ -24,7 +24,7 @@ module buildBoard {
             return this.$http.get(this.controllers.Application.branches().absoluteURL());
         }
 
-        build(branchId:string, buildNumber: number):ng.IHttpPromise<BuildInfo> {
+        build(branchId:string, buildNumber: number):ng.IHttpPromise<Build> {
             return this.$http.get(this.controllers.Jenkins.build(branchId, buildNumber).absoluteURL());
         }
 

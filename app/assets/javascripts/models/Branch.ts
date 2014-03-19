@@ -14,10 +14,22 @@ module buildBoard {
         name:string;
         entity:Entity;
         pullRequest:PullRequest;
-        lastBuild:BuildInfo;
+        lastBuild:Build;
         url:string;
-        builds:BuildInfo[];
+        builds:Build[];
         activity:ActivityEntry[];
+
+        static findBuild(branch:Branch, buildNumber:number):Build {
+            if (!branch || !branch.activity){
+                return null;
+            }
+
+            return _.chain(branch.activity)
+                .map(entry => <Build> entry)
+                .filter(build => buildNumber == build.number)
+                .head()
+                .value();
+        }
     }
 
     export class PullRequest extends ActivityEntry {
@@ -62,12 +74,33 @@ module buildBoard {
         }
     }
 
-    export class BuildInfo extends BuildBase {
-        node:BuildNode;
-    }
-
     export class Build extends BuildBase {
+        node:BuildNode;
         isPullRequest:boolean;
+
+        static findBuildNode(build:Build, run:string, part:string):BuildNode {
+            var findBuildNodeInner = (node: BuildNode): BuildNode => {
+                if (!node){
+                    return null;
+                }
+
+                if (part == node.name && run == node.runName) {
+                    return node;
+                }
+
+                if (!node.children){
+                    return null;
+                }
+
+                return _.chain(node.children)
+                    .map(n => findBuildNodeInner(n))
+                    .filter(n => n != null)
+                    .head()
+                    .value();
+            };
+
+            return findBuildNodeInner(build.node);
+        }
     }
 
     export class Artifact {
@@ -128,7 +161,7 @@ module buildBoard {
     }
 
     export class StatusHelper {
-        static parse(build:BuildInfo):Status {
+        static parse(build:Build):Status {
             return build ? StatusHelper.parseInfo(build.status, build.toggled) : Status.Unknown;
         }
 

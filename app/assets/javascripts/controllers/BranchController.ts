@@ -3,7 +3,7 @@ module buildBoard {
     'use strict';
 
     export interface IBranchDetailsScope extends IBranchScope {
-        loadBuild(buildInfo:BuildInfo): void;
+        loadBuild(buildInfo:Build): void;
         getActivity(): ActivityEntry[];
     }
 
@@ -24,9 +24,9 @@ module buildBoard {
             };
 
             var defer = null;
-            this.$scope.loadBuild = (buildInfo:BuildInfo) => {
+            this.$scope.loadBuild = buildInfo => {
                 if (buildInfo.node == null && !defer) {
-                    defer = backendService.build(this.$scope.getBranch().name, buildInfo.number).success((build:BuildInfo) => {
+                    defer = backendService.build(this.$scope.getBranch().name, buildInfo.number).success(build => {
                         buildInfo.node = build.node;
                         defer = null;
                     });
