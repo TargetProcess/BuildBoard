@@ -1,5 +1,6 @@
 /// <reference path='_all.ts' />
 /// <reference path='services/BranchesService.ts'/>
+/// <reference path='directives/BuildStatusBadge'/>
 
 
 module buildBoard {
@@ -31,6 +32,7 @@ module buildBoard {
         .directive(PanelHeadingDirective.NAME, ()=>new PanelHeadingDirective())
         .directive(PanelBodyDirective.NAME, ()=>new PanelBodyDirective())
         .directive(BuildStatusDirective.NAME, ()=>new BuildStatusDirective())
+        .directive(BuildStatusBadgeDirective.NAME, ()=>new BuildStatusBadgeDirective())
         .config(($stateProvider:ng.ui.IStateProvider, $urlRouterProvider:ng.ui.IUrlRouterProvider)=> {
 
             $urlRouterProvider.otherwise("/list?user=my&branch=all");

@@ -16,40 +16,9 @@ module buildBoard {
             $scope.user = loggedUser.getLoggedUser();
             $scope.logout = backendService.controllers.Login.logout().absoluteURL();
 
-            $scope.getLastStatus = () => {
-                var branch = modelProvider.findBranch('develop');
-                if (branch) {
-                    return branch.lastBuild;
-                }
-            };
+            $scope.getLastBuild = () => modelProvider.getLastBuild('develop');
 
-            $scope.getPrevStatus = () => {
-                var branch = modelProvider.findBranch('develop');
-                if (!branch || !branch.activity) {
-                    return null;
-                }
-
-                var lastBuild = $scope.getLastStatus();
-                if (!lastBuild) {
-                    return null;
-                }
-
-                return _.chain(branch.activity)
-                    .find(x=> {
-                        if (lastBuild.timestamp == x.timestamp)
-                            return false;
-
-                        if (x.activityType != "build" && _.isUndefined(x.parsedStatus)) {
-                            return false;
-                        }
-
-                        var status = (<BuildBase>(x)).parsedStatus;
-                        return !(status == Status.Unknown || status == Status.InProgress);
-
-                    })
-                    .value();
-
-            };
+            $scope.getPrevBuild = () => modelProvider.getPrevBuild('develop');
         }
     }
 

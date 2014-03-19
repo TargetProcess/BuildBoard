@@ -55,6 +55,7 @@ module buildBoard {
                     build.toggled = !build.toggled;
                     if (build.number == branch.lastBuild.number){
                         branch.lastBuild.toggled = build.toggled;
+                        branch.lastBuild.parsedStatus = StatusHelper.parseInfo(branch.lastBuild.status, build.toggled);
                     }
                 });
             }

@@ -32,6 +32,7 @@ module buildBoard {
         id:number;
         assignments:Assignment[];
         state:EntityState;
+        entityType:string;
     }
 
     export interface EntityState {

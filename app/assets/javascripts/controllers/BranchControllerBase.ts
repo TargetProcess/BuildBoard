@@ -7,8 +7,14 @@ module buildBoard {
         getBranch(): Branch;
         changeEntityState(entity:Entity, nextState:number);
         closeView():void;
-        isMergeable():boolean;
+        mergeStatus():MergeStatus;
         isPossibleToMerge():boolean;
+        merge():void;
+    }
+
+    export interface MergeStatus{
+        isEnabled:boolean;
+        reasons:string[];
     }
 
     export class BranchControllerBase {
@@ -23,36 +29,53 @@ module buildBoard {
                 return this.$scope.getBranch() && !!this.$scope.getBranch().pullRequest;
             };
 
-            this.$scope.isMergeable = ()=>{
+            this.$scope.mergeStatus = ()=>{
+
+
+
                 var branch = this.$scope.getBranch();
-                if (!branch)
-                    return false;
+                if (!branch) {
+                    return null;
+                }
+
+                var mergeStatus:MergeStatus = {
+                    isEnabled:false,
+                    reasons:[]
+                };
 
                 var pullRequest = branch.pullRequest;
-                if (!pullRequest){
-                    return false;
-                }
-
-                var prStatus = branch.pullRequest.status;
-                if (!prStatus){
-                    return false;
-                }
-
-                if (!prStatus.isMergeable || prStatus.isMerged) {
-                    return false;
+                if (pullRequest) {
+                    if (!pullRequest.status.isMergeable) {
+                        mergeStatus.reasons.push("There are conflicts in pull request");
+                    }
+                } else {
+                    mergeStatus.reasons.push("There is no pull request")
                 }
 
                 if (branch.entity) {
                     var entityStatus = branch.entity.state;
                     if (entityStatus.name != 'Tested') {
-                        return false;
+                        mergeStatus.reasons.push("The "+ branch.entity.entityType + " is not in Tested state")
                     }
                 }
 
+                if (branch.lastBuild) {
+                    if (branch.lastBuild.parsedStatus !== Status.Toggled && branch.lastBuild.parsedStatus !== Status.Success){
+                        mergeStatus.reasons.push("The last build on branch was not success");
+                    }
+                } else {
+                    mergeStatus.reasons.push("There was no build on branch");
+                }
 
+                mergeStatus.isEnabled = mergeStatus.reasons.length === 0;
 
-                return true;
+                return mergeStatus;
             };
+
+
+            this.$scope.merge = ()=>{
+                alert('qwe');
+            }
         }
     }
 }

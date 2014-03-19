@@ -35,5 +35,41 @@ module buildBoard {
         public findBranch(branchName:string):Branch {
             return _.find(this.branches, b=>b.name == branchName);
         }
+
+        public getLastBuild(branchName:string):Build {
+            var branch = this.findBranch(branchName);
+            if (branch) {
+                return branch.lastBuild;
+            }
+        }
+
+        public getPrevBuild(branchName:string):Build {
+
+            var branch = this.findBranch(branchName);
+            if (!branch || !branch.activity) {
+                return null;
+            }
+
+            var lastBuild = this.getLastBuild(branchName);
+            if (!lastBuild) {
+                return null;
+            }
+
+            return _.chain(branch.activity)
+                .find(x=> {
+                    if (lastBuild.timestamp == x.timestamp)
+                        return false;
+
+                    if (x.activityType != "build" && _.isUndefined(x.parsedStatus)) {
+                        return false;
+                    }
+
+                    var status = (<BuildBase>(x)).parsedStatus;
+                    return !(status == Status.Unknown || status == Status.InProgress);
+
+                })
+                .value();
+
+        }
     }
 }

@@ -1,16 +1,10 @@
 <div class="header" ng-controller="headerController">
     <a class="logo" href="#"></a>
-    <div ng-show="getLastStatus()" ui-sref="list.branch({name:'develop'})" class="global-status pointer {{ getLastStatus().parsedStatus | status2Class }}">
-        <span class="status {{ getLastStatus().parsedStatus | status2Class }}">
-           Develop is {{ getLastStatus().parsedStatus | status2text }} since {{  getLastStatus().timestamp | date:'M/d/yy HH:mm' }}
-        </span>
-    </div>
 
-    <div ng-show="getPrevStatus()" ui-sref="list.branch({name:'develop'})" class="global-status pointer {{ getPrevStatus().parsedStatus | status2Class }}">
-        <span class="status {{ getPrevStatus().parsedStatus | status2Class }}">
-           Develop was {{ getPrevStatus().parsedStatus | status2text }} at {{ getPrevStatus().timestamp | date:'M/d/yy HH:mm' }}
-        </span>
-    </div>
+    <build-status-badge build="getLastBuild" name="develop" time="now"></build-status-badge>
+
+    <build-status-badge build="getPrevBuild" name="develop" time="past"></build-status-badge>
+
 
     <ul class="links">
         <li>{{user.fullName}}</li>
