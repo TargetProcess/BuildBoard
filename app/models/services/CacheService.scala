@@ -9,7 +9,7 @@ import scala.util.Failure
 import scala.Some
 import play.api.Play
 import play.api.Play.current
-import models.mongo.{Users, Branches, Collection}
+import models.mongo.{Builds, Users, Branches, Collection}
 import com.mongodb.casbah.commons.MongoDBObject
 
 object CacheService {
@@ -34,26 +34,26 @@ object CacheService {
     Users.findOneByUsername(user) match {
       case Some(u) =>
         implicit val user = u
-        val repo = new BranchesService()
+        val branchesService = new BranchService
+        val buildService = new BuildService
 
-        //        val sub2 = cache[Branch](githubBranchesInterval, Branches) {
-        //          watch("cache: get github branches") {
-        //            repo.getBranches
-        //          }
-        //        }
+        val subscription = Observable.interval(githubBranchesInterval)
+          .map(tick => Try {
+          branchesService.getBranches
+        })
+          .subscribe(tryResult => tryResult match {
+          case Success(data) => data.foreach(branch => {
+            Branches.update(MongoDBObject("name" -> branch.name), branch, upsert = true, multi = false, Branches.dao.collection.writeConcern)
 
-        val sub2 = {
-          Observable.interval(githubBranchesInterval).map(tick => Try {
-            repo.getBranches
+            val builds = buildService.getBuilds(branch)
+
+            builds.foreach(build => Builds.update(MongoDBObject("number" -> build.number, "branch" -> branch.name), build, upsert = true, multi = false, Builds.dao.collection.writeConcern))
           })
-            .subscribe(tryResult => tryResult match {
-            case Success(data) => data.foreach(branch => Branches.update(MongoDBObject("name" -> branch.name), branch, upsert = true, multi = false, Branches.dao.collection.writeConcern))
-            case Failure(e) => play.Logger.error("Error", e)
-          })
-        }
+          case Failure(e) => play.Logger.error("Error", e)
+        })
 
         Subscription {
-          sub2.unsubscribe()
+          subscription.unsubscribe()
         }
 
       case None => play.Logger.error(s"Could not find user $user for cache service"); Subscription {}

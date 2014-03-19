@@ -24,11 +24,8 @@ object Jenkins extends Controller with Secured {
 
         maybeAction match {
           case Some(buildAction) =>
-            val buildResult = jenkinsRepo.forceBuild(buildAction)
-            buildResult match {
-              case Success(_) => Ok(Json.toJson(
-                Build(-1, "this", Some("In progress"), "#", DateTime.now, BuildNode("this", "this", Some("In progress"), "#", List(), DateTime.now))
-              ))
+            jenkinsRepo.forceBuild(buildAction) match {
+              case Success(_) => Ok(Json.toJson(Build(-1, branchId.getOrElse("this"), DateTime.now, BuildNode("this", "this", Some("In progress"), "#", List(), DateTime.now))))
               case Failure(e: HttpException) => BadRequest(e.toString)
               case Failure(e) => InternalServerError("Something going wrong " + e.toString)
             }
@@ -41,26 +38,6 @@ object Jenkins extends Controller with Secured {
       val branch = new BranchesRepository().getBranch(branchId)
       val build = branch.map(jenkinsRepo.toggleBuild(_, buildNumber))
       request => Ok(Json.toJson(build))
-  }
-
-  def builds(branch: String) = IsAuthorized {
-    implicit user =>
-      val branchEntity = new BranchesRepository().getBranch(branch)
-      val builds = branchEntity.map(jenkinsRepo.getBuilds(_).toList)
-      request => Ok(Json.toJson(builds))
-  }
-
-  def lastBuildInfo(branch: String) = IsAuthorized {
-    implicit user =>
-      val branchEntity = new BranchesRepository().getBranch(branch)
-      val buildInfo = branchEntity.map(jenkinsRepo.getLastBuild)
-      request => Ok(Json.toJson(buildInfo))
-  }
-
-  def lastBuildInfos = IsAuthorized {
-    implicit user =>
-      val branches = new BranchesRepository().getBranches
-      request => Ok(Json.toJson(jenkinsRepo.getLastBuildsByBranch(branches)))
   }
 
   def build(branch: String, number: Int) = IsAuthorized {

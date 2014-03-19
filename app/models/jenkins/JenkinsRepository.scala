@@ -74,23 +74,17 @@ class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
 
   private case class BuildSource(branch: Branch, number: Int, pullRequestId: Option[Int], file: File)
 
-  def getBuilds(branch: models.Branch): List[BuildInfo] = {
-    val builds = getBuildsSources(branch)
+  def getBuildInfos(branch: models.Branch): List[BuildInfo] = {
+    getBuildsSources(branch)
       .flatMap(getBuildInfo)
-
-//    getToggledBuilds(branch, builds)
-      builds
       .toList
       .sortBy(-_.number)
   }
 
   def getBuild(branch: models.Branch, number: Int): Option[Build] = {
-    val builds = getBuildsSources(branch)
+    getBuildsSources(branch)
       .filter(_.number == number)
       .map(getBuild)
-
-//    getToggledBuilds(branch, builds)
-      builds
       .headOption
   }
 
@@ -205,7 +199,7 @@ class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
   private def getBuild(buildSource: BuildSource): Build = {
     val node = getBuildNode(new File(buildSource.file, "Build"))
 
-    Build(buildSource.number, buildSource.branch.name, node.status, node.statusUrl, node.timestamp, node)
+    Build(buildSource.number, buildSource.branch.name, node.timestamp, node)
   }
 
   private def getBuildInfo(buildSource: BuildSource): Option[BuildInfo] = {
@@ -242,7 +236,12 @@ class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
       val artifacts = getArtifacts(contents)
 
       folder.getName match {
-        case complexNameRegex(runName, name) => BuildNode(name, runName, status, statusUrl.getOrElse(""), artifacts, new DateTime(timestamp), children)
+        case complexNameRegex(runName, name) => {
+          val node = BuildNode(name, runName, status, statusUrl.getOrElse(""), artifacts, new DateTime(timestamp), children)
+          val testCasePackages = getTestCasePackages(node)
+
+          node.copy(testResults = testCasePackages)
+        }
         case name => BuildNode(name, name, status, statusUrl.getOrElse(""), artifacts, new DateTime(timestamp), children)
       }
     }

@@ -20,11 +20,6 @@ module buildBoard {
             this.controllers = $window.jsRoutes.controllers;
         }
 
-        branch(id:string):ng.IHttpPromise<Branch> {
-            var url = this.controllers.Application.branch(id).absoluteURL();
-            return this.$http.get(url);
-        }
-
         branches():ng.IHttpPromise<Branch[]> {
             return this.$http.get(this.controllers.Application.branches().absoluteURL());
         }
@@ -39,10 +34,6 @@ module buildBoard {
 
         toggleBuild(branchId:string, buildNumber: number):ng.IHttpPromise<Build> {
             return this.$http.post(this.controllers.Jenkins.toggleBuild(branchId, buildNumber).absoluteURL(), {});
-        }
-
-        pullRequestStatus(pullRequest:number):ng.IHttpPromise<PullRequestStatus> {
-            return this.$http.get(this.controllers.Github.pullRequestStatus(pullRequest).absoluteURL());
         }
 
         changeEntityState(entityId:number, nextStateId:number):ng.IHttpPromise<EntityState> {

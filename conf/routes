@@ -6,18 +6,12 @@
 GET         /                                controllers.Application.index
 GET         /entityBranches                  controllers.Application.branches
 
-GET         /branch                          controllers.Application.branch(id:String)
-
 GET         /login                           controllers.Login.index
 GET         /login/github                    controllers.Login.githubLogin
 GET         /login/oauth                     controllers.Login.oauth(code ?= "")
 POST        /login/submit                    controllers.Login.submit
 GET         /login/logout                    controllers.Login.logout
 
-GET         /gihtub/pullRequestStatus        controllers.Github.pullRequestStatus(id:Int)
-
-GET         /jenkins/lastBuild               controllers.Jenkins.lastBuildInfos()
-GET         /jenkins/builds                  controllers.Jenkins.builds(branch:String)
 GET         /jenkins/build                   controllers.Jenkins.build(branch:String, number: Int)
 POST        /jenkins/forceBuild              controllers.Jenkins.forceBuild(pullRequestId:Option[Int],branchId:Option[String],cycleName:String)
 POST        /jenkins/toggleBuild             controllers.Jenkins.toggleBuild(branchId:String,buildNumber:Int)
