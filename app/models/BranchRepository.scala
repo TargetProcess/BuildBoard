@@ -6,9 +6,26 @@ import com.mongodb.casbah.commons.MongoDBObject
 
 class BranchRepository {
 
-  def getBranch(id: String): Option[Branch] = Branches.findOne(MongoDBObject("name" -> id))
+  def getBranch(id: String): Option[Branch] = Branches.findOne(MongoDBObject("name" -> id)).map(b => b.copy(buildActions = getBuildActions(b)))
 
-  def getBranches: List[Branch] = Branches.findAll().toList
+  def getBranches: List[Branch] = Branches.findAll().map(b => b.copy(buildActions = getBuildActions(b))).toList
+
+  private def getBuildActions(branch: Branch): List[BuildAction] = {
+    val name = branch.name
+    val pullRequest = branch.pullRequest
+
+    List(
+      BranchBuildAction(name, BuildPackageOnly),
+      BranchBuildAction(name, FullCycle),
+      BranchBuildAction(name, ShortCycle)
+    ) ++ (pullRequest match {
+      case Some(pr) => List(
+        PullRequestBuildAction(pr.prId, FullCycle),
+        PullRequestBuildAction(pr.prId, ShortCycle)
+      )
+      case None => Nil
+    })
+  }
 
   //  def getBranchesInfo(ghBranches: List[Branch]): List[Branch] = {
   //    val branchNames = ghBranches

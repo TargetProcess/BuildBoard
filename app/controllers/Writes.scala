@@ -47,6 +47,7 @@ object Writes {
         (__ \ "pullRequest").writeNullable[PullRequest] ~
         (__ \ "entity").writeNullable[Entity] ~
         (__ \ "lastBuild").writeNullable[BuildInfo] ~
-        (__ \ "activity").write(list(activityEntryWrites))
+        (__ \ "activity").write(list(activityEntryWrites)) ~
+        (__ \ "buildActions").write(list[BuildAction])
       )(unlift(Branch.unapply))
 }
