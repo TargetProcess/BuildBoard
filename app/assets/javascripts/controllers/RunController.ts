@@ -3,13 +3,13 @@ module buildBoard {
     'use strict';
 
     export interface IArtifactsScope extends ng.IScope {
-        buildNode(): BuildNode;
-        failedTests(): TestCase[];
-        testCasePackages(): TestCasePackage[];
-        totalCount(): number;
-        failedCount(): number;
-        skippedCount(): number;
-        totalTime(): number;
+        buildNode: BuildNode;
+        failedTests: TestCase[];
+        testCasePackages: TestCasePackage[];
+        totalCount: number;
+        failedCount: number;
+        skippedCount: number;
+        totalTime: number;
         logsUrl: string;
         closeView():void;
     }
@@ -20,41 +20,35 @@ module buildBoard {
         public static $inject = [
             '$scope',
             '$state',
-            ModelProvider.NAME
+            BackendService.NAME
         ];
 
-        constructor(private $scope:IArtifactsScope, $state:ng.ui.IStateService, private modelProvider:ModelProvider) {
-
-            this.$scope.buildNode = () => {
-                var branch = modelProvider.findBranch($state.params['name']);
-                var build = Branch.findBuild(branch, $state.params['build']);
-
-                return Build.findBuildNode(build, $state.params['run'], $state.params['part']);
-            };
-            this.$scope.testCasePackages = () => {
-               var buildNode = this.$scope.buildNode();
-                if (!buildNode || !buildNode.testResults){
-                    return [];
+        constructor(private $scope:IArtifactsScope, $state:ng.ui.IStateService, backendService:BackendService) {
+            backendService.run($state.params['name'], $state.params['build'], $state.params['part'], $state.params['run']).success(buildNode => {
+                this.$scope.buildNode = buildNode;
+                var logsArtifacts = buildNode.artifacts.filter(a => a.name == 'logs');
+                if (logsArtifacts.length > 0) {
+                    this.$scope.logsUrl = logsArtifacts[0].url;
                 }
-
-                return _.chain(buildNode.testResults)
+                this.$scope.testCasePackages = _.chain(buildNode.testResults)
                     .map(p => this.getPackagesWithTests(p))
                     .flatten()
                     .value();
-            };
-            this.$scope.failedTests = () => this.getFailedTests(this.$scope.testCasePackages());
-            this.$scope.totalCount = () => _.reduce(this.$scope.testCasePackages(), function (sum, p) {
-                return sum + p.totalCount;
-            }, 0);
-            this.$scope.skippedCount = () => _.reduce(this.$scope.testCasePackages(), function (sum, p) {
-                return sum + p.skippedCount;
-            }, 0);
-            this.$scope.failedCount = () => _.reduce(this.$scope.testCasePackages(), function (sum, p) {
-                return sum + p.failedCount;
-            }, 0);
-            this.$scope.totalTime = () => _.reduce(this.$scope.testCasePackages(), function (sum, p) {
-                return sum + p.duration;
-            }, 0);
+                this.$scope.failedTests = this.getFailedTests(this.$scope.testCasePackages);
+                //todo: refactor
+                this.$scope.totalCount = _.reduce(this.$scope.testCasePackages, function (sum, p) {
+                    return sum + p.totalCount;
+                }, 0);
+                this.$scope.skippedCount = _.reduce(this.$scope.testCasePackages, function (sum, p) {
+                    return sum + p.skippedCount;
+                }, 0);
+                this.$scope.failedCount = _.reduce(this.$scope.testCasePackages, function (sum, p) {
+                    return sum + p.failedCount;
+                }, 0);
+                this.$scope.totalTime = _.reduce(this.$scope.testCasePackages, function (sum, p) {
+                    return sum + p.duration;
+                }, 0);
+            });
 
             this.$scope.closeView = ()=> {
                 $state.go("list.branch");

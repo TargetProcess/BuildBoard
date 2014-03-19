@@ -35,28 +35,28 @@ object Jenkins extends Controller with Secured {
 
   def toggleBuild(branchId: String, buildNumber: Int) = IsAuthorized {
     implicit user =>
-      val branch = new BranchesRepository().getBranch(branchId)
+      val branch = new BranchRepository().getBranch(branchId)
       val build = branch.map(jenkinsRepo.toggleBuild(_, buildNumber))
       request => Ok(Json.toJson(build))
   }
 
   def build(branch: String, number: Int) = IsAuthorized {
     implicit user =>
-      val branchEntity = new BranchesRepository().getBranch(branch)
+      val branchEntity = new BranchRepository().getBranch(branch)
       val build = branchEntity.map(jenkinsRepo.getBuild(_, number))
       request => Ok(Json.toJson(build))
   }
 
   def run(branch: String, build: Int, part: String, run: String) = IsAuthorized {
     implicit user =>
-      val branchEntity = new BranchesRepository().getBranch(branch)
+      val branchEntity = new BranchRepository().getBranch(branch)
       val runEntity = branchEntity.map(jenkinsRepo.getTestRun(_, build, part, run))
       request => Ok(Json.toJson(runEntity))
   }
 
   def testCase(branch: String, build: Int, part: String, run: String, test: String) = IsAuthorized {
     implicit user =>
-      val branchEntity = new BranchesRepository().getBranch(branch)
+      val branchEntity = new BranchRepository().getBranch(branch)
       val buildNode = branchEntity.map(jenkinsRepo.getTestRun(_, build, part, run)).flatten
       val testCase = buildNode.map(n => n.getTestCase(test)).flatten
       request => Ok(Json.toJson(testCase))

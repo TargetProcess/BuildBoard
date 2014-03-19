@@ -99,6 +99,10 @@ module buildBoard {
                     .value();
             };
 
+            if (!build){
+                return null;
+            }
+
             return findBuildNodeInner(build.node);
         }
     }

@@ -236,12 +236,7 @@ class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
       val artifacts = getArtifacts(contents)
 
       folder.getName match {
-        case complexNameRegex(runName, name) => {
-          val node = BuildNode(name, runName, status, statusUrl.getOrElse(""), artifacts, new DateTime(timestamp), children)
-          val testCasePackages = getTestCasePackages(node)
-
-          node.copy(testResults = testCasePackages)
-        }
+        case complexNameRegex(runName, name) => BuildNode(name, runName, status, statusUrl.getOrElse(""), artifacts, new DateTime(timestamp), children)
         case name => BuildNode(name, name, status, statusUrl.getOrElse(""), artifacts, new DateTime(timestamp), children)
       }
     }
