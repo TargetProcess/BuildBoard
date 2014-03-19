@@ -5,11 +5,12 @@
 
 module buildBoard {
 
-    export class ActivityEntry {
+    export interface ActivityEntry {
+        activityType:string;
         timestamp:number;
     }
 
-    export class Branch {
+    export interface Branch {
         _id:number;
         name:string;
         entity:Entity;
@@ -18,101 +19,58 @@ module buildBoard {
         url:string;
         builds:Build[];
         activity:ActivityEntry[];
-
-        static findBuild(branch:Branch, buildNumber:number):Build {
-            if (!branch || !branch.activity){
-                return null;
-            }
-
-            return _.chain(branch.activity)
-                .map(entry => <Build> entry)
-                .filter(build => buildNumber == build.number)
-                .head()
-                .value();
-        }
     }
 
-    export class PullRequest extends ActivityEntry {
+    export interface PullRequest extends ActivityEntry {
         prId:number;
         status:PullRequestStatus;
         url:string;
         created:number;
     }
 
-    export class Entity {
+    export interface Entity {
         id:number;
         assignments:Assignment[];
         state:EntityState;
     }
 
-    export class EntityState {
+    export interface EntityState {
         name:string;
         isFinal:boolean;
     }
 
-    export class User {
+    export interface User {
         userId:number;
     }
 
-    export class Assignment extends User {
+    export interface Assignment extends User {
         isResponsible:boolean;
     }
 
-    export class PullRequestStatus {
+    export interface PullRequestStatus {
         isMerged:boolean;
         isMergeable:boolean;
     }
 
-    export class BuildBase extends ActivityEntry {
+    export interface BuildBase extends ActivityEntry {
         number:number;
         branch:string;
         toggled:boolean;
         status:string;
-
-        getStatus():Status {
-            throw new Error('This method is abstract');
-        }
+        parsedStatus:Status;
     }
 
-    export class Build extends BuildBase {
+    export interface Build extends BuildBase {
         node:BuildNode;
         isPullRequest:boolean;
-
-        static findBuildNode(build:Build, run:string, part:string):BuildNode {
-            var findBuildNodeInner = (node: BuildNode): BuildNode => {
-                if (!node){
-                    return null;
-                }
-
-                if (part == node.name && run == node.runName) {
-                    return node;
-                }
-
-                if (!node.children){
-                    return null;
-                }
-
-                return _.chain(node.children)
-                    .map(n => findBuildNodeInner(n))
-                    .filter(n => n != null)
-                    .head()
-                    .value();
-            };
-
-            if (!build){
-                return null;
-            }
-
-            return findBuildNodeInner(build.node);
-        }
     }
 
-    export class Artifact {
+    export interface Artifact {
         name:string;
         url:string;
     }
 
-    export class BuildNode {
+    export interface BuildNode {
         name:string;
         runName:string;
         status:string;
@@ -123,18 +81,18 @@ module buildBoard {
         testResults:TestCasePackage[];
     }
 
-    export class BuildAction {
+    export interface BuildAction {
         branchId:string;
         pullRequestId:number;
         cycleName:string;
     }
 
-    export class ToggledBuild {
+    export interface ToggledBuild {
         branchId:string;
         buildNumber:number;
     }
 
-    export class TestCase {
+    export interface TestCase {
         name:string;
         result:string;
         duration:number;
@@ -143,7 +101,7 @@ module buildBoard {
         screenshots:Artifact[];
     }
 
-    export class TestCasePackage {
+    export interface TestCasePackage {
         name:string;
         packages:TestCasePackage[];
         testCases:TestCase[];

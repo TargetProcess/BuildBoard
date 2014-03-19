@@ -21,7 +21,7 @@ module buildBoard {
                 case Status.InProgress:
                     return "in_progress";
                 case Status.TimedOut:
-                    return "timed_out";
+                    return "warning";
                 case Status.Unknown:
                 default:
                     return "default";

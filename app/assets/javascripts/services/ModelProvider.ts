@@ -13,6 +13,20 @@ module buildBoard {
 
         constructor($branchesService:BranchesService) {
             $branchesService.allBranches.then(branches=> {
+
+                _.each(branches, (br:Branch)=>{
+                    _.each(br.activity, a=>{
+                        if (a.status){
+                            a.parsedStatus = StatusHelper.parseInfo(a.status, a.toggled);
+                        }
+                    });
+                    if (br.lastBuild) {
+                        br.lastBuild.parsedStatus = StatusHelper.parseInfo(br.lastBuild.status, br.lastBuild.toggled);
+                    }
+                });
+
+
+                console.log(branches);
                 this.branches = branches;
             });
         }

@@ -15,6 +15,8 @@ class BranchService(implicit user: User) {
   val jenkinsRepository = new JenkinsRepository
 
   def getBranches = {
+    play.Logger.info("Start loading branches")
+
     val pullRequests = githubRepository.getPullRequests
     val branches = githubRepository.getBranches
     val branchNames = branches

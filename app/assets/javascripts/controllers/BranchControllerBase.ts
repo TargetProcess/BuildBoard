@@ -24,15 +24,16 @@ module buildBoard {
             };
 
             this.$scope.isMergeable = ()=>{
-                if (!this.$scope.getBranch())
+                var branch = this.$scope.getBranch();
+                if (!branch)
                     return false;
 
-                var pullRequest = this.$scope.getBranch().pullRequest;
+                var pullRequest = branch.pullRequest;
                 if (!pullRequest){
                     return false;
                 }
 
-                var prStatus = this.$scope.getBranch().pullRequest.status;
+                var prStatus = branch.pullRequest.status;
                 if (!prStatus){
                     return false;
                 }
@@ -41,8 +42,8 @@ module buildBoard {
                     return false;
                 }
 
-                if (this.$scope.getBranch().entity) {
-                    var entityStatus = this.$scope.getBranch().entity.state;
+                if (branch.entity) {
+                    var entityStatus = branch.entity.state;
                     if (entityStatus.name != 'Tested') {
                         return false;
                     }

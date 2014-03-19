@@ -1,14 +1,14 @@
 <div class="header" ng-controller="headerController">
     <a class="logo" href="#"></a>
-    <div ng-show="getLastStatus()" ui-sref="list.branch({name:'develop'})" class="global-status pointer {{ getLastStatus().getStatus() | status2Class }}">
-        <span class="status {{ getLastStatus().getStatus() | status2Class }}">
-           Develop is {{ getLastStatus().getStatus() | status2text }} since {{  getLastStatus().timestamp | date:'M/d/yy HH:mm' }}
+    <div ng-show="getLastStatus()" ui-sref="list.branch({name:'develop'})" class="global-status pointer {{ getLastStatus().parsedStatus | status2Class }}">
+        <span class="status {{ getLastStatus().parsedStatus | status2Class }}">
+           Develop is {{ getLastStatus().parsedStatus | status2text }} since {{  getLastStatus().timestamp | date:'M/d/yy HH:mm' }}
         </span>
     </div>
 
-    <div ng-show="getPrevStatus()" ui-sref="list.branch({name:'develop'})" class="global-status pointer {{ getPrevStatus().getStatus() | status2Class }}">
-        <span class="status {{ getPrevStatus().getStatus() | status2Class }}">
-           Develop was {{ getPrevStatus().getStatus() | status2text }} at {{ getPrevStatus().timestamp | date:'M/d/yy HH:mm' }}
+    <div ng-show="getPrevStatus()" ui-sref="list.branch({name:'develop'})" class="global-status pointer {{ getPrevStatus().parsedStatus | status2Class }}">
+        <span class="status {{ getPrevStatus().parsedStatus | status2Class }}">
+           Develop was {{ getPrevStatus().parsedStatus | status2text }} at {{ getPrevStatus().timestamp | date:'M/d/yy HH:mm' }}
         </span>
     </div>
 

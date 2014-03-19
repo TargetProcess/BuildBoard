@@ -11,6 +11,7 @@ import play.api.Play
 import play.api.Play.current
 import models.mongo.{Builds, Users, Branches, Collection}
 import com.mongodb.casbah.commons.MongoDBObject
+import javax.security.auth.Subject
 
 object CacheService {
   def cache[T](interval: Duration, collection: Collection[T])(getValues: => List[T]) = {
@@ -36,7 +37,9 @@ object CacheService {
         val branchesService = new BranchService
         val buildService = new BuildService
 
-        val subscription = Observable.interval(githubBranchesInterval)
+        val observable = Observable.interval(githubBranchesInterval)
+
+        val subscription = observable
           .map(tick => Try {
           branchesService.getBranches
         })

@@ -25,21 +25,26 @@ module buildBoard {
 
             $scope.getPrevStatus = () => {
                 var branch = modelProvider.findBranch('develop');
-                if (!branch || !branch.builds) {
+                if (!branch || !branch.activity) {
                     return null;
                 }
 
-                var result = _.chain(branch.builds)
+                var lastBuild = $scope.getLastStatus();
+
+                return _.chain(branch.activity)
                     .find(x=> {
-                        var lastBuild = $scope.getLastStatus();
                         if (lastBuild && lastBuild.timestamp == x.timestamp)
                             return false;
-                        var status = x.getStatus();
-                        return status != Status.Unknown && status != Status.InProgress
+
+                        if (x.activityType == "build" || x.parsedStatus) {
+
+                            var status = (<BuildBase>(x)).parsedStatus;
+                            return !(status == Status.Unknown || status == Status.InProgress);
+
+
+                        }
                     })
                     .value();
-
-                return result;
             };
         }
     }
