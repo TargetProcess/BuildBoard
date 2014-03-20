@@ -30,7 +30,7 @@ declare module buildBoard {
     }
 
     interface IGithub {
-        pullRequestStatus(id:number):IAction
+        merge(id:number):IAction
     }
 
 

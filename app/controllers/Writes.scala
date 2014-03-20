@@ -14,6 +14,7 @@ object Writes {
   implicit val commitWrite: Writes[Commit] = Json.writes[Commit]
   implicit val buildInfoWrite = Json.writes[BuildInfo]
   implicit val buildWrite = Json.writes[Build]
+  implicit val mergeResultWrite = Json.writes[MergeResult]
 
 
   implicit val buildActionWrite = (

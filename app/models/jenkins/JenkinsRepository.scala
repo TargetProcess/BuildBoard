@@ -13,7 +13,7 @@ import scala.Some
 import models.TestCase
 import models.Build
 import models.TestCasePackage
-import org.joda.time.DateTime
+import org.joda.time.{Days, DateTime}
 import com.github.nscala_time.time.Imports._
 
 trait JenkinsApi {

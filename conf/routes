@@ -4,7 +4,7 @@
 
 # Home page
 GET         /                                controllers.Application.index
-GET         /entityBranches                  controllers.Application.branches
+GET         /branches                        controllers.Application.branches
 
 GET         /login                           controllers.Login.index
 GET         /login/github                    controllers.Login.githubLogin
@@ -19,6 +19,9 @@ POST        /jenkins/toggleBuild             controllers.Jenkins.toggleBuild(bra
 GET         /jenkins/run                     controllers.Jenkins.run(branch: String, build: Int, part: String, run: String)
 GET         /jenkins/testCase                controllers.Jenkins.testCase(branch: String, build: Int, part: String, run: String, test: String)
 GET         /jenkins/artifact                controllers.Jenkins.artifact(file: String)
+
+GET        /github/merge                    controllers.Github.merge(branchName: String)
+
 
 
 POST        /tp/changeEntityState            controllers.Targetprocess.changeEntityState(entityId:Int, entityStateId:Int)

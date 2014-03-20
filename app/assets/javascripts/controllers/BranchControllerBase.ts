@@ -30,18 +30,31 @@ module buildBoard {
             };
 
             this.$scope.mergeStatus = ()=>{
-
-
-
                 var branch = this.$scope.getBranch();
                 if (!branch) {
                     return null;
                 }
+                var lastDevelop = modelProvider.getLastBuild('develop');
+                var prevDevelop = modelProvider.getPrevBuild('develop');
 
-                var mergeStatus:MergeStatus = {
+                if (!lastDevelop || !prevDevelop){
+                    return null;
+                }
+
+                 var mergeStatus:MergeStatus = {
                     isEnabled:false,
                     reasons:[]
                 };
+
+                var status = (lastDevelop.parsedStatus == Status.InProgress || lastDevelop.parsedStatus == Status.Unknown) ? prevDevelop.parsedStatus : lastDevelop.parsedStatus;
+
+
+                if (status !== Status.Success && status !== Status.Toggled){
+                    mergeStatus.reasons.push("Develop is red");
+                }
+
+
+
 
                 var pullRequest = branch.pullRequest;
                 if (pullRequest) {

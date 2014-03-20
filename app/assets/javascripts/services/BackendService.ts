@@ -47,6 +47,10 @@ module buildBoard {
         testCase(branch: string, build: number, part: string, run: string, test: string): ng.IHttpPromise<TestCase> {
             return this.$http.get(this.controllers.Jenkins.testCase(branch, build, part, run, test).absoluteURL())
         }
+
+        merge(id: number): ng.IHttpPromise<TestCase> {
+            return this.$http.get(this.controllers.Github.merge(id).absoluteURL())
+        }
     }
 
 }

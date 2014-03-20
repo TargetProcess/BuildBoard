@@ -15,20 +15,17 @@ import models.AuthInfo
 
 object CacheService {
   val githubBranchesInterval = Play.configuration.getInt("cache.interval.githubBranches").getOrElse(1).minutes
+  val authInfo = (for (tpToken <- Play.configuration.getString("cache.user.tp.token");
+                       gToken <- Play.configuration.getString("cache.user.github.token"))
+  yield new AuthInfo {
+      override val githubToken: String = gToken
+      override val token: String = tpToken
+    }).get
+
+
 
   def start = {
-
-    val authInfo = for (
-      tpToken <- Play.configuration.getString("cache.user.tp.token");
-      gToken <- Play.configuration.getString("cache.user.github.token")
-    ) yield new AuthInfo {
-        override val githubToken: String = gToken
-        override val token: String = tpToken
-      }
-
-    authInfo match {
-      case Some(u) =>
-        implicit val user = u
+    implicit val user = authInfo
         val branchesService = new BranchService
         val buildService = new BuildService
 
@@ -52,9 +49,5 @@ object CacheService {
         Subscription {
           subscription.unsubscribe()
         }
-
-      case None => play.Logger.error(s"Could not read cache user info from config. Check 'cache.user.tp.token' and 'cache.user.github.token'"); Subscription {}
-    }
   }
-
 }
