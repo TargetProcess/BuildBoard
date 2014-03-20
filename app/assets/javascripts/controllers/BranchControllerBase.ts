@@ -107,7 +107,7 @@ module buildBoard {
                     }
                 )
                 .error(error=>{
-                        alert(result.message);
+                        alert(error.message);
                         console.log(error);
                     })
             }

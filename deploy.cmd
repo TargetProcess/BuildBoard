@@ -6,9 +6,9 @@ if NOT ('%pid%' == '') (
 )
 
 pushd target\universal
-rmdir /S /Q BuildBoard
-jar xf BuildBoard.zip
-xcopy /E /Y BuildBoard\* \\srv5\BuildBoard\
+rmdir /S /Q BuildBoard-1.0
+jar xf BuildBoard-1.0-SNAPSHOT.zip
+xcopy /E /Y BuildBoard-1.0\* \\srv5\BuildBoard-1.0\
 del \\srv5\BuildBoard\bin\RUNNING_PID
 popd
 utils\psexec -d -w c:\BuildBoard\bin \\srv5 c:\BuildBoard\bin\buildboard.bat 
