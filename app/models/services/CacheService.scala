@@ -20,8 +20,9 @@ object CacheService {
 
     val authInfo = for (
       tpToken <- Play.configuration.getString("cache.user.tp.token");
-                gToken <- Play.configuration.getString("cache.user.github.token")
-                ) yield new AuthInfo {override val githubToken: String = gToken
+      gToken <- Play.configuration.getString("cache.user.github.token")
+    ) yield new AuthInfo {
+        override val githubToken: String = gToken
         override val token: String = tpToken
       }
 

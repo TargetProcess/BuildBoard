@@ -16,8 +16,6 @@ import models.TestCasePackage
 import org.joda.time.DateTime
 import com.github.nscala_time.time.Imports._
 
-//import models.mongo.BuildToggles
-
 trait JenkinsApi {
   self: JenkinsRepository =>
 
@@ -195,25 +193,32 @@ class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
     val folder = new File(buildSource.file, "Build/StartBuild")
     if (folder.exists) {
       val (status, _, timestamp) = getBuildDetails(folder)
-
       val commits = getCommits(new File(folder, "Checkout/GitChanges.log"))
 
-      //todo: get commits' sha1
       Some(BuildInfo(buildSource.number, buildSource.branch.name, status, new DateTime(timestamp), buildSource.pullRequestId.isDefined, commits = commits))
     }
     else None
   }
 
   private def getCommits(file: File): List[Commit] = {
-    if (!file.exists){
+    if (!file.exists) {
       return Nil
     }
 
-    Nil
-//    val regex = "^commit (\\w+)$".r
+    val splitRegex = "(?m)^commit(?:(?:\r\n|[\r\n]).+$)*".r
+    val commitRegex = "\\s*(\\w+)[\\r\\n].*[\\r\\n]?s*Author:\\s*(.*)\\s*<(.*)>[\\r\\n]\\s*Date:\\s+(.*)[\\r\\n]([\\w\\W]*)".r
 
-//    read(file).map(fc => fc.split('\n')
-//      .toList
+    read(file) match {
+      case Some(contents) =>  splitRegex.split(contents)
+        .filter(_.length > 0)
+        .map {
+          case commitRegex(sha1, name, email, date, comment) => Some(Commit(sha1, comment.trim, name, email, new DateTime(new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy Z").parse(date).getTime)))
+          case _ => None
+        }
+        .flatten
+        .toList
+      case None => Nil
+    }
   }
 
   private def getBuildNode(f: File): BuildNode = {

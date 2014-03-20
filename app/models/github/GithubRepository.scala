@@ -12,7 +12,6 @@ class GithubRepository(implicit user: AuthInfo) {
   private val github = new GitHubClient().setOAuth2Token(user.githubToken)
   private val repositoryService = new RepositoryService(github)
   private val prService = new PullRequestService(github)
-  private val commitService = new CommitService(github)
   private val repo = new RepositoryId(GithubApplication.user, GithubApplication.repo)
 
   def getBranches: List[Branch] = repositoryService.getBranches(repo).asScala.toList.map(createBranch)
@@ -23,10 +22,6 @@ class GithubRepository(implicit user: AuthInfo) {
     val pr = prService.getPullRequest(repo, id)
     PullRequestStatus(pr.isMergeable, pr.isMerged)
   }
-
-  def getCommits(hashes: List[String]): List[Commit] = hashes
-    .map(commitService.getCommit(repo, _))
-    .map(c => Commit(c.getSha, c.getCommit.getMessage, c.getCommitter.getEmail, new DateTime(c.getCommitter.getCreatedAt)))
 
   private def createBranch(branch:org.eclipse.egit.github.core.RepositoryBranch) = Branch(branch.getName, GithubApplication.url(branch.getName))
 

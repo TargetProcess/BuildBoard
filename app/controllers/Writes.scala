@@ -33,9 +33,10 @@ object Writes {
 
   val activityEntryWrites = new Writes[ActivityEntry] {
     override def writes(o: ActivityEntry): JsValue = o match {
-      case b@Build(_,_,_,_,_) => buildWrite.writes(b)
-      case b@PullRequest(_,_,_,_,_,_) => prWrite.writes(b)
-      case b@BuildInfo(_,_,_,_,_,_,_,_) => buildInfoWrite.writes(b)
+      case b: Build => buildWrite.writes(b)
+      case b: PullRequest => prWrite.writes(b)
+      case b: BuildInfo => buildInfoWrite.writes(b)
+      case c: Commit => commitWrite.writes(c)
     }
   }
 
