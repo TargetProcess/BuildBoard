@@ -9,6 +9,4 @@ class BranchRepository {
   def getBranch(id: String): Option[Branch] = Branches.findOne(MongoDBObject("name" -> id))
 
   def getBranches: List[Branch] = Branches.findAll().toList
-
-
 }

@@ -204,16 +204,16 @@ class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
     else None
   }
 
-  private def getCommits(file: File): List[String] = {
-    val regex = "^commit (\\w+)$".r
+  private def getCommits(file: File): List[Commit] = {
+    if (!file.exists){
+      return Nil
+    }
 
-    read(file).map(fc => fc.split('\n')
-      .toList
-      .map {
-        case regex(sha1) => Some(sha1)
-        case _ => None
-      }.flatten
-    ).getOrElse(Nil)
+    Nil
+//    val regex = "^commit (\\w+)$".r
+
+//    read(file).map(fc => fc.split('\n')
+//      .toList
   }
 
   private def getBuildNode(f: File): BuildNode = {

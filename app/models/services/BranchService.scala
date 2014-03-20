@@ -42,7 +42,7 @@ class BranchService(implicit user: AuthInfo) {
       }
       val builds = jenkinsRepository.getBuildInfos(branch)
       val lastBuild = builds.headOption
-      val commits = githubRepository.getCommits(builds.flatMap(_.commits))
+      val commits = builds.flatMap(b => b.commits).distinct
 
       val activity: List[ActivityEntry] = builds ++ (if (pullRequest.isDefined) List(pullRequest.get) else Nil) ++ commits
 

@@ -16,7 +16,7 @@ case class BuildInfo(override val number: Int,
                      override val timestamp: DateTime,
                      isPullRequest: Boolean = false,
                      var toggled: Boolean = false,
-                     commits: List[String] = Nil,
+                     commits: List[Commit] = Nil,
                      activityType:String = "build"
                       ) extends BuildBase[BuildInfo] {
 
