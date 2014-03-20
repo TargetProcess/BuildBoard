@@ -11,4 +11,5 @@ jar xf BuildBoard-1.0.zip
 xcopy /E /Y BuildBoard-1.0\* \\srv5\BuildBoard\
 del \\srv5\BuildBoard\bin\RUNNING_PID
 popd
+xcopy /E /Y conf\BUILDBOARD_config.txt \\srv5\BuildBoard\  
 utils\psexec -d -w c:\BuildBoard\bin \\srv5 c:\BuildBoard\bin\buildboard.bat 
