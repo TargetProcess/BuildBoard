@@ -19,8 +19,6 @@ class BranchService(user: AuthInfo) {
     val pullRequests = watch("Get pull requests") {
       githubRepository.getPullRequests
     }
-
-
     val branches = watch("Get branches") {
       githubRepository.getBranches
     }
@@ -32,7 +30,6 @@ class BranchService(user: AuthInfo) {
       case _ => None
     }
       .toList
-
 
     val entities = watch("Get assignables") {
       entityRepository.getAssignables(entityIds)
