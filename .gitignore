@@ -29,3 +29,4 @@ node_modules/grunt/
 public/javascripts/all.js
 public/javascripts/all.js.map
 data/*
+/artifacts/

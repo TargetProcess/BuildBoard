@@ -13,7 +13,7 @@ object Jenkins extends Controller with Secured {
   val jenkinsRepo = new JenkinsRepository
 
   def forceBuild(pullRequestId: Option[Int], branchId: Option[String], cycleName: String) = IsAuthorized {
-    implicit user =>
+    user =>
       request =>
 
         val maybeAction: Option[BuildAction] = (pullRequestId, branchId) match {
@@ -34,28 +34,28 @@ object Jenkins extends Controller with Secured {
   }
 
   def toggleBuild(branchId: String, buildNumber: Int) = IsAuthorized {
-    implicit user =>
+    user =>
       val branch = new BranchRepository().getBranch(branchId)
       val build = branch.map(new BuildRepository().toggleBuild(_, buildNumber))
       request => Ok(Json.toJson(build))
   }
 
   def build(branch: String, number: Int) = IsAuthorized {
-    implicit user =>
+    user =>
       val branchEntity = new BranchRepository().getBranch(branch)
       val build = branchEntity.map(new BuildRepository().getBuild(_, number))
       request => Ok(Json.toJson(build))
   }
 
   def run(branch: String, build: Int, part: String, run: String) = IsAuthorized {
-    implicit user =>
+    user =>
       val branchEntity = new BranchRepository().getBranch(branch)
       val runEntity = branchEntity.map(jenkinsRepo.getTestRun(_, build, part, run))
       request => Ok(Json.toJson(runEntity))
   }
 
   def testCase(branch: String, build: Int, part: String, run: String, test: String) = IsAuthorized {
-    implicit user =>
+    user =>
       val branchEntity = new BranchRepository().getBranch(branch)
       val buildNode = branchEntity.map(jenkinsRepo.getTestRun(_, build, part, run)).flatten
       val testCase = buildNode.map(n => n.getTestCase(test)).flatten
@@ -63,7 +63,7 @@ object Jenkins extends Controller with Secured {
   }
 
   def artifact(file: String) = IsAuthorized {
-    implicit user =>
+    user =>
       request => Ok.sendFile(content = jenkinsRepo.getArtifact(file))
   }
 }

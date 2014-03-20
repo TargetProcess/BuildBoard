@@ -34,11 +34,8 @@ object Entity {
 case class EntityState(id: Int,
                        name: String,
                        isFinal: Boolean,
-                       role: Option[String],
-                       nextStates: List[EntityState]
-                        ) {
-
-}
+                       role: Option[String] = None,
+                       nextStates: List[EntityState] = Nil)
 
 object EntityState {
   def create(id: Int,

@@ -30,7 +30,7 @@ declare module buildBoard {
     }
 
     interface IGithub {
-        merge(id:number):IAction
+        merge(branch:string):IAction
     }
 
 

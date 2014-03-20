@@ -9,13 +9,13 @@ object Application extends Controller with Secured {
 
   def index = {
     IsAuthorized {
-      implicit user =>
+      user =>
         implicit request => Ok(views.html.index(user))
     }
   }
 
   def branches = IsAuthorized {
-    implicit user =>
+    user =>
       implicit request =>
         val branches = new BranchRepository().getBranches
 

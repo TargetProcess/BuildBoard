@@ -87,7 +87,29 @@ module buildBoard {
 
 
             this.$scope.merge = ()=>{
-                alert('qwe');
+
+                var branch = this.$scope.getBranch();
+                if (!branch) {
+                    return null;
+                }
+
+                this.backendService.merge(branch.name).success(
+                    result=>{
+                        if (result.nextState){
+                            branch.entity.state = result.nextState
+                        }
+                        if (result.isMerged){
+                            branch.pullRequest = null;
+                        }
+                        this.$scope.$apply();
+
+                        alert(result.message);
+                    }
+                )
+                .error(error=>{
+                        alert(result.message);
+                        console.log(error);
+                    })
             }
         }
     }

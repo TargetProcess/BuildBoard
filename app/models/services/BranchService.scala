@@ -7,11 +7,11 @@ import scala.util.matching.Regex
 import models.jenkins.JenkinsRepository
 import src.Utils.watch
 
-class BranchService(implicit user: AuthInfo) {
+class BranchService(user: AuthInfo) {
   val EntityBranchPattern = new Regex("^(?i)feature/(us|bug|f)(\\d+).*")
   val FeatureBranchPattern = new Regex("^(?i)feature/(\\w+)")
 
-  val githubRepository = new GithubRepository
+  val githubRepository = new GithubRepository(user)
   val entityRepository = new EntityRepo(user.token)
   val jenkinsRepository = new JenkinsRepository
 
@@ -40,22 +40,24 @@ class BranchService(implicit user: AuthInfo) {
       .map(e => (e.id, e))
       .toMap
 
-    branches.map(branch => {
-      val pullRequest = watch("Get pull requests statuses"){pullRequests
-        .find(p => p.name == branch.name)
-        .map(pr => pr.copy(status = githubRepository.getPullRequestStatus(pr.prId)))}
+    watch("Parse branch info") {
+      branches.map(branch => {
+        val pullRequest = pullRequests
+          .find(p => p.name == branch.name)
+          .map(pr => pr.copy(status = githubRepository.getPullRequestStatus(pr.prId)))
 
-      val entity = branch.name match {
-        case EntityBranchPattern(_, id) => entities.get(id.toInt)
-        case _ => None
-      }
-      val builds = watch("Get jenkins build infos"){jenkinsRepository.getBuildInfos(branch)}
-      val lastBuild = builds.headOption
-      val commits = builds.flatMap(b => b.commits).distinct
+        val entity = branch.name match {
+          case EntityBranchPattern(_, id) => entities.get(id.toInt)
+          case _ => None
+        }
+        val builds = jenkinsRepository.getBuildInfos(branch)
+        val lastBuild = builds.headOption
+        val commits = builds.flatMap(b => b.commits).distinct
 
-      val activity: List[ActivityEntry] = builds ++ (if (pullRequest.isDefined) List(pullRequest.get) else Nil) ++ commits
+        val activity: List[ActivityEntry] = builds ++ (if (pullRequest.isDefined) List(pullRequest.get) else Nil) ++ commits
 
-      branch.copy(entity = entity, pullRequest = pullRequest, lastBuild = lastBuild, activity = activity)
-    })
+        branch.copy(entity = entity, pullRequest = pullRequest, lastBuild = lastBuild, activity = activity)
+      })
+    }
   }
 }

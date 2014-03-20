@@ -123,6 +123,14 @@ module buildBoard {
         TimedOut
     }
 
+    export interface MergeButtonResult{
+        message: string
+        isMerged?: boolean
+        nextState?: EntityState
+        exception?: string
+    }
+
+
     export class StatusHelper {
         static parse(build:Build):Status {
             return build ? StatusHelper.parseInfo(build.status, build.toggled) : Status.Unknown;

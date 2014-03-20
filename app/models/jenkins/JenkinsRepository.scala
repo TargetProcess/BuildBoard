@@ -5,7 +5,7 @@ import scalaj.http.Http
 import play.api.Play
 import models._
 import java.io.File
-import scala.io.Source
+import scala.io.{BufferedSource, Source}
 import play.api.Play.current
 import scala.xml.{Node, XML}
 import models.BuildNode
@@ -35,7 +35,10 @@ trait FileApi {
   val directory = Play.configuration.getString("jenkins.data.path").get
 
   def read(f: File): Option[String] = Try {
-    Source.fromFile(f).mkString
+    val file: BufferedSource = Source.fromFile(f)
+    val result = file.mkString
+    file.close()
+    result
   }.toOption
 }
 
