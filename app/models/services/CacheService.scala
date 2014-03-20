@@ -27,7 +27,7 @@ object CacheService {
     val branchesService = new BranchService(authInfo)
     val buildService = new BuildService
 
-    val observable = Observable(0) ++ Observable.interval(githubBranchesInterval)
+    val observable = Observable.interval(githubBranchesInterval)
 
     val subscription = observable
       .map(tick => Try {
