@@ -22,13 +22,11 @@ class BranchService(user: AuthInfo) {
     val branches = watch("Get branches") {
       githubRepository.getBranches
     }
-    val branchNames = branches
-      .map(br => br.name)
-
-    val entityIds = branchNames.flatMap {
-      case EntityBranchPattern(_, id) => Some(id.toInt)
-      case _ => None
-    }
+    val entityIds = branches
+      .map(br => br.name).flatMap {
+        case EntityBranchPattern(_, id) => Some(id.toInt)
+        case _ => None
+      }
       .toList
 
     val entities = watch("Get assignables") {
@@ -38,23 +36,24 @@ class BranchService(user: AuthInfo) {
       .toMap
 
     watch("Parse branch info") {
-      branches.map(branch => {
-        val pullRequest = pullRequests
+      branches.map(branch => branch.copy(pullRequest = pullRequests
           .find(p => p.name == branch.name)
-          .map(pr => pr.copy(status = githubRepository.getPullRequestStatus(pr.prId)))
-
-        val entity = branch.name match {
+          .map(pr => pr.copy(status = githubRepository.getPullRequestStatus(pr.prId))))
+        )
+        .map(branch => branch.copy(entity = branch.name match {
           case EntityBranchPattern(_, id) => entities.get(id.toInt)
           case _ => None
-        }
-        val builds = jenkinsRepository.getBuildInfos(branch)
-        val lastBuild = builds.headOption
-        val commits = builds.flatMap(b => b.commits).distinct
+        }))
+        .map(branch => {
+          val pullRequest = branch.pullRequest
+          val builds = jenkinsRepository.getBuildInfos(branch)
+          val lastBuild = builds.headOption
+          val commits = builds.flatMap(b => b.commits)
 
-        val activity: List[ActivityEntry] = builds ++ (if (pullRequest.isDefined) List(pullRequest.get) else Nil) ++ commits
+          val activity: List[ActivityEntry] = builds ++ (if (pullRequest.isDefined) List(pullRequest.get) else Nil) ++ commits
 
-        branch.copy(entity = entity, pullRequest = pullRequest, lastBuild = lastBuild, activity = activity)
-      })
+          branch.copy(lastBuild = lastBuild, activity = activity)
+        })
     }
   }
 }

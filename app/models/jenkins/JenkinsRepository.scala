@@ -38,6 +38,7 @@ trait FileApi {
     val file: BufferedSource = Source.fromFile(f)
     val result = file.mkString
     file.close()
+
     result
   }.toOption
 }
@@ -212,14 +213,14 @@ class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
     val commitRegex = "\\s*(\\w+)[\\r\\n].*[\\r\\n]?s*Author:\\s*(.*)\\s*<(.*)>[\\r\\n]\\s*Date:\\s+(.*)[\\r\\n]([\\w\\W]*)".r
 
     read(file) match {
-      case Some(contents) =>  splitRegex.split(contents)
+      case Some(contents) => splitRegex.split(contents)
+        .toList
         .filter(_.length > 0)
         .map {
           case commitRegex(sha1, name, email, date, comment) => Some(Commit(sha1, comment.trim, name, email, new DateTime(new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy Z").parse(date).getTime)))
           case _ => None
         }
         .flatten
-        .toList
       case None => Nil
     }
   }
