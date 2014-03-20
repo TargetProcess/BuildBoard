@@ -32,8 +32,8 @@ module buildBoard {
             return this.$http.post(this.controllers.Jenkins.forceBuild(buildAction.pullRequestId, buildAction.branchId, buildAction.cycleName).absoluteURL(), {});
         }
 
-        toggleBuild(branchId:string, buildNumber: number):ng.IHttpPromise<Build> {
-            return this.$http.post(this.controllers.Jenkins.toggleBuild(branchId, buildNumber).absoluteURL(), {});
+        toggleBuild(branchId:string, buildNumber: number, toggled:boolean):ng.IHttpPromise<Build> {
+            return this.$http.post(this.controllers.Jenkins.toggleBuild(branchId, buildNumber, toggled).absoluteURL(), {});
         }
 
         changeEntityState(entityId:number, nextStateId:number):ng.IHttpPromise<EntityState> {

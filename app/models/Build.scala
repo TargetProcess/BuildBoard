@@ -18,10 +18,7 @@ case class BuildInfo(override val number: Int,
                      var toggled: Boolean = false,
                      commits: List[Commit] = Nil,
                      activityType:String = "build"
-                      ) extends BuildBase[BuildInfo] {
-
-  def toggle: Unit = this.toggled = !this.toggled
-}
+                      ) extends BuildBase[BuildInfo]
 
 case class Build(
                   override val number: Int,

@@ -51,8 +51,9 @@ module buildBoard {
 
             this.$scope.toggleBuild = (build:Build)=> {
                 var branch = this.$scope.branch;
-                backendService.toggleBuild(branch.name, build.number).success(b=> {
-                    build.toggled = !build.toggled;
+                var toggled = !build.toggled;
+                backendService.toggleBuild(branch.name, build.number, toggled).success(b=> {
+                    build.toggled = toggled;
                     if (build.number == branch.lastBuild.number){
                         branch.lastBuild.toggled = build.toggled;
                         branch.lastBuild.parsedStatus = StatusHelper.parseInfo(branch.lastBuild.status, build.toggled);

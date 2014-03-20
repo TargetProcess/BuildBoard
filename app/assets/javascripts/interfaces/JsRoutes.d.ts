@@ -21,7 +21,7 @@ declare module buildBoard {
 
     interface IJenkins {
         forceBuild(prId:number, branchId:string, cycleName:string):IAction
-        toggleBuild(branchId:string, buildNumber:number):IAction
+        toggleBuild(branchId:string, buildNumber:number, toggled:boolean):IAction
         lastBuildInfos():IAction;
         builds(branch:string):IAction;
         build(branch:string, buildNumber :number);

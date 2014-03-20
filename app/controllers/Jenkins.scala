@@ -33,10 +33,10 @@ object Jenkins extends Controller with Secured {
         }
   }
 
-  def toggleBuild(branchId: String, buildNumber: Int) = IsAuthorized {
+  def toggleBuild(branchId: String, buildNumber: Int, toggled: Boolean) = IsAuthorized {
     user =>
       val branch = new BranchRepository().getBranch(branchId)
-      val build = branch.map(new BuildRepository().toggleBuild(_, buildNumber))
+      val build = branch.map(new BuildRepository().toggleBuild(_, buildNumber, toggled))
       request => Ok(Json.toJson(build))
   }
 
