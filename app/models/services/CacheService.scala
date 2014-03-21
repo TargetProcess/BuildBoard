@@ -14,9 +14,12 @@ import models.AuthInfo
 import src.Utils.watch
 
 object CacheService {
-  val githubBranchesInterval = Play.configuration.getInt("cache.interval").getOrElse(600).seconds
-  val authInfo = (for (tpToken <- Play.configuration.getString("cache.user.tp.token");
-                       gToken <- Play.configuration.getString("cache.user.github.token"))
+  val githubInterval = Play.configuration.getInt("github.cache.interval").getOrElse(600).seconds
+  val jenkinsInterval = Play.configuration.getInt("jenkins.cache.interval").getOrElse(60).seconds
+  val authInfo = (for {
+    tpToken <- Play.configuration.getString("cache.user.tp.token")
+    gToken <- Play.configuration.getString("cache.user.github.token")
+  }
   yield new AuthInfo {
       override val githubToken: String = gToken
       override val token: String = tpToken
@@ -26,33 +29,35 @@ object CacheService {
   def start = {
     val branchesService = new BranchService(authInfo)
     val buildService = new BuildService
-
-    val observable = Observable.interval(githubBranchesInterval)
-
-    val subscription = observable
-      .map(tick => Try {
-      branchesService.getBranches
-    })
+    val githubSubscription = Observable.interval(githubInterval)
+      .map(_ => Try {
+        branchesService.getBranches
+      })
       .subscribe(tryResult => tryResult match {
-      case Success(data) => {
-        watch("removing obsolete branches") {
-          Branches.findAll()
-            .filter(b => !data.exists(_.name == b.name))
-            .foreach(branch => Branches.remove(branch))
+        case Success(data) => {
+          watch("removing obsolete branches") {
+            Branches.findAll()
+              .filter(b => !data.exists(_.name == b.name))
+              .foreach(branch => {
+                Branches.remove(branch)
+
+                Builds.find(MongoDBObject("branch" -> branch.name))
+                  .foreach(Builds.remove)
+              })
+          }
+          watch("updating branches") {
+            data.foreach(branch => {
+              Branches.update(MongoDBObject("name" -> branch.name), branch, upsert = true, multi = false, Branches.dao.collection.writeConcern)
+              val builds = buildService.getBuilds(branch)
+              builds.foreach(build => Builds.update(MongoDBObject("number" -> build.number, "branch" -> branch.name), build, upsert = true, multi = false, Builds.dao.collection.writeConcern))
+            })
+          }
         }
-        watch("updating branches") {
-          data.foreach(branch => {
-            Branches.update(MongoDBObject("name" -> branch.name), branch, upsert = true, multi = false, Branches.dao.collection.writeConcern)
-            val builds = buildService.getBuilds(branch)
-            builds.foreach(build => Builds.update(MongoDBObject("number" -> build.number, "branch" -> branch.name), build, upsert = true, multi = false, Builds.dao.collection.writeConcern))
-          })
-        }
-      }
-      case Failure(e) => play.Logger.error("Error", e)
-    })
+        case Failure(e) => play.Logger.error("Error", e)
+      })
 
     Subscription {
-      subscription.unsubscribe()
+      githubSubscription.unsubscribe()
     }
   }
 }

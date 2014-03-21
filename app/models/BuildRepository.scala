@@ -3,7 +3,6 @@ package models
 import models.mongo.{Branches, Builds}
 import com.mongodb.casbah.commons.MongoDBObject
 
-
 class BuildRepository {
   def getBuild(branch: Branch, number: Int): Option[Build] = Builds.findOne(MongoDBObject("number" -> number, "branch" -> branch.name))
 

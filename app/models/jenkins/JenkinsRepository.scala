@@ -167,23 +167,27 @@ class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
 
     new File(directory)
       .listFiles()
+      .reverse
       .view
       .filter(f => f.isDirectory)
       .map(f => f.getName match {
-      case prRegex(prId, number) if pullRequestId.isDefined && pullRequestId.get == prId.toInt =>
-        Some(f, branch, number.toInt, pullRequestId)
-      case branchRegex(b, number) => parsedBranchName match {
-        case featureBranchRegex(featureName) if featureName == b =>
-          Some(f, branch, number.toInt, None)
-        case branchName if branchName == b =>
-          Some(f, branch, number.toInt, None)
-        case branchName if b == parsedBranchName =>
-          Some(f, branch, number.toInt, None)
-        case branchName => None
-      }
-      case _ => None
-    })
+        case prRegex(prId, number) if pullRequestId.isDefined && pullRequestId.get == prId.toInt =>
+          Some(f, branch, number.toInt, pullRequestId)
+        case branchRegex(b, number) => parsedBranchName match {
+          case featureBranchRegex(featureName) if featureName == b =>
+            Some(f, branch, number.toInt, None)
+          case branchName if branchName == b =>
+            Some(f, branch, number.toInt, None)
+          case branchName if b == parsedBranchName =>
+            Some(f, branch, number.toInt, None)
+          case branchName => None
+        }
+        case _ => None
+      })
       .flatten
+      .toList
+      .sortBy(-_._3)
+      .take(10)
       .map(data => BuildSource(data._2, data._3, data._4, data._1))
   }
 
