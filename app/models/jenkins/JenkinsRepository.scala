@@ -13,7 +13,7 @@ import scala.Some
 import models.TestCase
 import models.Build
 import models.TestCasePackage
-import org.joda.time.{Days, DateTime}
+import org.joda.time.DateTime
 import com.github.nscala_time.time.Imports._
 
 trait JenkinsApi {
@@ -74,33 +74,21 @@ trait Artifacts {
 
 class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
   private val timeout = 5.hours
+  private val buildsPerBranch = 15
 
   private case class BuildSource(branch: Branch, number: Int, pullRequestId: Option[Int], file: File)
 
-  def getBuildInfos(branch: models.Branch): List[BuildInfo] = {
-    getBuildsSources(branch)
-      .flatMap(getBuildInfo)
-      .toList
-      .sortBy(-_.number)
-  }
+  def getBuilds(branch: models.Branch): List[Build] = getBuildsSources(branch)
+    .map(getBuild)
+    .flatten
+    .toList
 
   def getBuild(branch: models.Branch, number: Int): Option[Build] = {
     getBuildsSources(branch)
       .filter(_.number == number)
       .map(getBuild)
+      .flatten
       .headOption
-  }
-
-  def getLastBuildsByBranch(branches: List[Branch]): Map[String, Option[BuildInfo]] = branches
-    .map(b => (b.name, getLastBuild(b)))
-    .toMap
-
-  def getLastBuild(branch: Branch): Option[BuildInfo] = {
-    getBuildsSources(branch)
-      .toList
-      .sortBy(-_.number)
-      .headOption
-      .flatMap(getBuildInfo)
   }
 
   def getTestCasePackages(testRunBuildNode: BuildNode): List[TestCasePackage] = {
@@ -187,25 +175,21 @@ class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
       .flatten
       .toList
       .sortBy(-_._3)
-      .take(10)
+      .take(buildsPerBranch)
       .map(data => BuildSource(data._2, data._3, data._4, data._1))
   }
 
-  private def getBuild(buildSource: BuildSource): Build = {
+  private def getBuild(buildSource: BuildSource): Option[Build] = {
     val node = getBuildNode(new File(buildSource.file, "Build"))
-
-    Build(buildSource.number, buildSource.branch.name, node.timestamp, node)
-  }
-
-  private def getBuildInfo(buildSource: BuildSource): Option[BuildInfo] = {
     val folder = new File(buildSource.file, "Build/StartBuild")
-    if (folder.exists) {
-      val (status, _, timestamp) = getBuildDetails(folder)
-      val commits = getCommits(new File(folder, "Checkout/GitChanges.log"))
 
-      Some(BuildInfo(buildSource.number, buildSource.branch.name, status, new DateTime(timestamp), buildSource.pullRequestId.isDefined, commits = commits))
+    if (!folder.exists) {
+      return None
     }
-    else None
+    val (status, _, timestamp) = getBuildDetails(folder)
+    val commits = getCommits(new File(folder, "Checkout/GitChanges.log"))
+
+    Some(Build(buildSource.number, buildSource.branch.name, status, new DateTime(timestamp), buildSource.pullRequestId.isDefined, commits = commits, node = node))
   }
 
   private def getCommits(file: File): List[Commit] = {
@@ -229,27 +213,33 @@ class JenkinsRepository extends JenkinsApi with FileApi with Artifacts {
     }
   }
 
-  private def getBuildNode(f: File): BuildNode = {
+  private def getBuildNode(f: File): Option[BuildNode] = {
     val complexNameRegex = "(.+)_(.+)".r
 
-    def getBuildNodeInner(folder: File, path: String): BuildNode = {
+    def getBuildNodeInner(folder: File, path: String): Option[BuildNode] = {
+      if (!folder.exists) return None
+
       val (status, statusUrl, timestamp) = getBuildDetails(folder)
 
       val contents = folder.listFiles.sortBy(_.getName).toList
-      val children = contents
+      val children: List[BuildNode] = contents
         .filter(f => f.isDirectory && !f.getName.startsWith("."))
-        .map(f => getBuildNodeInner(f, folder.getPath)).toList
+        .flatMap(f => getBuildNodeInner(f, folder.getPath))
+        .toList
 
       val artifacts = getArtifacts(contents)
 
-      folder.getName match {
-        case complexNameRegex(runName, name) => BuildNode(name, runName, status, statusUrl.getOrElse(""), artifacts, new DateTime(timestamp), children)
-        case name => BuildNode(name, name, status, statusUrl.getOrElse(""), artifacts, new DateTime(timestamp), children)
+      val (runName, name) = folder.getName match {
+        case complexNameRegex(runNme, nme) => (runNme, nme)
+        case nme => (nme, nme)
       }
+
+      Some(BuildNode(name, runName, status, statusUrl.getOrElse(""), artifacts, new DateTime(timestamp), children))
     }
 
     //todo: add artifacts to root node
-    getBuildNodeInner(new File(f, rootJobName), f.getPath)
+    val folder = new File(f, rootJobName)
+    if (folder.exists) getBuildNodeInner(folder, f.getPath) else None
   }
 
   private def getBuildDetails(folder: File): (Option[String], Option[String], DateTime) = {

@@ -50,5 +50,5 @@ object Writes {
         (__ \ "lastBuild").writeNullable[BuildInfo] ~
         (__ \ "activity").write(list(activityEntryWrites)) ~
         (__ \ "buildActions").write(list[BuildAction])
-      )(unlift(Branch.serialize))
+      )(unlift(BranchInfo.serialize))
 }

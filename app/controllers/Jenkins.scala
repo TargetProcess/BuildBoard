@@ -25,7 +25,7 @@ object Jenkins extends Controller with Secured {
         maybeAction match {
           case Some(buildAction) =>
             jenkinsRepo.forceBuild(buildAction) match {
-              case Success(_) => Ok(Json.toJson(Build(-1, branchId.getOrElse("this"), DateTime.now, BuildNode("this", "this", Some("In progress"), "#", List(), DateTime.now))))
+              case Success(_) => Ok(Json.toJson(Build(-1, branchId.getOrElse("this"), Some("In progress"), DateTime.now, node = Some(BuildNode("this", "this", Some("In progress"), "#", List(), DateTime.now)))))
               case Failure(e: HttpException) => BadRequest(e.toString)
               case Failure(e) => InternalServerError("Something going wrong " + e.toString)
             }

@@ -1,6 +1,6 @@
 package models.services
 
-import models.{AuthInfo, ActivityEntry, User}
+import models.AuthInfo
 import models.github.GithubRepository
 import models.tp.EntityRepo
 import scala.util.matching.Regex
@@ -44,16 +44,6 @@ class BranchService(user: AuthInfo) {
           case EntityBranchPattern(_, id) => entities.get(id.toInt)
           case _ => None
         }))
-        .map(branch => {
-          val pullRequest = branch.pullRequest
-          val builds = jenkinsRepository.getBuildInfos(branch)
-          val lastBuild = builds.headOption
-          val commits = builds.flatMap(b => b.commits)
-
-          val activity: List[ActivityEntry] = builds ++ (if (pullRequest.isDefined) List(pullRequest.get) else Nil) ++ commits
-
-          branch.copy(lastBuild = lastBuild, activity = activity)
-        })
     }
   }
 }
