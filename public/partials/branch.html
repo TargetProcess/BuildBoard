@@ -9,7 +9,7 @@
 
         <div class="action-list">
             <div ng-repeat="entry in getActivity() | orderBy:'-timestamp'">
-                <div class="date">{{entry.timestamp | date:'M/d/yy HH:mm' }}</div>
+                <div class="date">{{entry.timestamp | friendlyDate }}</div>
                 <div class="avatar" ng-show="entry.number">
                     <img title="Jenkins" src="/assets/images/jenkins.png" style="width: 32px; height: 32px;">
                 </div>

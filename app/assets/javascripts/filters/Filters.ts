@@ -97,4 +97,23 @@ module buildBoard {
             return result;
         }
     }
+
+    export function friendlyDate($filter){
+        var dateFilter = $filter('date');
+        return (dateN:number)=>{
+            var today = new Date();
+            today.setHours(0,0,0,0);
+            var date = new Date(dateN);
+            date.setHours(0,0,0,0);
+            var delta = today.getTime() - date.getTime();
+            switch (delta){
+                case 0:
+                    return 'Today, '+dateFilter(dateN, 'HH:mm');
+                case 24*60*60*1000:
+                    return 'Yesterday, '+dateFilter(dateN, 'HH:mm');
+                default:
+                    return dateFilter(dateN, 'd/M/yy HH:mm');
+            }
+        }
+    }
 }
