@@ -1,7 +1,7 @@
 /// <reference path='_all.ts' />
 /// <reference path='services/BranchesService.ts'/>
 /// <reference path='directives/BuildStatusBadge'/>
-
+/// <reference path='directives/MergeButtonDirective.ts'/>
 
 module buildBoard {
     'use strict';
@@ -29,11 +29,9 @@ module buildBoard {
         .filter('friendlyDate', friendlyDate)
         .directive('entityTitle', ()=>new EntityTitleDirective())
         .directive(EntityStateDirective.NAME, ()=>new EntityStateDirective())
-        .directive(PanelDirective.NAME, ()=>new PanelDirective())
-        .directive(PanelHeadingDirective.NAME, ()=>new PanelHeadingDirective())
-        .directive(PanelBodyDirective.NAME, ()=>new PanelBodyDirective())
         .directive(BuildStatusDirective.NAME, ()=>new BuildStatusDirective())
         .directive(BuildStatusBadgeDirective.NAME, ()=>new BuildStatusBadgeDirective())
+        .directive(MergeButtonDirective.NAME, ()=>new MergeButtonDirective())
         .config(($stateProvider:ng.ui.IStateProvider, $urlRouterProvider:ng.ui.IUrlRouterProvider)=> {
 
             $urlRouterProvider.otherwise("/list?user=my&branch=all");

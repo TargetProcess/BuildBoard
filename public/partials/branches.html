@@ -84,19 +84,13 @@
                         <a target="_blank" href="{{branch.pullRequest.url}}"
                            class="pr status {{ branch.pullRequest | pullRequestStatus | status2Class }}"
                            title="{{branch.pullRequest.created | date}}">#{{branch.pullRequest.prId}}</a>
-                        <!--ul class="dropdown-menu">
-
-                            <li><a class="pr success" href="">#504</a></li>
-                            <li><a class="pr warning active" href="">#504</a></li>
-                            <li><a class="pr success" href="">#504</a></li>
-                        </ul-->
                     </div>
                 </td>
                 <td>
                     <build-status build="branch.lastBuild" branch="branch" build-actions="branch.buildActions"></build-status>
                 </td>
                 <td>
-                    <button class="merge" ng-show="isPossibleToMerge()" ng-disabled="!mergeStatus().isEnabled" title="{{mergeStatus().reasons.join('\n')}}" ng-click="merge()"></button>
+                    <merge-button branch="branch" size="small"></merge-button>
                 </td>
             </tr>
             </tbody>

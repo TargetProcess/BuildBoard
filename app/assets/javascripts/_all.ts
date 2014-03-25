@@ -22,7 +22,6 @@
 /// <reference path='controllers/RunController.ts' />
 /// <reference path='controllers/TestCaseController.ts' />
 /// <reference path='directives/EntityTitle.ts' />
-/// <reference path='directives/Panel.ts' />
 /// <reference path='directives/EntityState.ts' />
 /// <reference path='directives/BuildStatus.ts' />
 /// <reference path='Application.ts' />
