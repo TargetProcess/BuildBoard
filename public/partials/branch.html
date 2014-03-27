@@ -8,7 +8,7 @@
 
 
         <div class="action-list">
-            <div ng-repeat="entry in getActivity() | orderBy:'-timestamp'">
+            <div ng-repeat="entry in getActivity() | orderBy:'-timestamp'" ng-init="(isCollapsed = !$first) || (entry.activityType == 'build' && loadBuild(entry));">
                 <div class="date">{{entry.timestamp | friendlyDate }}</div>
                 <div class="avatar" ng-show="entry.number">
                     <img title="Jenkins" src="/assets/images/jenkins.png" style="width: 32px; height: 32px;">
@@ -16,7 +16,7 @@
                 <div class="description" ng-show="entry.activityType == 'build'">
                     <div class="panel-group">
                         <div class="panel {{ StatusHelper.parse(entry) | status2Class }}">
-                            <div class="panel-heading" ng-init="isCollapsed = !$first; !$first || loadBuild(entry);">
+                            <div class="panel-heading" >
                                 <build-status build="entry" branch="getBranch()" type="btn"></build-status>
                                 <h4 class="panel-title toggle-state">
                                     <a ng-click="loadBuild(entry); isCollapsed = !isCollapsed">{{entry.isPullRequest ? "PR " : "" }}Build #{{entry.number}}</a>
@@ -46,7 +46,7 @@
                 <div class="description" ng-show="entry.activityType == 'commit'">
                     <div class="panel-group">
                         <div class="panel default">
-                            <div class="panel-heading" ng-init="isCollapsed = true;">
+                            <div class="panel-heading">
                                 <h4 class="panel-title commit">
                                     <a ng-click="isCollapsed = !isCollapsed">Commit {{entry.sha1}}</a>&nbsp;<span>by <a class="author" href="mailto:{{entry.authorEmail}}">{{entry.authorName}}</a></span>
                                 </h4>
