@@ -1,15 +1,16 @@
 package models
 
-case class BranchInfo(name: String, url: String, pullRequest: Option[PullRequest] = None, entity: Option[Entity] = None, lastBuild: Option[BuildInfo] = None, activity: List[ActivityEntry] = Nil){
+case class BranchInfo(name: String, url: String, pullRequest: Option[PullRequest] = None, entity: Option[Entity] = None, lastBuild: Option[BuildInfo] = None, activity: List[ActivityEntry] = Nil) {
   def buildActions: List[BuildAction] = {
     List(
       BranchBuildAction(name, BuildPackageOnly),
       BranchBuildAction(name, FullCycle),
       BranchBuildAction(name, ShortCycle)
-    ) ++ pullRequest.map(pr => List(
+    ) ++ pullRequest.map(pr => if (pr.status.isMergeable) List(
       PullRequestBuildAction(pr.prId, FullCycle),
-      PullRequestBuildAction(pr.prId, ShortCycle)
-    )).getOrElse(Nil)
+      PullRequestBuildAction(pr.prId, ShortCycle))
+    else Nil
+    ).getOrElse(Nil)
   }
 }
 
