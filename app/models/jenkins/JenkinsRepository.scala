@@ -2,11 +2,9 @@ package models.jenkins
 
 import scala.util.Try
 import scalaj.http.Http
-import play.api.Play
 import models._
 import java.io.File
 import scala.io.{BufferedSource, Source}
-import play.api.Play.current
 import scala.xml.{Node, XML}
 import models.BuildNode
 import scala.Some
@@ -15,6 +13,8 @@ import models.Build
 import models.TestCasePackage
 import org.joda.time.DateTime
 import com.github.nscala_time.time.Imports._
+import play.api.Play
+import play.api.Play.current
 
 trait JenkinsApi {
   self: JenkinsRepository =>
@@ -23,7 +23,11 @@ trait JenkinsApi {
   protected val rootJobName = "StartBuild"
 
   def forceBuild(action: models.BuildAction) = Try {
-    Http.post(s"$jenkinsUrl/job/$rootJobName/buildWithParameters")
+    val url = s"$jenkinsUrl/job/$rootJobName/buildWithParameters"
+
+    play.Logger.info(s"Force build to $url with parameters ${action.parameters}")
+
+    Http.post(url)
       .params(action.parameters)
       .asString
   }
