@@ -10,12 +10,13 @@
         <div class="action-list">
             <div ng-repeat="entry in getActivity() | orderBy:'-timestamp'" ng-init="(isCollapsed = !$first) || (entry.activityType == 'build' && loadBuild(entry));">
                 <div class="date">{{entry.timestamp | friendlyDate }}</div>
-                <div class="avatar" ng-show="entry.number">
-                    <img title="Jenkins" src="/assets/images/jenkins.png" style="width: 32px; height: 32px;">
-                </div>
-                <div class="description" ng-show="entry.activityType == 'build'">
+                <span ng-show="entry.activityType == 'build'">
+                    <div class="avatar">
+                        <img title="Jenkins" src="/assets/images/jenkins.png" style="width: 32px; height: 32px;">
+                    </div>
+                    <div class="description" ng-show="entry.activityType == 'build'">
                     <div class="panel-group">
-                        <div class="panel {{ StatusHelper.parse(entry) | status2Class }}">
+                        <div class="panel {{ buildBoard.StatusHelper.parse(entry) | status2Class }}">
                             <div class="panel-heading" >
                                 <build-status build="entry" branch="getBranch()" type="btn"></build-status>
                                 <h4 class="panel-title toggle-state">
@@ -32,33 +33,42 @@
                         </div>
                     </div>
                 </div>
-                <div class="description" ng-show="entry.activityType == 'pullRequest'">
-                    <div class="panel-group">
-                        <div class="panel default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title">
-                                    <a>Pull request #{{entry.prId}} created</a>
-                                </h4>
-                            </div>
-                        </div>
+                </span>
+                <span ng-show="entry.activityType == 'pullRequest'">
+                    <div class="avatar">
+                        <img title="Github" src="/assets/images/github.png" style="width: 32px; height: 32px;">
                     </div>
-                </div>
-                <div class="description" ng-show="entry.activityType == 'commit'">
-                    <div class="panel-group">
-                        <div class="panel default">
-                            <div class="panel-heading">
-                                <h4 class="panel-title commit">
-                                    <a ng-click="isCollapsed = !isCollapsed">Commit {{entry.sha1}}</a>&nbsp;<span>by <a class="author" href="mailto:{{entry.authorEmail}}">{{entry.authorName}}</a></span>
-                                </h4>
-                            </div>
-                            <div class="tree panel-collapse" ng-show="!isCollapsed">
-                                <div class="panel-body">
-                                    <pre>{{entry.message}}</pre>
+                    <div class="description">
+                        <div class="panel-group">
+                            <div class="panel default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a>Pull request #{{entry.prId}} created</a>
+                                    </h4>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </span>
+                <span ng-show="entry.activityType == 'commit'">
+                    <div class="description" ng-show="entry.activityType == 'commit'">
+                        <div class="panel-group">
+                            <div class="panel default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title toggle-state">
+                                        <a ng-click="isCollapsed = !isCollapsed">Commit by {{entry.authorName}}</a>
+                                    </h4>
+                                </div>
+                                <div class="tree panel-collapse" ng-show="!isCollapsed">
+                                    <div class="panel-body">
+                                        <a href="https://github.com/TargetProcess/TP/commit/{{entry.sha1}}">{{entry.sha1}}</a>
+                                        <pre>{{entry.message}}</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </span>
             </div>
         </div>
     </div>
