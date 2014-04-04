@@ -26,4 +26,5 @@ case class User(
   fullName: String = null) extends Login with AuthInfo
 
 
+case class TpUser(id: Int, login: String, fullName: String)
 

@@ -5,16 +5,16 @@ import models._
 import play.api.libs.json._
 import com.github.nscala_time.time.Imports._
 import Writes._
-import models.jenkins.JenkinsRepository
 import scala.util.{Failure, Success}
 import scalaj.http.HttpException
+import models.services.CacheService
 
-object Jenkins extends Controller with Secured {
-  val jenkinsRepo = new JenkinsRepository
+object Jenkins extends Application {
 
-  def forceBuild(pullRequestId: Option[Int], branchId: Option[String], cycleName: String) = IsAuthorized {
-    user =>
+  def forceBuild(pullRequestId: Option[Int], branchId: Option[String], cycleName: String) = IsAuthorizedComponent {
+    component =>
       request =>
+
 
         val maybeAction: Option[BuildAction] = (pullRequestId, branchId) match {
           case (Some(prId), None) => Some(PullRequestBuildAction(prId, BuildAction.find(cycleName)))
@@ -24,7 +24,7 @@ object Jenkins extends Controller with Secured {
 
         maybeAction match {
           case Some(buildAction) =>
-            jenkinsRepo.forceBuild(buildAction) match {
+            component.jenkinsRepository.forceBuild(buildAction) match {
               case Success(_) => Ok(Json.toJson(Build(-1, branchId.getOrElse("this"), Some("In progress"), DateTime.now, node = Some(BuildNode("this", "this", Some("In progress"), "#", List(), DateTime.now)))))
               case Failure(e: HttpException) => BadRequest(e.toString)
               case Failure(e) => InternalServerError("Something going wrong " + e.toString)
@@ -47,23 +47,25 @@ object Jenkins extends Controller with Secured {
       request => Ok(Json.toJson(build))
   }
 
-  def run(branch: String, build: Int, part: String, run: String) = IsAuthorized {
-    user =>
+  def run(branch: String, build: Int, part: String, run: String) =  IsAuthorizedComponent {
+    component =>
+
       val branchEntity = new BranchRepository().getBranch(branch)
-      val runEntity = branchEntity.map(jenkinsRepo.getTestRun(_, build, part, run))
+      val runEntity = branchEntity.map(component.jenkinsRepository.getTestRun(_, build, part, run))
       request => Ok(Json.toJson(runEntity))
   }
 
-  def testCase(branch: String, build: Int, part: String, run: String, test: String) = IsAuthorized {
-    user =>
+  def testCase(branch: String, build: Int, part: String, run: String, test: String) = IsAuthorizedComponent {
+    component =>
+
       val branchEntity = new BranchRepository().getBranch(branch)
-      val buildNode = branchEntity.map(jenkinsRepo.getTestRun(_, build, part, run)).flatten
+      val buildNode = branchEntity.map(component.jenkinsRepository.getTestRun(_, build, part, run)).flatten
       val testCase = buildNode.map(n => n.getTestCase(test)).flatten
       request => Ok(Json.toJson(testCase))
   }
 
-  def artifact(file: String) = IsAuthorized {
-    user =>
-      request => Ok.sendFile(content = jenkinsRepo.getArtifact(file))
+  def artifact(file: String) = IsAuthorizedComponent {
+    component =>
+      request => Ok.sendFile(content = component.jenkinsRepository.getArtifact(file))
   }
 }

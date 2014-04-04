@@ -21,7 +21,7 @@ module buildBoard {
         }
 
         branches():ng.IHttpPromise<Branch[]> {
-            return this.$http.get(this.controllers.Application.branches().absoluteURL());
+            return this.$http.get(this.controllers.Branches.branches().absoluteURL());
         }
 
         build(branchId:string, buildNumber: number):ng.IHttpPromise<Build> {

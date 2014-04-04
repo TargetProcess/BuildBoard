@@ -3,8 +3,8 @@
 # ~~~~
 
 # Home page
-GET         /                                controllers.Application.index
-GET         /branches                        controllers.Application.branches
+GET         /                                controllers.Landing.index
+GET         /branches                        controllers.Branches.branches
 
 GET         /login                           controllers.Login.index
 GET         /login/github                    controllers.Login.githubLogin

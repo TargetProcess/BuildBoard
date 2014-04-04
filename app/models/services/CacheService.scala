@@ -13,11 +13,12 @@ import com.mongodb.casbah.commons.MongoDBObject
 import models.{BuildRepository, AuthInfo}
 import src.Utils.watch
 import models.jenkins.JenkinsRepository
+import models.github.GithubRepositoryComponentImpl
+import components.Default
+
 
 object CacheService {
-  val githubInterval = Play.configuration.getInt("github.cache.interval").getOrElse(600).seconds
-  val jenkinsInterval = Play.configuration.getInt("jenkins.cache.interval").getOrElse(60).seconds
-  val authInfo = (for {
+  val authInfo: AuthInfo = (for {
     tpToken <- Play.configuration.getString("cache.user.tp.token")
     gToken <- Play.configuration.getString("cache.user.github.token")
   }
@@ -27,12 +28,19 @@ object CacheService {
     }).get
 
 
+  val branchesServiceComponent = new Default {
+    val authInfo: AuthInfo = CacheService.authInfo
+  }
+
+  val githubInterval = Play.configuration.getInt("github.cache.interval").getOrElse(600).seconds
+  val jenkinsInterval = Play.configuration.getInt("jenkins.cache.interval").getOrElse(60).seconds
+
+
   def start = {
-    val branchesService = new BranchService(authInfo)
     val jenkinsRepository = new JenkinsRepository()
     val githubSubscription = Observable.interval(githubInterval)
       .map(_ => Try {
-      branchesService.getBranches
+      branchesServiceComponent.branchService.getBranches
     })
       .subscribe(tryResult => tryResult match {
       case Success(data) =>

@@ -2,16 +2,19 @@ package controllers
 
 import play.api.mvc._
 import play.api.libs.json.Json
-import models.tp.EntityRepo
 import Writes._
+import models.services.CacheService
 
-object Targetprocess extends Controller with Secured {
+object Targetprocess extends Application {
 
   def changeEntityState(entityId: Int, stateId: Int) = IsAuthorized {
     user =>
       request =>
-        val repo = new EntityRepo(user.token)
-        val newState = repo.changeEntityState(entityId, stateId)
+        val component = new components.Default {
+          val authInfo = user
+        }
+
+        val newState = component.entityRepository.changeEntityState(entityId, stateId)
 
 
         Ok(Json.toJson(newState))

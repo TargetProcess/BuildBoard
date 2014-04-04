@@ -26,10 +26,20 @@ trait Secured {
       }
     }
 
+  def IsAuthorizedComponent[A](bodyParser: BodyParser[A])(f: => components.Default => Request[A] => Result) =
+    IsAuthorized(bodyParser) {
+      user => {
+        val component = new components.Default {
+          val authInfo = user
+        }
+        request => f(component)(request)
+      }
+    }
 
   def IsAuthorized(f: => User => Request[AnyContent] => Result):EssentialAction = IsAuthorized(parse.anyContent)(f)
 
   def IsAuthenticated(f: => String => Request[AnyContent] => Result):EssentialAction = IsAuthenticated(parse.anyContent)(f)
 
+  def IsAuthorizedComponent(f: => components.Default => Request[AnyContent] => Result):EssentialAction = IsAuthorizedComponent(parse.anyContent)(f)
 
 }

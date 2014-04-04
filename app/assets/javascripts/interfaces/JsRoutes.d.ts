@@ -9,7 +9,7 @@ declare module buildBoard {
 
     interface Controllers {
         Login : ILogin;
-        Application : IApplication;
+        Branches : IBranches;
         Github: IGithub
         Jenkins: IJenkins
         Targetprocess: ITargetProcess
@@ -34,9 +34,8 @@ declare module buildBoard {
     }
 
 
-    interface IApplication {
+    interface IBranches {
         branches(): IAction;
-        branch(id:string): IAction;
     }
 
     export interface ILogin {
