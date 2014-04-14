@@ -55,9 +55,13 @@ object CacheService {
           }
         }
       case Failure(e) => play.Logger.error("Error", e)
-    })
+    },
+        error => {
+          play.Logger.error("Error in githubSubscription", error)
+        })
+
     val jenkinsSubscription = Observable.interval(jenkinsInterval)
-    .subscribe(_ => Try {
+      .subscribe(_ => Try {
       val branches = Branches.findAll().toList
 
       watch("updating builds") {
@@ -71,7 +75,10 @@ object CacheService {
           })
         })
       }
-    })
+    },
+        error => {
+          play.Logger.error("Error in jenkinsSubscription", error)
+        })
 
     Subscription {
       githubSubscription.unsubscribe()
