@@ -15,24 +15,24 @@
                         <img title="Jenkins" src="/assets/images/jenkins.png" style="width: 32px; height: 32px;">
                     </div>
                     <div class="description" ng-show="entry.activityType == 'build'">
-                    <div class="panel-group">
-                        <div class="panel {{ buildBoard.StatusHelper.parse(entry) | status2Class }}">
-                            <div class="panel-heading" >
-                                <build-status build="entry" branch="getBranch()" type="btn"></build-status>
-                                <h4 class="panel-title toggle-state">
-                                    <a ng-click="loadBuild(entry); isCollapsed = !isCollapsed">{{entry.isPullRequest ? "PR " : "" }}Build #{{entry.number}}</a>
-                                </h4>
-                            </div>
-                            <div class="tree panel-collapse" ng-show="!isCollapsed">
-                                <div class="panel-body">
-                                    <ul>
-                                        <li ng-repeat="data in [entry.node]" ng-include="'/assets/partials/buildNode.html'"></li>
-                                    </ul>
+                        <div class="panel-group">
+                            <div class="panel {{ buildBoard.StatusHelper.parse(entry) | status2Class }}">
+                                <div class="panel-heading" >
+                                    <build-status build="entry" branch="getBranch()" type="btn"></build-status>
+                                    <h4 class="panel-title toggle-state">
+                                        <a ng-click="loadBuild(entry); isCollapsed = !isCollapsed">{{entry.isPullRequest ? "PR " : "" }}Build #{{entry.number}}</a>
+                                    </h4>
+                                </div>
+                                <div class="tree panel-collapse" ng-show="!isCollapsed">
+                                    <div class="panel-body">
+                                        <ul>
+                                            <li ng-repeat="data in [entry.node]" ng-include="'/assets/partials/buildNode.html'"></li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
                 </span>
                 <span ng-show="entry.activityType == 'pullRequest'">
                     <div class="avatar">
@@ -89,10 +89,10 @@
             <entity-state entity="getBranch().entity" type="btn"></entity-state>
         </div>
         <div class="item" ng-show="getBranch().pullRequest">
-           <h4>Pr</h4>
-           <a
-               class="btn pr status {{ getBranch().pullRequest | pullRequestStatus | status2Class }}"
-               href="{{getBranch().pullRequest.url}}">#{{getBranch().pullRequest.prId}}</a>
+            <h4>Pr</h4>
+            <a
+                    class="btn pr {{ getBranch().pullRequest | pullRequestStatus | status2Class }}"
+                    href="{{getBranch().pullRequest.url}}" target="_blank">#{{getBranch().pullRequest.prId}}</a>
         </div>
 
         <div class="item">
