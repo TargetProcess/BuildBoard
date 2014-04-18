@@ -32,7 +32,7 @@ module buildBoard {
                 var toggled = !build.toggled;
                 backendService.toggleBuild(branch.name, build.number, toggled).success(b=> {
                     build.toggled = toggled;
-                    if (build.number == branch.lastBuild.number){
+                    if (build.number == branch.lastBuild.number) {
                         branch.lastBuild.toggled = build.toggled;
                         branch.lastBuild.parsedStatus = StatusHelper.parseInfo(branch.lastBuild.status, build.toggled);
                     }

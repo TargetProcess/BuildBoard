@@ -16,25 +16,25 @@ object GithubApplication {
   val user = "TargetProcess"
   val repo = "TP"
 
-  def url(branch:String) = s"https://github.com/$user/$repo/tree/$branch"
+  def url(branch: String) = s"https://github.com/$user/$repo/tree/$branch"
 
-   def login(code:String) = { 
-        val req = Http.post("https://github.com/login/oauth/access_token")
-          .params(
-            "code" -> code,
-            "client_id" -> GithubApplication.clientId,
-            "client_secret" -> GithubApplication.clientSecret)
-          .header("Accept", "application/xml")
-          .option(HttpOptions.connTimeout(1000))
-          .option(HttpOptions.readTimeout(5000))
+  def login(code: String) = {
+    val req = Http.post("https://github.com/login/oauth/access_token")
+      .params(
+        "code" -> code,
+        "client_id" -> GithubApplication.clientId,
+        "client_secret" -> GithubApplication.clientSecret)
+      .header("Accept", "application/xml")
+      .option(HttpOptions.connTimeout(1000))
+      .option(HttpOptions.readTimeout(5000))
 
-        val accessTokenXml = req.asXml
-        val clientCode = accessTokenXml \ "access_token"
-        val accessToken = clientCode.text
+    val accessTokenXml = req.asXml
+    val clientCode = accessTokenXml \ "access_token"
+    val accessToken = clientCode.text
 
-     val github =  new GitHubClient().setOAuth2Token(accessToken)
+    val github = new GitHubClient().setOAuth2Token(accessToken)
 
-     val userService = new UserService(github)
-     (userService.getUser.getLogin, accessToken)
+    val userService = new UserService(github)
+    (userService.getUser.getLogin, accessToken)
   }
 }

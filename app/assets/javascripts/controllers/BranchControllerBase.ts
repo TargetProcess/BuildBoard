@@ -11,7 +11,7 @@ module buildBoard {
         merge():void;
     }
 
-    export interface MergeStatus{
+    export interface MergeStatus {
         isEnabled:boolean;
         reasons:string[];
     }
@@ -19,6 +19,6 @@ module buildBoard {
     export class BranchControllerBase {
         constructor(public $scope:IBranchScope, public backendService:BackendService, private modelProvider:ModelProvider) {
             this.$scope.getBranch = () => modelProvider.findBranch(this.$scope.branchName);
-       }
+        }
     }
 }

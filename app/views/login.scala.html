@@ -1,4 +1,4 @@
-@(myForm: Form[UserCredentials], error: Option[String] = None)(implicit request: RequestHeader)
+@(loginForm: Form[Login.UserCredentials], error: Option[String] = None)(implicit request: RequestHeader)
 
 @import helper.twitterBootstrap._
 
@@ -14,10 +14,10 @@
     </head>
     <body>
 
-    @helper.form(action = routes.Login.submit, 'class -> "form-signin") {
+    @helper.form(action = routes.Login.submit(), 'class -> "form-signin") {
         <h2 class="form-signin-heading">Please sign in</h2>
-        @helper.inputText(myForm("login"), 'class -> "form-control", 'autofocus -> true, '_label -> "Login")
-        @helper.inputPassword(myForm("password"), 'class -> "form-control", '_label -> "Password")
+        @helper.inputText(loginForm("login"), 'class -> "form-control", 'autofocus -> true, '_label -> "Login")
+        @helper.inputPassword(loginForm("password"), 'class -> "form-control", '_label -> "Password")
         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
         @if(error.isDefined){
             <p class="text-danger">@error.get</p>

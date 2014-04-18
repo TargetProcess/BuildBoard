@@ -7,16 +7,19 @@ import views._
 import scala.util._
 import models.github._
 import models.mongo.Users
+import models.tp.UserRepositoryComponentImpl
 
-case class UserCredentials(username: String, password: String)
 
-object Login extends Controller with Secured {
+object Login extends Application {
+
+  case class UserCredentials(username: String, password: String)
 
 
   val loginForm = Form[UserCredentials](
     mapping(
       "login" -> text,
       "password" -> text)(UserCredentials.apply)(UserCredentials.unapply))
+
 
   def index = Action {
     implicit request =>
@@ -33,14 +36,15 @@ object Login extends Controller with Secured {
       loginForm.bindFromRequest.fold(
         formWithErrors => BadRequest(html.login(formWithErrors)),
         login =>
-          Users.authenticate(login.username, login.password) match {
-            case Success((tpUser, token)) => {
 
+          new UserRepositoryComponentImpl {}
+            .userRepository
+            .authenticate(login.username, login.password) match {
+            case Success((tpUser, token)) =>
               Users.saveLogged(tpUser, token)
+              Redirect(routes.Landing.index).withSession("login" -> tpUser.login)
 
-              Redirect(routes.Application.index).withSession("login" -> tpUser.login)
 
-            }
             case Failure(e) => Ok(views.html.login(loginForm, Some(e.toString)))
           })
   }

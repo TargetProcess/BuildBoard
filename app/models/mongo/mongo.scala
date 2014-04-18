@@ -11,7 +11,6 @@ import se.radley.plugin.salat.Binders.ObjectId
 import models.Branch
 import com.novus.salat.StringTypeHintStrategy
 import models.Build
-import models.tp.{TpUser, TpUserRepo}
 import com.mongodb.casbah.commons.conversions.scala.RegisterJodaTimeConversionHelpers
 
 object mongoContext {
@@ -50,7 +49,7 @@ object Builds extends ModelCompanion[Build, ObjectId] with Collection[Build] {
 object Branches extends ModelCompanion[Branch, ObjectId] with Collection[Branch] {
   def collection = mongoCollection("branches")
 
-  val dao = new SalatDAO[Branch, ObjectId](collection){}
+  val dao = new SalatDAO[Branch, ObjectId](collection) {}
 
   // Indexes
   collection.ensureIndex(DBObject("name" -> 1), "", unique = true)
@@ -70,7 +69,7 @@ trait UserDAO extends ModelCompanion[User, ObjectId] {
   def findOneById(id: Int): Option[User] = dao.findOne(MongoDBObject("tpId" -> id))
 }
 
-object Users extends UserDAO with TpUserRepo {
+object Users extends UserDAO {
   def saveLogged(tpUser: TpUser, token: String) = {
 
     val userFromDb = Users.findOneById(tpUser.id)

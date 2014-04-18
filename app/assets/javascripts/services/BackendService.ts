@@ -1,8 +1,7 @@
 /// <reference path='../_all.ts' />
 module buildBoard {
 
-    export interface IMap<T>
-    {
+    export interface IMap<T> {
         [name:string]:T
     }
 
@@ -21,10 +20,10 @@ module buildBoard {
         }
 
         branches():ng.IHttpPromise<Branch[]> {
-            return this.$http.get(this.controllers.Application.branches().absoluteURL());
+            return this.$http.get(this.controllers.Branches.branches().absoluteURL());
         }
 
-        build(branchId:string, buildNumber: number):ng.IHttpPromise<Build> {
+        build(branchId:string, buildNumber:number):ng.IHttpPromise<Build> {
             return this.$http.get(this.controllers.Jenkins.build(branchId, buildNumber).absoluteURL());
         }
 
@@ -32,23 +31,23 @@ module buildBoard {
             return this.$http.post(this.controllers.Jenkins.forceBuild(buildAction.pullRequestId, buildAction.branchId, buildAction.cycleName).absoluteURL(), {});
         }
 
-        toggleBuild(branchId:string, buildNumber: number, toggled:boolean):ng.IHttpPromise<Build> {
+        toggleBuild(branchId:string, buildNumber:number, toggled:boolean):ng.IHttpPromise<Build> {
             return this.$http.post(this.controllers.Jenkins.toggleBuild(branchId, buildNumber, toggled).absoluteURL(), {});
         }
 
         changeEntityState(entityId:number, nextStateId:number):ng.IHttpPromise<EntityState> {
-            return this.$http.post(this.controllers.Targetprocess.changeEntityState(entityId,nextStateId).absoluteURL(), {});
+            return this.$http.post(this.controllers.Targetprocess.changeEntityState(entityId, nextStateId).absoluteURL(), {});
         }
 
-        run(branch: string, build: number, part: string, run: string): ng.IHttpPromise<BuildNode> {
+        run(branch:string, build:number, part:string, run:string):ng.IHttpPromise<BuildNode> {
             return this.$http.get(this.controllers.Jenkins.run(branch, build, part, run).absoluteURL())
         }
 
-        testCase(branch: string, build: number, part: string, run: string, test: string): ng.IHttpPromise<TestCase> {
+        testCase(branch:string, build:number, part:string, run:string, test:string):ng.IHttpPromise<TestCase> {
             return this.$http.get(this.controllers.Jenkins.testCase(branch, build, part, run, test).absoluteURL())
         }
 
-        merge(branch: string): ng.IHttpPromise<MergeButtonResult> {
+        merge(branch:string):ng.IHttpPromise<MergeButtonResult> {
             return this.$http.get(this.controllers.Github.merge(branch).absoluteURL())
         }
     }

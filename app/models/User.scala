@@ -14,16 +14,17 @@ trait AuthInfo {
 
 
 case class User(
-  id: ObjectId = new ObjectId,
+                 id: ObjectId = new ObjectId,
 
-  tpId: Int,
+                 tpId: Int,
 
-  username: String,
-  token: String,
+                 username: String,
+                 token: String,
 
-  githubLogin: String = null,
-  githubToken: String = null,
-  fullName: String = null) extends Login with AuthInfo
+                 githubLogin: String = null,
+                 githubToken: String = null,
+                 fullName: String = null) extends Login with AuthInfo
 
 
+case class TpUser(id: Int, login: String, fullName: String)
 

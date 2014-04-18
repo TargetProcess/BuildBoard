@@ -15,7 +15,7 @@ module buildBoard {
             HttpServiceNotificationDecorator.NAME
         ];
 
-        constructor(public $scope:IStatusScope, backendService: BackendService, private $http: HttpServiceNotificationDecorator) {
+        constructor(public $scope:IStatusScope, backendService:BackendService, private $http:HttpServiceNotificationDecorator) {
             var counter = 0;
             $http.addStatusChangedHandler(status => {
                 this.$scope.status = status;

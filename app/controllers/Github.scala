@@ -1,40 +1,46 @@
 package controllers
 
-import play.api.mvc._
 import play.api.libs.json._
 import Writes._
-import models.github.GithubRepository
 import models.services.CacheService
-import scala.util.{Try, Success, Failure}
+import scala.util.Try
 import models._
 import models.PullRequest
 import models.User
 import scala.util.Success
 import scala.util.Failure
 import scala.Some
-import models.tp.EntityRepo
+import components.DefaultComponent
 
-
-object Github extends Controller with Secured {
+object Github extends Application {
 
   def merge(branchName: String) = IsAuthorized {
     user =>
       implicit request =>
-        val authInfo = CacheService.authInfo
-        val branches = new BranchRepository()
+
+        val component = new DefaultComponent {
+          val authInfo = CacheService.authInfo
+        }
+
+
+
+        val branches = component.branchRepository
 
         branches.getBranch(branchName) match {
           case None => NotFound(Json.obj("message" -> s"Branch $branchName is not found"))
           case Some(branch) =>
             branch.pullRequest match {
               case None => BadRequest(Json.obj("message" -> s"There is no pull request for branch $branchName"))
-              case Some(pullRequest) => mergeAndDelete(authInfo, user, branch, pullRequest)
+              case Some(pullRequest) => mergeAndDelete(component, user, branch, pullRequest)
             }
         }
   }
 
-  private def mergeAndDelete(authInfo: AuthInfo, user: User, branch: Branch, pullRequest: PullRequest) = {
-    val repo = new GithubRepository(authInfo)
+  private def mergeAndDelete(component: DefaultComponent, user: User, branch: Branch, pullRequest: PullRequest) = {
+
+    val repo = component.githubRepository
+    val authInfo = component.authInfo
+    val entityRepo = component.entityRepository
 
     val tryMerge = Try {
       repo.mergePullRequest(pullRequest.prId, user)
@@ -56,7 +62,6 @@ object Github extends Controller with Secured {
           case None => Success(None)
           case Some((entity, finalState)) =>
             val result: Try[Option[EntityState]] = Try {
-              val entityRepo = new EntityRepo(authInfo.token)
               Some(entityRepo.changeEntityState(entity.id, finalState.id))
 
             }

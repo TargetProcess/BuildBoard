@@ -123,7 +123,7 @@ module buildBoard {
         TimedOut
     }
 
-    export interface MergeButtonResult{
+    export interface MergeButtonResult {
         message: string
         isMerged?: boolean
         nextState?: EntityState
