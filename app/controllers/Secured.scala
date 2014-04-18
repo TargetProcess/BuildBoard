@@ -3,7 +3,7 @@ package controllers
 import play.api.mvc._
 import models._
 import play.api.mvc.BodyParsers.parse
-import components.{DefaultComponentImpl, Registry, DefaultComponent}
+import components.{DefaultRegistry, Registry, DefaultComponent}
 
 trait Secured {
 
@@ -29,7 +29,7 @@ trait Secured {
   def IsAuthorizedComponent[A](bodyParser: BodyParser[A])(f: => DefaultComponent => Request[A] => Result) =
     IsAuthorized(bodyParser) {
       user => {
-        val component = new DefaultComponentImpl(user)
+        val component = new DefaultRegistry(user)
         request => f(component)(request)
       }
     }

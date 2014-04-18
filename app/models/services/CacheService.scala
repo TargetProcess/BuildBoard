@@ -6,11 +6,11 @@ import rx.lang.scala.{Subscription, Observable}
 
 import scala.util.Success
 import scala.util.Failure
-import play.api.Play
+import play.api.{Logger, Play}
 import play.api.Play.current
 import models.{Build, AuthInfo}
 import src.Utils.watch
-import components.DefaultComponent
+import components.DefaultRegistry
 
 
 object CacheService {
@@ -25,36 +25,34 @@ object CacheService {
     }).get
 
 
-  val component = new DefaultComponent {
-    val authInfo: AuthInfo = CacheService.authInfo
-  }
+  val repository = new DefaultRegistry(authInfo)
 
   val githubInterval = Play.configuration.getInt("github.cache.interval").getOrElse(600).seconds
   val jenkinsInterval = Play.configuration.getInt("jenkins.cache.interval").getOrElse(60).seconds
 
 
   def start = {
-    val jenkinsRepository = component.jenkinsRepository
+    val jenkinsRepository = repository.jenkinsRepository
     val githubSubscription = Observable.timer(0 seconds, githubInterval)
       .map(_ => Try {
-      component.branchService.getBranches
+      repository.branchService.getBranches
     })
       .subscribe({
       case Success(data) =>
-        val branches = component.branchRepository.getBranches
+        val branches = repository.branchRepository.getBranches
         watch("removing obsolete branches") {
           Try {
             branches
               .filter(b => !data.exists(_.name == b.name))
               .foreach(branch => {
-              component.branchRepository.remove(branch)
-              component.buildRepository.removeAll(branch)
+              repository.branchRepository.remove(branch)
+              repository.buildRepository.removeAll(branch)
             })
           }
         }
         watch("updating branches") {
           Try {
-            data.foreach(branch => component.branchRepository.update(branch))
+            data.foreach(branch => repository.branchRepository.update(branch))
           }
         }
       case Failure(e) => play.Logger.error("Error", e)
@@ -65,26 +63,24 @@ object CacheService {
 
     val jenkinsSubscription = Observable.timer(0 seconds, jenkinsInterval)
       .subscribe(_ => Try {
-      val branches = component.branchRepository.getBranches
+      val branches = repository.branchRepository.getBranches
 
       watch("updating builds") {
         branches.foreach(branch => {
-          watch(s"updating builds for ${branch.name}") {
-            val existingBuilds = component.buildRepository.getBuilds(branch)
-            val builds = jenkinsRepository.getBuilds(branch)
+          Logger.info(s"updating builds for ${branch.name}")
+          val existingBuilds = repository.buildRepository.getBuilds(branch)
+          val builds = jenkinsRepository.getBuilds(branch)
 
-            builds.foreach(build => {
-              val existingBuild = existingBuilds.find(_.number == build.number)
-              val toggled = existingBuild.map(_.toggled).getOrElse(build.toggled)
+          builds.foreach(build => {
+            val existingBuild = existingBuilds.find(_.number == build.number)
+            val toggled = existingBuild.map(_.toggled).getOrElse(build.toggled)
 
-              val updatedBuild: Build = build.copy(toggled = toggled)
+            val updatedBuild: Build = build.copy(toggled = toggled)
 
-              component.buildRepository.update(branch, updatedBuild)
+            repository.buildRepository.update(branch, updatedBuild)
 
 
-
-            })
-          }
+          })
         })
       }
     },

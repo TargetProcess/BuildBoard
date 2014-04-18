@@ -9,6 +9,7 @@ import models.notifications.NotificationComponentImpl
 
 trait DefaultComponent
   extends AuthInfoProviderComponent
+  with LoggedUserProviderComponent
   with GithubRepositoryComponentImpl
   with BranchServiceComponentImpl
   with TargetprocessComponentImpl
@@ -19,8 +20,9 @@ trait DefaultComponent
   with UserRepositoryComponentImpl
 
 
-class DefaultComponentImpl(user: User) extends DefaultComponent {
-  override def authInfo: AuthInfo = user
+class DefaultRegistry(val loggedUser: Option[User], val authInfo:AuthInfo) extends DefaultComponent {
+  def this(user:User) = this(Some(user), user)
+  def this(authInfo:AuthInfo) = this(None, authInfo)
 }
 
 object Registry extends UserRepositoryComponentImpl

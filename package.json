@@ -19,7 +19,7 @@
     "url": "https://github.com/TargetProcess/BuildBoard/issues"
   },
   "devDependencies": {
-    "grunt-typescript": "~0.2.10",
+    "grunt-typescript": "~0.3.0",
     "grunt-contrib-watch": "~0.6.1",
     "grunt": "~0.4.4"
   }

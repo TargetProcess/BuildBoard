@@ -35,7 +35,7 @@ object Jenkins extends Application {
     repository =>
       val branch = repository.branchRepository.getBranch(branchId)
       val build = branch.flatMap(repository.buildRepository.toggleBuild(_, buildNumber, toggled))
-      build.map(b=>repository.notificationService.notifyToggle(b, repository.authInfo))
+      build.foreach(repository.notificationService.notifyToggle)
 
 
       request => Ok(Json.toJson(build))

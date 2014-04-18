@@ -18,35 +18,28 @@ object Github extends Application {
     user =>
       implicit request =>
 
-        val component = new DefaultComponent {
-          val authInfo = CacheService.authInfo
-        }
-
-
-
-        val branches = component.branchRepository
+        val branches = CacheService.repository.branchRepository
 
         branches.getBranch(branchName) match {
           case None => NotFound(Json.obj("message" -> s"Branch $branchName is not found"))
           case Some(branch) =>
             branch.pullRequest match {
               case None => BadRequest(Json.obj("message" -> s"There is no pull request for branch $branchName"))
-              case Some(pullRequest) => mergeAndDelete(component, user, branch, pullRequest)
+              case Some(pullRequest) => mergeAndDelete(CacheService.repository, user, branch, pullRequest)
             }
         }
   }
 
-  private def mergeAndDelete(component: DefaultComponent, user: User, branch: Branch, pullRequest: PullRequest) = {
+  private def mergeAndDelete(repository: DefaultComponent, user: User, branch: Branch, pullRequest: PullRequest) = {
 
-    val repo = component.githubRepository
-    val authInfo = component.authInfo
-    val entityRepo = component.entityRepository
+    val githubRepo = repository.githubRepository
+    val entityRepo = repository.entityRepository
 
     val tryMerge = Try {
-      repo.mergePullRequest(pullRequest.prId, user)
+      githubRepo.mergePullRequest(pullRequest.prId, user)
     }
     val tryDelete = tryMerge.map(_ => Try {
-      repo.deleteBranch(branch.name)
+      githubRepo.deleteBranch(branch.name)
     })
 
 
