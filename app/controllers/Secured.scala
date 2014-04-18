@@ -4,6 +4,7 @@ import play.api.mvc._
 import models._
 import play.api.mvc.BodyParsers.parse
 import models.mongo.Users
+import components.DefaultComponent
 
 trait Secured {
 
@@ -26,10 +27,10 @@ trait Secured {
       }
     }
 
-  def IsAuthorizedComponent[A](bodyParser: BodyParser[A])(f: => components.Default => Request[A] => Result) =
+  def IsAuthorizedComponent[A](bodyParser: BodyParser[A])(f: => DefaultComponent => Request[A] => Result) =
     IsAuthorized(bodyParser) {
       user => {
-        val component = new components.Default {
+        val component = new DefaultComponent {
           val authInfo = user
         }
         request => f(component)(request)
@@ -40,6 +41,6 @@ trait Secured {
 
   def IsAuthenticated(f: => String => Request[AnyContent] => Result):EssentialAction = IsAuthenticated(parse.anyContent)(f)
 
-  def IsAuthorizedComponent(f: => components.Default => Request[AnyContent] => Result):EssentialAction = IsAuthorizedComponent(parse.anyContent)(f)
+  def IsAuthorizedComponent(f: => DefaultComponent => Request[AnyContent] => Result):EssentialAction = IsAuthorizedComponent(parse.anyContent)(f)
 
 }

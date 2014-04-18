@@ -1,8 +1,7 @@
 package models.services
 
-import models.{Branch, AuthInfo}
+import models.AuthInfo
 import scala.util.matching.Regex
-import models.jenkins.JenkinsRepository
 import src.Utils.watch
 import components._
 import models.Branch
@@ -22,7 +21,6 @@ trait BranchServiceComponentImpl extends BranchServiceComponent {
     val EntityBranchPattern = new Regex("^(?i)feature/(us|bug|f)(\\d+).*")
     val FeatureBranchPattern = new Regex("^(?i)feature/(\\w+)")
 
-    val jenkinsRepository = new JenkinsRepository
 
     def getBranches: List[Branch] = watch("Get branches") {
       val pullRequests = watch("Get pull requests") {

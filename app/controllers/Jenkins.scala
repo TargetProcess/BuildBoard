@@ -33,24 +33,24 @@ object Jenkins extends Application {
         }
   }
 
-  def toggleBuild(branchId: String, buildNumber: Int, toggled: Boolean) = IsAuthorized {
-    user =>
-      val branch = new BranchRepository().getBranch(branchId)
-      val build = branch.map(new BuildRepository().toggleBuild(_, buildNumber, toggled))
+  def toggleBuild(branchId: String, buildNumber: Int, toggled: Boolean) = IsAuthorizedComponent {
+    component =>
+      val branch = component.branchRepository.getBranch(branchId)
+      val build = branch.map(component.buildRepository.toggleBuild(_, buildNumber, toggled))
       request => Ok(Json.toJson(build))
   }
 
-  def build(branch: String, number: Int) = IsAuthorized {
-    user =>
-      val branchEntity = new BranchRepository().getBranch(branch)
-      val build = branchEntity.map(new BuildRepository().getBuild(_, number))
+  def build(branch: String, number: Int) = IsAuthorizedComponent {
+    component =>
+      val branchEntity = component.branchRepository.getBranch(branch)
+      val build = branchEntity.map(component.buildRepository.getBuild(_, number))
       request => Ok(Json.toJson(build))
   }
 
   def run(branch: String, build: Int, part: String, run: String) =  IsAuthorizedComponent {
     component =>
 
-      val branchEntity = new BranchRepository().getBranch(branch)
+      val branchEntity = component.branchRepository.getBranch(branch)
       val runEntity = branchEntity.map(component.jenkinsRepository.getTestRun(_, build, part, run))
       request => Ok(Json.toJson(runEntity))
   }
@@ -58,7 +58,7 @@ object Jenkins extends Application {
   def testCase(branch: String, build: Int, part: String, run: String, test: String) = IsAuthorizedComponent {
     component =>
 
-      val branchEntity = new BranchRepository().getBranch(branch)
+      val branchEntity = component.branchRepository.getBranch(branch)
       val buildNode = branchEntity.map(component.jenkinsRepository.getTestRun(_, build, part, run)).flatten
       val testCase = buildNode.map(n => n.getTestCase(test)).flatten
       request => Ok(Json.toJson(testCase))

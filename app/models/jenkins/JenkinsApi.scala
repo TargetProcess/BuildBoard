@@ -3,6 +3,7 @@ package models.jenkins
 import play.api.Play
 import scala.util.Try
 import scalaj.http.Http
+import play.api.Play.current
 
 trait JenkinsApi {
 

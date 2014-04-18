@@ -2,19 +2,17 @@ package models.services
 
 import scala.concurrent.duration._
 import scala.util.Try
-import rx.lang.scala.Observable
-import rx.lang.scala.subscriptions.Subscription
+import rx.lang.scala.{Subscription, Observable}
+
 import scala.util.Success
 import scala.util.Failure
 import play.api.Play
 import play.api.Play.current
 import models.mongo.{Builds, Branches}
 import com.mongodb.casbah.commons.MongoDBObject
-import models.{BuildRepository, AuthInfo}
+import models.AuthInfo
 import src.Utils.watch
-import models.jenkins.JenkinsRepository
-import models.github.GithubRepositoryComponentImpl
-import components.Default
+import components.DefaultComponent
 
 
 object CacheService {
@@ -22,13 +20,14 @@ object CacheService {
     tpToken <- Play.configuration.getString("cache.user.tp.token")
     gToken <- Play.configuration.getString("cache.user.github.token")
   }
+
   yield new AuthInfo {
       override val githubToken: String = gToken
       override val token: String = tpToken
     }).get
 
 
-  val branchesServiceComponent = new Default {
+  val component = new DefaultComponent {
     val authInfo: AuthInfo = CacheService.authInfo
   }
 
@@ -37,12 +36,12 @@ object CacheService {
 
 
   def start = {
-    val jenkinsRepository = new JenkinsRepository()
-    val githubSubscription = Observable.interval(githubInterval)
+    val jenkinsRepository = component.jenkinsRepository
+    val githubSubscription = Observable.timer(0 seconds, githubInterval)
       .map(_ => Try {
-      branchesServiceComponent.branchService.getBranches
+      component.branchService.getBranches
     })
-      .subscribe(tryResult => tryResult match {
+      .subscribe({
       case Success(data) =>
         val branches = Branches.findAll().toList
         watch("removing obsolete branches") {
@@ -51,9 +50,7 @@ object CacheService {
               .filter(b => !data.exists(_.name == b.name))
               .foreach(branch => {
               Branches.remove(branch)
-
-              Builds.find(MongoDBObject("branch" -> branch.name))
-                .foreach(Builds.remove)
+              Builds.find(MongoDBObject("branch" -> branch.name)).foreach(Builds.remove)
             })
           }
         }
@@ -68,17 +65,17 @@ object CacheService {
           play.Logger.error("Error in githubSubscription", error)
         })
 
-    val jenkinsSubscription = Observable.interval(jenkinsInterval)
+    val jenkinsSubscription = Observable.timer(0 seconds, jenkinsInterval)
       .subscribe(_ => Try {
       val branches = Branches.findAll().toList
 
       watch("updating builds") {
         branches.foreach(b => {
-          val existingBuilds = new BuildRepository().getBuilds(b)
+          val existingBuilds = component.buildRepository.getBuilds(b)
           val builds = jenkinsRepository.getBuilds(b)
           builds.foreach(build => {
             val existingBuild = existingBuilds.find(_.number == build.number)
-            val toggled = if (existingBuild.isDefined) existingBuild.get.toggled else build.toggled
+            val toggled = existingBuild.map(_.toggled).getOrElse(build.toggled)
             Builds.update(MongoDBObject("number" -> build.number, "branch" -> b.name), build.copy(toggled = toggled), upsert = true, multi = false, Builds.dao.collection.writeConcern)
           })
         })

@@ -10,6 +10,7 @@ import models.User
 import scala.util.Success
 import scala.util.Failure
 import scala.Some
+import components.DefaultComponent
 
 object Github extends Application {
 
@@ -17,13 +18,13 @@ object Github extends Application {
     user =>
       implicit request =>
 
-        val component = new components.Default {
+        val component = new DefaultComponent {
           val authInfo = CacheService.authInfo
         }
 
 
 
-        val branches = new BranchRepository()
+        val branches = component.branchRepository
 
         branches.getBranch(branchName) match {
           case None => NotFound(Json.obj("message" -> s"Branch $branchName is not found"))
@@ -35,7 +36,7 @@ object Github extends Application {
         }
   }
 
-  private def mergeAndDelete(component: components.Default, user: User, branch: Branch, pullRequest: PullRequest) = {
+  private def mergeAndDelete(component: DefaultComponent, user: User, branch: Branch, pullRequest: PullRequest) = {
 
     val repo = component.githubRepository
     val authInfo = component.authInfo

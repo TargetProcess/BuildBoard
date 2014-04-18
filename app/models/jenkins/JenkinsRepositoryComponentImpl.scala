@@ -22,7 +22,7 @@ trait JenkinsRepositoryComponentImpl extends JenkinsRepositoryComponent {
   def jenkinsRepository = new JenkinsRepositoryImpl
 
 
-  class JenkinsRepositoryImpl extends JenkinsRepository with FileApi with Artifacts {
+  class JenkinsRepositoryImpl extends JenkinsRepository with FileApi with Artifacts with JenkinsApi {
     private val timeout = 5.hours
     private val buildsPerBranch = 15
 
