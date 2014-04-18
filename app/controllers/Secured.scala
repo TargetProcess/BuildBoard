@@ -37,10 +37,10 @@ trait Secured {
       }
     }
 
-  def IsAuthorized(f: => User => Request[AnyContent] => Result):EssentialAction = IsAuthorized(parse.anyContent)(f)
+  def IsAuthorized(f: => User => Request[AnyContent] => Result): EssentialAction = IsAuthorized(parse.anyContent)(f)
 
-  def IsAuthenticated(f: => String => Request[AnyContent] => Result):EssentialAction = IsAuthenticated(parse.anyContent)(f)
+  def IsAuthenticated(f: => String => Request[AnyContent] => Result): EssentialAction = IsAuthenticated(parse.anyContent)(f)
 
-  def IsAuthorizedComponent(f: => DefaultComponent => Request[AnyContent] => Result):EssentialAction = IsAuthorizedComponent(parse.anyContent)(f)
+  def IsAuthorizedComponent(f: => DefaultComponent => Request[AnyContent] => Result): EssentialAction = IsAuthorizedComponent(parse.anyContent)(f)
 
 }

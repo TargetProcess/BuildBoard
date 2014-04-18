@@ -5,7 +5,7 @@ import org.joda.time._
 
 
 object Utils {
-  def watch[T](title:String)(body: =>T):T = {
+  def watch[T](title: String)(body: => T): T = {
     val start = DateTime.now
     Logger.info(s"start: $title")
     val result = body

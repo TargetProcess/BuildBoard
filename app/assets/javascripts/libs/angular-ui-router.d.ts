@@ -26,28 +26,28 @@ declare module ng.ui {
 
     interface IStateProvider extends IServiceProvider {
         state(name:string, config:IState): IStateProvider;
-        decorator(name?: string, decorator?: (state: IState, parent: Function) => any): any;
+        decorator(name?:string, decorator?:(state:IState, parent:Function) => any): any;
     }
 
     interface IUrlMatcher {
-        concat(pattern: string): IUrlMatcher;
-        exec(path: string, searchParams: {}): {};
+        concat(pattern:string): IUrlMatcher;
+        exec(path:string, searchParams:{}): {};
     }
 
     interface IUrlMatcherFactory {
-        compile(pattern: string): IUrlMatcher;
-        isMatcher(o: any): boolean;
+        compile(pattern:string): IUrlMatcher;
+        isMatcher(o:any): boolean;
         parameters(): string[];
-        format(values: {}): string;
+        format(values:{}): string;
     }
 
     interface IUrlRouterProvider extends IServiceProvider {
-        when(whenPath: string, toPath: string): IUrlRouterProvider;
-        when(whenPath: RegExp, toPath: string): IUrlRouterProvider;
-        when(whenPath: IUrlMatcher, toPath: string): IUrlRouterProvider;
-        otherwise(path: string): IUrlRouterProvider;
-        otherwise(path: Function): IUrlRouterProvider;
-        rule(handler: Function): IUrlRouterProvider;
+        when(whenPath:string, toPath:string): IUrlRouterProvider;
+        when(whenPath:RegExp, toPath:string): IUrlRouterProvider;
+        when(whenPath:IUrlMatcher, toPath:string): IUrlRouterProvider;
+        otherwise(path:string): IUrlRouterProvider;
+        otherwise(path:Function): IUrlRouterProvider;
+        rule(handler:Function): IUrlRouterProvider;
     }
 
     interface IStateOptions {
@@ -65,15 +65,15 @@ declare module ng.ui {
     }
 
     interface IStateService {
-        go(to: string, params?: {}, options?: IStateOptions): void;
-        transitionTo(state: string, params?: {}, updateLocation?: boolean): void;
-        transitionTo(state: string, params?: {}, options?: IStateOptions): void;
-        includes(state: string, params?: {}): boolean;
-        is(state:string, params?: {}): boolean;
-        is(state: IState, params?: {}): boolean;
-        href(state: IState, params?: {}, options?: IHrefOptions): string;
-        href(state: string, params?: {}, options?: IHrefOptions): string;
-        get(state: string): IState;
+        go(to:string, params?:{}, options?:IStateOptions): void;
+        transitionTo(state:string, params?:{}, updateLocation?:boolean): void;
+        transitionTo(state:string, params?:{}, options?:IStateOptions): void;
+        includes(state:string, params?:{}): boolean;
+        is(state:string, params?:{}): boolean;
+        is(state:IState, params?:{}): boolean;
+        href(state:IState, params?:{}, options?:IHrefOptions): string;
+        href(state:string, params?:{}, options?:IHrefOptions): string;
+        get(state:string): IState;
         get(): IState[];
         current: IState;
         params: IStateParamsService;

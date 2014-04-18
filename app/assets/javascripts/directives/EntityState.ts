@@ -39,18 +39,18 @@ module buildBoard {
                 });
             };
 
-            $scope.getStatusStatus = (entityState:EntityState)=>{
-              if (!entityState){
-                  return "";
-              }
-              if (entityState.name == "Tested")
-                return "success";
-              else if (entityState.name == "Reopen" || entityState.name == "Closed" ||  entityState.name == "Done")
-                return "warning";
-              else if (entityState.name == "In Dev" || entityState.name == "Testing" )
-                return "default";
-              else
-                return "";
+            $scope.getStatusStatus = (entityState:EntityState)=> {
+                if (!entityState) {
+                    return "";
+                }
+                if (entityState.name == "Tested")
+                    return "success";
+                else if (entityState.name == "Reopen" || entityState.name == "Closed" || entityState.name == "Done")
+                    return "warning";
+                else if (entityState.name == "In Dev" || entityState.name == "Testing")
+                    return "default";
+                else
+                    return "";
             }
         }
     }

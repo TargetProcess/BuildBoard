@@ -5,7 +5,7 @@ import play.api.libs.json._
 import scala.util._
 import TargetprocessApplication._
 import models.{AuthInfo, TpUser}
-import components.{AuthInfoProviderComponent, UserRepositoryComponent, TargetprocessComponent}
+import components.{AuthInfoProviderComponent, UserRepositoryComponent}
 
 trait UserRepositoryComponentImpl extends UserRepositoryComponent {
 

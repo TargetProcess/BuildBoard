@@ -1,13 +1,11 @@
 package controllers
 
-import play.api.mvc._
 import models._
 import play.api.libs.json._
 import com.github.nscala_time.time.Imports._
 import Writes._
 import scala.util.{Failure, Success}
 import scalaj.http.HttpException
-import models.services.CacheService
 
 object Jenkins extends Application {
 
@@ -47,7 +45,7 @@ object Jenkins extends Application {
       request => Ok(Json.toJson(build))
   }
 
-  def run(branch: String, build: Int, part: String, run: String) =  IsAuthorizedComponent {
+  def run(branch: String, build: Int, part: String, run: String) = IsAuthorizedComponent {
     component =>
 
       val branchEntity = component.branchRepository.getBranch(branch)

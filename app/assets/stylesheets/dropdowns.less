@@ -1,9 +1,9 @@
 @import "variables.less";
 @import "mixins.less";
+
 //
 // Dropdown menus
 // --------------------------------------------------
-
 
 // Dropdown arrow/caret
 .caret {
@@ -12,9 +12,9 @@
   height: 0;
   margin-left: 2px;
   vertical-align: middle;
-  border-top:   @caret-width-base solid @dropdown-caret-color;
+  border-top: @caret-width-base solid @dropdown-caret-color;
   border-right: @caret-width-base solid transparent;
-  border-left:  @caret-width-base solid transparent;
+  border-left: @caret-width-base solid transparent;
   // Firefox fix for https://github.com/twbs/bootstrap/issues/9538. Once fixed,
   // we can just straight up remove this.
   border-bottom: 0 dotted;
@@ -24,6 +24,7 @@
 .dropdown {
   position: relative;
 }
+
 .dropdown-toggle:focus {
   outline: 0;
 }
@@ -44,8 +45,8 @@
   line-height: @dropdown-line-height;
   background-color: @dropdown-bg;
   border-radius: @radius;
-//  box-shadow: 0 4px 10px rgba(0,0,0,.2);
-  box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.30), 0px 0px 60px 0px rgba(0,0,0,0.15);
+  //  box-shadow: 0 4px 10px rgba(0,0,0,.2);
+  box-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.30), 0px 0px 60px 0px rgba(0, 0, 0, 0.15);
   background-clip: padding-box;
 
   // Aligns the dropdown menu to right
@@ -63,7 +64,9 @@
     color: #000;
     white-space: nowrap;
 
-    &.active { font-weight: bold;}
+    &.active {
+      font-weight: bold;
+    }
   }
 }
 
@@ -96,6 +99,7 @@
     color: @gray;
   }
 }
+
 // Nuke hover/focus effects
 .dropdown-menu > .disabled > a {
   &:hover,
@@ -124,7 +128,6 @@
   right: 0;
   left: auto;
 }
-
 
 .dropup,
 .navbar-fixed-bottom .dropdown {

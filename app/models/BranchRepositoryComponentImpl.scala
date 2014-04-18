@@ -1,7 +1,7 @@
 package models
 
 import scala.language.postfixOps
-import models.mongo.{Builds, Branches}
+import models.mongo.Branches
 import com.mongodb.casbah.commons.MongoDBObject
 import components.{BuildRepositoryComponent, BranchRepositoryComponent}
 
@@ -42,4 +42,5 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
       Some((branch.name, branch.url, branch.pullRequest, branch.entity, branch.lastBuild, branch.activity, branch.buildActions))
     }
   }
+
 }

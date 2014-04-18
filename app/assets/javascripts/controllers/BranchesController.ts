@@ -41,7 +41,7 @@ module buildBoard {
             this.$scope.countBy = (userFilter:string, branchesFilter:string)=>this.filter(modelProvider.branches, userFilter || this.$scope.userFilter, branchesFilter || "all").length;
         }
 
-        private getUsers(branches:Branch[]){
+        private getUsers(branches:Branch[]) {
 
             var usersAndBranches = _.chain(branches)
                 .filter(branch=>!!branch.entity)

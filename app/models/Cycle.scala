@@ -5,7 +5,9 @@ import play.api.Play.current
 
 trait Cycle {
   val name: String
+
   def friendlyName = name
+
   val includeUnstable: Boolean
   val buildFullPackage: Boolean
   val unitTests: String
@@ -24,7 +26,9 @@ abstract class ConfigurableCycle(val name: String) extends Cycle {
 case object BuildPackageOnly extends ConfigurableCycle("PackageOnly") {
   override def friendlyName = "Package only"
 }
+
 case object FullCycle extends ConfigurableCycle("Full")
+
 case object ShortCycle extends ConfigurableCycle("Short")
 
 trait BuildAction {
@@ -50,12 +54,12 @@ trait BuildAction {
       case ShortCycle => "Short"
       case BuildPackageOnly => "Short"
     }),
-    "BUILDPRIORITY"->( branchName match {
-      case hotfix(_)=>"1"
-      case release(_)=>"2"
-      case vs(_)=>"3"
-      case develop()=>"4"
-      case feature(_)=>"5"
+    "BUILDPRIORITY" -> (branchName match {
+      case hotfix(_) => "1"
+      case release(_) => "2"
+      case vs(_) => "3"
+      case develop() => "4"
+      case feature(_) => "5"
       case _ => "10"
     })
   )
@@ -66,7 +70,7 @@ trait BuildAction {
 object BuildAction {
   val cycles = List(FullCycle, ShortCycle, BuildPackageOnly)
 
-  def find(name:String) = cycles.find(_.name == name).get
+  def find(name: String) = cycles.find(_.name == name).get
 
   def unapply(action: BuildAction) = action match {
     case PullRequestBuildAction(id, _) => Some(action.name, Some(id), None, action.cycle.name)

@@ -1,10 +1,9 @@
 package models.jenkins
 
 import scala.util.Try
-import scalaj.http.Http
 import models._
 import java.io.File
-import scala.io.{BufferedSource, Source}
+import scala.io.BufferedSource
 import scala.xml.{Node, XML}
 import models.BuildNode
 import scala.Some
@@ -13,8 +12,6 @@ import models.Build
 import models.TestCasePackage
 import org.joda.time.DateTime
 import com.github.nscala_time.time.Imports._
-import play.api.Play
-import play.api.Play.current
 import components.JenkinsRepositoryComponent
 
 trait JenkinsRepositoryComponentImpl extends JenkinsRepositoryComponent {

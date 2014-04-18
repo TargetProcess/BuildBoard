@@ -1,8 +1,8 @@
 package models.github
 
 import org.eclipse.egit.github.core.service.DataService
-import org.eclipse.egit.github.core.client.{GitHubRequest, GitHubClient}
-import org.eclipse.egit.github.core.{IRepositoryIdProvider, Reference}
+import org.eclipse.egit.github.core.client.GitHubClient
+import org.eclipse.egit.github.core.IRepositoryIdProvider
 import org.eclipse.egit.github.core.client.IGitHubConstants._
 
 class ReferenceService(client: GitHubClient) extends DataService(client) {

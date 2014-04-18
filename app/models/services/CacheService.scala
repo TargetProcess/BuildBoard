@@ -61,9 +61,9 @@ object CacheService {
         }
       case Failure(e) => play.Logger.error("Error", e)
     },
-        error => {
-          play.Logger.error("Error in githubSubscription", error)
-        })
+    error => {
+      play.Logger.error("Error in githubSubscription", error)
+    })
 
     val jenkinsSubscription = Observable.timer(0 seconds, jenkinsInterval)
       .subscribe(_ => Try {
