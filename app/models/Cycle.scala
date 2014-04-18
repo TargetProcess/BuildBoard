@@ -32,13 +32,6 @@ case object FullCycle extends ConfigurableCycle("Full")
 case object ShortCycle extends ConfigurableCycle("Short")
 
 trait BuildAction {
-  val release = "^(?:origin/)?release/(.*)$".r
-  val feature = "^(?:origin/)?feature/(.*)$".r
-  val hotfix = "^(?:origin/)?hotfix/(.*)$".r
-  val vs = "^(?:origin/)?vs/(.*)$".r
-  val develop = "^(?:origin/)?develop$".r
-
-
   val cycle: Cycle
 
   val branchName: String
@@ -55,11 +48,11 @@ trait BuildAction {
       case BuildPackageOnly => "Short"
     }),
     "BUILDPRIORITY" -> (branchName match {
-      case hotfix(_) => "1"
-      case release(_) => "2"
-      case vs(_) => "3"
-      case develop() => "4"
-      case feature(_) => "5"
+      case BranchInfo.hotfix(_) => "1"
+      case BranchInfo.release(_) => "2"
+      case BranchInfo.vs(_) => "3"
+      case BranchInfo.develop() => "4"
+      case BranchInfo.feature(_) => "5"
       case _ => "10"
     })
   )

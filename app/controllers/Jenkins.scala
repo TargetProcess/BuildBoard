@@ -32,9 +32,12 @@ object Jenkins extends Application {
   }
 
   def toggleBuild(branchId: String, buildNumber: Int, toggled: Boolean) = IsAuthorizedComponent {
-    component =>
-      val branch = component.branchRepository.getBranch(branchId)
-      val build = branch.map(component.buildRepository.toggleBuild(_, buildNumber, toggled))
+    repository =>
+      val branch = repository.branchRepository.getBranch(branchId)
+      val build = branch.flatMap(repository.buildRepository.toggleBuild(_, buildNumber, toggled))
+      build.map(b=>repository.notificationService.notifyToggle(b, repository.authInfo))
+
+
       request => Ok(Json.toJson(build))
   }
 

@@ -58,7 +58,7 @@ trait TargetprocessComponentImpl extends TargetprocessComponent {
     val stateSelector = "EntityState[Id,IsFinal,Role,Name,NextStates]"
 
 
-    private def sendRequest(request: Request) = {
+    private def sendRequest(request: Request): JsValue = {
       val toSend = request
         .option(HttpOptions.connTimeout(1000))
         .option(HttpOptions.readTimeout(5000))

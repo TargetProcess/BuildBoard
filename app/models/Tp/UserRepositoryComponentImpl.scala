@@ -75,6 +75,7 @@ trait UserRepositoryComponentImpl extends UserRepositoryComponent {
 
     def save(user: User): Unit = Users.save(user)
 
+    override val loggedUser: Option[User] = None
   }
 
 }

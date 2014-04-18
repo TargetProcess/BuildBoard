@@ -8,7 +8,7 @@ import scala.util.Success
 import scala.util.Failure
 import play.api.Play
 import play.api.Play.current
-import models.AuthInfo
+import models.{Build, AuthInfo}
 import src.Utils.watch
 import components.DefaultComponent
 
@@ -69,14 +69,22 @@ object CacheService {
 
       watch("updating builds") {
         branches.foreach(branch => {
-          val existingBuilds = component.buildRepository.getBuilds(branch)
-          val builds = jenkinsRepository.getBuilds(branch)
+          watch(s"updating builds for ${branch.name}") {
+            val existingBuilds = component.buildRepository.getBuilds(branch)
+            val builds = jenkinsRepository.getBuilds(branch)
 
-          builds.foreach(build => {
-            val existingBuild = existingBuilds.find(_.number == build.number)
-            val toggled = existingBuild.map(_.toggled).getOrElse(build.toggled)
-            component.buildRepository.update(branch, build.copy(toggled = toggled))
-          })
+            builds.foreach(build => {
+              val existingBuild = existingBuilds.find(_.number == build.number)
+              val toggled = existingBuild.map(_.toggled).getOrElse(build.toggled)
+
+              val updatedBuild: Build = build.copy(toggled = toggled)
+
+              component.buildRepository.update(branch, updatedBuild)
+
+
+
+            })
+          }
         })
       }
     },

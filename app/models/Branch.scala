@@ -25,6 +25,14 @@ case class BranchInfo(name: String, url: String, pullRequest: Option[PullRequest
 case class Branch(name: String, url: String, pullRequest: Option[PullRequest] = None, entity: Option[Entity] = None) {}
 
 object BranchInfo {
+  val release = "^(?:origin/)?release/(.*)$".r
+  val feature = "^(?:origin/)?feature/(.*)$".r
+  val hotfix = "^(?:origin/)?hotfix/(.*)$".r
+  val vs = "^(?:origin/)?vs/(.*)$".r
+  val develop = "^(?:origin/)?develop$".r
+
+
+
   def serialize(branch: BranchInfo) = Some((branch.name, branch.url, branch.pullRequest, branch.entity, branch.lastBuild, branch.activity, branch.buildActions))
 }
 
