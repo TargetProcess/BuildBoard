@@ -3,7 +3,7 @@ package components
 import models.{TpUser, Entity, EntityState}
 
 trait TargetprocessComponent {
-  def entityRepository: EntityRepository
+  val entityRepository: EntityRepository
 
   trait EntityRepository {
     def changeEntityState(entityId: Int, stateId: Int): EntityState

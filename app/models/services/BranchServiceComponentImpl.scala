@@ -15,7 +15,7 @@ trait BranchServiceComponentImpl extends BranchServiceComponent {
     with TargetprocessComponent
   =>
 
-  def branchService = new BranchServiceImpl(authInfo)
+  val branchService:BranchService = new BranchServiceImpl(authInfo)
 
   class BranchServiceImpl(user: AuthInfo) extends BranchService {
     val EntityBranchPattern = new Regex("^(?i)feature/(us|bug|f)(\\d+).*")

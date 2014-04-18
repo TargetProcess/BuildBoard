@@ -3,7 +3,7 @@ package components
 import models._
 
 trait GithubRepositoryComponent {
-  def githubRepository: GithubRepository
+  val githubRepository: GithubRepository
 
   trait GithubRepository {
     def getBranches: List[Branch]

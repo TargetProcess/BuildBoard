@@ -1,15 +1,31 @@
 package models
 
-import models.mongo.Builds
+import models.mongo.mongoContext
 import com.mongodb.casbah.commons.MongoDBObject
-import com.mongodb.DBObject
 import components.BuildRepositoryComponent
+import play.api.Play.current
+import com.novus.salat.dao.{SalatDAO, ModelCompanion}
+import se.radley.plugin.salat._
+import com.mongodb.casbah.Imports._
+import se.radley.plugin.salat.Binders.ObjectId
 
 
 trait BuildRepositoryComponentImpl extends BuildRepositoryComponent {
-  def buildRepository = new BuildRepositoryImpl
+  val buildRepository: BuildRepository = new BuildRepositoryImpl
 
   class BuildRepositoryImpl extends BuildRepository {
+
+    import mongoContext._
+
+
+    object Builds extends ModelCompanion[Build, ObjectId] {
+      def collection = mongoCollection("builds")
+
+      val dao = new SalatDAO[Build, ObjectId](collection) {}
+
+      // Indexes
+      collection.ensureIndex(DBObject("number" -> 1, "branch" -> 1), "build_number", unique = true)
+    }
 
 
     private val buildInfoProjection = MongoDBObject(
@@ -20,8 +36,6 @@ trait BuildRepositoryComponentImpl extends BuildRepositoryComponent {
       "commits" -> "commits",
       "isPullRequest" -> "isPullRequest",
       "toggled" -> "toggled")
-
-    def getBuilds: List[Build] = Builds.findAll().toList
 
     def getBuilds(branch: Branch): List[Build] = Builds.find(MongoDBObject("branch" -> branch.name)).toList
 
@@ -46,6 +60,15 @@ trait BuildRepositoryComponentImpl extends BuildRepositoryComponent {
     }
 
     private def toBuildInfo(b: Build): BuildInfo = BuildInfo(b.number, b.branch, b.status, b.timestamp, b.isPullRequest, b.toggled, b.commits)
+
+    override def removeAll(branch: Branch): Unit = Builds.find(MongoDBObject("branch" -> branch.name)).foreach(Builds.remove)
+
+    override def update(branch: Branch, build: Build): Unit = Builds.update(
+      MongoDBObject(
+        "number" -> build.number,
+        "branch" -> branch.name),
+      build, upsert = true, multi = false, Builds.dao.collection.writeConcern)
+
   }
 
 }

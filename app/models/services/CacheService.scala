@@ -8,8 +8,6 @@ import scala.util.Success
 import scala.util.Failure
 import play.api.Play
 import play.api.Play.current
-import models.mongo.{Builds, Branches}
-import com.mongodb.casbah.commons.MongoDBObject
 import models.AuthInfo
 import src.Utils.watch
 import components.DefaultComponent
@@ -43,20 +41,20 @@ object CacheService {
     })
       .subscribe({
       case Success(data) =>
-        val branches = Branches.findAll().toList
+        val branches = component.branchRepository.getBranches
         watch("removing obsolete branches") {
           Try {
             branches
               .filter(b => !data.exists(_.name == b.name))
               .foreach(branch => {
-              Branches.remove(branch)
-              Builds.find(MongoDBObject("branch" -> branch.name)).foreach(Builds.remove)
+              component.branchRepository.remove(branch)
+              component.buildRepository.removeAll(branch)
             })
           }
         }
         watch("updating branches") {
           Try {
-            data.foreach(branch => Branches.update(MongoDBObject("name" -> branch.name), branch, upsert = true, multi = false, Branches.dao.collection.writeConcern))
+            data.foreach(branch => component.branchRepository.update(branch))
           }
         }
       case Failure(e) => play.Logger.error("Error", e)
@@ -67,16 +65,17 @@ object CacheService {
 
     val jenkinsSubscription = Observable.timer(0 seconds, jenkinsInterval)
       .subscribe(_ => Try {
-      val branches = Branches.findAll().toList
+      val branches = component.branchRepository.getBranches
 
       watch("updating builds") {
-        branches.foreach(b => {
-          val existingBuilds = component.buildRepository.getBuilds(b)
-          val builds = jenkinsRepository.getBuilds(b)
+        branches.foreach(branch => {
+          val existingBuilds = component.buildRepository.getBuilds(branch)
+          val builds = jenkinsRepository.getBuilds(branch)
+
           builds.foreach(build => {
             val existingBuild = existingBuilds.find(_.number == build.number)
             val toggled = existingBuild.map(_.toggled).getOrElse(build.toggled)
-            Builds.update(MongoDBObject("number" -> build.number, "branch" -> b.name), build.copy(toggled = toggled), upsert = true, multi = false, Builds.dao.collection.writeConcern)
+            component.buildRepository.update(branch, build.copy(toggled = toggled))
           })
         })
       }

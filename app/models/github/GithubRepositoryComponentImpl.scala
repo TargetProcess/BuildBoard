@@ -12,7 +12,7 @@ import models.{PullRequestStatus, PullRequest}
 trait GithubRepositoryComponentImpl extends GithubRepositoryComponent {
   this: GithubRepositoryComponentImpl with AuthInfoProviderComponent =>
 
-  def githubRepository = new GithubRepositoryImpl(authInfo)
+  val githubRepository = new GithubRepositoryImpl(authInfo)
 
   class GithubRepositoryImpl(authInfo: AuthInfo) extends GithubRepository {
     private val github = new GitHubClient().setOAuth2Token(authInfo.githubToken)

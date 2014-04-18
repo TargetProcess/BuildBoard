@@ -1,23 +1,43 @@
 package models
 
 import scala.language.postfixOps
-import models.mongo.Branches
 import com.mongodb.casbah.commons.MongoDBObject
 import components.{BuildRepositoryComponent, BranchRepositoryComponent}
+import com.novus.salat.dao.ModelCompanion
+import se.radley.plugin.salat.Binders.ObjectId
+import scala.Some
+import com.novus.salat.Context
+import play.api.Play.current
+import com.novus.salat.dao.{SalatDAO, ModelCompanion}
+import se.radley.plugin.salat._
+import com.mongodb.casbah.Imports._
+import se.radley.plugin.salat.Binders.ObjectId
+import com.novus.salat.StringTypeHintStrategy
+import models.mongo.mongoContext
+import mongoContext._
 
 
 trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
 
   this: BranchRepositoryComponentImpl with BuildRepositoryComponent =>
 
-  def branchRepository = new BranchRepositoryImpl
+  val branchRepository = new BranchRepositoryImpl
 
   class BranchRepositoryImpl extends BranchRepository {
 
+    object Branches extends ModelCompanion[Branch, ObjectId] {
 
-    def getBranch(id: String): Option[Branch] = Branches.findOne(MongoDBObject("name" -> id))
+      def collection = mongoCollection("branches")
 
-    def getBranches: List[BranchInfo] = {
+      val dao = new SalatDAO[Branch, ObjectId](collection) {}
+
+      // Indexes
+      collection.ensureIndex(DBObject("name" -> 1), "", unique = true)
+    }
+
+
+
+    def getBranchInfos: List[BranchInfo] = {
       val builds = buildRepository.getBuildInfos
 
       Branches.find(MongoDBObject.empty)
@@ -38,9 +58,10 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
       })
     }
 
-    def serialize(branch: BranchInfo) = {
-      Some((branch.name, branch.url, branch.pullRequest, branch.entity, branch.lastBuild, branch.activity, branch.buildActions))
-    }
+    def getBranch(id: String): Option[Branch] = Branches.findOne(MongoDBObject("name" -> id))
+    def getBranches: List[Branch] = Branches.findAll().toList
+    def remove(branch: Branch): Unit = Branches.remove(branch)
+    def update(branch: Branch): Unit =  Branches.update(MongoDBObject("name" -> branch.name), branch, upsert = true, multi = false, Branches.dao.collection.writeConcern)
   }
 
 }

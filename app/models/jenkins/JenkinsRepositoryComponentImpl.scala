@@ -1,9 +1,7 @@
 package models.jenkins
 
-import scala.util.Try
 import models._
 import java.io.File
-import scala.io.BufferedSource
 import scala.xml.{Node, XML}
 import models.BuildNode
 import scala.Some
@@ -16,7 +14,7 @@ import components.JenkinsRepositoryComponent
 
 trait JenkinsRepositoryComponentImpl extends JenkinsRepositoryComponent {
 
-  def jenkinsRepository = new JenkinsRepositoryImpl
+  val jenkinsRepository = new JenkinsRepositoryImpl
 
 
   class JenkinsRepositoryImpl extends JenkinsRepository with FileApi with Artifacts with JenkinsApi {

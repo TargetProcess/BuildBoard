@@ -4,7 +4,7 @@ import scala.util.Try
 
 trait JenkinsRepositoryComponent {
 
-  def jenkinsRepository: JenkinsRepository
+  val jenkinsRepository: JenkinsRepository
 
 
   trait JenkinsRepository {

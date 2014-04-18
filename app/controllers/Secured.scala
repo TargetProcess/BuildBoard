@@ -3,14 +3,13 @@ package controllers
 import play.api.mvc._
 import models._
 import play.api.mvc.BodyParsers.parse
-import models.mongo.Users
-import components.DefaultComponent
+import components.{Registry, DefaultComponent}
 
 trait Secured {
 
   private def username(request: RequestHeader) = request.session.get("login")
 
-  private def onUnauthorized(request: RequestHeader) = Results.Redirect(routes.Login.index)
+  private def onUnauthorized(request: RequestHeader) = Results.Redirect(routes.Login.index())
 
   def IsAuthenticated[A](bodyParser: BodyParser[A])(f: => String => Request[A] => Result) =
     Security.Authenticated(username, onUnauthorized) {
@@ -20,7 +19,7 @@ trait Secured {
   def IsAuthorized[A](bodyParser: BodyParser[A])(f: => User => Request[A] => Result) =
     IsAuthenticated(bodyParser) {
       username => {
-        Users.findOneByUsername(username) match {
+        Registry.userRepository.findOneByUsername(username) match {
           case Some(user) => request => f(user)(request)
           case None => request => onUnauthorized(request)
         }
