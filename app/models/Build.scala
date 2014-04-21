@@ -3,6 +3,17 @@ package models
 import com.github.nscala_time.time.Imports._
 import scala.Some
 
+
+trait IBuildInfo{
+  val number: Int
+  val branch: String
+  val status: Option[String]
+  val toggled: Boolean
+  val timestamp: DateTime
+
+  val buildStatus = BuildStatus(status, toggled)
+}
+
 case class BuildInfo(number: Int,
                      branch: String,
                      status: Option[String],
@@ -10,7 +21,7 @@ case class BuildInfo(number: Int,
                      isPullRequest: Boolean = false,
                      toggled: Boolean = false,
                      commits: List[Commit] = Nil,
-                     activityType: String = "build") extends ActivityEntry
+                     activityType: String = "build") extends ActivityEntry with IBuildInfo
 
 case class Build(number: Int,
                  branch: String,
@@ -19,7 +30,7 @@ case class Build(number: Int,
                  isPullRequest: Boolean = false,
                  toggled: Boolean = false,
                  commits: List[Commit] = Nil,
-                 node: Option[BuildNode]) {
+                 node: Option[BuildNode]) extends IBuildInfo{
 
   def getTestRunBuildNode(part: String, run: String): Option[BuildNode] = {
     def getTestRunBuildNodeInner(node: BuildNode): Option[BuildNode] = node match {
@@ -28,7 +39,6 @@ case class Build(number: Int,
     }
     node.map(getTestRunBuildNodeInner).flatten
   }
-
 }
 
 case class BuildNode(name: String, runName: String, status: Option[String], statusUrl: String, artifacts: List[Artifact], timestamp: DateTime, children: List[BuildNode] = Nil, testResults: List[TestCasePackage] = Nil) {

@@ -79,9 +79,11 @@ object CacheService {
 
             registry.buildRepository.update(branch, updatedBuild)
           })
-          registry.notificationService.notifyBuilds(branch, builds)
+          registry.notificationService.notifyAboutBuilds(branch, builds)
         })
       }
+    }.recover {
+      case e => play.Logger.error("Error in jenkinsSubscription", e)
     },
         error => {
           play.Logger.error("Error in jenkinsSubscription", error)

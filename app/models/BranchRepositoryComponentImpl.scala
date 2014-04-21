@@ -3,16 +3,11 @@ package models
 import scala.language.postfixOps
 import com.mongodb.casbah.commons.MongoDBObject
 import components.{BuildRepositoryComponent, BranchRepositoryComponent}
-import com.novus.salat.dao.ModelCompanion
-import se.radley.plugin.salat.Binders.ObjectId
-import scala.Some
-import com.novus.salat.Context
 import play.api.Play.current
 import com.novus.salat.dao.{SalatDAO, ModelCompanion}
 import se.radley.plugin.salat._
 import com.mongodb.casbah.Imports._
 import se.radley.plugin.salat.Binders.ObjectId
-import com.novus.salat.StringTypeHintStrategy
 import models.mongo.mongoContext
 import mongoContext._
 
@@ -41,22 +36,21 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
       val builds = buildRepository.getBuildInfos
 
       Branches.find(MongoDBObject.empty)
+        .toList
         .map(b => {
         val buildsForBranch = builds
           .filter(_.branch == b.name)
-
+          .sortBy(-_.number)
         val commits = buildsForBranch
           .flatMap(_.commits)
           .map(c => (c.timestamp, c))
           .groupBy(_._1)
           .map(_._2.head._2)
-
         val activity = (buildsForBranch ++ b.pullRequest ++ commits)
           .sortBy(-_.timestamp.getMillis)
 
         BranchInfo(b.name, b.url, b.pullRequest, b.entity, buildsForBranch.headOption, activity)
       })
-      .toList
     }
 
     def getBranch(id: String): Option[Branch] = Branches.findOne(MongoDBObject("name" -> id))

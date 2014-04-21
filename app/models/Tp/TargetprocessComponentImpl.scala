@@ -76,7 +76,7 @@ trait TargetprocessComponentImpl extends TargetprocessComponent {
     }
 
     private def get(root: String, include: String, where: String = "", id: Option[Int] = None) = {
-      val uri = apiUri(root) + "/" + id.map(_.toString).getOrElse("") + s"?token=$token&format=json&include=$include&where=$where"
+      val uri = s"${apiUri(root)}/${id.map(_.toString).getOrElse("")}?token=$token&format=json&include=$include&where=$where"
       val request = Http(uri)
 
       sendRequest(request)
@@ -84,10 +84,9 @@ trait TargetprocessComponentImpl extends TargetprocessComponent {
 
     private def split(ints: List[Int], count: Int): List[List[Int]] = ints match {
       case Nil => Nil
-      case l => {
+      case l =>
         val (head, tail) = (ints.take(count), ints.drop(count))
         head :: split(tail, count)
-      }
     }
 
     def changeEntityState(entityId: Int, stateId: Int) = {

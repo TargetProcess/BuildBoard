@@ -43,9 +43,9 @@ object Jenkins extends Application {
   }
 
   def build(branch: String, number: Int) = IsAuthorizedComponent {
-    component =>
-      val branchEntity = component.branchRepository.getBranch(branch)
-      val build = branchEntity.map(component.buildRepository.getBuild(_, number))
+    registry =>
+      val branchEntity = registry.branchRepository.getBranch(branch)
+      val build = branchEntity.map(registry.buildRepository.getBuild(_, number))
       request => Ok(Json.toJson(build))
   }
 
