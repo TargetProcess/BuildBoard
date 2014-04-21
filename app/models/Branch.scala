@@ -7,7 +7,11 @@ case class BranchInfo(name: String, url: String, pullRequest: Option[PullRequest
       BranchBuildAction(name, FullCycle)
     )
 
-    val l2 = if (!name.startsWith("release") && !name.startsWith("hotfix")) List(BranchBuildAction(name, ShortCycle)) else Nil
+    val l2 = name match {
+      case BranchInfo.release(_) => Nil
+      case BranchInfo.hotfix(_) => Nil
+      case _ => List(BranchBuildAction(name, ShortCycle))
+    }
 
     val l3 =
       pullRequest match {
@@ -22,7 +26,12 @@ case class BranchInfo(name: String, url: String, pullRequest: Option[PullRequest
 }
 
 
-case class Branch(name: String, url: String, pullRequest: Option[PullRequest] = None, entity: Option[Entity] = None) {}
+case class Branch(
+                   name: String,
+                   url: String,
+                   pullRequest: Option[PullRequest] = None,
+                   entity: Option[Entity] = None
+                   )
 
 object BranchInfo {
   val release = "^(?:origin/)?release/(.*)$".r

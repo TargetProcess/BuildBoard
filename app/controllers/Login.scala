@@ -35,6 +35,7 @@ object Login extends Application {
       loginForm.bindFromRequest.fold(
         formWithErrors => BadRequest(html.login(formWithErrors)),
         login => {
+
           Registry.userRepository
             .authenticate(login.username, login.password) match {
             case Success((tpUser, token)) =>
@@ -42,7 +43,9 @@ object Login extends Application {
               Redirect(routes.Landing.index()).withSession("login" -> tpUser.login)
 
 
-            case Failure(e) => Ok(views.html.login(loginForm, Some(e.toString)))
+            case Failure(e) =>
+              play.Logger.error("Error during login", e)
+              Ok(views.html.login(loginForm, Some("Something going wrong")))
           }
         })
   }

@@ -25,34 +25,34 @@ object CacheService {
     }).get
 
 
-  val repository = new DefaultRegistry(authInfo)
+  val registry = new DefaultRegistry(authInfo)
 
   val githubInterval = Play.configuration.getInt("github.cache.interval").getOrElse(600).seconds
   val jenkinsInterval = Play.configuration.getInt("jenkins.cache.interval").getOrElse(60).seconds
 
 
   def start = {
-    val jenkinsRepository = repository.jenkinsRepository
+    val jenkinsRepository = registry.jenkinsRepository
     val githubSubscription = Observable.timer(0 seconds, githubInterval)
       .map(_ => Try {
-      repository.branchService.getBranches
+      registry.branchService.getBranches
     })
       .subscribe({
       case Success(data) =>
-        val branches = repository.branchRepository.getBranches
+        val branches = registry.branchRepository.getBranches
         watch("removing obsolete branches") {
           Try {
             branches
               .filter(b => !data.exists(_.name == b.name))
               .foreach(branch => {
-              repository.branchRepository.remove(branch)
-              repository.buildRepository.removeAll(branch)
+              registry.branchRepository.remove(branch)
+              registry.buildRepository.removeAll(branch)
             })
           }
         }
         watch("updating branches") {
           Try {
-            data.foreach(branch => repository.branchRepository.update(branch))
+            data.foreach(branch => registry.branchRepository.update(branch))
           }
         }
       case Failure(e) => play.Logger.error("Error", e)
@@ -63,12 +63,12 @@ object CacheService {
 
     val jenkinsSubscription = Observable.timer(0 seconds, jenkinsInterval)
       .subscribe(_ => Try {
-      val branches = repository.branchRepository.getBranches
+      val branches = registry.branchRepository.getBranches
 
       watch("updating builds") {
         branches.foreach(branch => {
           Logger.info(s"updating builds for ${branch.name}")
-          val existingBuilds = repository.buildRepository.getBuilds(branch)
+          val existingBuilds = registry.buildRepository.getBuilds(branch)
           val builds = jenkinsRepository.getBuilds(branch)
 
           builds.foreach(build => {
@@ -77,10 +77,9 @@ object CacheService {
 
             val updatedBuild: Build = build.copy(toggled = toggled)
 
-            repository.buildRepository.update(branch, updatedBuild)
-
-
+            registry.buildRepository.update(branch, updatedBuild)
           })
+          registry.notificationService.notifyBuilds(branch, builds)
         })
       }
     },

@@ -33,12 +33,13 @@ object Jenkins extends Application {
 
   def toggleBuild(branchId: String, buildNumber: Int, toggled: Boolean) = IsAuthorizedComponent {
     repository =>
-      val branch = repository.branchRepository.getBranch(branchId)
-      val build = branch.flatMap(repository.buildRepository.toggleBuild(_, buildNumber, toggled))
-      build.foreach(repository.notificationService.notifyToggle)
+      val optionBranch = repository.branchRepository.getBranch(branchId)
+      val optionBuild = optionBranch.flatMap(repository.buildRepository.toggleBuild(_, buildNumber, toggled))
+
+      optionBuild.foreach(repository.notificationService.notifyToggle(optionBranch.get, _))
 
 
-      request => Ok(Json.toJson(build))
+      request => Ok(Json.toJson(optionBuild))
   }
 
   def build(branch: String, number: Int) = IsAuthorizedComponent {

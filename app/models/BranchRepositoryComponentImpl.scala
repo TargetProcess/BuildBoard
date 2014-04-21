@@ -41,21 +41,22 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
       val builds = buildRepository.getBuildInfos
 
       Branches.find(MongoDBObject.empty)
-        .toList
         .map(b => {
         val buildsForBranch = builds
           .filter(_.branch == b.name)
-          .sortBy(-_.number)
+
         val commits = buildsForBranch
           .flatMap(_.commits)
           .map(c => (c.timestamp, c))
           .groupBy(_._1)
           .map(_._2.head._2)
+
         val activity = (buildsForBranch ++ b.pullRequest ++ commits)
           .sortBy(-_.timestamp.getMillis)
 
         BranchInfo(b.name, b.url, b.pullRequest, b.entity, buildsForBranch.headOption, activity)
       })
+      .toList
     }
 
     def getBranch(id: String): Option[Branch] = Branches.findOne(MongoDBObject("name" -> id))

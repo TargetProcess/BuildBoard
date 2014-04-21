@@ -14,7 +14,7 @@ import components._
 trait TargetprocessComponentImpl extends TargetprocessComponent {
   this: TargetprocessComponentImpl with AuthInfoProviderComponent =>
 
-  val entityRepository = new EntityRepo(authInfo.token)
+  def entityRepository = new EntityRepo(authInfo.token)
 
   class EntityRepo(token: String) extends EntityRepository {
 

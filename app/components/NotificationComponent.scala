@@ -1,12 +1,14 @@
 package components
 
-import models.BuildInfo
+import models.{Build, Branch, BuildInfo}
 
 trait NotificationComponent {
   val notificationService: NotificationService
 
   trait NotificationService {
-    def notifyToggle(build:BuildInfo)
+    def notifyBuilds(branch: Branch, builds: List[Build])
+
+    def notifyToggle(branch: Branch, build:BuildInfo)
   }
 
 }

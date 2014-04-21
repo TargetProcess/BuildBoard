@@ -18,14 +18,14 @@ object Github extends Application {
     user =>
       implicit request =>
 
-        val branches = CacheService.repository.branchRepository
+        val branches = CacheService.registry.branchRepository
 
         branches.getBranch(branchName) match {
           case None => NotFound(Json.obj("message" -> s"Branch $branchName is not found"))
           case Some(branch) =>
             branch.pullRequest match {
               case None => BadRequest(Json.obj("message" -> s"There is no pull request for branch $branchName"))
-              case Some(pullRequest) => mergeAndDelete(CacheService.repository, user, branch, pullRequest)
+              case Some(pullRequest) => mergeAndDelete(CacheService.registry, user, branch, pullRequest)
             }
         }
   }
