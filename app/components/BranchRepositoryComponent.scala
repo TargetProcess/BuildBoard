@@ -7,6 +7,7 @@ trait BranchRepositoryComponent {
 
   trait BranchRepository {
     def getBranch(id: String): Option[Branch]
+    def getBranchByPullRequest(id: Int): Option[Branch]
 
     def getBranchInfos: List[BranchInfo]
 

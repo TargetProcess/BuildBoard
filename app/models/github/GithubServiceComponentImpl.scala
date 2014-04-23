@@ -9,12 +9,12 @@ import org.joda.time.DateTime
 import org.eclipse.egit.github.core.{PullRequest => PR, RepositoryId}
 import models.{PullRequestStatus, PullRequest}
 
-trait GithubRepositoryComponentImpl extends GithubRepositoryComponent {
-  this: GithubRepositoryComponentImpl with AuthInfoProviderComponent =>
+trait GithubServiceComponentImpl extends GithubServiceComponent {
+  this: GithubServiceComponentImpl with AuthInfoProviderComponent =>
 
-  val githubRepository = new GithubRepositoryImpl(authInfo)
+  val githubService = new GithubServiceImpl(authInfo)
 
-  class GithubRepositoryImpl(authInfo: AuthInfo) extends GithubRepository {
+  class GithubServiceImpl(authInfo: AuthInfo) extends GithubService {
     private val github = new GitHubClient().setOAuth2Token(authInfo.githubToken)
     private val repositoryService = new RepositoryService(github)
     private val prService = new PullRequestService(github)

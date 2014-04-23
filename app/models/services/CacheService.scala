@@ -32,7 +32,7 @@ object CacheService {
 
 
   def start = {
-    val jenkinsRepository = registry.jenkinsRepository
+    val jenkinsRepository = registry.jenkinsService
     val githubSubscription = Observable.timer(0 seconds, githubInterval)
       .map(_ => Try {
       registry.branchService.getBranches
@@ -66,8 +66,47 @@ object CacheService {
       val branches = registry.branchRepository.getBranches
 
       watch("updating builds") {
+                          /*
+        val buildsFromJenkins:List[String] = registry.jenkinsRepository.getBuildName
+
+
+          List("pr_44_45","develop_456", "develop_111")
+
+
+        val b:Build= ???
+
+        b.folderName
+
+        val allBuilds:Iterator[Build] = ???
+
+        allBuilds.filter(x=>x.status.isEmpty && !x.timedOut())
+        .update()
+
+
+        val allFolders = allBuilds.map(_.folderName)
+
+        val folders = buildsFromJenkins.except(allFolders).create()
+
+
+
+
+
+
+
+
+                        */
+
+
         branches.foreach(branch => {
-          Logger.info(s"updating builds for ${branch.name}")
+//          Logger.info(s"updating builds for ${branch.name}")
+
+
+
+
+
+
+
+
           val existingBuilds = registry.buildRepository.getBuilds(branch)
           val builds = jenkinsRepository.getBuilds(branch)
 

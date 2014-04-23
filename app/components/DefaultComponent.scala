@@ -1,19 +1,19 @@
 package components
 
-import models.github.GithubRepositoryComponentImpl
+import models.github.GithubServiceComponentImpl
 import models.services.BranchServiceComponentImpl
 import models.tp.{UserRepositoryComponentImpl, TargetprocessComponentImpl}
-import models.jenkins.JenkinsRepositoryComponentImpl
 import models.{AuthInfo, User, BuildRepositoryComponentImpl, BranchRepositoryComponentImpl}
 import models.notifications.NotificationComponentImpl
+import models.jenkins.JenkinsServiceComponentImpl
 
 trait DefaultComponent
   extends AuthInfoProviderComponent
   with LoggedUserProviderComponent
-  with GithubRepositoryComponentImpl
+  with GithubServiceComponentImpl
   with BranchServiceComponentImpl
   with TargetprocessComponentImpl
-  with JenkinsRepositoryComponentImpl
+  with JenkinsServiceComponentImpl
   with BranchRepositoryComponentImpl
   with BuildRepositoryComponentImpl
   with NotificationComponentImpl

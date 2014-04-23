@@ -10,26 +10,31 @@ trait IBuildInfo{
   val status: Option[String]
   val toggled: Boolean
   val timestamp: DateTime
+  val pullRequestId : Option[Int]
 
   val buildStatus = BuildStatus(status, toggled)
+  def isPullRequest = pullRequestId.isDefined
 }
 
 case class BuildInfo(number: Int,
                      branch: String,
                      status: Option[String],
                      override val timestamp: DateTime,
-                     isPullRequest: Boolean = false,
                      toggled: Boolean = false,
                      commits: List[Commit] = Nil,
-                     activityType: String = "build") extends ActivityEntry with IBuildInfo
+                     activityType: String = "build",
+                     pullRequestId:  Option[Int] = None
+                      ) extends ActivityEntry with IBuildInfo{
+
+}
 
 case class Build(number: Int,
                  branch: String,
                  status: Option[String],
                  timestamp: DateTime,
-                 isPullRequest: Boolean = false,
                  toggled: Boolean = false,
                  commits: List[Commit] = Nil,
+                 pullRequestId:  Option[Int] = None,
                  node: Option[BuildNode]) extends IBuildInfo{
 
   def getTestRunBuildNode(part: String, run: String): Option[BuildNode] = {
@@ -39,6 +44,8 @@ case class Build(number: Int,
     }
     node.map(getTestRunBuildNodeInner).flatten
   }
+
+  def name:String = ???
 }
 
 case class BuildNode(name: String, runName: String, status: Option[String], statusUrl: String, artifacts: List[Artifact], timestamp: DateTime, children: List[BuildNode] = Nil, testResults: List[TestCasePackage] = Nil) {

@@ -32,7 +32,7 @@ object Github extends Application {
 
   private def mergeAndDelete(repository: DefaultComponent, user: User, branch: Branch, pullRequest: PullRequest) = {
 
-    val githubRepo = repository.githubRepository
+    val githubRepo = repository.githubService
     val entityRepo = repository.entityRepository
 
     val tryMerge = Try {

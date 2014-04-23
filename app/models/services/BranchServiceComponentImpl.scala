@@ -11,7 +11,7 @@ import scala.Some
 trait BranchServiceComponentImpl extends BranchServiceComponent {
   this: BranchServiceComponentImpl
     with AuthInfoProviderComponent
-    with GithubRepositoryComponent
+    with GithubServiceComponent
     with TargetprocessComponent
   =>
 
@@ -24,10 +24,10 @@ trait BranchServiceComponentImpl extends BranchServiceComponent {
 
     def getBranches: List[Branch] = watch("Get branches") {
       val pullRequests = watch("Get pull requests") {
-        githubRepository.getPullRequests
+        githubService.getPullRequests
       }
       val branches = watch("Get branches") {
-        githubRepository.getBranches
+        githubService.getBranches
       }
       val entityIds = branches
         .map(br => br.name).flatMap {
@@ -45,7 +45,7 @@ trait BranchServiceComponentImpl extends BranchServiceComponent {
       watch("Parse branch info") {
         branches.map(branch => branch.copy(pullRequest = pullRequests
           .find(p => p.name == branch.name)
-          .map(pr => pr.copy(status = githubRepository.getPullRequestStatus(pr.prId))))
+          .map(pr => pr.copy(status = githubService.getPullRequestStatus(pr.prId))))
         )
           .map(branch => branch.copy(entity = branch.name match {
           case EntityBranchPattern(_, id) => entities.get(id.toInt)
