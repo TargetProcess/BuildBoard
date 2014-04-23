@@ -68,22 +68,15 @@ trait NotificationComponentImpl extends NotificationComponent {
           val lastBuild = builds.maxBy(_.number)
           val optionOldBuild: Option[Build] = lastNotifiedBuild(branch)
 
-          
-          if (optionOldBuild.isDefined){
-            val oldBuild = optionOldBuild.get
-            
-            if (oldBuild.number == lastBuild.number){
+
+          optionOldBuild match {
+            case Some(oldBuild) if oldBuild.number == lastBuild.number  =>
               if (oldBuild.status != lastBuild.status) {
-                sendUpdateNotification(branch, lastBuild, oldBuild.buildStatus)
+                sendUpdateNotification(branch, lastBuild, optionOldBuild)
               }
-            }
-            else {
-              sendNewBuildNotification(branch, lastBuild, optionOldBuild)
-            }
+            case _ => sendNewBuildNotification(branch, lastBuild, optionOldBuild)
           }
-          else {
-            sendNewBuildNotification(branch, lastBuild, None)
-          }
+
           updateLastBuildInfo(branch, lastBuild)
         }
       }
@@ -108,17 +101,21 @@ trait NotificationComponentImpl extends NotificationComponent {
     }
 
 
-    def sendUpdateNotification(branch: Branch, build: Build, oldStatus: BuildStatus) = {
+    def sendNotification(prefix: String, branch: Branch, build: Build, oldBuild: Option[Build]) ={
       val status = build.buildStatus.obj
-      val text = s"${getIcon(build)} Build <http://srv5/#/list/branch?name=${branch.name}|#${build.number}> on *${branch.name}* now is *$status* at ${build.timestamp.toString("HH:mm dd/MM")} (was ${oldStatus.name})"
+      val link = s"<http://srv5/#/list/branch?name=${branch.name}|#${build.number}>"
+      val oldText = oldBuild.map(b=>s"(was *${b.buildStatus.name}* at ${b.timestamp.toString("HH:mm dd/MM")})").getOrElse("")
+      val text = s"${getIcon(build)} $prefix $link on *${branch.name}* now is *$status* at ${build.timestamp.toString("HH:mm dd/MM")} $oldText"
       post(text)
+
+    }
+
+    def sendUpdateNotification(branch: Branch, build: Build, oldBuild: Option[Build]) = {
+      sendNotification("Build", branch, build, oldBuild)
     }
 
     def sendNewBuildNotification(branch: Branch, build: Build, oldBuild:Option[Build]) = {
-      val status = build.buildStatus.obj
-      val oldText = oldBuild.map(b=>s" (was ${b.buildStatus.name} at ${b.timestamp.toString("HH:mm dd/MM")})").getOrElse("")
-      val text = s"${getIcon(build)} New build <http://srv5/#/list/branch?name=${branch.name}|#${build.number}> on *${branch.name}* is *$status* at ${build.timestamp.toString("HH:mm dd/MM")}$oldText"
-      post(text)
+      sendNotification("New build", branch, build, oldBuild)
     }
 
 
