@@ -66,14 +66,24 @@ trait NotificationComponentImpl extends NotificationComponent {
       if (needNotification(branch)) {
         if (!builds.isEmpty) {
           val lastBuild = builds.maxBy(_.number)
-          val optionOldBuild: Option[Build] = lastNotifiedBuild(branch).filter(_.number == lastBuild.number)
+          val optionOldBuild: Option[Build] = lastNotifiedBuild(branch)
 
-          optionOldBuild match {
-            case Some(oldBuild) if oldBuild.status != lastBuild.status => sendUpdateNotification(branch, lastBuild, oldBuild.buildStatus)
-            case Some(oldBuild) =>
-            case _ => sendNewBuildNotification(branch, lastBuild)
+          
+          if (optionOldBuild.isDefined){
+            val oldBuild = optionOldBuild.get
+            
+            if (oldBuild.number == lastBuild.number){
+              if (oldBuild.status != lastBuild.status) {
+                sendUpdateNotification(branch, lastBuild, oldBuild.buildStatus)
+              }
+            }
+            else {
+              sendNewBuildNotification(branch, lastBuild, optionOldBuild)
+            }
           }
-
+          else {
+            sendNewBuildNotification(branch, lastBuild, None)
+          }
           updateLastBuildInfo(branch, lastBuild)
         }
       }
@@ -104,9 +114,10 @@ trait NotificationComponentImpl extends NotificationComponent {
       post(text)
     }
 
-    def sendNewBuildNotification(branch: Branch, build: Build) = {
+    def sendNewBuildNotification(branch: Branch, build: Build, oldBuild:Option[Build]) = {
       val status = build.buildStatus.obj
-      val text = s"${getIcon(build)} New build <http://srv5/#/list/branch?name=${branch.name}|#${build.number}> on *${branch.name}* is *$status* at ${build.timestamp.toString("HH:mm dd/MM")}"
+      val oldText = oldBuild.map(b=>s" (was ${b.buildStatus.name} at ${b.timestamp.toString("HH:mm dd/MM")})").getOrElse("")
+      val text = s"${getIcon(build)} New build <http://srv5/#/list/branch?name=${branch.name}|#${build.number}> on *${branch.name}* is *$status* at ${build.timestamp.toString("HH:mm dd/MM")}$oldText"
       post(text)
     }
 
