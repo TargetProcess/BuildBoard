@@ -5,4 +5,4 @@ scala:
 notifications:
   slack:
     rooms:
-      - targetprocess:o25eQr7bOyzMrwknqPXWsXQx@alaska
+      - targetprocess:o25eQr7bOyzMrwknqPXWsXQx#slack-test
