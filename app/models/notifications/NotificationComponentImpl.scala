@@ -29,14 +29,14 @@ trait NotificationComponentImpl extends NotificationComponent {
 
     override def notifyToggle(branch: Branch, build: IBuildInfo): Unit = {
 
-      if (needNotification(branch)) {
+      if (needNotification(branch.name)) {
 
 
         val status = if (build.buildStatus == Toggled) "green" else build.buildStatus.name
 
         val icon: String = getIcon(build)
 
-        val text = s"$icon *${build.branch}* is toggled to $status by *${loggedUser.map(_.fullName).getOrElse("Unknown")}*. <http://srv5>"
+        val text = s"$icon *${build.branch}* is toggled to $status by *${loggedUser.fold("Unknown")(_.fullName)}*. <http://srv5>"
 
         post(text)
 
@@ -55,29 +55,32 @@ trait NotificationComponentImpl extends NotificationComponent {
 
     val buildMap = scala.collection.mutable.Map[String, Build]()
 
-    def lastNotifiedBuild(branch: Branch): Option[Build] = buildMap.get(branch.name)
+    def lastNotifiedBuild(branch: String): Option[Build] = buildMap.get(branch)
 
-    def updateLastBuildInfo(branch: Branch, build: Build) = {
-      buildMap(branch.name) = build
+    def updateLastBuildInfo(branch: String, build: Build) = {
+      buildMap(branch) = build
 
     }
 
-    override def notifyAboutBuilds(branch: Branch, builds: List[Build]) = {
-      if (needNotification(branch)) {
-        if (!builds.isEmpty) {
-          val lastBuild = builds.maxBy(_.number)
-          val optionOldBuild: Option[Build] = lastNotifiedBuild(branch)
+    override def notifyAboutBuilds(allBuilds: List[Build]) = {
+      for ((branch, builds) <- allBuilds.groupBy(x => x.name)) {
+
+        if (needNotification(branch)) {
+          if (!builds.isEmpty) {
+            val lastBuild = builds.maxBy(_.number)
+            val optionOldBuild: Option[Build] = lastNotifiedBuild(branch)
 
 
-          optionOldBuild match {
-            case Some(oldBuild) if oldBuild.number == lastBuild.number  =>
-              if (oldBuild.status != lastBuild.status) {
-                sendUpdateNotification(branch, lastBuild, optionOldBuild)
-              }
-            case _ => sendNewBuildNotification(branch, lastBuild, optionOldBuild)
+            optionOldBuild match {
+              case Some(oldBuild) if oldBuild.number == lastBuild.number =>
+                if (oldBuild.status != lastBuild.status) {
+                  sendUpdateNotification(branch, lastBuild, optionOldBuild)
+                }
+              case _ => sendNewBuildNotification(branch, lastBuild, optionOldBuild)
+            }
+
+            updateLastBuildInfo(branch, lastBuild)
           }
-
-          updateLastBuildInfo(branch, lastBuild)
         }
       }
     }
@@ -93,7 +96,7 @@ trait NotificationComponentImpl extends NotificationComponent {
         .asString
     }
 
-    def needNotification(branch: Branch): Boolean = branch.name match {
+    def needNotification(branch: String): Boolean = branch match {
       case BranchInfo.develop() => true
       case BranchInfo.hotfix(_) => true
       case BranchInfo.release(_) => true
@@ -101,20 +104,20 @@ trait NotificationComponentImpl extends NotificationComponent {
     }
 
 
-    def sendNotification(prefix: String, branch: Branch, build: Build, oldBuild: Option[Build]) ={
+    def sendNotification(prefix: String, branch: String, build: Build, oldBuild: Option[Build]) ={
       val status = build.buildStatus.obj
-      val link = s"<http://srv5/#/list/branch?name=${branch.name}|#${build.number}>"
-      val oldText = oldBuild.map(b=>s"(was *${b.buildStatus.name}* at ${b.timestamp.toString("HH:mm dd/MM")})").getOrElse("")
-      val text = s"${getIcon(build)} $prefix $link on *${branch.name}* now is *$status* at ${build.timestamp.toString("HH:mm dd/MM")} $oldText"
+      val link = s"<http://srv5/#/list/branch?name=$branch|#${build.number}>"
+      val oldText = oldBuild.fold("")(b => s"(was *${b.buildStatus.name}* at ${b.timestamp.toString("HH:mm dd/MM")})")
+      val text = s"${getIcon(build)} $prefix $link on *$branch* now is *$status* at ${build.timestamp.toString("HH:mm dd/MM")} $oldText"
       post(text)
 
     }
 
-    def sendUpdateNotification(branch: Branch, build: Build, oldBuild: Option[Build]) = {
+    def sendUpdateNotification(branch: String, build: Build, oldBuild: Option[Build]) = {
       sendNotification("Build", branch, build, oldBuild)
     }
 
-    def sendNewBuildNotification(branch: Branch, build: Build, oldBuild:Option[Build]) = {
+    def sendNewBuildNotification(branch: String, build: Build, oldBuild:Option[Build]) = {
       sendNotification("New build", branch, build, oldBuild)
     }
 
@@ -123,7 +126,7 @@ trait NotificationComponentImpl extends NotificationComponent {
 
   object NoNotifications extends NotificationService {
 
-    override def notifyAboutBuilds(branch: Branch, builds: List[Build]) = {}
+    override def notifyAboutBuilds(builds: List[Build]) = {}
 
     override def notifyToggle(branch: Branch, build: IBuildInfo) = {}
   }

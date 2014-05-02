@@ -4,24 +4,27 @@ import java.io.File
 import org.joda.time.DateTime
 import com.github.nscala_time.time.Imports._
 import models._
-import scala.Some
 import scala.xml.{Node, XML}
+import scala.Some
+import models.Artifact
 import models.Commit
 import models.BuildNode
 import scala.Some
+import models.TestCase
 import models.Build
 import models.TestCasePackage
 
 trait ParseFolder extends FileApi with Artifacts with JenkinsApi {
+  type Folder = File
   private val timeout = 5.hours
 
 
-  case class BuildSource(branch: String, number: Int, pullRequestId: Option[Int], file: File)
+  case class BuildSource(branch: String, number: Int, pullRequestId: Option[Int], folder: Folder)
 
 
-  def getBuild(buildSource: BuildSource): Option[Build] = {
-    val node = getBuildNode(new File(buildSource.file, "Build"))
-    val folder = new File(buildSource.file, "Build/StartBuild")
+  def getBuild(buildSource: BuildSource, existingBuilds:Map[String, IBuildInfo]): Option[Build] = {
+    val node = getBuildNode(new Folder(buildSource.folder, "Build"))
+    val folder = new Folder(buildSource.folder, "Build/StartBuild")
 
     if (!folder.exists) {
       return None
@@ -29,16 +32,27 @@ trait ParseFolder extends FileApi with Artifacts with JenkinsApi {
     val (status, _, timestamp) = getBuildDetails(folder)
     val commits = getCommits(new File(folder, "Checkout/GitChanges.log"))
 
-    Some(Build(buildSource.number, buildSource.branch, status, new DateTime(timestamp), buildSource.pullRequestId.isDefined, commits = commits, node = node))
+    val name: String = buildSource.folder.getName
+    Some(
+      Build(number = buildSource.number,
+        branch = buildSource.branch,
+        status = status,
+        timestamp = new DateTime(timestamp),
+        toggled = existingBuilds.get(name).fold(false)(_.toggled),
+        commits = commits,
+        pullRequestId = buildSource.pullRequestId,
+        node = node,
+        name = name)
+    )
   }
+
+  val splitRegex = "(?m)^commit(?:(?:\r\n|[\r\n]).+$)*".r
+  val commitRegex = "\\s*(\\w+)[\\r\\n].*[\\r\\n]?s*Author:\\s*(.*)\\s*<(.*)>[\\r\\n]\\s*Date:\\s+(.*)[\\r\\n]([\\w\\W]*)".r
 
   def getCommits(file: File): List[Commit] = {
     if (!file.exists) {
       return Nil
     }
-
-    val splitRegex = "(?m)^commit(?:(?:\r\n|[\r\n]).+$)*".r
-    val commitRegex = "\\s*(\\w+)[\\r\\n].*[\\r\\n]?s*Author:\\s*(.*)\\s*<(.*)>[\\r\\n]\\s*Date:\\s+(.*)[\\r\\n]([\\w\\W]*)".r
 
     read(file) match {
       case Some(contents) => splitRegex.split(contents)
@@ -144,7 +158,7 @@ trait ParseFolder extends FileApi with Artifacts with JenkinsApi {
             case _ => Nil
           }
 
-          TestCase(tcName, result, getAttribute(tcNode, "time").map(_.toDouble).getOrElse(0.0), message, tcScreenshots, stackTrace)
+          TestCase(tcName, result, getAttribute(tcNode, "time").fold(0.0)(_.toDouble), message, tcScreenshots, stackTrace)
         }).toList
 
         TestCasePackage(if (currentNamespace.isEmpty) name else s"$namespace.$name", children, testCases)
@@ -160,7 +174,9 @@ trait ParseFolder extends FileApi with Artifacts with JenkinsApi {
       .getOrElse(Nil)
   }
 
-  def getTestRun(branch: models.Branch, build: Int, part: String, run: String) = getBuild(branch, build)
+  def findBuild(branch: Branch, buildId: Int):Option[Build] = ???
+
+  def getTestRun(branch: Branch, build: Int, part: String, run: String) = findBuild(branch, build)
     .map(b => b.getTestRunBuildNode(part, run))
     .flatten
     .map(testRunBuildNode => testRunBuildNode.copy(testResults = getTestCasePackages(testRunBuildNode)))

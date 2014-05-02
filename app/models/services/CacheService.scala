@@ -6,9 +6,9 @@ import rx.lang.scala.{Subscription, Observable}
 
 import scala.util.Success
 import scala.util.Failure
-import play.api.{Logger, Play}
+import play.api.Play
 import play.api.Play.current
-import models.{Build, AuthInfo}
+import models.AuthInfo
 import src.Utils.watch
 import components.DefaultRegistry
 
@@ -63,63 +63,17 @@ object CacheService {
 
     val jenkinsSubscription = Observable.timer(0 seconds, jenkinsInterval)
       .subscribe(_ => Try {
-      val branches = registry.branchRepository.getBranches
 
       watch("updating builds") {
-                          /*
-        val buildsFromJenkins:List[String] = registry.jenkinsRepository.getBuildName
+        val existingBuilds = registry.buildRepository.getBuildInfos.toList
 
+        val updatedBuilds = registry.jenkinsService.getUpdatedBuilds(existingBuilds)
 
-          List("pr_44_45","develop_456", "develop_111")
+        for (updatedBuild <- updatedBuilds) {
+          registry.buildRepository.update(updatedBuild)
+        }
 
-
-        val b:Build= ???
-
-        b.folderName
-
-        val allBuilds:Iterator[Build] = ???
-
-        allBuilds.filter(x=>x.status.isEmpty && !x.timedOut())
-        .update()
-
-
-        val allFolders = allBuilds.map(_.folderName)
-
-        val folders = buildsFromJenkins.except(allFolders).create()
-
-
-
-
-
-
-
-
-                        */
-
-
-        branches.foreach(branch => {
-//          Logger.info(s"updating builds for ${branch.name}")
-
-
-
-
-
-
-
-
-          val existingBuilds = registry.buildRepository.getBuilds(branch)
-          val builds = jenkinsRepository.getBuilds(branch)
-
-          builds.foreach(build => {
-            val existingBuild = existingBuilds.find(_.number == build.number)
-            val toggled = existingBuild.map(_.toggled).getOrElse(build.toggled)
-
-            val updatedBuild: Build = build.copy(toggled = toggled)
-
-            registry.buildRepository.update(branch, updatedBuild)
-          })
-          registry.notificationService.notifyAboutBuilds(branch, builds)
-        })
+        registry.notificationService.notifyAboutBuilds(updatedBuilds)
       }
     }.recover {
       case e => play.Logger.error("Error in jenkinsSubscription", e)

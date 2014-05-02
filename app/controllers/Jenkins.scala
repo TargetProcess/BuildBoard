@@ -23,7 +23,8 @@ object Jenkins extends Application {
         maybeAction match {
           case Some(buildAction) =>
             component.jenkinsService.forceBuild(buildAction) match {
-              case Success(_) => Ok(Json.toJson(Build(-1, branchId.getOrElse("this"), Some("In progress"), DateTime.now, node = Some(BuildNode("this", "this", Some("In progress"), "#", List(), DateTime.now)))))
+              case Success(_) => Ok(Json.toJson(Build(-1, branchId.getOrElse("this"), Some("In progress"), DateTime.now,
+                name = "", node = Some(BuildNode("this", "this", Some("In progress"), "#", List(), DateTime.now)))))
               case Failure(e: HttpException) => BadRequest(e.toString)
               case Failure(e) => InternalServerError("Something going wrong " + e.toString)
             }
