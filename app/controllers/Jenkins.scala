@@ -22,8 +22,9 @@ object Jenkins extends Application {
 
         maybeAction match {
           case Some(buildAction) =>
-            component.jenkinsRepository.forceBuild(buildAction) match {
-              case Success(_) => Ok(Json.toJson(Build(-1, branchId.getOrElse("this"), Some("In progress"), DateTime.now, node = Some(BuildNode("this", "this", Some("In progress"), "#", List(), DateTime.now)))))
+            component.jenkinsService.forceBuild(buildAction) match {
+              case Success(_) => Ok(Json.toJson(Build(-1, branchId.getOrElse("this"), Some("In progress"), DateTime.now,
+                name = "", node = Some(BuildNode("this", "this", Some("In progress"), "#", List(), DateTime.now)))))
               case Failure(e: HttpException) => BadRequest(e.toString)
               case Failure(e) => InternalServerError("Something going wrong " + e.toString)
             }
@@ -53,7 +54,7 @@ object Jenkins extends Application {
     component =>
 
       val branchEntity = component.branchRepository.getBranch(branch)
-      val runEntity = branchEntity.map(component.jenkinsRepository.getTestRun(_, build, part, run))
+      val runEntity = branchEntity.map(component.jenkinsService.getTestRun(_, build, part, run))
       request => Ok(Json.toJson(runEntity))
   }
 
@@ -61,13 +62,13 @@ object Jenkins extends Application {
     component =>
 
       val branchEntity = component.branchRepository.getBranch(branch)
-      val buildNode = branchEntity.map(component.jenkinsRepository.getTestRun(_, build, part, run)).flatten
+      val buildNode: Option[BuildNode] = branchEntity.map(component.jenkinsService.getTestRun(_, build, part, run)).flatten
       val testCase = buildNode.map(n => n.getTestCase(test)).flatten
       request => Ok(Json.toJson(testCase))
   }
 
   def artifact(file: String) = IsAuthorizedComponent {
     component =>
-      request => Ok.sendFile(content = component.jenkinsRepository.getArtifact(file))
+      request => Ok.sendFile(content = component.jenkinsService.getArtifact(file))
   }
 }

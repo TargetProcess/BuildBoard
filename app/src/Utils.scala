@@ -13,4 +13,10 @@ object Utils {
     Logger.info(s"stop:  $title (took $delta ms)")
     result
   }
+
+  def dump[T](title:String)(body: => T): T = {
+    val result = body
+    Logger.info(s"$title: $result")
+    result
+  }
 }

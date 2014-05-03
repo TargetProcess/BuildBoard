@@ -23,7 +23,11 @@ case class User(
 
                  githubLogin: String = null,
                  githubToken: String = null,
-                 fullName: String = null) extends Login with AuthInfo
+                 fullName: String = null,
+                 slackName: Option[String] = None
+                 ) extends Login with AuthInfo {
+
+}
 
 
 case class TpUser(id: Int, login: String, fullName: String)

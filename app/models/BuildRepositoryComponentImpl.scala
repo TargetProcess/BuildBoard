@@ -8,6 +8,7 @@ import com.novus.salat.dao.{SalatDAO, ModelCompanion}
 import se.radley.plugin.salat._
 import com.mongodb.casbah.Imports._
 import se.radley.plugin.salat.Binders.ObjectId
+import BuildImplicits._
 
 
 trait BuildRepositoryComponentImpl extends BuildRepositoryComponent {
@@ -37,15 +38,14 @@ trait BuildRepositoryComponentImpl extends BuildRepositoryComponent {
       "isPullRequest" -> "isPullRequest",
       "toggled" -> "toggled")
 
-    def getBuilds(branch: Branch): List[Build] = Builds.find(MongoDBObject("branch" -> branch.name)).toList
+    def getBuilds(branch: Branch) = Builds.find(MongoDBObject("branch" -> branch.name))
 
-    def getBuildInfos: List[BuildInfo] = findInner(MongoDBObject.empty)
+    def getBuildInfos: Iterator[BuildInfo] = Builds.findAll().map(toBuildInfo)
 
-    def getBuildInfos(branch: Branch): List[BuildInfo] = findInner(MongoDBObject("branch" -> branch.name))
+    def getBuildInfos(branch: Branch) = findInner(MongoDBObject("branch" -> branch.name))
 
-    private def findInner(predicate: DBObject) = Builds.find(predicate, buildInfoProjection)
-      .map(toBuildInfo)
-      .toList
+    private def findInner(predicate: DBObject) = Builds.find(predicate, buildInfoProjection).map(toBuildInfo)
+
 
     def getBuild(branch: Branch, number: Int): Option[Build] = Builds.findOne(MongoDBObject("number" -> number, "branch" -> branch.name))
 
@@ -59,14 +59,13 @@ trait BuildRepositoryComponentImpl extends BuildRepositoryComponent {
       build.map(toBuildInfo)
     }
 
-    private def toBuildInfo(b: Build): BuildInfo = BuildInfo(b.number, b.branch, b.status, b.timestamp, b.isPullRequest, b.toggled, b.commits)
 
     override def removeAll(branch: Branch): Unit = Builds.find(MongoDBObject("branch" -> branch.name)).foreach(Builds.remove)
 
-    override def update(branch: Branch, build: Build): Unit = Builds.update(
+    override def update(build: Build): Unit = Builds.update(
       MongoDBObject(
         "number" -> build.number,
-        "branch" -> branch.name),
+        "branch" -> build.branch),
       build, upsert = true, multi = false, Builds.dao.collection.writeConcern)
 
   }

@@ -6,9 +6,9 @@ import rx.lang.scala.{Subscription, Observable}
 
 import scala.util.Success
 import scala.util.Failure
-import play.api.{Logger, Play}
+import play.api.Play
 import play.api.Play.current
-import models.{Build, AuthInfo}
+import models.AuthInfo
 import src.Utils.watch
 import components.DefaultRegistry
 
@@ -32,7 +32,6 @@ object CacheService {
 
 
   def start = {
-    val jenkinsRepository = registry.jenkinsRepository
     val githubSubscription = Observable.timer(0 seconds, githubInterval)
       .map(_ => Try {
       registry.branchService.getBranches
@@ -63,24 +62,19 @@ object CacheService {
 
     val jenkinsSubscription = Observable.timer(0 seconds, jenkinsInterval)
       .subscribe(_ => Try {
-      val branches = registry.branchRepository.getBranches
 
       watch("updating builds") {
-        branches.foreach(branch => {
-          Logger.info(s"updating builds for ${branch.name}")
-          val existingBuilds = registry.buildRepository.getBuilds(branch)
-          val builds = jenkinsRepository.getBuilds(branch)
+        val existingBuilds = registry.buildRepository.getBuildInfos.toList
+        play.Logger.info(s"existingBuilds: ${existingBuilds.length}")
 
-          builds.foreach(build => {
-            val existingBuild = existingBuilds.find(_.number == build.number)
-            val toggled = existingBuild.map(_.toggled).getOrElse(build.toggled)
+        val buildToUpdate = registry.jenkinsService.getUpdatedBuilds(existingBuilds)
+        play.Logger.info(s"buildToUpdate: ${buildToUpdate.length}")
 
-            val updatedBuild: Build = build.copy(toggled = toggled)
+        for (updatedBuild <- buildToUpdate) {
+          registry.buildRepository.update(updatedBuild)
+        }
 
-            registry.buildRepository.update(branch, updatedBuild)
-          })
-          registry.notificationService.notifyAboutBuilds(branch, builds)
-        })
+        registry.notificationService.notifyAboutBuilds(registry.buildRepository.getBuildInfos.toList)
       }
     }.recover {
       case e => play.Logger.error("Error in jenkinsSubscription", e)

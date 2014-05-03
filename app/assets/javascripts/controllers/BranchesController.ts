@@ -21,10 +21,13 @@ module buildBoard {
             '$state',
             '$window',
             LoggedUserService.NAME,
-            ModelProvider.NAME
+            ModelProvider.NAME,
+            BackendService.NAME
+
         ];
 
-        constructor(private $scope:IBranchesScope, $state:ng.ui.IStateService, $window:ng.IWindowService, private loggedUserService:LoggedUserService, private modelProvider:ModelProvider) {
+        constructor(private $scope:IBranchesScope, $state:ng.ui.IStateService, $window:ng.IWindowService, private loggedUserService:LoggedUserService, private modelProvider:ModelProvider,
+            backendService:BackendService) {
             this.$scope.userFilter = $state.params['user'] || 'all';
             this.$scope.branchesFilter = $state.params['branch'] || 'all';
 
@@ -34,11 +37,25 @@ module buildBoard {
                     this.$scope.hideGithubLogin = true;
                     this.$scope.$apply();
                 }
-            }
+            };
 
             this.$scope.getUsers = ()=>this.getUsers(modelProvider.branches);
             this.$scope.getBranches = () => this.filter(modelProvider.branches, this.$scope.userFilter, this.$scope.branchesFilter);
             this.$scope.countBy = (userFilter:string, branchesFilter:string)=>this.filter(modelProvider.branches, userFilter || this.$scope.userFilter, branchesFilter || "all").length;
+
+
+            if (!loggedUserService.getLoggedUser().slackName){
+                var slackName = prompt('Provide your slack login (not an email!)');
+                if (slackName.charAt(0) == '@')
+                {
+                    slackName = slackName.slice(1);
+                }
+
+                backendService.updateInfo(slackName).success(r=>{
+                    window.location.reload();
+                });
+            }
+
         }
 
         private getUsers(branches:Branch[]) {

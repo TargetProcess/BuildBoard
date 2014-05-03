@@ -7,6 +7,8 @@ trait UserRepositoryComponent {
   val userRepository: UserRepository
 
   trait UserRepository {
+    def findOneByFullName(fullName:String): Option[User]
+
     def authenticate(username: String, password: String): Try[(TpUser, String)]
 
     def save(tpUser: TpUser, token: String)

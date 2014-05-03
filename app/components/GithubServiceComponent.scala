@@ -2,10 +2,10 @@ package components
 
 import models._
 
-trait GithubRepositoryComponent {
-  val githubRepository: GithubRepository
+trait GithubServiceComponent {
+  val githubService: GithubService
 
-  trait GithubRepository {
+  trait GithubService {
     def getBranches: List[Branch]
 
     def getPullRequests: List[PullRequest]

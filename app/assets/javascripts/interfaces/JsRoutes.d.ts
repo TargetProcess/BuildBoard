@@ -40,6 +40,7 @@ declare module buildBoard {
 
     export interface ILogin {
         logout():IAction
+        updateInfo(slackName:string):IAction
     }
 
 }
