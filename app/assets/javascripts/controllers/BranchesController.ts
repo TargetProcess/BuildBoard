@@ -45,7 +45,12 @@ module buildBoard {
 
 
             if (!loggedUserService.getLoggedUser().slackName){
-                var slackName = prompt('Provide your slack login');
+                var slackName = prompt('Provide your slack login (not an email!)');
+                if (slackName.charAt(0) == '@')
+                {
+                    slackName = slackName.slice(1);
+                }
+
                 backendService.updateInfo(slackName).success(r=>{
                     window.location.reload();
                 });
