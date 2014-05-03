@@ -21,6 +21,7 @@
             routes.javascript.Jenkins.testCase,
             routes.javascript.Jenkins.artifact,
             routes.javascript.Login.logout,
+            routes.javascript.Login.updateInfo,
             routes.javascript.Github.merge
         )
 
@@ -28,7 +29,8 @@
         <script>
             loggedUser = {
                 userId: @u.tpId,
-                fullName: '@u.fullName'
+                fullName: '@u.fullName',
+                slackName: '@u.slackName'
             };
         </script>
         }

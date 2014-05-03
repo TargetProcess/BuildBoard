@@ -63,5 +63,16 @@ object Login extends Application {
       implicit request =>
         Ok(views.html.components.githubLogin.render(user, request))
   }
+
+
+  def updateInfo(slackName: String) = IsAuthorizedComponent {
+    component =>
+      implicit request =>
+
+        val updated = component.loggedUser.map(_.copy(slackName = Some(slackName)))
+        updated.foreach(component.userRepository.save)
+
+        Ok("{}")
+  }
 }
  

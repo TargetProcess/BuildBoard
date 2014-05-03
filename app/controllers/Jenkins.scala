@@ -62,7 +62,7 @@ object Jenkins extends Application {
     component =>
 
       val branchEntity = component.branchRepository.getBranch(branch)
-      val buildNode = branchEntity.map(component.jenkinsService.getTestRun(_, build, part, run)).flatten
+      val buildNode: Option[BuildNode] = branchEntity.map(component.jenkinsService.getTestRun(_, build, part, run)).flatten
       val testCase = buildNode.map(n => n.getTestCase(test)).flatten
       request => Ok(Json.toJson(testCase))
   }

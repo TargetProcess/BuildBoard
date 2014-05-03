@@ -11,6 +11,8 @@ GET         /login/github                    controllers.Login.githubLogin
 GET         /login/oauth                     controllers.Login.oauth(code ?= "")
 POST        /login/submit                    controllers.Login.submit
 GET         /login/logout                    controllers.Login.logout
+POST        /login/update                    controllers.Login.updateInfo(slackName:String)
+
 
 GET         /jenkins/build                   controllers.Jenkins.build(branch:String, number: Int)
 POST        /jenkins/forceBuild              controllers.Jenkins.forceBuild(pullRequestId:Option[Int],branchId:Option[String],cycleName:String)

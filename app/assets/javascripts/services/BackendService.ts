@@ -50,6 +50,10 @@ module buildBoard {
         merge(branch:string):ng.IHttpPromise<MergeButtonResult> {
             return this.$http.get(this.controllers.Github.merge(branch).absoluteURL())
         }
+
+        updateInfo(slackName:string):ng.IHttpPromise<any> {
+            return this.$http.post(this.controllers.Login.updateInfo(slackName).absoluteURL(), {});
+        }
     }
 
 }

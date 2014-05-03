@@ -42,6 +42,7 @@ module buildBoard {
 
     export interface User {
         userId:number;
+        slackName?:string;
     }
 
     export interface Assignment extends User {
