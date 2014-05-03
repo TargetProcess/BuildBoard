@@ -9,7 +9,6 @@ import models.BuildStatus.Toggled
 import com.mongodb.casbah.Imports._
 import models.Branch
 import scala.Some
-import models.Build
 
 
 trait NotificationComponentImpl extends NotificationComponent {
@@ -50,21 +49,21 @@ trait NotificationComponentImpl extends NotificationComponent {
       icon
     }
 
-    val buildMap = scala.collection.mutable.Map[String, Build]()
+    val buildMap = scala.collection.mutable.Map[String, IBuildInfo]()
 
-    def lastNotifiedBuild(branch: String): Option[Build] = buildMap.get(branch)
+    def lastNotifiedBuild(branch: String): Option[IBuildInfo] = buildMap.get(branch)
 
-    def updateLastBuildInfo(branch: String, build: Build) = {
+    def updateLastBuildInfo(branch: String, build: IBuildInfo) = {
       buildMap(branch) = build
 
     }
 
-    override def notifyAboutBuilds(allBuilds: List[Build]) = {
-      for ((branch, builds) <- allBuilds.groupBy(x => x.name)) {
+    override def notifyAboutBuilds(allBuilds: List[IBuildInfo]) = {
+      for ((branch, builds) <- allBuilds.groupBy(x => x.branch)) {
 
         if (!builds.isEmpty) {
           val lastBuild = builds.maxBy(_.number)
-          val optionOldBuild: Option[Build] = lastNotifiedBuild(branch)
+          val optionOldBuild: Option[IBuildInfo] = lastNotifiedBuild(branch)
 
 
           optionOldBuild match {
@@ -99,7 +98,7 @@ trait NotificationComponentImpl extends NotificationComponent {
     }
 
 
-    def sendNotification(prefix: String, branch: String, build: Build, oldBuild: Option[Build], channel:String) = {
+    def sendNotification(prefix: String, branch: String, build: IBuildInfo, oldBuild: Option[IBuildInfo], channel:String) = {
       val status = build.buildStatus.obj
       val link = s"<http://srv5/#/list/branch?name=$branch|#${build.number}>"
       val oldText = oldBuild.fold("")(b => s"(was *${b.buildStatus.name}* at ${b.timestamp.toString("HH:mm dd/MM")})")
@@ -108,16 +107,16 @@ trait NotificationComponentImpl extends NotificationComponent {
 
     }
 
-    def sendUpdateNotification(branch: String, build: Build, oldBuild: Option[Build]) = {
+    def sendUpdateNotification(branch: String, build: IBuildInfo, oldBuild: Option[IBuildInfo]) = {
       send("Build", branch, build, oldBuild)
     }
 
-    def sendNewBuildNotification(branch: String, build: Build, oldBuild: Option[Build]) = {
+    def sendNewBuildNotification(branch: String, build: IBuildInfo, oldBuild: Option[IBuildInfo]) = {
       send("New build", branch, build, oldBuild)
     }
 
 
-    def send(prefix: String, branch: String, build: Build, oldBuild: Option[Build]) {
+    def send(prefix: String, branch: String, build: IBuildInfo, oldBuild: Option[IBuildInfo]) {
       if (needBroadcast(branch)) {
         sendNotification(prefix, branch, build, oldBuild, broadcastChannel)
       }
@@ -133,7 +132,7 @@ trait NotificationComponentImpl extends NotificationComponent {
 
   object NoNotifications extends NotificationService {
 
-    override def notifyAboutBuilds(builds: List[Build]) = {}
+    override def notifyAboutBuilds(builds: List[IBuildInfo]) = {}
 
     override def notifyToggle(branch: Branch, build: IBuildInfo) = {}
   }

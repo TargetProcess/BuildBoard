@@ -34,15 +34,11 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
     def getBuildNumbers(name: String): Option[(Int, Option[Int])] = {
       val prR = """pr_(\d+)_(\d+)""".r
       val buildR = """.*_(\d+)$""".r
-      play.Logger.info(name)
-      val result = name match {
+      name match {
         case prR(prID, build) => Some((build.toInt, Some(prID.toInt)))
         case buildR(build) => Some((build.toInt, None))
         case _ => None
       }
-
-      play.Logger.info(result.toString)
-      result
     }
 
 

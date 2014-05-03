@@ -12,7 +12,6 @@ import scala.Some
 import models.TestCase
 import models.Build
 import models.TestCasePackage
-import src.Utils.watch
 
 
 trait ParseFolder extends FileApi with Artifacts with JenkinsApi {
@@ -20,34 +19,35 @@ trait ParseFolder extends FileApi with Artifacts with JenkinsApi {
   private val timeout = 5.hours
 
 
-  case class BuildSource(branch: String, number: Int, pullRequestId: Option[Int], folder: Folder, params:BuildParams)
+  case class BuildSource(branch: String, number: Int, pullRequestId: Option[Int], folder: Folder, params: BuildParams)
 
 
-  def getBuild(buildSource: BuildSource, existingBuilds:Map[String, IBuildInfo]): Option[Build] = {
-    watch(s"getBuild ${buildSource.branch}") {
-      val node = getBuildNode(new Folder(buildSource.folder, "Build"))
-      val folder = new Folder(buildSource.folder, "Build/StartBuild")
+  def getBuild(buildSource: BuildSource, existingBuilds: Map[String, IBuildInfo]): Option[Build] = {
+    val name: String = buildSource.folder.getName
 
-      if (!folder.exists) {
-        return None
-      }
-      val (status, _, timestamp) = getBuildDetails(folder)
-      val commits = getCommits(new File(folder, "Checkout/GitChanges.log"))
+    play.Logger.info(s"getBuild ${buildSource.branch} - $name")
 
-      val name: String = buildSource.folder.getName
-      Some(
-        Build(number = buildSource.number,
-          branch = buildSource.branch,
-          status = status,
-          timestamp = new DateTime(timestamp),
-          toggled = existingBuilds.get(name).fold(false)(_.toggled),
-          commits = commits,
-          pullRequestId = buildSource.pullRequestId,
-          initiator = buildSource.params.parameters.get("WHO_STARTS"),
-          node = node,
-          name = name)
-      )
+    val node = getBuildNode(new Folder(buildSource.folder, "Build"))
+    val folder = new Folder(buildSource.folder, "Build/StartBuild")
+
+    if (!folder.exists) {
+      return None
     }
+    val (status, _, timestamp) = getBuildDetails(folder)
+    val commits = getCommits(new File(folder, "Checkout/GitChanges.log"))
+
+    Some(
+      Build(number = buildSource.number,
+        branch = buildSource.branch,
+        status = status,
+        timestamp = new DateTime(timestamp),
+        toggled = existingBuilds.get(name).fold(false)(_.toggled),
+        commits = commits,
+        pullRequestId = buildSource.pullRequestId,
+        initiator = buildSource.params.parameters.get("WHO_STARTS"),
+        node = node,
+        name = name)
+    )
   }
 
   val splitRegex = "(?m)^commit(?:(?:\r\n|[\r\n]).+$)*".r

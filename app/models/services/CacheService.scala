@@ -67,14 +67,14 @@ object CacheService {
         val existingBuilds = registry.buildRepository.getBuildInfos.toList
         play.Logger.info(s"existingBuilds: ${existingBuilds.length}")
 
-        val updatedBuilds = registry.jenkinsService.getUpdatedBuilds(existingBuilds)
-        play.Logger.info(s"updatedBuilds: ${updatedBuilds.length}")
+        val buildToUpdate = registry.jenkinsService.getUpdatedBuilds(existingBuilds)
+        play.Logger.info(s"buildToUpdate: ${buildToUpdate.length}")
 
-        for (updatedBuild <- updatedBuilds) {
+        for (updatedBuild <- buildToUpdate) {
           registry.buildRepository.update(updatedBuild)
         }
 
-        registry.notificationService.notifyAboutBuilds(updatedBuilds)
+        registry.notificationService.notifyAboutBuilds(registry.buildRepository.getBuildInfos.toList)
       }
     }.recover {
       case e => play.Logger.error("Error in jenkinsSubscription", e)
