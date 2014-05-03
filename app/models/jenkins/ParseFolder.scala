@@ -63,11 +63,22 @@ trait ParseFolder extends FileApi with Artifacts with JenkinsApi {
         .toList
         .filter(_.length > 0)
         .map {
-        case commitRegex(sha1, name, email, date, comment) => Some(Commit(sha1, comment.trim, name, email, new DateTime(new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy Z").parse(date).getTime)))
+        case commitRegex(sha1, name, email, date, comment) =>
+          val normalizedComment = comment.trim
+          val commitName = getCommitName(name, normalizedComment)
+          Some(Commit(sha1, normalizedComment, commitName, email, new DateTime(new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy Z").parse(date).getTime)))
         case _ => None
       }
         .flatten
       case None => Nil
+    }
+  }
+
+  private def getCommitName(name: String, comment: String) = {
+    val mergerRegex = "(?s).*Merged by ([^(]*).*".r
+    comment match {
+      case mergerRegex(author) => s"$name [${author.trim}]"
+      case _ => name
     }
   }
 
