@@ -1,27 +1,27 @@
 package models.notifications
 
-import components.{LoggedUserProviderComponent, NotificationComponent}
+import components.{UserRepositoryComponent, LoggedUserProviderComponent, NotificationComponent}
 import models._
 import play.api.Play
 import play.api.Play.current
-import scalaj.http.{HttpOptions, Http}
+import scalaj.http.{HttpException, HttpOptions, Http}
 import models.BuildStatus.Toggled
 import com.mongodb.casbah.Imports._
 import models.Branch
 import scala.Some
+import scala.collection.immutable.Iterable
 
 
 trait NotificationComponentImpl extends NotificationComponent {
 
-  this: NotificationComponentImpl with LoggedUserProviderComponent =>
+  this: NotificationComponentImpl with LoggedUserProviderComponent with UserRepositoryComponent =>
 
   val notificationService: NotificationService =
     (for (slackUrl <- Play.configuration.getString("slack.url");
           slackChannel <- Play.configuration.getString("slack.channel")
     ) yield new NotificationServiceImpl(slackUrl, slackChannel)) getOrElse NoNotifications
 
-  class NotificationServiceImpl(slackUrl: String, broadcastChannel: String)
-    extends NotificationService {
+  class NotificationServiceImpl(slackUrl: String, broadcastChannel: String) extends NotificationService {
 
     override def notifyToggle(branch: Branch, build: IBuildInfo): Unit = {
 
@@ -40,54 +40,33 @@ trait NotificationComponentImpl extends NotificationComponent {
     }
 
 
-    def getIcon(build: IBuildInfo): String = {
-      val icon = build.buildStatus.success match {
-        case Some(true) => ":white_check_mark:"
-        case Some(false) => ":x:"
-        case None => ":running:"
-      }
-      icon
-    }
-
     val buildMap = scala.collection.mutable.Map[String, IBuildInfo]()
 
-    def lastNotifiedBuild(branch: String): Option[IBuildInfo] = buildMap.get(branch)
 
-    def updateLastBuildInfo(branch: String, build: IBuildInfo) = {
-      buildMap(branch) = build
+    override def notifyAboutBuilds(updatedBuilds: List[IBuildInfo]) = {
 
-    }
-
-    override def notifyAboutBuilds(allBuilds: List[IBuildInfo]) = {
-      for ((branch, builds) <- allBuilds.groupBy(x => x.branch)) {
-
-        if (!builds.isEmpty) {
-          val lastBuild = builds.maxBy(_.number)
-          val optionOldBuild: Option[IBuildInfo] = lastNotifiedBuild(branch)
-
-
-          optionOldBuild match {
-            case Some(oldBuild) if oldBuild.number == lastBuild.number =>
-              if (oldBuild.status != lastBuild.status) {
-                sendUpdateNotification(branch, lastBuild, optionOldBuild)
-              }
-            case _ => sendNewBuildNotification(branch, lastBuild, optionOldBuild)
-          }
-
-          updateLastBuildInfo(branch, lastBuild)
-        }
+      val lastBuilds: Iterable[IBuildInfo] = updatedBuilds.groupBy(_.branch)
+        .map {
+        case (_, builds) => builds.maxBy(_.number)
       }
-    }
 
 
-    def post(text: String, channel:String) {
-      val data = s"""{"channel": "$channel","text": "$text"}"""
+      for (build <- lastBuilds) {
 
-      Http
-        .postData(slackUrl, data)
-        .option(HttpOptions.connTimeout(1000))
-        .option(HttpOptions.readTimeout(5000))
-        .asString
+        val prevBuild = buildMap.get(build.branch)
+
+        prevBuild match {
+          case Some(oldBuild) =>
+            if (oldBuild.status != build.status) {
+              sendNotification(build, prevBuild)
+            }
+          case None =>
+            sendNotification(build, None)
+        }
+
+        buildMap(build.branch) = build
+
+      }
     }
 
     def needBroadcast(branch: String): Boolean = branch match {
@@ -97,36 +76,54 @@ trait NotificationComponentImpl extends NotificationComponent {
       case _ => false
     }
 
+    def sendNotification(currentBuild: IBuildInfo, optionLastBuild: Option[IBuildInfo]) {
+      val was = optionLastBuild.fold("")(lastBuild => s"(was *${lastBuild.buildStatus.name}* at ${lastBuild.timestamp.toString("HH:mm dd/MM")})")
 
-    def sendNotification(prefix: String, branch: String, build: IBuildInfo, oldBuild: Option[IBuildInfo], channel:String) = {
-      val status = build.buildStatus.obj
-      val link = s"<http://srv5/#/list/branch?name=$branch|#${build.number}>"
-      val oldText = oldBuild.fold("")(b => s"(was *${b.buildStatus.name}* at ${b.timestamp.toString("HH:mm dd/MM")})")
-      val text = s"${getIcon(build)} $prefix $link on *$branch* now is *$status* at ${build.timestamp.toString("HH:mm dd/MM")} $oldText"
-      post(text, channel)
+      val branch = currentBuild.branch
+      val status = currentBuild.buildStatus.obj
 
-    }
+      val link = s"<http://srv5/#/list/branch?name=$branch|#${currentBuild.number}>"
+      val now = s"Build $link on *$branch* now is *$status* at ${currentBuild.timestamp.toString("HH:mm dd/MM")}"
 
-    def sendUpdateNotification(branch: String, build: IBuildInfo, oldBuild: Option[IBuildInfo]) = {
-      send("Build", branch, build, oldBuild)
-    }
-
-    def sendNewBuildNotification(branch: String, build: IBuildInfo, oldBuild: Option[IBuildInfo]) = {
-      send("New build", branch, build, oldBuild)
-    }
+      val text = s"${getIcon(currentBuild)} $now $was"
 
 
-    def send(prefix: String, branch: String, build: IBuildInfo, oldBuild: Option[IBuildInfo]) {
-      if (needBroadcast(branch)) {
-        sendNotification(prefix, branch, build, oldBuild, broadcastChannel)
+      if (needBroadcast(currentBuild.branch)) {
+        post(text, broadcastChannel)
       }
 
-
-
+      currentBuild.initiator
+        .flatMap(userRepository.findOneByFullName)
+        .flatMap(_.slackName)
+        .foreach(slackName => post(text, "@" + slackName))
 
     }
 
 
+    def post(text: String, channel: String) {
+      val data = s"""{"channel": "$channel","text": "$text"}"""
+      play.Logger.info(data)
+      try {
+        Http
+          .postData(slackUrl, data)
+          .option(HttpOptions.connTimeout(1000))
+          .option(HttpOptions.readTimeout(5000))
+          .asString
+      }
+      catch {
+        case e: HttpException => play.Logger.error(e.body, e)
+      }
+    }
+
+
+    def getIcon(build: IBuildInfo): String = {
+      val icon = build.buildStatus.success match {
+        case Some(true) => ":white_check_mark:"
+        case Some(false) => ":x:"
+        case None => ":running:"
+      }
+      icon
+    }
 
   }
 

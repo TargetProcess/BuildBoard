@@ -1,19 +1,25 @@
 package models.jenkins
 
-import components.{BuildRepositoryComponent, BranchRepositoryComponent, JenkinsServiceComponent}
+import components.{LoggedUserProviderComponent, BuildRepositoryComponent, BranchRepositoryComponent, JenkinsServiceComponent}
 import models.{Branch, IBuildInfo, Build}
 import java.io.File
 import play.api.Play
 import scala.util.Try
 import scalaj.http.Http
+import play.api.Play.current
+
 
 trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
-  this: JenkinsServiceComponentImpl with BranchRepositoryComponent with BuildRepositoryComponent =>
+  this: JenkinsServiceComponentImpl
+    with BranchRepositoryComponent
+    with BuildRepositoryComponent
+    with LoggedUserProviderComponent
+  =>
 
   val jenkinsService: JenkinsService = new JenkinsServiceImpl
 
   class JenkinsServiceImpl extends JenkinsService with FileApi with ParseFolder {
-
+    private val jenkinsUrl = Play.configuration.getString("jenkins.url").get
 
     override def getUpdatedBuilds(existingBuilds: List[IBuildInfo]): List[Build] = {
       val existingBuildsMap: Map[String, IBuildInfo] = existingBuilds.map(x => (x.name, x)).toMap
@@ -64,19 +70,18 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
       .flatten
       .map(testRunBuildNode => testRunBuildNode.copy(testResults = getTestCasePackages(testRunBuildNode)))
 
+    def forceBuild(action: models.BuildAction) = Try {
+      val url = s"$jenkinsUrl/job/$rootJobName/buildWithParameters"
+
+      val parameters = action.parameters ++ loggedUser.map("WHO_STARTS" -> _.fullName)
+
+      play.Logger.info(s"Force build to $url with parameters $parameters")
+
+      Http.post(url)
+        .params(parameters)
+        .asString
+    }
 
   }
 
-  private val jenkinsUrl = Play.configuration.getString("jenkins.url").get
-  protected val rootJobName = "StartBuild"
-
-  def forceBuild(action: models.BuildAction) = Try {
-    val url = s"$jenkinsUrl/job/$rootJobName/buildWithParameters"
-
-    play.Logger.info(s"Force build to $url with parameters ${action.parameters}")
-
-    Http.post(url)
-      .params(action.parameters)
-      .asString
-  }
 }

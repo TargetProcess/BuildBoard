@@ -14,7 +14,9 @@ import models.Build
 import models.TestCasePackage
 
 
-trait ParseFolder extends FileApi with Artifacts with JenkinsApi {
+trait ParseFolder extends FileApi with Artifacts {
+  protected val rootJobName = "StartBuild"
+
   type Folder = File
   private val timeout = 5.hours
 
@@ -51,7 +53,7 @@ trait ParseFolder extends FileApi with Artifacts with JenkinsApi {
   }
 
   val splitRegex = "(?m)^commit(?:(?:\r\n|[\r\n]).+$)*".r
-  val commitRegex = "\\s*(\\w+)[\\r\\n].*[\\r\\n]?s*Author:\\s*(.*)\\s*<(.*)>[\\r\\n]\\s*Date:\\s+(.*)[\\r\\n]([\\w\\W]*)".r
+  val commitRegex = """\s*(\w+)[\r\n].*[\r\n]?s*Author:\s*(.*)\s*<(.*)>[\r\n]\s*Date:\s+(.*)[\r\n]([\w\W]*)""".r
 
   def getCommits(file: File): List[Commit] = {
     if (!file.exists) {
