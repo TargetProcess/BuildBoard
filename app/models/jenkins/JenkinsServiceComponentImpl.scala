@@ -3,6 +3,9 @@ package models.jenkins
 import components.{BuildRepositoryComponent, BranchRepositoryComponent, JenkinsServiceComponent}
 import models.{Branch, IBuildInfo, Build}
 import java.io.File
+import play.api.Play
+import scala.util.Try
+import scalaj.http.Http
 
 trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
   this: JenkinsServiceComponentImpl with BranchRepositoryComponent with BuildRepositoryComponent =>
@@ -46,8 +49,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
       val paramsFile = new File(folder, "Build/StartBuild/StartBuild.params")
 
       for {
-        buildParams <- BuildParamsCompanion(paramsFile)
-
+        buildParams <- BuildParams(paramsFile)
         (buildNumber, prId) <- getBuildNumbers(folder.getName)
         branch <- prId.fold(branchRepository.getBranch(buildParams.branch.substring(7)))(f = id => branchRepository.getBranchByPullRequest(id))
 
@@ -55,7 +57,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
     }
 
 
-    def findBuild(branch: Branch, buildId: Int):Option[Build] = buildRepository.getBuild(branch, buildId)
+    def findBuild(branch: Branch, buildId: Int): Option[Build] = buildRepository.getBuild(branch, buildId)
 
     def getTestRun(branch: Branch, build: Int, part: String, run: String) = findBuild(branch, build)
       .map(b => b.getTestRunBuildNode(part, run))
@@ -65,33 +67,16 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
 
   }
 
+  private val jenkinsUrl = Play.configuration.getString("jenkins.url").get
+  protected val rootJobName = "StartBuild"
 
+  def forceBuild(action: models.BuildAction) = Try {
+    val url = s"$jenkinsUrl/job/$rootJobName/buildWithParameters"
+
+    play.Logger.info(s"Force build to $url with parameters ${action.parameters}")
+
+    Http.post(url)
+      .params(action.parameters)
+      .asString
+  }
 }
-
-// branch => origin/develop | origin/pr/1044/merge | origin/feature/us76314
-case class BuildParams(branch: String, parameters: Map[String, String]) {
-
-}
-
-object BuildParamsCompanion extends FileApi {
-  val branchNameR = "BRANCHNAME: (.*)".r
-  val paramR = "([^:]*): (.*)".r
-
-  def apply(file: File) = read(file).flatMap(str => {
-    val lines = str.split('\n')
-
-    val name = lines(0) match {
-      case branchNameR(n) => Some(n)
-      case _ => None
-    }
-
-
-    val parameters = lines.drop(1)
-      .flatMap {
-      case paramR(key, value) => Some((key, value))
-    }.toMap
-
-    name.map(n => BuildParams(n, parameters))
-  })
-}
-
