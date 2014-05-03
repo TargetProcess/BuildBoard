@@ -32,7 +32,6 @@ object CacheService {
 
 
   def start = {
-    val jenkinsRepository = registry.jenkinsService
     val githubSubscription = Observable.timer(0 seconds, githubInterval)
       .map(_ => Try {
       registry.branchService.getBranches
@@ -66,8 +65,10 @@ object CacheService {
 
       watch("updating builds") {
         val existingBuilds = registry.buildRepository.getBuildInfos.toList
+        play.Logger.info(s"existingBuilds: ${existingBuilds.length}")
 
         val updatedBuilds = registry.jenkinsService.getUpdatedBuilds(existingBuilds)
+        play.Logger.info(s"updatedBuilds: ${updatedBuilds.length}")
 
         for (updatedBuild <- updatedBuilds) {
           registry.buildRepository.update(updatedBuild)

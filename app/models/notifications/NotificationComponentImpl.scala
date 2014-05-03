@@ -5,14 +5,11 @@ import models._
 import play.api.Play
 import play.api.Play.current
 import scalaj.http.{HttpOptions, Http}
-import models.BuildInfo
 import models.BuildStatus.Toggled
-import com.novus.salat.dao.ModelCompanion
 import com.mongodb.casbah.Imports._
 import models.Branch
 import scala.Some
 import models.Build
-import se.radley.plugin.salat.Binders.ObjectId
 
 
 trait NotificationComponentImpl extends NotificationComponent {
@@ -24,12 +21,12 @@ trait NotificationComponentImpl extends NotificationComponent {
           slackChannel <- Play.configuration.getString("slack.channel")
     ) yield new NotificationServiceImpl(slackUrl, slackChannel)) getOrElse NoNotifications
 
-  class NotificationServiceImpl(slackUrl: String, slackChannel: String)
+  class NotificationServiceImpl(slackUrl: String, broadcastChannel: String)
     extends NotificationService {
 
     override def notifyToggle(branch: Branch, build: IBuildInfo): Unit = {
 
-      if (needNotification(branch.name)) {
+      if (needBroadcast(branch.name)) {
 
 
         val status = if (build.buildStatus == Toggled) "green" else build.buildStatus.name
@@ -38,7 +35,7 @@ trait NotificationComponentImpl extends NotificationComponent {
 
         val text = s"$icon *${build.branch}* is toggled to $status by *${loggedUser.fold("Unknown")(_.fullName)}*. <http://srv5>"
 
-        post(text)
+        post(text, broadcastChannel)
 
       }
     }
@@ -65,29 +62,27 @@ trait NotificationComponentImpl extends NotificationComponent {
     override def notifyAboutBuilds(allBuilds: List[Build]) = {
       for ((branch, builds) <- allBuilds.groupBy(x => x.name)) {
 
-        if (needNotification(branch)) {
-          if (!builds.isEmpty) {
-            val lastBuild = builds.maxBy(_.number)
-            val optionOldBuild: Option[Build] = lastNotifiedBuild(branch)
+        if (!builds.isEmpty) {
+          val lastBuild = builds.maxBy(_.number)
+          val optionOldBuild: Option[Build] = lastNotifiedBuild(branch)
 
 
-            optionOldBuild match {
-              case Some(oldBuild) if oldBuild.number == lastBuild.number =>
-                if (oldBuild.status != lastBuild.status) {
-                  sendUpdateNotification(branch, lastBuild, optionOldBuild)
-                }
-              case _ => sendNewBuildNotification(branch, lastBuild, optionOldBuild)
-            }
-
-            updateLastBuildInfo(branch, lastBuild)
+          optionOldBuild match {
+            case Some(oldBuild) if oldBuild.number == lastBuild.number =>
+              if (oldBuild.status != lastBuild.status) {
+                sendUpdateNotification(branch, lastBuild, optionOldBuild)
+              }
+            case _ => sendNewBuildNotification(branch, lastBuild, optionOldBuild)
           }
+
+          updateLastBuildInfo(branch, lastBuild)
         }
       }
     }
 
 
-    def post(text: String) {
-      val data = s"""{"channel": "$slackChannel","text": "$text"}"""
+    def post(text: String, channel:String) {
+      val data = s"""{"channel": "$channel","text": "$text"}"""
 
       Http
         .postData(slackUrl, data)
@@ -96,7 +91,7 @@ trait NotificationComponentImpl extends NotificationComponent {
         .asString
     }
 
-    def needNotification(branch: String): Boolean = branch match {
+    def needBroadcast(branch: String): Boolean = branch match {
       case BranchInfo.develop() => true
       case BranchInfo.hotfix(_) => true
       case BranchInfo.release(_) => true
@@ -104,22 +99,34 @@ trait NotificationComponentImpl extends NotificationComponent {
     }
 
 
-    def sendNotification(prefix: String, branch: String, build: Build, oldBuild: Option[Build]) ={
+    def sendNotification(prefix: String, branch: String, build: Build, oldBuild: Option[Build], channel:String) = {
       val status = build.buildStatus.obj
       val link = s"<http://srv5/#/list/branch?name=$branch|#${build.number}>"
       val oldText = oldBuild.fold("")(b => s"(was *${b.buildStatus.name}* at ${b.timestamp.toString("HH:mm dd/MM")})")
       val text = s"${getIcon(build)} $prefix $link on *$branch* now is *$status* at ${build.timestamp.toString("HH:mm dd/MM")} $oldText"
-      post(text)
+      post(text, channel)
 
     }
 
     def sendUpdateNotification(branch: String, build: Build, oldBuild: Option[Build]) = {
-      sendNotification("Build", branch, build, oldBuild)
+      send("Build", branch, build, oldBuild)
     }
 
-    def sendNewBuildNotification(branch: String, build: Build, oldBuild:Option[Build]) = {
-      sendNotification("New build", branch, build, oldBuild)
+    def sendNewBuildNotification(branch: String, build: Build, oldBuild: Option[Build]) = {
+      send("New build", branch, build, oldBuild)
     }
+
+
+    def send(prefix: String, branch: String, build: Build, oldBuild: Option[Build]) {
+      if (needBroadcast(branch)) {
+        sendNotification(prefix, branch, build, oldBuild, broadcastChannel)
+      }
+
+
+
+
+    }
+
 
 
   }

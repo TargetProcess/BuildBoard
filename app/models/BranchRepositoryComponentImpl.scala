@@ -32,9 +32,10 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
 
 
     def getBranchInfos: List[BranchInfo] = {
-      val builds = buildRepository.getBuildInfos
+      val builds = buildRepository.getBuildInfos.toList
 
-      Branches.find(MongoDBObject.empty)
+
+      Branches.findAll()
         .toList
         .map(b => {
         val buildsForBranch = builds
@@ -61,7 +62,7 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
 
     def update(branch: Branch): Unit = Branches.update(MongoDBObject("name" -> branch.name), branch, upsert = true, multi = false, Branches.dao.collection.writeConcern)
 
-    def getBranchByPullRequest(id: Int): Option[Branch] = Branches.findOne(MongoDBObject("pullRequest" -> id))
+    def getBranchByPullRequest(id: Int): Option[Branch] = Branches.findOne(MongoDBObject("pullRequest.prId" -> id))
   }
 
 }

@@ -7,7 +7,6 @@ trait NotificationComponent {
 
   trait NotificationService {
     def notifyAboutBuilds(builds: List[Build])
-
     def notifyToggle(branch: Branch, build:IBuildInfo)
   }
 

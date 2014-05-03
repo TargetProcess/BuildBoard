@@ -40,7 +40,7 @@ trait BuildRepositoryComponentImpl extends BuildRepositoryComponent {
 
     def getBuilds(branch: Branch) = Builds.find(MongoDBObject("branch" -> branch.name))
 
-    def getBuildInfos = findInner(MongoDBObject.empty)
+    def getBuildInfos: Iterator[BuildInfo] = Builds.findAll().map(toBuildInfo)
 
     def getBuildInfos(branch: Branch) = findInner(MongoDBObject("branch" -> branch.name))
 

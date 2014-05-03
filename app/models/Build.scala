@@ -16,6 +16,8 @@ trait IBuildInfo {
   val buildStatus = BuildStatus(status, toggled)
 
   def isPullRequest = pullRequestId.isDefined
+
+  val initiator:Option[String]
 }
 
 case class BuildInfo(number: Int,
@@ -25,6 +27,7 @@ case class BuildInfo(number: Int,
                      toggled: Boolean = false,
                      commits: List[Commit] = Nil,
                      pullRequestId: Option[Int] = None,
+                     initiator:Option[String] = None,
                      name: String,
                      activityType: String = "build"
                       ) extends ActivityEntry with IBuildInfo {
@@ -37,6 +40,7 @@ case class Build(number: Int,
                  timestamp: DateTime,
                  toggled: Boolean = false,
                  commits: List[Commit] = Nil,
+                 initiator:Option[String] = None,
                  pullRequestId: Option[Int] = None,
                  name: String,
                  node: Option[BuildNode]) extends IBuildInfo {
@@ -51,7 +55,7 @@ case class Build(number: Int,
 }
 
 object BuildImplicits {
-  implicit def toBuildInfo(b: Build): BuildInfo = BuildInfo(b.number, b.branch, b.status, b.timestamp, b.toggled, b.commits, b.pullRequestId, b.name)
+  implicit def toBuildInfo(b: Build): BuildInfo = BuildInfo(b.number, b.branch, b.status, b.timestamp, b.toggled, b.commits, b.pullRequestId, b.initiator, b.name)
 }
 
 
