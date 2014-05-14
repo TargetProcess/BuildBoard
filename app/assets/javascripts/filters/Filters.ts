@@ -13,6 +13,7 @@ module buildBoard {
         return (status:Status)=> {
             switch (status) {
                 case Status.Toggled:
+                    return "toggled success";
                 case Status.Success:
                     return "success";
                 case Status.Failed:
