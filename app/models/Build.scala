@@ -44,7 +44,6 @@ case class Build(number: Int,
                  pullRequestId: Option[Int] = None,
                  name: String,
                  node: Option[BuildNode]) extends IBuildInfo {
-
   def getTestRunBuildNode(part: String, run: String): Option[BuildNode] = {
     def getTestRunBuildNodeInner(node: BuildNode): Option[BuildNode] = node match {
       case n: BuildNode if n.name == part && n.runName == run => Some(n)
@@ -52,6 +51,12 @@ case class Build(number: Int,
     }
     node.map(getTestRunBuildNodeInner).flatten
   }
+
+  def getLeafNodes:List[BuildNode] = node.map(_.getLeafNodes).getOrElse(Nil)
+
+
+
+
 }
 
 object BuildImplicits {
@@ -60,6 +65,11 @@ object BuildImplicits {
 
 
 case class BuildNode(name: String, runName: String, status: Option[String], statusUrl: String, artifacts: List[Artifact], timestamp: DateTime, children: List[BuildNode] = Nil, testResults: List[TestCasePackage] = Nil) {
+  def getLeafNodes: List[BuildNode] = {
+    if (children.isEmpty) List(this)
+    else children.flatMap(_.getLeafNodes)
+  }
+
   def getTestCase(name: String): Option[TestCase] = {
     def getTestCaseInner(tcPackage: TestCasePackage): Option[TestCase] = {
       tcPackage.testCases.filter(tc => tc.name == name) match {
