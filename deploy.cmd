@@ -1,4 +1,4 @@
-SET dest=\\SRV5
+SET dest=\\srv-hv3
 call dist.cmd
 if ERRORLEVEL 1 goto :eof
 set /p pid=<%dest%\BuildBoard\bin\RUNNING_PID

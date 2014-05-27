@@ -23,6 +23,8 @@ trait NotificationComponentImpl extends NotificationComponent {
 
   class NotificationServiceImpl(slackUrl: String, broadcastChannel: String) extends NotificationService {
 
+    val baseUrl = Play.configuration.getString("base.url").get
+
     override def notifyToggle(branch: Branch, build: IBuildInfo): Unit = {
 
       if (needBroadcast(branch.name)) {
@@ -32,7 +34,7 @@ trait NotificationComponentImpl extends NotificationComponent {
 
         val icon: String = getIcon(build)
 
-        val text = s"$icon *${build.branch}* is toggled to $status by *${loggedUser.fold("Unknown")(_.fullName)}*. <http://srv5>"
+        val text = s"$icon *${build.branch}* is toggled to $status by *${loggedUser.fold("Unknown")(_.fullName)}*. <$baseUrl>"
 
         post(text, broadcastChannel)
 
@@ -82,7 +84,7 @@ trait NotificationComponentImpl extends NotificationComponent {
       val branch = currentBuild.branch
       val status = currentBuild.buildStatus.obj
 
-      val link = s"<http://srv5/#/list/branch?name=$branch|#${currentBuild.number}>"
+      val link = s"<$baseUrl/#/list/branch?name=$branch|#${currentBuild.number}>"
       val now = s"Build $link on *$branch* now is *$status* at ${currentBuild.timestamp.toString("HH:mm dd/MM")}"
 
       val text = s"${getIcon(currentBuild)} $now $was"
