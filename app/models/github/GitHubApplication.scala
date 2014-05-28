@@ -9,12 +9,15 @@ import play.api.Play
 
 
 object GithubApplication {
-  val clientId = Play.configuration.getString("github.oauth.client_id").get
-  val clientSecret = Play.configuration.getString("github.oauth.client_secret").get
-  val redirectUri = Play.configuration.getString("github.oauth.redirect_url").get
+  private val config = Play.configuration.getConfig("github").get
 
-  val user = "TargetProcess"
-  val repo = "TP"
+
+  val clientId = config.getString("oauth.client_id").get
+  val clientSecret = config.getString("oauth.client_secret").get
+  val redirectUri = config.getString("oauth.redirect_url").get
+
+  val user = config.getString("user").get
+  val repo = config.getString("repo").get
 
   def url(branch: String) = s"https://github.com/$user/$repo/tree/$branch"
 

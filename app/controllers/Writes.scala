@@ -5,6 +5,7 @@ import models._
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Writes._
 import models.PullRequestStatus
+import components.MagicMergeResult
 
 object Writes {
   implicit val artifactWrite: Writes[Artifact] = Json.writes[Artifact]
@@ -51,4 +52,12 @@ object Writes {
         (__ \ "activity").write(list(activityEntryWrites)) ~
         (__ \ "buildActions").write(list[BuildAction])
       )(unlift(BranchInfo.serialize))
+
+
+  implicit val magicMergeResultWrite = (
+    (__ \ "message").write[String] ~
+      (__ \ "merged").write[Boolean] ~
+      (__ \ "deleted").write[Boolean] ~
+      (__ \ "closed").write[Boolean]
+    )((m: MagicMergeResult) => (m.description, m.merged, m.deleted, m.closed))
 }

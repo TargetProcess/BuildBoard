@@ -1,11 +1,13 @@
 package models.tp
 
+import play.api.Play
+import play.api.Play.current
+
 object TargetprocessApplication {
-  val tpUrl = "http://plan.tpondemand.com"
+  val tpUrl =  Play.configuration.getString("targetprocess.url").get
 
   def getEntityUrl(id: Int) = s"$tpUrl/entity/$id"
 
   def apiUri(root: String) = s"$tpUrl/api/v1/$root"
 
-  def board(method: String) = s"$tpUrl/slice/v1/matrix/$method"
 }

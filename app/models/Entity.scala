@@ -7,7 +7,7 @@ case class Entity(
                    name: String,
                    entityType: String,
                    state: EntityState,
-                   assignments: List[Assignment],
+                   assignments: List[Assignment] = Nil,
                    url: String) {
 }
 

@@ -6,6 +6,7 @@ import models.tp.{UserRepositoryComponentImpl, TargetprocessComponentImpl}
 import models.{AuthInfo, User, BuildRepositoryComponentImpl, BranchRepositoryComponentImpl}
 import models.notifications.NotificationComponentImpl
 import models.jenkins.JenkinsServiceComponentImpl
+import models.magicMerge.MagicMergeComponentImpl
 
 trait DefaultComponent
   extends AuthInfoProviderComponent
@@ -18,6 +19,7 @@ trait DefaultComponent
   with BuildRepositoryComponentImpl
   with NotificationComponentImpl
   with UserRepositoryComponentImpl
+  with MagicMergeComponentImpl
 
 
 class DefaultRegistry(val loggedUser: Option[User], val authInfo:AuthInfo) extends DefaultComponent {

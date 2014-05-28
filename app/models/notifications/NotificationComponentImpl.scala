@@ -16,12 +16,17 @@ trait NotificationComponentImpl extends NotificationComponent {
 
   this: NotificationComponentImpl with LoggedUserProviderComponent with UserRepositoryComponent =>
 
-  val notificationService: NotificationService =
-    (for (slackUrl <- Play.configuration.getString("slack.url");
-          slackChannel <- Play.configuration.getString("slack.channel")
-    ) yield new NotificationServiceImpl(slackUrl, slackChannel)) getOrElse NoNotifications
+  val notificationService: NotificationService = {
+    (for (
+      config <- Play.configuration.getConfig("slack");
+      slackUrl <- config.getString("url");
+      slackChannel <- config.getString("broadcastChannel");
+      sendPrivateNotifications <- Some(config.getBoolean("sendPrivateNotifications").getOrElse(true))
+    ) yield new NotificationServiceImpl(slackUrl, slackChannel, sendPrivateNotifications)
+      ) getOrElse NoNotifications
+  }
 
-  class NotificationServiceImpl(slackUrl: String, broadcastChannel: String) extends NotificationService {
+  class NotificationServiceImpl(slackUrl: String, broadcastChannel: String, sendPrivateNotifications: Boolean) extends NotificationService {
 
     val baseUrl = Play.configuration.getString("base.url").get
 
@@ -94,10 +99,12 @@ trait NotificationComponentImpl extends NotificationComponent {
         post(text, broadcastChannel)
       }
 
-      currentBuild.initiator
-        .flatMap(userRepository.findOneByFullName)
-        .flatMap(_.slackName)
-        .foreach(slackName => post(text, "@" + slackName))
+      if (sendPrivateNotifications) {
+        currentBuild.initiator
+          .flatMap(userRepository.findOneByFullName)
+          .flatMap(_.slackName)
+          .foreach(slackName => post(text, "@" + slackName))
+      }
 
     }
 

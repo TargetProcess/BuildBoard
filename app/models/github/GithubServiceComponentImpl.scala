@@ -10,7 +10,9 @@ import org.eclipse.egit.github.core.{PullRequest => PR, RepositoryId}
 import models.{PullRequestStatus, PullRequest}
 
 trait GithubServiceComponentImpl extends GithubServiceComponent {
-  this: GithubServiceComponentImpl with AuthInfoProviderComponent =>
+  this: GithubServiceComponentImpl
+    with AuthInfoProviderComponent
+  =>
 
   val githubService = new GithubServiceImpl(authInfo)
 
@@ -21,9 +23,9 @@ trait GithubServiceComponentImpl extends GithubServiceComponent {
     private val repo = new RepositoryId(GithubApplication.user, GithubApplication.repo)
     private val referenceService = new ReferenceService(github)
 
-    def getBranches: List[Branch] = repositoryService.getBranches(repo).asScala.toList.map(createBranch)
+    def getBranches: List[Branch] = repositoryService.getBranches(repo).asScala.map(b=>createBranch(b)).toList
 
-    def getPullRequests: List[PullRequest] = prService.getPullRequests(repo, "open").asScala.toList.map(createPullRequest)
+    def getPullRequests: List[PullRequest] = prService.getPullRequests(repo, "open").asScala.map(createPullRequest).toList
 
     def getPullRequestStatus(id: Int) = {
       val pr = prService.getPullRequest(repo, id)

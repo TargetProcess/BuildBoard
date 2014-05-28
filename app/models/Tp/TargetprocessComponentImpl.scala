@@ -55,7 +55,7 @@ trait TargetprocessComponentImpl extends TargetprocessComponent {
       )((id, login, firstName, lastName) => TpUser(id, login, firstName + " " + lastName))
 
 
-    val stateSelector = "EntityState[Id,IsFinal,Role,Name,NextStates]"
+    val stateSelector = "EntityState[Id,IsFinal,Role,Name,NextStates[Id,Name,IsFinal]]"
 
 
     private def sendRequest(request: Request): JsValue = {
