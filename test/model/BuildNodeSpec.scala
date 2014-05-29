@@ -22,7 +22,7 @@ class BuildNodeSpec
       )
       )
 
-      node.getLeafNodes.map(_.runName.toInt) must haveTheSameElementsAs(List(3, 4, 5, 6))
+      node.getLeafNodes.map(_.runName.toInt) must be_==(List(3, 4, 5, 6))
 
     }
   }

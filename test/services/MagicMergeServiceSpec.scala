@@ -14,14 +14,10 @@ import models.Branch
 import scala.util.Failure
 import scala.Some
 
-// to use matchers like anyInt()
-
-
-class MagicMergeServiceSpec extends Specification
-with Mockito {
+class MagicMergeServiceSpec extends Specification with Mockito {
 
   "MagicMergeService" should {
-    "use correct users for merging and closing" in {
+    "should merge close and delete" in {
 
       val user: User = User(tpId = 1, username = "tp", token = "token")
 
