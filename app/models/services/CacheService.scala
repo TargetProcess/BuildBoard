@@ -1,17 +1,13 @@
 package models.services
 
-import scala.concurrent.duration._
-import scala.util.Try
+import scala.util.{Try, Success, Failure}
 import rx.lang.scala.{Subscription, Observable}
-
-import scala.util.Success
-import scala.util.Failure
 import play.api.Play
 import play.api.Play.current
 import models.AuthInfo
 import src.Utils.watch
 import components.DefaultRegistry
-
+import scala.concurrent.duration._
 
 object CacheService {
   val authInfo: AuthInfo = (for {
@@ -27,8 +23,8 @@ object CacheService {
 
   val registry = new DefaultRegistry(authInfo)
 
-  val githubInterval = Play.configuration.getInt("github.cache.interval").getOrElse(600).seconds
-  val jenkinsInterval = Play.configuration.getInt("jenkins.cache.interval").getOrElse(60).seconds
+  val githubInterval = Play.configuration.getMilliseconds("github.cache.interval").getOrElse(600000L).milliseconds
+  val jenkinsInterval = Play.configuration.getMilliseconds("jenkins.cache.interval").getOrElse(60000L).milliseconds
 
 
   def start = {
