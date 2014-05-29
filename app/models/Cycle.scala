@@ -2,6 +2,8 @@ package models
 
 import play.api.Play
 import play.api.Play.current
+import scala.collection.JavaConverters._
+import scala.util.Try
 
 trait Cycle {
   val name: String
@@ -15,12 +17,18 @@ trait Cycle {
 }
 
 abstract class ConfigurableCycle(val name: String) extends Cycle {
-  val configPath = "build.cycle." + name
+  val config = Play.configuration.getConfig(s"build.cycle.$name").get
+  val unitTests = getTests("unitTests")
+  val funcTests = getTests("funcTests")
 
-  val includeUnstable = Play.configuration.getBoolean(s"$configPath.includeUnstable").getOrElse(false)
-  val unitTests = Play.configuration.getString(s"$configPath.unitTests").getOrElse("All")
-  val funcTests = Play.configuration.getString(s"$configPath.funcTests").getOrElse("All")
-  val buildFullPackage = Play.configuration.getBoolean(s"$configPath.buildFullPackage").getOrElse(false)
+  val includeUnstable = config.getBoolean("includeUnstable").getOrElse(false)
+  val buildFullPackage = config.getBoolean("buildFullPackage").getOrElse(false)
+
+  def getTests(path: String): String = {
+    Try{config.getStringList(path).map(l=>"\""+l.asScala.mkString(" ")+"\"").get}.toOption
+      .orElse(config.getString(path))
+      .getOrElse("All")
+  }
 }
 
 case object BuildPackageOnly extends ConfigurableCycle("PackageOnly") {
@@ -54,6 +62,16 @@ trait BuildAction {
       case BranchInfo.develop() => "4"
       case BranchInfo.feature(_) => "5"
       case _ => "10"
+    }),
+    "INCLUDE_COMET" -> (cycle match {
+      case FullCycle => "true"
+      case ShortCycle => "false"
+      case BuildPackageOnly => "false"
+    }),
+    "INCLUDE_SLICE" -> (cycle match {
+      case FullCycle => "true"
+      case ShortCycle => "false"
+      case BuildPackageOnly => "false"
     })
   )
 
