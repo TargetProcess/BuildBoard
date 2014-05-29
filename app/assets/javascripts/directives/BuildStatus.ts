@@ -14,10 +14,15 @@ module buildBoard {
         replace = true;
     }
 
-    export class LastBuildStatusController {
-        public static $inject = ['$scope', BackendService.NAME];
+    class Toggle implements ToggleInfo {
+        user:buildBoard.User;
+        timestamp:Date;
+    }
 
-        constructor(private $scope:any, backendService:BackendService) {
+    export class LastBuildStatusController {
+        public static $inject = ['$scope', BackendService.NAME, LoggedUserService.NAME];
+
+        constructor(private $scope:any, backendService:BackendService, loggedUser:LoggedUserService) {
 
             this.$scope.forceBuild = (buildAction:BuildAction) => {
                 backendService.forceBuild(buildAction).success(build=> {
@@ -29,12 +34,17 @@ module buildBoard {
 
             this.$scope.toggleBuild = (build:Build)=> {
                 var branch = this.$scope.branch;
-                var toggled = !build.toggled;
+                var toggled = build.toggle ? false : true;
                 backendService.toggleBuild(branch.name, build.number, toggled).success(b=> {
-                    build.toggled = toggled;
+
+                    var toggle = new Toggle();
+                    toggle.user = loggedUser.getLoggedUser();
+                    toggle.timestamp = new Date();
+
+                    build.toggle = toggled ? toggle:null;
                     if (build.number == branch.lastBuild.number) {
-                        branch.lastBuild.toggled = build.toggled;
-                        branch.lastBuild.parsedStatus = StatusHelper.parseInfo(branch.lastBuild.status, build.toggled);
+                        branch.lastBuild.toggle = build.toggle;
+                        branch.lastBuild.parsedStatus = StatusHelper.parseInfo(branch.lastBuild.status, build.toggle!=null);
                     }
                 });
             }

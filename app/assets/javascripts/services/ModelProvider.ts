@@ -19,12 +19,12 @@ module buildBoard {
                         switch (a.activityType) {
                             case 'build':
                                 var build:Build = a;
-                                build.parsedStatus = StatusHelper.parseInfo(build.status, build.toggled);
+                                build.parsedStatus = StatusHelper.parseInfo(build.status, build.toggle != null);
                                 break;
                         }
                     });
                     if (br.lastBuild) {
-                        br.lastBuild.parsedStatus = StatusHelper.parseInfo(br.lastBuild.status, br.lastBuild.toggled);
+                        br.lastBuild.parsedStatus = StatusHelper.parseInfo(br.lastBuild.status, br.lastBuild.toggle != null);
                     }
                 });
 

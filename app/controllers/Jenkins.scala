@@ -34,6 +34,7 @@ object Jenkins extends Application {
 
   def toggleBuild(branchId: String, buildNumber: Int, toggled: Boolean) = IsAuthorizedComponent {
     repository =>
+
       val optionBranch = repository.branchRepository.getBranch(branchId)
       val optionBuild = optionBranch.flatMap(repository.buildService.toggleBuild(_, buildNumber, toggled))
 
@@ -70,17 +71,6 @@ object Jenkins extends Application {
   def artifact(file: String) = IsAuthorizedComponent {
     component =>
       request => Ok.sendFile(content = component.jenkinsService.getArtifact(file))
-  }
-
-
-  def canBeToggled(branchId: String, buildNumber: Int) = IsAuthorizedComponent {
-    repository =>
-
-      val optionBranch = repository.branchRepository.getBranch(branchId)
-      val optionBuild = optionBranch.flatMap(repository.buildRepository.getBuild(_, buildNumber))
-
-      request => Ok(Json.toJson(optionBuild.map(repository.buildService.canBeToggled).getOrElse(false)))
-
   }
 
 }

@@ -41,7 +41,8 @@ module buildBoard {
     }
 
     export interface User {
-        userId:number;
+        userId?:number;
+        fullName?:string
         slackName?:string;
     }
 
@@ -57,7 +58,7 @@ module buildBoard {
     export interface BuildBase extends ActivityEntry {
         number:number;
         branch:string;
-        toggled:boolean;
+        toggle?:ToggleInfo;
         status:string;
         parsedStatus:Status;
     }
@@ -87,6 +88,11 @@ module buildBoard {
         branchId:string;
         pullRequestId:number;
         cycleName:string;
+    }
+
+    export interface ToggleInfo {
+        user:User
+        timestamp:Date
     }
 
     export interface ToggledBuild {
@@ -134,7 +140,7 @@ module buildBoard {
 
     export class StatusHelper {
         static parse(build:Build):Status {
-            return build ? StatusHelper.parseInfo(build.status, build.toggled) : Status.Unknown;
+            return build ? StatusHelper.parseInfo(build.status, build.toggle!=null) : Status.Unknown;
         }
 
         static parseBuildNode(node:BuildNode):Status {

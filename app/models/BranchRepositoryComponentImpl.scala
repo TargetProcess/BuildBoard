@@ -47,6 +47,7 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
           .map(c => (c.timestamp, c))
           .groupBy(_._1)
           .map(_._2.head._2)
+
         val activity = (buildsForBranch ++ b.pullRequest ++ commits)
           .sortBy(-_.timestamp.getMillis)
 
