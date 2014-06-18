@@ -34,8 +34,9 @@ object Jenkins extends Application {
 
   def toggleBuild(branchId: String, buildNumber: Int, toggled: Boolean) = IsAuthorizedComponent {
     repository =>
+
       val optionBranch = repository.branchRepository.getBranch(branchId)
-      val optionBuild = optionBranch.flatMap(repository.buildRepository.toggleBuild(_, buildNumber, toggled))
+      val optionBuild = optionBranch.flatMap(repository.buildService.toggleBuild(_, buildNumber, toggled))
 
       optionBuild.foreach(repository.notificationService.notifyToggle(optionBranch.get, _))
 
@@ -71,4 +72,5 @@ object Jenkins extends Application {
     component =>
       request => Ok.sendFile(content = component.jenkinsService.getArtifact(file))
   }
+
 }

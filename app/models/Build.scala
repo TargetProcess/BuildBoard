@@ -8,26 +8,26 @@ trait IBuildInfo {
   val number: Int
   val branch: String
   val status: Option[String]
-  val toggled: Boolean
+  val toggle: Option[ToggleInfo]
   val timestamp: DateTime
   val pullRequestId: Option[Int]
   val name: String
 
-  val buildStatus = BuildStatus(status, toggled)
+  val buildStatus = BuildStatus(status, toggle.isDefined)
 
   def isPullRequest = pullRequestId.isDefined
 
-  val initiator:Option[String]
+  val initiator: Option[String]
 }
 
 case class BuildInfo(number: Int,
                      branch: String,
                      status: Option[String],
                      override val timestamp: DateTime,
-                     toggled: Boolean = false,
+                     toggle: Option[ToggleInfo] = None,
                      commits: List[Commit] = Nil,
                      pullRequestId: Option[Int] = None,
-                     initiator:Option[String] = None,
+                     initiator: Option[String] = None,
                      name: String,
                      activityType: String = "build"
                       ) extends ActivityEntry with IBuildInfo {
@@ -38,13 +38,12 @@ case class Build(number: Int,
                  branch: String,
                  status: Option[String],
                  timestamp: DateTime,
-                 toggled: Boolean = false,
+                 toggle: Option[ToggleInfo] = None,
                  commits: List[Commit] = Nil,
-                 initiator:Option[String] = None,
+                 initiator: Option[String] = None,
                  pullRequestId: Option[Int] = None,
                  name: String,
                  node: Option[BuildNode]) extends IBuildInfo {
-
   def getTestRunBuildNode(part: String, run: String): Option[BuildNode] = {
     def getTestRunBuildNodeInner(node: BuildNode): Option[BuildNode] = node match {
       case n: BuildNode if n.name == part && n.runName == run => Some(n)
@@ -52,14 +51,23 @@ case class Build(number: Int,
     }
     node.map(getTestRunBuildNodeInner).flatten
   }
+
+  def getLeafNodes: List[BuildNode] = node.map(_.getLeafNodes).getOrElse(Nil)
+
+
 }
 
 object BuildImplicits {
-  implicit def toBuildInfo(b: Build): BuildInfo = BuildInfo(b.number, b.branch, b.status, b.timestamp, b.toggled, b.commits, b.pullRequestId, b.initiator, b.name)
+  implicit def toBuildInfo(b: Build): BuildInfo = BuildInfo(b.number, b.branch, b.status, b.timestamp, b.toggle, b.commits, b.pullRequestId, b.initiator, b.name)
 }
 
 
 case class BuildNode(name: String, runName: String, status: Option[String], statusUrl: String, artifacts: List[Artifact], timestamp: DateTime, children: List[BuildNode] = Nil, testResults: List[TestCasePackage] = Nil) {
+  def getLeafNodes: List[BuildNode] = {
+    if (children.isEmpty) List(this)
+    else children.flatMap(_.getLeafNodes)
+  }
+
   def getTestCase(name: String): Option[TestCase] = {
     def getTestCaseInner(tcPackage: TestCasePackage): Option[TestCase] = {
       tcPackage.testCases.filter(tc => tc.name == name) match {
@@ -77,6 +85,6 @@ case class BuildNode(name: String, runName: String, status: Option[String], stat
   }
 }
 
-case class BuildToggle(branch: String, buildNumber: Int)
-
 case class Artifact(name: String, url: String)
+
+case class ToggleInfo(user: User, timestamp: DateTime)

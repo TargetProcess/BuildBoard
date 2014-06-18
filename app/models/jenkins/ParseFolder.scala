@@ -43,7 +43,7 @@ trait ParseFolder extends FileApi with Artifacts {
         branch = buildSource.branch,
         status = status,
         timestamp = new DateTime(timestamp),
-        toggled = existingBuilds.get(name).fold(false)(_.toggled),
+        toggle = existingBuilds.get(name).flatMap(_.toggle),
         commits = commits,
         pullRequestId = buildSource.pullRequestId,
         initiator = buildSource.params.parameters.get("WHO_STARTS"),

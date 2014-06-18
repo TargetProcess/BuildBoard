@@ -38,7 +38,9 @@ trait BuildRepositoryComponentImpl extends BuildRepositoryComponent {
       "isPullRequest" -> "isPullRequest",
       "toggled" -> "toggled")
 
-    def getBuilds(branch: Branch) = Builds.find(MongoDBObject("branch" -> branch.name))
+    def getBuilds(branch: Branch) = Builds
+      .find(MongoDBObject("branch" -> branch.name))
+
 
     def getBuildInfos: Iterator[BuildInfo] = Builds.findAll().map(toBuildInfo)
 
@@ -48,17 +50,6 @@ trait BuildRepositoryComponentImpl extends BuildRepositoryComponent {
 
 
     def getBuild(branch: Branch, number: Int): Option[Build] = Builds.findOne(MongoDBObject("number" -> number, "branch" -> branch.name))
-
-    def toggleBuild(branch: Branch, number: Int, toggled: Boolean): Option[BuildInfo] = {
-      val predicate = MongoDBObject("branch" -> branch.name, "number" -> number)
-      val build = Builds.findOne(predicate)
-        .map(b => b.copy(toggled = toggled))
-
-      build.foreach(b => Builds.update(predicate, b, upsert = false, multi = false, Builds.dao.collection.writeConcern))
-
-      build.map(toBuildInfo)
-    }
-
 
     override def removeAll(branch: Branch): Unit = Builds.find(MongoDBObject("branch" -> branch.name)).foreach(Builds.remove)
 

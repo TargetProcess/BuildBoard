@@ -1,6 +1,11 @@
 package models
 
-case class BranchInfo(name: String, url: String, pullRequest: Option[PullRequest] = None, entity: Option[Entity] = None, lastBuild: Option[BuildInfo] = None, activity: List[ActivityEntry] = Nil) {
+case class BranchInfo(name: String,
+                      url: String,
+                      pullRequest: Option[PullRequest] = None,
+                      entity: Option[Entity] = None,
+                      lastBuild: Option[BuildInfo] = None,
+                      activity: List[ActivityEntry] = Nil) {
   val buildActions: List[BuildAction] = {
     val l1 = List(
       BranchBuildAction(name, BuildPackageOnly),
@@ -39,7 +44,6 @@ object BranchInfo {
   val hotfix = "^(?:origin/)?hotfix/(.*)$".r
   val vs = "^(?:origin/)?vs/(.*)$".r
   val develop = "^(?:origin/)?develop$".r
-
 
 
   def serialize(branch: BranchInfo) = Some((branch.name, branch.url, branch.pullRequest, branch.entity, branch.lastBuild, branch.activity, branch.buildActions))

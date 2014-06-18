@@ -8,3 +8,6 @@ trait ActivityEntry {
   val activityType: String
   val timestamp: DateTime
 }
+
+
+

@@ -1,7 +1,7 @@
 package components
 
 import models.github.GithubServiceComponentImpl
-import models.services.BranchServiceComponentImpl
+import models.services.{BuildServiceComponentImpl, BranchServiceComponentImpl}
 import models.tp.{UserRepositoryComponentImpl, TargetprocessComponentImpl}
 import models.{AuthInfo, User, BuildRepositoryComponentImpl, BranchRepositoryComponentImpl}
 import models.notifications.NotificationComponentImpl
@@ -20,6 +20,7 @@ trait DefaultComponent
   with NotificationComponentImpl
   with UserRepositoryComponentImpl
   with MagicMergeComponentImpl
+  with BuildServiceComponentImpl
 
 
 class DefaultRegistry(val loggedUser: Option[User], val authInfo:AuthInfo) extends DefaultComponent {

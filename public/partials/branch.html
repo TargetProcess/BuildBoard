@@ -20,7 +20,10 @@
                                 <div class="panel-heading" >
                                     <build-status build="entry" branch="getBranch()" type="btn"></build-status>
                                     <h4 class="panel-title toggle-state">
-                                        <a ng-click="loadBuild(entry); isCollapsed = !isCollapsed">{{entry.isPullRequest ? "PR " : "" }}Build #{{entry.number}}</a>
+                                        <a ng-click="loadBuild(entry); isCollapsed = !isCollapsed">
+                                            {{entry.isPullRequest ? "PR " : "" }}Build #{{entry.number}}
+                                            <span ng-show="entry.toggle">toggled by {{entry.toggle.user.fullName}} at {{entry.toggle.timestamp | friendlyDate}}</span>
+                                        </a>
                                     </h4>
                                 </div>
                                 <div class="tree panel-collapse" ng-show="!isCollapsed">

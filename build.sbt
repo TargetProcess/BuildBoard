@@ -24,7 +24,8 @@ scalacOptions ++= Seq(
   "-unchecked",
   "-feature",
   "-language:postfixOps",
-  "-language:implicitConversions"
+  "-language:implicitConversions",
+  "-language:reflectiveCalls"
 )
 
 resolvers ++= Seq(

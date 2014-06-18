@@ -8,6 +8,16 @@ import models.PullRequestStatus
 import components.MagicMergeResult
 
 object Writes {
+  implicit val userWrite = (
+    (__ \ "tpId").write[Int] ~
+      (__ \"username").write[String] ~
+      (__ \ "githubLogin").write[String] ~
+      (__ \ "fullName").write[String]
+    )((u:User)=>(u.tpId, u.username, u.githubLogin, u.fullName))
+
+
+  implicit val toggleWrite = Json.writes[ToggleInfo]
+
   implicit val artifactWrite: Writes[Artifact] = Json.writes[Artifact]
   implicit val testCaseWrite: Writes[TestCase] = Json.writes[TestCase]
   implicit val testCasePackageWrite: Writes[TestCasePackage] = Json.writes[TestCasePackage]
@@ -16,6 +26,8 @@ object Writes {
   implicit val buildInfoWrite = Json.writes[BuildInfo]
   implicit val buildWrite = Json.writes[Build]
   implicit val mergeResultWrite = Json.writes[MergeResult]
+
+
 
 
   implicit val buildActionWrite = (
