@@ -6,7 +6,7 @@ import org.eclipse.egit.github.core.client.GitHubClient
 import org.eclipse.egit.github.core.service._
 import scala.collection.JavaConverters._
 import org.joda.time.DateTime
-import org.eclipse.egit.github.core.{PullRequest => PR, RepositoryId}
+import org.eclipse.egit.github.core.{PullRequest => PR, CommitStatus, RepositoryId}
 import models.{PullRequestStatus, PullRequest}
 
 trait GithubServiceComponentImpl extends GithubServiceComponent {
@@ -22,6 +22,7 @@ trait GithubServiceComponentImpl extends GithubServiceComponent {
     private val prService = new PullRequestService(github)
     private val repo = new RepositoryId(GithubApplication.user, GithubApplication.repo)
     private val referenceService = new ReferenceService(github)
+    private val commitService = new CommitService(github)
 
     def getBranches: List[Branch] = repositoryService.getBranches(repo).asScala.map(b=>createBranch(b)).toList
 
@@ -42,6 +43,15 @@ trait GithubServiceComponentImpl extends GithubServiceComponent {
     }
 
     def deleteBranch(branchName: String) = referenceService.deleteReference(repo, s"heads/$branchName")
+
+    override def setStatus(ref: String, status: GithubStatus): Unit = {
+      val commitStatus = new CommitStatus()
+      commitStatus.setState(status.state)
+      commitStatus.setTargetUrl(status.targetUrl)
+      commitStatus.setDescription(status.description)
+
+      commitService.createStatus(repo, ref, commitStatus)
+    }
   }
 
 }

@@ -12,6 +12,7 @@ trait IBuildInfo {
   val timestamp: DateTime
   val pullRequestId: Option[Int]
   val name: String
+  val ref: Option[String]
 
   val buildStatus = BuildStatus(status, toggled)
 
@@ -26,6 +27,7 @@ case class BuildInfo(number: Int,
                      override val timestamp: DateTime,
                      toggled: Boolean = false,
                      commits: List[Commit] = Nil,
+                     ref: Option[String] = None,
                      pullRequestId: Option[Int] = None,
                      initiator:Option[String] = None,
                      name: String,
@@ -40,9 +42,11 @@ case class Build(number: Int,
                  timestamp: DateTime,
                  toggled: Boolean = false,
                  commits: List[Commit] = Nil,
+                 ref: Option[String] = None,
                  initiator:Option[String] = None,
                  pullRequestId: Option[Int] = None,
                  name: String,
+                 activityType: String = "build",
                  node: Option[BuildNode]) extends IBuildInfo {
 
   def getTestRunBuildNode(part: String, run: String): Option[BuildNode] = {
@@ -55,7 +59,7 @@ case class Build(number: Int,
 }
 
 object BuildImplicits {
-  implicit def toBuildInfo(b: Build): BuildInfo = BuildInfo(b.number, b.branch, b.status, b.timestamp, b.toggled, b.commits, b.pullRequestId, b.initiator, b.name)
+  implicit def toBuildInfo(b: Build): BuildInfo = BuildInfo(b.number, b.branch, b.status, b.timestamp, b.toggled, b.commits, b.ref, b.pullRequestId, b.initiator, b.name)
 }
 
 

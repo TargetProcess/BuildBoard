@@ -34,10 +34,13 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
 
       val buildSources: List[BuildSource] = folders.flatMap(createBuildSource)
 
-      val result: List[Build] = buildSources.flatMap(getBuild(_, existingBuildsMap))
+      val result: List[Build] = buildSources.flatMap(buildSource => {
+        val name: String = buildSource.folder.getName
+        val toggled = existingBuildsMap.get(name).fold(false)(_.toggled)
+        getBuild(buildSource, toggled)
+      })
 
       result
-
     }
 
     def getBuildNumbers(name: String): Option[(Int, Option[Int])] = {

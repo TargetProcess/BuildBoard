@@ -9,8 +9,6 @@ trait Artifacts {
 
   protected val screenshot = "screenshot"
   protected val testNameRegex = """.*\.(\w+)\.(\w+)$""".r
-  protected val screenshotQualifiedFileNameRegex = """.*\\(\w+)\.(\w+)[-].*$""".r
-  protected val screenshotFileNameRegex = """.*\\(\w+)[-].*$""".r
 
   def getArtifacts(contents: List[File]): List[Artifact] = {
     def getArtifactsInner(file: File, filter: File => Boolean, artifactName: String): List[Artifact] = file.listFiles

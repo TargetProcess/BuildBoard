@@ -1,20 +1,25 @@
 package models.notifications
 
-import components.{UserRepositoryComponent, LoggedUserProviderComponent, NotificationComponent}
+import components.{GithubServiceComponent, UserRepositoryComponent, LoggedUserProviderComponent, NotificationComponent}
 import models._
 import play.api.Play
 import play.api.Play.current
 import scalaj.http.{HttpException, HttpOptions, Http}
-import models.BuildStatus.Toggled
+import models.BuildStatus._
 import com.mongodb.casbah.Imports._
 import models.Branch
 import scala.Some
 import scala.collection.immutable.Iterable
+import models.github.GithubStatus
 
 
 trait NotificationComponentImpl extends NotificationComponent {
 
-  this: NotificationComponentImpl with LoggedUserProviderComponent with UserRepositoryComponent =>
+  this: NotificationComponentImpl
+    with LoggedUserProviderComponent
+    with UserRepositoryComponent
+    with GithubServiceComponent
+  =>
 
   val notificationService: NotificationService = {
     (for (
@@ -30,20 +35,39 @@ trait NotificationComponentImpl extends NotificationComponent {
 
     val baseUrl = Play.configuration.getString("base.url").get
 
+    def updateGithub(build: IBuildInfo) = {
+      build.ref.foreach(sha => {
+        val statusString = build.buildStatus match {
+          case Unknown | InProgress => "pending"
+          case Toggled | Ok => "success"
+          case Failure => "error"
+          case Aborted | TimedOut => "failure"
+        }
+
+        val text = s"Build is ${build.buildStatus.obj} at ${build.timestamp.toString("HH:mm dd/MM")}"
+
+        if (!build.isPullRequest) {
+          play.Logger.info(s"Set status for $sha => $statusString")
+          githubService.setStatus(sha, GithubStatus(statusString, getBuildLink(build), text, "continuous-integration/jenkins"))
+        }
+      })
+    }
+
     override def notifyToggle(branch: Branch, build: IBuildInfo): Unit = {
 
       if (needBroadcast(branch.name)) {
-
 
         val status = if (build.buildStatus == Toggled) "green" else build.buildStatus.name
 
         val icon: String = getIcon(build)
 
-        val text = s"$icon *${build.branch}* is toggled to $status by *${loggedUser.fold("Unknown")(_.fullName)}*. <$baseUrl>"
+        val text = s"$icon *${build.branch}* is toggled to $status by *${loggedUser.fold("Unknown")(_.fullName)}*. <${getBuildLink(build)}|#${build.number}>"
 
         post(text, broadcastChannel)
 
       }
+      updateGithub(build)
+
     }
 
 
@@ -86,11 +110,12 @@ trait NotificationComponentImpl extends NotificationComponent {
     def sendNotification(currentBuild: IBuildInfo, optionLastBuild: Option[IBuildInfo]) {
       val was = optionLastBuild.fold("")(lastBuild => s"(was *${lastBuild.buildStatus.name}* at ${lastBuild.timestamp.toString("HH:mm dd/MM")})")
 
+      val link = getBuildLink(currentBuild)
+
       val branch = currentBuild.branch
       val status = currentBuild.buildStatus.obj
 
-      val link = s"<$baseUrl/#/list/branch?name=$branch|#${currentBuild.number}>"
-      val now = s"Build $link on *$branch* now is *$status* at ${currentBuild.timestamp.toString("HH:mm dd/MM")}"
+      val now = s"Build <$link|#${currentBuild.number}> on *$branch* now is *$status* at ${currentBuild.timestamp.toString("HH:mm dd/MM")}"
 
       val text = s"${getIcon(currentBuild)} $now $was"
 
@@ -98,6 +123,9 @@ trait NotificationComponentImpl extends NotificationComponent {
       if (needBroadcast(currentBuild.branch)) {
         post(text, broadcastChannel)
       }
+
+      updateGithub(currentBuild)
+
 
       if (sendPrivateNotifications) {
         currentBuild.initiator
@@ -108,6 +136,8 @@ trait NotificationComponentImpl extends NotificationComponent {
 
     }
 
+
+    def getBuildLink(currentBuild: IBuildInfo): String = s"$baseUrl/#/list/branch?name=${currentBuild.branch}"
 
     def post(text: String, channel: String) {
       val data = s"""{"channel": "$channel","text": "$text"}"""

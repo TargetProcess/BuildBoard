@@ -15,16 +15,18 @@ import models.TestCasePackage
 
 
 trait ParseFolder extends FileApi with Artifacts {
+
+  protected val screenshotQualifiedFileNameRegex = """.*\\(\w+)\.(\w+)[-].*$""".r
+  protected val screenshotFileNameRegex = """.*\\(\w+)[-].*$""".r
+
   protected val rootJobName = "StartBuild"
 
   type Folder = File
   private val timeout = 5.hours
 
-
   case class BuildSource(branch: String, number: Int, pullRequestId: Option[Int], folder: Folder, params: BuildParams)
 
-
-  def getBuild(buildSource: BuildSource, existingBuilds: Map[String, IBuildInfo]): Option[Build] = {
+  def getBuild(buildSource: BuildSource, toggled: Boolean): Option[Build] = {
     val name: String = buildSource.folder.getName
 
     play.Logger.info(s"getBuild ${buildSource.branch} - $name")
@@ -37,14 +39,16 @@ trait ParseFolder extends FileApi with Artifacts {
     }
     val (status, _, timestamp) = getBuildDetails(folder)
     val commits = getCommits(new File(folder, "Checkout/GitChanges.log"))
+    val ref = getRef(new File(folder, "Checkout/sha.txt"))
 
     Some(
       Build(number = buildSource.number,
         branch = buildSource.branch,
         status = status,
         timestamp = new DateTime(timestamp),
-        toggled = existingBuilds.get(name).fold(false)(_.toggled),
+        toggled = toggled,
         commits = commits,
+        ref = ref,
         pullRequestId = buildSource.pullRequestId,
         initiator = buildSource.params.parameters.get("WHO_STARTS"),
         node = node,
@@ -73,6 +77,14 @@ trait ParseFolder extends FileApi with Artifacts {
       }
         .flatten
       case None => Nil
+    }
+  }
+
+  def getRef(file: File) = {
+    if (!file.exists) {
+      None
+    }  else{
+      read(file)
     }
   }
 

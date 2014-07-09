@@ -1,6 +1,7 @@
 package components
 
 import models._
+import models.github.GithubStatus
 
 trait GithubServiceComponent {
   val githubService: GithubService
@@ -15,6 +16,9 @@ trait GithubServiceComponent {
     def deleteBranch(branchName: String)
 
     def getPullRequestStatus(id: Int): PullRequestStatus
+
+    def setStatus(ref:String, status:GithubStatus)
+
   }
 
 }

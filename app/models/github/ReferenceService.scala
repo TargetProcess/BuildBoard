@@ -10,19 +10,19 @@ class ReferenceService(client: GitHubClient) extends DataService(client) {
    * Delete reference with given name
    *
    * @param repository
-   * @param name
+   * @param ref
    * @throws IOException
    */
-  def deleteReference(repository: IRepositoryIdProvider, name: String) = {
+  def deleteReference(repository: IRepositoryIdProvider, ref: String) = {
     val id: String = getId(repository)
-    if (name == null) throw new IllegalArgumentException("Name cannot be null")
-    if (name.length == 0) throw new IllegalArgumentException("Name cannot be empty")
+    if (ref == null) throw new IllegalArgumentException("Name cannot be null")
+    if (ref.length == 0) throw new IllegalArgumentException("Name cannot be empty")
     val uri: StringBuilder = new StringBuilder
     uri.append(SEGMENT_REPOS)
     uri.append('/').append(id)
     uri.append(SEGMENT_GIT)
-    if (!name.startsWith("refs/")) uri.append(SEGMENT_REFS)
-    uri.append('/').append(name)
+    if (!ref.startsWith("refs/")) uri.append(SEGMENT_REFS)
+    uri.append('/').append(ref)
     client.delete(uri.toString())
   }
 }
