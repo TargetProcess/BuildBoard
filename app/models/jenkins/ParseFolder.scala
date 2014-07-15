@@ -187,7 +187,7 @@ trait ParseFolder extends FileApi with Artifacts {
             case _ => Nil
           }
 
-          TestCase(tcName, result, getAttribute(tcNode, "time").fold(0.0)(_.toDouble), message, tcScreenshots, stackTrace)
+          TestCase(tcName, result, getAttribute(tcNode, "time").map(_.toDouble).getOrElse(0.0), message, tcScreenshots, stackTrace)
         }).toList
 
         TestCasePackage(if (currentNamespace.isEmpty) name else s"$namespace.$name", children, testCases)

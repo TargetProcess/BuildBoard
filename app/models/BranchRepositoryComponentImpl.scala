@@ -49,6 +49,7 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
           .map(_._2.head._2)
         val activity = (buildsForBranch ++ b.pullRequest ++ commits)
           .sortBy(-_.timestamp.getMillis)
+          .take(100)
 
         BranchInfo(b.name, b.url, b.pullRequest, b.entity, buildsForBranch.headOption, activity)
       })
