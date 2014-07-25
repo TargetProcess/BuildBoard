@@ -1,6 +1,8 @@
 package controllers
 
+import models.BuildStatus.Unknown
 import models._
+import play.Play
 import play.api.libs.json._
 import com.github.nscala_time.time.Imports._
 import Writes._
@@ -70,5 +72,26 @@ object Jenkins extends Application {
   def artifact(file: String) = IsAuthorizedComponent {
     component =>
       request => Ok.sendFile(content = component.jenkinsService.getArtifact(file))
+  }
+
+
+  def buildStatus(id: Int) = IsAuthorizedComponent {
+    component =>
+      request => {
+        val branch = component.branchRepository.getBranchEntity(id)
+        val status = (for (b<-branch    ;
+          lastBuild <- component.buildRepository.getLastBuild(b)
+        ) yield lastBuild.buildStatus).getOrElse(Unknown)
+
+       val fileName = status.success match{
+         case None => "unknown"
+         case Some(true)=> "ok"
+         case Some(false)=> "fail"
+       }
+
+        val file = Play.application.getFile(s"images/build/$fileName.png")
+
+        Ok.sendFile(file, inline = true)
+      }
   }
 }

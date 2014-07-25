@@ -1,24 +1,26 @@
 package models
 
-import scala.language.postfixOps
-import com.mongodb.casbah.commons.MongoDBObject
-import components.{BuildRepositoryComponent, BranchRepositoryComponent}
-import play.api.Play.current
-import com.novus.salat.dao.{SalatDAO, ModelCompanion}
-import se.radley.plugin.salat._
 import com.mongodb.casbah.Imports._
-import se.radley.plugin.salat.Binders.ObjectId
+import com.mongodb.casbah.commons.MongoDBObject
+import com.novus.salat.dao.{ModelCompanion, SalatDAO}
+import components.{BranchRepositoryComponent, BuildRepositoryComponent}
 import models.mongo.mongoContext
-import mongoContext._
+import models.mongo.mongoContext._
+import play.api.Play.current
+import se.radley.plugin.salat.Binders.ObjectId
+import se.radley.plugin.salat._
+
+import scala.language.postfixOps
 
 
 trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
 
   this: BranchRepositoryComponentImpl with BuildRepositoryComponent =>
 
-  val branchRepository = new BranchRepositoryImpl
+  val branchRepository: BranchRepository = new BranchRepositoryImpl
 
   class BranchRepositoryImpl extends BranchRepository {
+
 
     object Branches extends ModelCompanion[Branch, ObjectId] {
 
@@ -64,6 +66,8 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
     def update(branch: Branch): Unit = Branches.update(MongoDBObject("name" -> branch.name), branch, upsert = true, multi = false, Branches.dao.collection.writeConcern)
 
     def getBranchByPullRequest(id: Int): Option[Branch] = Branches.findOne(MongoDBObject("pullRequest.prId" -> id))
+
+    override def getBranchEntity(id: Int): Option[Branch] = Branches.findOne(MongoDBObject("entity._id" -> id))
   }
 
 }
