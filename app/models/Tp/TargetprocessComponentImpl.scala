@@ -1,5 +1,7 @@
 package models.tp
 
+import play.api.Logger
+
 import scalaj.http.Http
 import TargetprocessApplication._
 import play.api.libs.json._
@@ -9,7 +11,7 @@ import models.{TpUser, EntityState, Entity, Assignment}
 import scalaj.http.HttpOptions
 import scalaj.http.Http.Request
 import components._
-
+import src.Utils.watch
 
 trait TargetprocessComponentImpl extends TargetprocessComponent {
   this: TargetprocessComponentImpl with AuthInfoProviderComponent =>
@@ -64,6 +66,7 @@ trait TargetprocessComponentImpl extends TargetprocessComponent {
         .option(HttpOptions.readTimeout(5000))
         .asString
 
+
       Json.parse(toSend)
     }
 
@@ -112,8 +115,11 @@ trait TargetprocessComponentImpl extends TargetprocessComponent {
 
       idGroups.flatMap {
         group =>
-          val json = get("Assignables", include, where = "Id%20in%20(" + group.mkString(",") + ")")
-          json.validate((__ \ "Items").read(list[Entity])).get
+          watch("get part") {
+            val json = get("Assignables", include, where = "Id%20in%20(" + group.mkString(",") + ")")
+            Logger.info(s"get 20 assignables")
+            json.validate((__ \ "Items").read(list[Entity])).get
+          }
       }
     }
 

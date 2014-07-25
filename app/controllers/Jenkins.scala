@@ -1,11 +1,12 @@
 package controllers
 
-import models.BuildStatus.Unknown
+import com.github.nscala_time.time.Imports._
+import controllers.Writes._
+import models.BuildStatus.{InProgress, Unknown}
 import models._
 import play.Play
 import play.api.libs.json._
-import com.github.nscala_time.time.Imports._
-import Writes._
+
 import scala.util.{Failure, Success}
 import scalaj.http.HttpException
 
@@ -79,17 +80,20 @@ object Jenkins extends Application {
     component =>
       request => {
         val branch = component.branchRepository.getBranchEntity(id)
-        val status = (for (b<-branch    ;
-          lastBuild <- component.buildRepository.getLastBuild(b)
+        val status = (for (b <- branch;
+                           lastBuild <- component.buildRepository.getLastBuild(b)
         ) yield lastBuild.buildStatus).getOrElse(Unknown)
 
-       val fileName = status.success match{
-         case None => "unknown"
-         case Some(true)=> "ok"
-         case Some(false)=> "fail"
-       }
+        val fileName = status match {
+          case InProgress => "inprogress"
+          case _ => status.success match {
+            case None => "unknown"
+            case Some(true) => "ok"
+            case Some(false) => "fail"
+          }
+        }
 
-        val file = Play.application.getFile(s"images/build/$fileName.png")
+        val file = Play.application.getFile(s"public/images/build/$fileName.png")
 
         Ok.sendFile(file, inline = true)
       }

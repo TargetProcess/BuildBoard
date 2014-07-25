@@ -3,30 +3,33 @@
 # ~~~~
 
 # Home page
-GET         /                                controllers.Landing.index
-GET         /branches                        controllers.Branches.branches
+GET         /                            controllers.Landing.index
+GET         /branches                    controllers.Branches.branches
 
-GET         /login                           controllers.Login.index
-GET         /login/github                    controllers.Login.githubLogin
-GET         /login/oauth                     controllers.Login.oauth(code ?= "")
-POST        /login/submit                    controllers.Login.submit
-GET         /login/logout                    controllers.Login.logout
-POST        /login/update                    controllers.Login.updateInfo(slackName:String)
-
-
-GET         /jenkins/build                   controllers.Jenkins.build(branch:String, number: Int)
-POST        /jenkins/forceBuild              controllers.Jenkins.forceBuild(pullRequestId:Option[Int],branchId:Option[String],cycleName:String)
-POST        /jenkins/toggleBuild             controllers.Jenkins.toggleBuild(branchId:String, buildNumber:Int, toggled:Boolean)
-
-GET         /jenkins/run                     controllers.Jenkins.run(branch: String, build: Int, part: String, run: String)
-GET         /jenkins/testCase                controllers.Jenkins.testCase(branch: String, build: Int, part: String, run: String, test: String)
-GET         /jenkins/artifact                controllers.Jenkins.artifact(file: String)
-
-GET        /github/merge                    controllers.Github.merge(branchName: String)
+GET         /login                       controllers.Login.index
+GET         /login/github                controllers.Login.githubLogin
+GET         /login/oauth                 controllers.Login.oauth(code ?= "")
+POST        /login/submit                controllers.Login.submit
+GET         /login/logout                controllers.Login.logout
+POST        /login/update                controllers.Login.updateInfo(slackName:String)
 
 
+GET         /jenkins/build               controllers.Jenkins.build(branch:String, number: Int)
+POST        /jenkins/forceBuild          controllers.Jenkins.forceBuild(pullRequestId:Option[Int],branchId:Option[String],cycleName:String)
+POST        /jenkins/toggleBuild         controllers.Jenkins.toggleBuild(branchId:String, buildNumber:Int, toggled:Boolean)
 
-POST        /tp/changeEntityState            controllers.Targetprocess.changeEntityState(entityId:Int, entityStateId:Int)
+GET         /jenkins/run                 controllers.Jenkins.run(branch: String, build: Int, part: String, run: String)
+GET         /jenkins/testCase            controllers.Jenkins.testCase(branch: String, build: Int, part: String, run: String, test: String)
+GET         /jenkins/artifact            controllers.Jenkins.artifact(file: String)
+
+GET         /github/merge                controllers.Github.merge(branchName: String)
+GET         /github/status               controllers.Github.prStatus(id:Int)
+
+GET         /jenkins/status              controllers.Jenkins.buildStatus(id:Int)
+
+
+
+POST        /tp/changeEntityState        controllers.Targetprocess.changeEntityState(entityId:Int, entityStateId:Int)
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file                    controllers.Assets.at(path="/public", file)
+GET         /assets/*file                controllers.Assets.at(path="/public", file)
