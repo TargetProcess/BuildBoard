@@ -19,6 +19,7 @@ module buildBoard {
         url:string;
         builds:Build[];
         activity:ActivityEntry[];
+        buildActions:BuildAction[];
     }
 
     export interface PullRequest extends ActivityEntry {
@@ -87,6 +88,13 @@ module buildBoard {
         branchId:string;
         pullRequestId:number;
         cycleName:string;
+        buildParametersCategories: BuildParametersCategory[]
+    }
+
+    export interface BuildParametersCategory {
+        name:string;
+        parts:string[];
+        selectedParts:string[];
     }
 
     export interface ToggledBuild {

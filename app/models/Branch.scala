@@ -13,7 +13,14 @@ case class BranchInfo(name: String, url: String, pullRequest: Option[PullRequest
       case _ => List(BranchBuildAction(name, ShortCycle))
     }
 
-    val l3 =
+    val l3 = name match {
+      case BranchInfo.release(_) => Nil
+      case BranchInfo.hotfix(_) => Nil
+      case BranchInfo.develop(_) => Nil
+      case _ => List(BranchCustomBuildAction(name, CustomCycle(List())))
+    }
+
+    val l4 =
       pullRequest match {
         case Some(pr) if pr.status.isMergeable => List(
           PullRequestBuildAction(pr.prId, FullCycle),
@@ -21,10 +28,9 @@ case class BranchInfo(name: String, url: String, pullRequest: Option[PullRequest
         case _ => Nil
       }
 
-    l1 ++ l2 ++ l3
+    l1 ++ l2 ++ l3 ++ l4
   }
 }
-
 
 case class Branch(
                    name: String,
@@ -39,7 +45,6 @@ object BranchInfo {
   val hotfix = "^(?:origin/)?hotfix/(.*)$".r
   val vs = "^(?:origin/)?vs/(.*)$".r
   val develop = "^(?:origin/)?develop$".r
-
 
 
   def serialize(branch: BranchInfo) = Some((branch.name, branch.url, branch.pullRequest, branch.entity, branch.lastBuild, branch.activity, branch.buildActions))

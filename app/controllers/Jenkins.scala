@@ -2,36 +2,48 @@ package controllers
 
 import com.github.nscala_time.time.Imports._
 import controllers.Writes._
+import controllers.Reads._
 import models.BuildStatus.{InProgress, Unknown}
 import models._
 import play.Play
 import play.api.libs.json._
 
+
 import scala.util.{Failure, Success}
 import scalaj.http.HttpException
 
+case class ForceBuildParameters(pullRequestId: Option[Int], branchId: Option[String], cycleName: String, parameters: List[BuildParametersCategory]) {
+}
+
 object Jenkins extends Application {
 
-  def forceBuild(pullRequestId: Option[Int], branchId: Option[String], cycleName: String) = IsAuthorizedComponent {
+  def forceBuild() = IsAuthorizedComponent {
     component =>
       request =>
 
+        request.body.asJson.map { json =>
 
-        val maybeAction: Option[BuildAction] = (pullRequestId, branchId) match {
-          case (Some(prId), None) => Some(PullRequestBuildAction(prId, BuildAction.find(cycleName)))
-          case (None, Some(brId)) => Some(BranchBuildAction(brId, BuildAction.find(cycleName)))
-          case _ => None
-        }
+          val params = json.as[ForceBuildParameters]
 
-        maybeAction match {
-          case Some(buildAction) =>
-            component.jenkinsService.forceBuild(buildAction) match {
-              case Success(_) => Ok(Json.toJson(Build(-1, branchId.getOrElse("this"), Some("In progress"), DateTime.now,
-                name = "", node = Some(BuildNode("this", "this", Some("In progress"), "#", List(), DateTime.now)))))
-              case Failure(e: HttpException) => BadRequest(e.toString)
-              case Failure(e) => InternalServerError("Something going wrong " + e.toString)
-            }
-          case None => BadRequest("There is no pullRequestId or branchId")
+          val maybeAction: Option[BuildAction] = (params.pullRequestId, params.branchId, params.parameters) match {
+            case (Some(prId), None, Nil) => Some(PullRequestBuildAction(prId, BuildAction.find(params.cycleName)))
+            case (None, Some(brId), Nil) => Some(BranchBuildAction(brId, BuildAction.find(params.cycleName)))
+            case (None, Some(brId), x::xs) => Some(BranchCustomBuildAction(brId, CustomCycle(x::xs)))
+            case _ => None
+          }
+
+          maybeAction match {
+            case Some(buildAction) =>
+              component.jenkinsService.forceBuild(buildAction) match {
+                case Success(_) => Ok(Json.toJson(Build(-1, params.branchId.getOrElse("this"), Some("In progress"), DateTime.now,
+                  name = "", node = Some(BuildNode("this", "this", Some("In progress"), "#", List(), DateTime.now)))))
+                case Failure(e: HttpException) => BadRequest(e.toString)
+                case Failure(e) => InternalServerError("Something going wrong " + e.toString)
+              }
+            case None => BadRequest("There is no pullRequestId or branchId")
+          }
+        }.getOrElse {
+          BadRequest("Expecting Json data")
         }
   }
 

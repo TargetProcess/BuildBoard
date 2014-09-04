@@ -1,0 +1,32 @@
+.category-list {
+    width: 380px;
+    font-size: 12px;
+}
+
+.category-list__item {
+    padding: 5px 0;
+}
+
+.category-list__name {
+    padding: 0 0 0 38px;
+    font-weight: bold;
+    color: rgba(0,0,0,0.4);
+}
+
+.category-list__parameters {
+
+    padding: 0 0 0 48px;
+    white-space: normal;
+}
+
+.category-list__parameters__item {
+    display: inline-block;
+    width: 130px;
+    padding: 2px 0;
+}
+
+.category-list__checkbox{
+    position: relative;
+    top:2px;
+
+}

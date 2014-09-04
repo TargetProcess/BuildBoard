@@ -84,7 +84,5 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
         .params(parameters)
         .asString
     }
-
   }
-
 }
