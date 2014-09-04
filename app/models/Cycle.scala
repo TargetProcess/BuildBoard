@@ -118,7 +118,8 @@ trait BuildAction {
     }),
     "INCLUDE_COMET" -> cycle.includeComet.toString,
     "INCLUDE_SLICE" -> cycle.includeSlice.toString,
-    "INCLUDE_CASPER" -> cycle.includeCasper.toString
+    "INCLUDE_CASPER" -> cycle.includeCasper.toString,
+    "INCLUDE_DB" -> cycle.includeDb.toString
   )
 
   val name: String
