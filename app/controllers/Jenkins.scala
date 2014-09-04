@@ -2,11 +2,12 @@ package controllers
 
 import com.github.nscala_time.time.Imports._
 import controllers.Writes._
+import controllers.Reads._
 import models.BuildStatus.{InProgress, Unknown}
 import models._
 import play.Play
 import play.api.libs.json._
-import play.api.libs.json.util
+
 
 import scala.util.{Failure, Success}
 import scalaj.http.HttpException
@@ -21,10 +22,6 @@ object Jenkins extends Application {
       request =>
 
         request.body.asJson.map { json =>
-
-          implicit val buildParametersCategoryReads = Json.reads[BuildParametersCategory]
-          implicit val buildParameterCategoryReads: Reads[List[BuildParametersCategory]] = Reads.list[BuildParametersCategory]
-          implicit val reads = Json.reads[ForceBuildParameters]
 
           val params = json.as[ForceBuildParameters]
 

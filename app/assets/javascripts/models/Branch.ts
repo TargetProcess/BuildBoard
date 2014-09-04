@@ -88,7 +88,7 @@ module buildBoard {
         branchId:string;
         pullRequestId:number;
         cycleName:string;
-        buildParametersCategories: any
+        buildParametersCategories: BuildParametersCategory[]
     }
 
     export interface BuildParametersCategory {

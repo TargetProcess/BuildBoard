@@ -6,9 +6,12 @@ import play.api.Play.current
 import scala.collection.JavaConverters._
 import scala.util.Try
 
-trait Cycle {
+object Cycle {
   val unitTestsCategoryName = "unitTests"
   val funcTestsCategoryName = "funcTests"
+}
+
+trait Cycle {
   val name: String
 
   def friendlyName = name
@@ -43,10 +46,11 @@ case class CustomCycle(parameters: List[BuildParametersCategory]) extends Cycle 
   override val includeCasper: Boolean = getBoolByCategory(casperCategoryName)
   override val includeDb: Boolean = getBoolByCategory(dbCategoryName)
 
-  def getBoolByCategory(categoryName:String): Boolean = {
+  def getBoolByCategory(categoryName: String): Boolean = {
     parameters.find(x => x.name == categoryName).map(x => !x.parts.isEmpty).getOrElse(false)
   }
-  def getTestsByCategory(categoryName:String): String = {
+
+  def getTestsByCategory(categoryName: String): String = {
     parameters.find(x => x.name == categoryName).map(x => if (x.parts.isEmpty) "" else "\"" + x.parts.mkString(" ") + "\"").getOrElse("All")
   }
 }
