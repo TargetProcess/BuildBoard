@@ -30,3 +30,14 @@
     top:2px;
 
 }
+
+.dropdown-menu{
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 600px;
+    max-width: 300px;
+}
+
+.view .dropdown-menu{
+    left: -85px;
+}
