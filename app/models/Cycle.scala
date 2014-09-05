@@ -141,21 +141,36 @@ object BuildAction {
   }
 }
 
-case class PullRequestBuildAction(pullRequestId: Int, cycle: Cycle) extends BuildAction {
+trait BranchBuildActionTrait extends BuildAction{
+  val branch: String
+  val branchName: String = s"origin/$branch"
+  val name = s"Build ${cycle.friendlyName} on branch"
+}
+
+trait PullRequestBuildActionTrait extends BuildAction{
+  val pullRequestId: Int
   val branchName: String = s"origin/pr/$pullRequestId/merge"
   val name = s"Build ${cycle.friendlyName} on pull request"
 }
 
-case class BranchBuildAction(branch: String, cycle: Cycle) extends BuildAction {
-  val branchName: String = s"origin/$branch"
-  val name = s"Build ${cycle.friendlyName} on branch"
+case class PullRequestBuildAction(pullRequestId: Int, cycle: Cycle) extends PullRequestBuildActionTrait {
+}
+
+case class BranchBuildAction(branch: String, cycle: Cycle) extends BranchBuildActionTrait {
 }
 
 case class BuildParametersCategory(name: String, parts: List[String]) {
 }
 
-case class BranchCustomBuildAction(branch: String, cycle: CustomCycle) extends BuildAction {
+case class PullRequestCustomBuildAction(pullRequestId: Int, cycle: CustomCycle) extends CustomBuildAction with PullRequestBuildActionTrait{
 
+}
+
+case class BranchCustomBuildAction(branch: String, cycle: CustomCycle) extends CustomBuildAction with BranchBuildActionTrait{
+}
+
+trait CustomBuildAction extends BuildAction {
+  val cycle: CustomCycle
   def getPossibleBuildParameters: List[BuildParametersCategory] = {
     val cycleName = cycle.name
     val config = Play.configuration.getConfig(s"build.cycle.$cycleName").get
@@ -168,7 +183,4 @@ case class BranchCustomBuildAction(branch: String, cycle: CustomCycle) extends B
       BuildParametersCategory(cycle.dbCategoryName, List("Include"))
     )
   }
-
-  val branchName: String = s"origin/$branch"
-  val name = s"Build ${cycle.friendlyName} on branch"
 }

@@ -13,22 +13,27 @@ case class BranchInfo(name: String, url: String, pullRequest: Option[PullRequest
       case _ => List(BranchBuildAction(name, ShortCycle))
     }
 
-    val l3 = name match {
-      case BranchInfo.release(_) => Nil
-      case BranchInfo.hotfix(_) => Nil
-      case BranchInfo.develop(_) => Nil
-      case _ => List(BranchCustomBuildAction(name, CustomCycle(List())))
-    }
-
-    val l4 =
+    val (l3, l3Custom) =
       pullRequest match {
-        case Some(pr) if pr.status.isMergeable => List(
-          PullRequestBuildAction(pr.prId, FullCycle),
-          PullRequestBuildAction(pr.prId, ShortCycle))
-        case _ => Nil
+        case Some(pr) if pr.status.isMergeable => (
+          List(
+            PullRequestCustomBuildAction(pr.prId, CustomCycle(List())),
+            PullRequestBuildAction(pr.prId, FullCycle)
+          ),
+          List(PullRequestBuildAction(pr.prId, ShortCycle)))
+        case _ => (Nil, Nil)
       }
 
-    l1 ++ l2 ++ l3 ++ l4
+    val l4 = name match {
+      case BranchInfo.release(_) => Nil
+      case BranchInfo.hotfix(_) => Nil
+      case BranchInfo.develop() => Nil
+      case _ => List(
+        BranchCustomBuildAction(name, CustomCycle(List()))
+      )
+    }
+
+    l1 ++ l2 ++ l3 ++ l4 ++ l3Custom
   }
 }
 
