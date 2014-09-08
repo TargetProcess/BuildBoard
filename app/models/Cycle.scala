@@ -140,6 +140,7 @@ object BuildAction {
     case PullRequestBuildAction(id, _) => Some(action.name, Some(id), None, action.cycle.name, List[BuildParametersCategory]())
     case BranchBuildAction(branch, _) => Some(action.name, None, Some(branch), action.cycle.name, List[BuildParametersCategory]())
     case customAction@BranchCustomBuildAction(branch, _) => Some(action.name, None, Some(branch), action.cycle.name, customAction.getPossibleBuildParameters)
+    case customAction@PullRequestCustomBuildAction(pullRequestId, _) => Some(action.name, Some(pullRequestId), None, action.cycle.name, customAction.getPossibleBuildParameters)
   }
 }
 
