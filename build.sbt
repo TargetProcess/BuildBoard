@@ -9,7 +9,6 @@ libraryDependencies ++= Seq(
   "se.radley" %% "play-plugins-salat" % "1.3.0",
   "org.eclipse.mylyn.github" % "org.eclipse.egit.github.core" % "2.1.5",
   "org.scalaj" %% "scalaj-http" % "0.3.9" exclude("junit", "junit"),
-  "com.github.nscala-time" %% "nscala-time" % "0.6.0",
   "com.netflix.rxjava" % "rxjava-scala" % "0.17.6",
   "com.github.nscala-time" %% "nscala-time" % "0.8.0",
   "org.specs2" %% "specs2" % "2.3.3",

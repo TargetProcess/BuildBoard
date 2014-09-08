@@ -6,24 +6,18 @@ import java.io.File
 case class BuildParams(branch: String, parameters: Map[String, String])
 
 object BuildParams extends FileApi {
-  val branchNameR = "BRANCHNAME: (.*)".r
+  val branchName = "BRANCHNAME"
   val paramR = "([^:]*): (.*)".r
 
   def apply(file: File) = read(file).flatMap(str => {
     val lines = str.split('\n')
-
-    val name = lines(0) match {
-      case branchNameR(n) => Some(n)
-      case _ => None
-    }
-
-
-    val parameters: Map[String, String] = lines.drop(1)
+    val parameters: Map[String, String] = lines
       .flatMap {
       case paramR(key, value) => Some((key, value))
     }.toMap
 
-    name.map(n => new BuildParams(n, parameters))
+    parameters.get(branchName)
+      .map(n => new BuildParams(n, parameters.filter(_._1 != branchName)))
   })
 }
 
