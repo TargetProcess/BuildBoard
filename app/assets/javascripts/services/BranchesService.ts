@@ -13,7 +13,19 @@ module buildBoard {
 
         constructor(private $backendService:BackendService) {
             this.$backendService = $backendService;
-            this.allBranches = this.$backendService.branches().then(branches => branches.data);
+            this.allBranches = this.$backendService.branches().then(branches => {
+                _.each(branches.data, x => {
+                    x.buildActionsView = [];
+                    if (x.activity) {
+                        _.each(x.activity, act => {
+                            if (act.possibleBuildActions) {
+                                act.possibleBuildActionsView = [];
+                            }
+                        })
+                    }
+                });
+                return branches.data;
+            });
         }
     }
 

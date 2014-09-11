@@ -12,7 +12,7 @@ import play.api.libs.json._
 import scala.util.{Failure, Success}
 import scalaj.http.HttpException
 
-case class ForceBuildParameters(pullRequestId: Option[Int], branchId: Option[String], cycleName: String, parameters: List[BuildParametersCategory]) {
+case class ForceBuildParameters(pullRequestId: Option[Int], branchId: Option[String], cycleName: String, buildNumber: Option[Int], parameters: List[BuildParametersCategory]) {
 }
 
 object Jenkins extends Application {
@@ -25,16 +25,22 @@ object Jenkins extends Application {
 
           val params = json.as[ForceBuildParameters]
 
-          val maybeAction: Option[BuildAction] = (params.pullRequestId, params.branchId, params.parameters) match {
-            case (Some(prId), None, Nil) => Some(PullRequestBuildAction(prId, BuildAction.find(params.cycleName)))
-            case (None, Some(brId), Nil) => Some(BranchBuildAction(brId, BuildAction.find(params.cycleName)))
-            case (None, Some(brId), x::xs) => Some(BranchCustomBuildAction(brId, CustomCycle(x::xs)))
+          val maybeAction: Option[BuildAction] = (params.pullRequestId, params.branchId, params.buildNumber, params.parameters) match {
+            case (Some(prId), None, None, Nil) => Some(PullRequestBuildAction(prId, BuildAction.find(params.cycleName)))
+            case (None, Some(brId), None, Nil) => Some(BranchBuildAction(brId, BuildAction.find(params.cycleName)))
+            case (None, Some(brId), None, x :: xs) => Some(BranchCustomBuildAction(brId, CustomCycle(x :: xs)))
+            case (Some(prId), None, None, x :: xs) => Some(PullRequestCustomBuildAction(prId, CustomCycle(x :: xs)))
+            case (None, Some(brId), Some(buildNumber), x :: xs) => Some(BranchWithArtifactsReuseCustomBuildAction(brId, buildNumber, CustomCycle(x :: xs)))
             case _ => None
           }
 
           maybeAction match {
             case Some(buildAction) =>
-              component.jenkinsService.forceBuild(buildAction) match {
+              val forceBuildResult = buildAction match {
+                case c@BranchWithArtifactsReuseCustomBuildAction(brId, buildNumber, CustomCycle(x :: xs)) => component.jenkinsService.forceReuseArtifactsBuild(c)
+                case _ => component.jenkinsService.forceBuild(buildAction)
+              }
+              forceBuildResult match {
                 case Success(_) => Ok(Json.toJson(Build(-1, params.branchId.getOrElse("this"), Some("In progress"), DateTime.now,
                   name = "", node = Some(BuildNode("this", "this", Some("In progress"), "#", List(), DateTime.now)))))
                 case Failure(e: HttpException) => BadRequest(e.toString)

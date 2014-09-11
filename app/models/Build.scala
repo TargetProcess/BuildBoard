@@ -1,7 +1,6 @@
 package models
 
 import com.github.nscala_time.time.Imports._
-import scala.Some
 
 
 trait IBuildInfo {
@@ -18,7 +17,7 @@ trait IBuildInfo {
 
   def isPullRequest = pullRequestId.isDefined
 
-  val initiator:Option[String]
+  val initiator: Option[String]
 }
 
 case class BuildInfo(number: Int,
@@ -29,8 +28,9 @@ case class BuildInfo(number: Int,
                      commits: List[Commit] = Nil,
                      ref: Option[String] = None,
                      pullRequestId: Option[Int] = None,
-                     initiator:Option[String] = None,
+                     initiator: Option[String] = None,
                      name: String,
+                     possibleBuildActions: List[BuildAction],
                      activityType: String = "build"
                       ) extends ActivityEntry with IBuildInfo {
 
@@ -43,7 +43,7 @@ case class Build(number: Int,
                  toggled: Boolean = false,
                  commits: List[Commit] = Nil,
                  ref: Option[String] = None,
-                 initiator:Option[String] = None,
+                 initiator: Option[String] = None,
                  pullRequestId: Option[Int] = None,
                  name: String,
                  activityType: String = "build",
@@ -59,7 +59,8 @@ case class Build(number: Int,
 }
 
 object BuildImplicits {
-  implicit def toBuildInfo(b: Build): BuildInfo = BuildInfo(b.number, b.branch, b.status, b.timestamp, b.toggled, b.commits, b.ref, b.pullRequestId, b.initiator, b.name)
+  implicit def toBuildInfo(b: Build): BuildInfo = BuildInfo(b.number, b.branch, b.status, b.timestamp, b.toggled, b.commits, b.ref, b.pullRequestId, b.initiator,
+    b.name, List(BranchWithArtifactsReuseCustomBuildAction(b.branch, b.number, CustomCycle(List()))))
 }
 
 

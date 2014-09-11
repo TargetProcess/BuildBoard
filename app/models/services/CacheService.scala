@@ -1,15 +1,20 @@
 package models.services
 
-import scala.util.{Try, Success, Failure}
-import rx.lang.scala.{Subscription, Observable}
+import java.io.File
+import java.nio.file.Path
+
+import components.DefaultRegistry
+import models.AuthInfo
+import models.jenkins.FileApi
 import play.api.Play
 import play.api.Play.current
-import models.AuthInfo
+import rx.lang.scala.{Observable, Subscription}
 import src.Utils.watch
-import components.DefaultRegistry
-import scala.concurrent.duration._
 
-object CacheService {
+import scala.concurrent.duration._
+import scala.util.{Failure, Success, Try}
+
+object CacheService extends FileApi{
   val authInfo: AuthInfo = (for {
     tpToken <- Play.configuration.getString("cache.user.tp.token")
     gToken <- Play.configuration.getString("cache.user.github.token")
@@ -56,14 +61,26 @@ object CacheService {
       play.Logger.error("Error in githubSubscription", error)
     })
 
-    val jenkinsSubscription = Observable.timer(0 seconds, jenkinsInterval)
-      .subscribe(_ => Try {
+    val artifactsDir = new File(directory).toPath
 
+    val dir_watcher = new DirectoryWatcher(artifactsDir, true)
+
+    val jenkinsSubscription = dir_watcher.run().map({ case (dir, event) =>
+      val directoryName = artifactsDir.relativize(dir).subpath(0, 1)
+      println("file updated")
+      if (directoryName.toString == "") {
+        event.context().asInstanceOf[Path].toString
+      }
+      else {
+        directoryName.toString
+      }
+    }).buffer(jenkinsInterval)
+      .subscribe(fileChangedEvents => Try {
       watch("updating builds") {
         val existingBuilds = registry.buildRepository.getBuildInfos.toList
         play.Logger.info(s"existingBuilds: ${existingBuilds.length}")
 
-        val buildToUpdate = registry.jenkinsService.getUpdatedBuilds(existingBuilds)
+        val buildToUpdate = registry.jenkinsService.getUpdatedBuilds(existingBuilds, fileChangedEvents)
         play.Logger.info(s"buildToUpdate: ${buildToUpdate.length}")
 
         for (updatedBuild <- buildToUpdate) {

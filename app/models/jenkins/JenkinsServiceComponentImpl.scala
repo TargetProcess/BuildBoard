@@ -1,12 +1,14 @@
 package models.jenkins
 
-import components.{LoggedUserProviderComponent, BuildRepositoryComponent, BranchRepositoryComponent, JenkinsServiceComponent}
-import models.{Branch, IBuildInfo, Build}
 import java.io.File
+
+import components.{BranchRepositoryComponent, BuildRepositoryComponent, JenkinsServiceComponent, LoggedUserProviderComponent}
+import models.{Branch, Build, IBuildInfo}
 import play.api.Play
-import scala.util.Try
 import scalaj.http.Http
 import play.api.Play.current
+
+import scala.util.Try
 
 
 trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
@@ -21,7 +23,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
   class JenkinsServiceImpl extends JenkinsService with FileApi with ParseFolder {
     private val jenkinsUrl = Play.configuration.getString("jenkins.url").get
 
-    override def getUpdatedBuilds(existingBuilds: List[IBuildInfo]): List[Build] = {
+    override def getUpdatedBuilds(existingBuilds: List[IBuildInfo], buildNamesToUpdate: Seq[String]): List[Build] = {
       val existingBuildsMap: Map[String, IBuildInfo] = existingBuilds.map(x => (x.name, x)).toMap
 
       val allFolders = new Folder(directory).listFiles().filter(_.isDirectory).toList
@@ -30,9 +32,9 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
 
       val foldersToUpdate: List[Folder] = existingBuilds.filter(_.status.isEmpty).map(x => new Folder(directory, x.name))
 
-      val folders: List[Folder] = newFolders ++ foldersToUpdate
+      val folders = newFolders ++ foldersToUpdate ++ buildNamesToUpdate.toList.map(x => new Folder(directory, x))
 
-      val buildSources: List[BuildSource] = folders.flatMap(createBuildSource)
+      val buildSources: List[BuildSource] = folders.distinct.flatMap(createBuildSource)
 
       val result: List[Build] = buildSources.flatMap(buildSource => {
         val name: String = buildSource.folder.getName
@@ -53,9 +55,8 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
       }
     }
 
-
     def createBuildSource(folder: Folder): Option[BuildSource] = {
-      val paramsFile = new File(folder, "Build/StartBuild/StartBuild.params")
+      val paramsFile = getParamsFile(folder)
 
       for {
         buildParams <- BuildParams(paramsFile)
@@ -65,6 +66,9 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
       } yield BuildSource(branch.name, buildNumber, prId, folder, buildParams)
     }
 
+    def getParamsFile(folder: Folder): File = {
+      new File(folder, "Build/StartBuild/StartBuild.params")
+    }
 
     def findBuild(branch: Branch, buildId: Int): Option[Build] = buildRepository.getBuild(branch, buildId)
 
@@ -84,5 +88,51 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
         .params(parameters)
         .asString
     }
+
+    def forceReuseArtifactsBuild(action: models.BranchWithArtifactsReuseCustomBuildAction) = Try {
+
+      //This is Jenkins logic for naming artifacts folders
+      val branchArtifactsFolderName = action.branch.replace("feature/", "").replace("merge/", "").replace("origin/", "")
+
+      val buildFolder = new Folder(s"$directory/${branchArtifactsFolderName}_${action.buildNumber}")
+      val maybeRevision = read(new File(buildFolder, "Artifacts/Revision.txt")).map(x => x.replaceAll("REVISION=", ""))
+
+      val url = s"$jenkinsUrl/job/RunFuncTestsCopy/buildWithParameters"
+
+      val paramsFile = getParamsFile(buildFolder)
+      val maybeBuildParams = BuildParams(paramsFile)
+
+      play.Logger.info(s"Build Folder $buildFolder")
+      play.Logger.info(s"Revision $maybeRevision")
+      play.Logger.info(s"Params file $paramsFile")
+      play.Logger.info(s"Build Params $maybeBuildParams")
+
+      val params = for {
+        revision <- maybeRevision.toList
+        buildParams <- maybeBuildParams.toList
+        param <- buildParams.parameters.map {
+          case ("Cycle", value) => ("CYCLE", value)
+          case ("BUILDPATH", value) => ("BUILDPATH", value + "\\FuncTests")
+          case ("LOCAL_BRANCH", value) => ("LOCALREPONAME", value)
+          case ("ARTIFACTS", value) => ("ARTIFACTS", value)
+          case (_, _) => ("", "")
+        }
+          .filter(x => x._1 != "")
+          .++(List(
+          ("FILTER", action.cycle.parameters.find(x => x.name == models.Cycle.funcTestsCategoryName).map(x => x.parts.mkString(" ")).getOrElse("")),
+          ("VERSION", revision + "." + action.buildNumber),
+          ("RERUN", "true"),
+          ("BUILDPRIORITY", "10")
+        ))
+      } yield param
+
+
+      play.Logger.info(s"Force build to $url with parameters $params")
+
+      Http.post(url)
+        .params(params.toList)
+        .asString
+    }
   }
+
 }

@@ -1,11 +1,10 @@
 package components
 
-import scala.util.Try
-import models._
 import java.io.File
-import models.BuildNode
-import models.Branch
-import models.Build
+
+import models.{Branch, Build, BuildNode, _}
+
+import scala.util.Try
 
 trait JenkinsServiceComponent {
 
@@ -15,7 +14,9 @@ trait JenkinsServiceComponent {
   trait JenkinsService {
     def forceBuild(action: models.BuildAction): Try[String]
 
-    def getUpdatedBuilds(existingBuilds:List[IBuildInfo]):List[Build]
+    def forceReuseArtifactsBuild(action: models.BranchWithArtifactsReuseCustomBuildAction): Try[String]
+
+    def getUpdatedBuilds(existingBuilds:List[IBuildInfo], buildNamesToUpdate: Seq[String]):List[Build]
 
     def getTestRun(branch: Branch, buildNumber: Int, part: String, run: String) : Option[BuildNode]
 
