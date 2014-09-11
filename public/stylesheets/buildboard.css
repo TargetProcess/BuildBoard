@@ -1,5 +1,5 @@
 .category-list {
-    width: 380px;
+    width: 320px;
     font-size: 12px;
 }
 
@@ -34,7 +34,7 @@
 .dropdown-menu{
     overflow: hidden;
     max-height: 600px;
-    max-width: 300px;
+    max-width: 360px;
 }
 .custom-parts-build {
     position: relative;

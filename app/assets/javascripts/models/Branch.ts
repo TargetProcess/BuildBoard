@@ -20,6 +20,7 @@ module buildBoard {
         builds:Build[];
         activity:ActivityEntry[];
         buildActions:BuildAction[];
+        buildActionsView:BuildAction[];
     }
 
     export interface PullRequest extends ActivityEntry {
@@ -61,6 +62,8 @@ module buildBoard {
         toggled:boolean;
         status:string;
         parsedStatus:Status;
+        possibleBuildActions:BuildAction[];
+        possibleBuildActionsView:BuildAction[];
     }
 
     export interface Build extends BuildBase {

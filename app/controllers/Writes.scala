@@ -13,17 +13,18 @@ object Writes {
   implicit val testCasePackageWrite: Writes[TestCasePackage] = Json.writes[TestCasePackage]
   implicit val buildNodeWrite: Writes[BuildNode] = Json.writes[BuildNode]
   implicit val commitWrite: Writes[Commit] = Json.writes[Commit]
-  implicit val buildInfoWrite = Json.writes[BuildInfo]
   implicit val buildWrite = Json.writes[Build]
   implicit val mergeResultWrite = Json.writes[MergeResult]
   implicit val buildParametersCategoryWrite = Json.writes[BuildParametersCategory]
 
 
-implicit val buildActionWrite = ((__ \ "name").write[String] ~
+  implicit val buildActionWrite = ((__ \ "name").write[String] ~
     (__ \ "pullRequestId").writeNullable[Int] ~
     (__ \ "branchId").writeNullable[String] ~
     (__ \ "cycleName").write[String] ~
     (__ \ "buildParametersCategories").write(list(buildParametersCategoryWrite)))(unlift(BuildAction.unapply))
+
+  implicit val buildInfoWrite = Json.writes[BuildInfo]
 
   implicit val entityAssignment = Json.writes[Assignment]
   implicit val entityStateWrite = Json.writes[EntityState]

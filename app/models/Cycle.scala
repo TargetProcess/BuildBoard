@@ -46,10 +46,10 @@ case class CustomCycle(parameters: List[BuildParametersCategory]) extends Cycle 
   override val includeSlice: Boolean = getBoolByCategory(sliceCategoryName)
   override val includeCasper: Boolean = getBoolByCategory(casperCategoryName)
   override val includeDb: Boolean = getBoolByCategory(dbCategoryName)
-  val fullBuildCycle:Boolean = getBoolByCategory(cycleTypeCategoryName)
+  val fullBuildCycle: Boolean = getBoolByCategory(cycleTypeCategoryName)
 
   def getBoolByCategory(categoryName: String): Boolean = {
-    parameters.find(x => x.name == categoryName).map(x => !x.parts.isEmpty).getOrElse(false)
+    parameters.find(x => x.name == categoryName).exists(x => x.parts.nonEmpty)
   }
 
   def getTestsByCategory(categoryName: String): String = {
@@ -141,16 +141,17 @@ object BuildAction {
     case BranchBuildAction(branch, _) => Some(action.name, None, Some(branch), action.cycle.name, List[BuildParametersCategory]())
     case customAction@BranchCustomBuildAction(branch, _) => Some(action.name, None, Some(branch), action.cycle.name, customAction.getPossibleBuildParameters)
     case customAction@PullRequestCustomBuildAction(pullRequestId, _) => Some(action.name, Some(pullRequestId), None, action.cycle.name, customAction.getPossibleBuildParameters)
+    case customAction@BranchWithArtifactsReuseCustomBuildAction(branch, _, _) => Some(action.name, None, Some(branch), action.cycle.name, customAction.getPossibleBuildParameters)
   }
 }
 
-trait BranchBuildActionTrait extends BuildAction{
+trait BranchBuildActionTrait extends BuildAction {
   val branch: String
   val branchName: String = s"origin/$branch"
   val name = s"Build ${cycle.friendlyName} on branch"
 }
 
-trait PullRequestBuildActionTrait extends BuildAction{
+trait PullRequestBuildActionTrait extends BuildAction {
   val pullRequestId: Int
   val branchName: String = s"origin/pr/$pullRequestId/merge"
   val name = s"Build ${cycle.friendlyName} on pull request"
@@ -165,15 +166,24 @@ case class BranchBuildAction(branch: String, cycle: Cycle) extends BranchBuildAc
 case class BuildParametersCategory(name: String, parts: List[String]) {
 }
 
-case class PullRequestCustomBuildAction(pullRequestId: Int, cycle: CustomCycle) extends CustomBuildAction with PullRequestBuildActionTrait{
+case class PullRequestCustomBuildAction(pullRequestId: Int, cycle: CustomCycle) extends CustomBuildAction with PullRequestBuildActionTrait {
 
 }
 
-case class BranchCustomBuildAction(branch: String, cycle: CustomCycle) extends CustomBuildAction with BranchBuildActionTrait{
+case class BranchCustomBuildAction(branch: String, cycle: CustomCycle) extends CustomBuildAction with BranchBuildActionTrait {
+}
+
+case class BranchWithArtifactsReuseCustomBuildAction(branch: String, buildNumber: Int, cycle: CustomCycle) extends CustomBuildAction with BranchBuildActionTrait {
+  override val name = s"Build ${cycle.friendlyName} on this artifacts "
+  override def getPossibleBuildParameters: List[BuildParametersCategory] = {
+    //hack to remove build full package category
+     super.getPossibleBuildParameters.filterNot(x => x.name == cycle.cycleTypeCategoryName)
+  }
 }
 
 trait CustomBuildAction extends BuildAction {
   val cycle: CustomCycle
+
   def getPossibleBuildParameters: List[BuildParametersCategory] = {
     val cycleName = cycle.name
     val config = Play.configuration.getConfig(s"build.cycle.$cycleName").get
