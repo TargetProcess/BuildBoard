@@ -30,6 +30,12 @@
 
 // Optional heading
 .panel-heading {
+
+  &.success {
+    box-shadow: @panel-box-shadow-size darken(@success, 20%);
+    background-color: fadeout(@success, 40%);
+  }
+
   .clearfix;
 
   .dropdown {
