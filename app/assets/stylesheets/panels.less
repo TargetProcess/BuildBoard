@@ -13,6 +13,7 @@
   border-radius: @radius;
   box-shadow: @panel-box-shadow-size rgba(0, 0, 0, 0.3);
 
+
   &.warning {
     box-shadow: @panel-box-shadow-size @warning;
   }
@@ -30,6 +31,12 @@
 
 // Optional heading
 .panel-heading {
+
+  &.success {
+    box-shadow: @panel-box-shadow-size darken(@success, 20%);
+    background-color: fadeout(@success, 40%);
+  }
+
   .clearfix;
 
   .dropdown {
