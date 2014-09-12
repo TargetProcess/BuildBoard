@@ -79,6 +79,7 @@ object CacheService extends FileApi{
       watch("updating builds") {
         val existingBuilds = registry.buildRepository.getBuildInfos.toList
         play.Logger.info(s"existingBuilds: ${existingBuilds.length}")
+        play.Logger.info(s"files changed: ${fileChangedEvents}")
 
         val buildToUpdate = registry.jenkinsService.getUpdatedBuilds(existingBuilds, fileChangedEvents)
         play.Logger.info(s"buildToUpdate: ${buildToUpdate.length}")

@@ -99,13 +99,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
 
       val url = s"$jenkinsUrl/job/RunFuncTestsCopy/buildWithParameters"
 
-      val paramsFile = getParamsFile(buildFolder)
-      val maybeBuildParams = BuildParams(paramsFile)
-
-      play.Logger.info(s"Build Folder $buildFolder")
-      play.Logger.info(s"Revision $maybeRevision")
-      play.Logger.info(s"Params file $paramsFile")
-      play.Logger.info(s"Build Params $maybeBuildParams")
+      val maybeBuildParams = BuildParams(getParamsFile(buildFolder))
 
       val params = for {
         revision <- maybeRevision.toList

@@ -8,6 +8,7 @@ module buildBoard {
             branch: "=",
             buildNumber: "=",
             buildActionsView: "=",
+            isActivityBuild: "=",
             type: "@"
         };
         controller = LastBuildStatusController;
@@ -23,7 +24,9 @@ module buildBoard {
             this.$scope.forceBuild = (buildAction:BuildAction) => {
                 backendService.forceBuild(buildAction, this.$scope.buildNumber).success(buildResult=> {
                     this.$scope.showList = false;
-                    this.$scope.build = buildResult;
+                    if (!this.$scope.isActivityBuild) {
+                        this.$scope.build = buildResult;
+                    }
                 });
             };
 

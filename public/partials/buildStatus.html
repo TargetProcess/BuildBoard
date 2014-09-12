@@ -2,8 +2,8 @@
     <a ng-show="build" ng-click="showList = !showList" href=""
        class="jenkins status {{type}} {{ getBuildStatus(build) | status2Class }} dropdown-toggle"
        title="{{ getBuildStatus(build) | status2text }}">
-        <span ng-show="buildActions">{{ build.timestamp | date }}</span>
-        <span ng-hide="buildActions">{{ getBuildStatus(build) | status2text }}</span>
+        <span ng-hide="isActivityBuild">{{ build.timestamp | date }}</span>
+        <span ng-show="isActivityBuild">{{ getBuildStatus(build) | status2text }}</span>
     </a>
     <a ng-show="!build" ng-click="showList = !showList" href="" class="jenkins status {{type}} dropdown-toggle" data-toggle="dropdown">
         Never built
