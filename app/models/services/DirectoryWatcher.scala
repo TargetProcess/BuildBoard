@@ -107,15 +107,15 @@ class DirectoryWatcher(val path: Path, val recursive: Boolean) {
                         registerAll(child)
                       }
                     } catch {
-                      case ioe: IOException => println("IOException: " + ioe)
-                      case e: Exception => println("Exception: " + e)
+                      case ioe: IOException => play.Logger.info("IOException: " + ioe)
+                      case e: Exception => play.Logger.info("Exception: " + e)
                         break()
                     }
                   }
                 }
               })
             } else {
-              println("WatchKey not recognized!!")
+              play.Logger.info("WatchKey not recognized!!")
             }
 
             if (!key.reset()) {
@@ -127,9 +127,9 @@ class DirectoryWatcher(val path: Path, val recursive: Boolean) {
           }
         }
       } catch {
-        case ie: InterruptedException => println("InterruptedException: " + ie)
-        case ioe: IOException => println("IOException: " + ioe)
-        case e: Exception => println("Exception: " + e)
+        case ie: InterruptedException => play.Logger.info("InterruptedException: " + ie)
+        case ioe: IOException => play.Logger.info("IOException: " + ioe)
+        case e: Exception => play.Logger.info("Exception: " + e)
       }
     }
     future.onFailure { case (x: Throwable) => observable.onError(x)}
