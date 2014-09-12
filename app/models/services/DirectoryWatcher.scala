@@ -99,6 +99,7 @@ class DirectoryWatcher(val path: Path, val recursive: Boolean) {
                   val name = event.context().asInstanceOf[Path]
                   val child = dir.resolve(name)
 
+                  play.Logger.info("File changed "  + dir)
                   observable.onNext((dir, event))
 
                   if (recursive && (kind == StandardWatchEventKinds.ENTRY_CREATE)) {

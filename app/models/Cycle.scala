@@ -9,6 +9,10 @@ import scala.util.Try
 object Cycle {
   val unitTestsCategoryName = "unitTests"
   val funcTestsCategoryName = "funcTests"
+  val sliceCategoryName = "SliceLoadTests"
+  val cometCategoryName = "CometTests"
+  val casperCategoryName = "CasperTests"
+  val dbCategoryName = "DbTests"
 }
 
 trait Cycle {
@@ -27,10 +31,7 @@ trait Cycle {
 }
 
 case class CustomCycle(parameters: List[BuildParametersCategory]) extends Cycle {
-  val sliceCategoryName = "SliceLoadTests"
-  val cometCategoryName = "CometTests"
-  val casperCategoryName = "CasperTests"
-  val dbCategoryName = "DbTests"
+
   val cycleTypeCategoryName = "CycleType"
 
   override val name = "Custom"
@@ -41,11 +42,11 @@ case class CustomCycle(parameters: List[BuildParametersCategory]) extends Cycle 
   override val includeUnstable: Boolean = false
 
   override val unitTests: String = getTestsByCategory(Cycle.unitTestsCategoryName)
-  override val includeComet: Boolean = getBoolByCategory(cometCategoryName)
+  override val includeComet: Boolean = getBoolByCategory(Cycle.cometCategoryName)
   override val funcTests: String = getTestsByCategory(Cycle.funcTestsCategoryName)
-  override val includeSlice: Boolean = getBoolByCategory(sliceCategoryName)
-  override val includeCasper: Boolean = getBoolByCategory(casperCategoryName)
-  override val includeDb: Boolean = getBoolByCategory(dbCategoryName)
+  override val includeSlice: Boolean = getBoolByCategory(Cycle.sliceCategoryName)
+  override val includeCasper: Boolean = getBoolByCategory(Cycle.casperCategoryName)
+  override val includeDb: Boolean = getBoolByCategory(Cycle.dbCategoryName)
   val fullBuildCycle: Boolean = getBoolByCategory(cycleTypeCategoryName)
 
   def getBoolByCategory(categoryName: String): Boolean = {
@@ -191,10 +192,10 @@ trait CustomBuildAction extends BuildAction {
       BuildParametersCategory(cycle.cycleTypeCategoryName, List("build full package")),
       BuildParametersCategory(Cycle.unitTestsCategoryName, config.getStringList(Cycle.unitTestsCategoryName).get.asScala.toList.distinct),
       BuildParametersCategory(Cycle.funcTestsCategoryName, config.getStringList(Cycle.funcTestsCategoryName).get.asScala.toList.distinct),
-      BuildParametersCategory(cycle.cometCategoryName, List("Include")),
-      BuildParametersCategory(cycle.sliceCategoryName, List("Include")),
-      BuildParametersCategory(cycle.casperCategoryName, List("Include")),
-      BuildParametersCategory(cycle.dbCategoryName, List("Include"))
+      BuildParametersCategory(Cycle.cometCategoryName, List("Include")),
+      BuildParametersCategory(Cycle.sliceCategoryName, List("Include")),
+      BuildParametersCategory(Cycle.casperCategoryName, List("Include")),
+      BuildParametersCategory(Cycle.dbCategoryName, List("Include"))
     )
   }
 }
