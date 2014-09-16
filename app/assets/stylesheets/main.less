@@ -558,14 +558,38 @@ a {
   &.in_progress:before {
     .sprite-icon(-94px -175px);
   }
+  &.start-build {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    display: block;
+    text-align: center;
+    width: 100%;
+    padding-left: 0 !important;
+    .btn {
+      display: block;
+      width: 100%;
+      text-align: center;
+    }
+
+  }
+  &.collapse:hover {
+    background: transparent;
+    color: #000000;
+  }
 }
 
 .dropdown-menu .jenkins {
   margin-left: 0;
+  text-decoration: none;
   padding-left: 28px;
 
   &:before {
     left: 12px;
+  }
+  &.collapse {
+    cursor: pointer;
+    text-decoration: underline;
   }
 }
 

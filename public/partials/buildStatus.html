@@ -14,20 +14,28 @@
         <hr ng-show="build && buildActions">
         <li class="dropdown" ng-repeat="action in buildActions">
 
-            <a class="jenkins" href="" ng-click="forceBuild(action)">{{action.name}}</a>
-            <ul onclick="event.stopPropagation();" ng-repeat="category in action.buildParametersCategories" class="category-list">
-                <li class="category-list__item">
-                    <div class="category-list__name">{{category.name}}</div>
-                    <ul class="category-list__parameters">
-                        <li ng-repeat="part in category.parts" class="category-list__parameters__item">
-                            <label>
-                                <input onclick="" type="checkbox" checklist-model="category.selectedParts" checklist-value="part" class="category-list__checkbox">
-                                {{part}}
-                            </label>
+            <a class="jenkins" ng-show="action.buildParametersCategories.length === 0" href="" ng-click="forceBuild(action)">{{action.name}}</a>
+            <a class="jenkins collapse action"  ng-show="action.buildParametersCategories.length" onclick="event.stopPropagation();" ng-click="toggleParameters(action);">{{action.name}}</a>
+            <div class="custom-parts-build" ng-show="action.showParameters">
+                <div class="custom-parts-build_categories">
+                    <ul  onclick="event.stopPropagation();" ng-repeat="category in action.buildParametersCategories" class="category-list">
+                        <li class="category-list__item">
+                            <div class="category-list__name">{{category.name}}</div>
+                            <ul class="category-list__parameters">
+                                <li ng-repeat="part in category.parts" class="category-list__parameters__item">
+                                    <label>
+                                        <input onclick="" type="checkbox" checklist-model="category.selectedParts" checklist-value="part" class="category-list__checkbox">
+                                        {{part}}
+                                    </label>
+                                </li>
+                            </ul>
                         </li>
                     </ul>
-                </li>
-            </ul>
+                </div>
+                <nav class="jenkins start-build">
+                        <button type="button"  ng-click="forceBuild(action)" class="btn btn-success">Start</button>
+                </nav>
+            </div>
         </li>
     </ul>
 </div>

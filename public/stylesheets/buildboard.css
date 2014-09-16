@@ -32,12 +32,20 @@
 }
 
 .dropdown-menu{
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;
     max-height: 600px;
     max-width: 300px;
 }
-
+.custom-parts-build {
+    position: relative;
+    overflow: hidden;
+}
+.custom-parts-build_categories {
+    max-height: 290px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin-bottom: 32px;
+}
 .view .dropdown-menu{
     left: -85px;
 }
