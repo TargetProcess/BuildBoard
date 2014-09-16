@@ -20,12 +20,23 @@ module buildBoard {
         constructor(private $scope:any, backendService:BackendService) {
             this.$scope.forceBuild = (buildAction:BuildAction) => {
                 backendService.forceBuild(buildAction).success(build=> {
+                    this.$scope.showList = false;
                     this.$scope.build = build;
                 });
             };
+            var timeoutId;
+            this.$scope.clearTimeoutOnFocus = () => {
+                window.clearTimeout(timeoutId);
+            };
+            this.$scope.hideOnBlur = () => {
+                timeoutId = setTimeout(() => {
+                    this.$scope.showList = false;
+                    this.$scope.$digest()
+                }, 200);
+            };
             this.$scope.toggleParameters = (buildAction:BuildAction) => {
                 var currentState = buildAction.showParameters;
-                this.$scope.buildActions.forEach(function(buildAction:BuildAction){
+                this.$scope.buildActions.forEach(function (buildAction:BuildAction) {
                     buildAction.showParameters = false;
                 });
                 buildAction.showParameters = !currentState;

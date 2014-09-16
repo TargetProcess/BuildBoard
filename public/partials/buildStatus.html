@@ -1,18 +1,18 @@
-<div class="dropdown">
-    <a ng-show="build" href=""
+<div onclick="this.focus();" onfocusin="this.focus();" ng-focus="clearTimeoutOnFocus()"  ng-blur="hideOnBlur();" tabindex="-1" class="dropdown open">
+    <a ng-show="build" ng-click="showList = !showList" href=""
        class="jenkins status {{type}} {{ getBuildStatus(build) | status2Class }} dropdown-toggle"
        title="{{ getBuildStatus(build) | status2text }}">
         <span ng-show="buildActions">{{ build.timestamp | date }}</span>
         <span ng-hide="buildActions">{{ getBuildStatus(build) | status2text }}</span>
     </a>
-    <a ng-show="!build" href="" class="jenkins status {{type}} dropdown-toggle" data-toggle="dropdown">
+    <a ng-show="!build" ng-click="showList = !showList" href="" class="jenkins status {{type}} dropdown-toggle" data-toggle="dropdown">
         Never built
     </a>
-    <ul class="dropdown-menu">
+    <ul ng-if="showList" class="dropdown-menu">
         <li ng-show="build"><a href="{{build.url}}" class="jenkins active">Go to Jenkins</a></li>
         <li ng-show="build"><a href="" ng-click="toggleBuild(build)" class="jenkins">Toggle build</a></li>
         <hr ng-show="build && buildActions">
-        <li class="dropdown" ng-repeat="action in buildActions">
+        <li class="dropdown" ng-repeat="action in buildActions track by $index">
 
             <a class="jenkins" ng-show="action.buildParametersCategories.length === 0" href="" ng-click="forceBuild(action)">{{action.name}}</a>
             <a class="jenkins collapse action"  ng-show="action.buildParametersCategories.length" onclick="event.stopPropagation();" ng-click="toggleParameters(action);">{{action.name}}</a>

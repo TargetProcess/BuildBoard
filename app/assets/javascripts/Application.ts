@@ -6,7 +6,7 @@
 module buildBoard {
     'use strict';
 
-    angular.module('buildBoard', ['ui.router', 'ui.bootstrap', 'checklist-model'])
+    angular.module('buildBoard', ['ui.router', 'checklist-model'])
         .service(HttpServiceNotificationDecorator.NAME, HttpServiceNotificationDecorator)
         .service(BackendService.NAME, BackendService)
         .service(LoggedUserService.NAME, LoggedUserService)
