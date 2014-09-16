@@ -86,6 +86,7 @@ module buildBoard {
 
     export interface BuildAction {
         branchId:string;
+        showParameters:boolean;
         pullRequestId:number;
         cycleName:string;
         buildParametersCategories: BuildParametersCategory[]

@@ -18,15 +18,19 @@ module buildBoard {
         public static $inject = ['$scope', BackendService.NAME];
 
         constructor(private $scope:any, backendService:BackendService) {
-
             this.$scope.forceBuild = (buildAction:BuildAction) => {
                 backendService.forceBuild(buildAction).success(build=> {
                     this.$scope.build = build;
                 });
             };
-
+            this.$scope.toggleParameters = (buildAction:BuildAction) => {
+                var currentState = buildAction.showParameters;
+                this.$scope.buildActions.forEach(function(buildAction:BuildAction){
+                    buildAction.showParameters = false;
+                });
+                buildAction.showParameters = !currentState;
+            };
             this.$scope.getBuildStatus = StatusHelper.parse;
-
             this.$scope.toggleBuild = (build:Build)=> {
                 var branch = this.$scope.branch;
                 var toggled = !build.toggled;
