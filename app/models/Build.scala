@@ -66,7 +66,7 @@ case class BuildNode(
     getTestCasesInner(testResults)
   }
 
-  val buildStatus:BuildStatusBase = BuildStatus.calculate(status, children)
+  val buildStatus:BuildStatusBase = BuildStatus.getBuildStatus(status, children)
 }
 
 case class BuildToggle(branch: String, buildNumber: Int)

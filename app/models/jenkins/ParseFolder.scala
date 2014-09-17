@@ -117,7 +117,7 @@ trait ParseFolder extends FileApi with Artifacts {
         case nme => (nme, nme)
       }
 
-      val buildStatus:BuildStatusBase = BuildStatus.calculate(status, children)
+      val buildStatus:BuildStatusBase = BuildStatus.getBuildStatus(status, children)
 
       Some(BuildNode(name, runName, Some(buildStatus.name), statusUrl.getOrElse(""), artifacts, new DateTime(timestamp), children))
     }
