@@ -33,7 +33,7 @@ object BuildStatus {
       }
 
 
-  def calculate(status: Option[String], children: List[BuildNode]): BuildStatusBase = {
+  def getBuildStatus(status: Option[String], children: List[BuildNode]): BuildStatusBase = {
 
     if (children.isEmpty)
       BuildStatus(status, toggled = false)
