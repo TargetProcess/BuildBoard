@@ -32,6 +32,26 @@ object BuildStatus {
         }
       }
 
+
+  def calculate(status: Option[String], children: List[BuildNode]): BuildStatusBase = {
+
+    if (children.isEmpty)
+      BuildStatus(status, toggled = false)
+    else
+      children.foldLeft[BuildStatusBase](BuildStatus.Unknown)((status, node) => {
+        val nodeStatus: BuildStatusBase = node.buildStatus
+        (status, nodeStatus) match {
+          case (BuildStatus.Failure, _) => BuildStatus.Failure
+          case (BuildStatus.Aborted, _) => BuildStatus.Aborted
+          case (BuildStatus.TimedOut, _) => BuildStatus.TimedOut
+          case (BuildStatus.InProgress, _) => BuildStatus.InProgress
+          case _ => nodeStatus
+        }
+      })
+
+  }
+
+
   case object Unknown extends BuildStatusBase("unknown", None)
 
   case object Failure extends BuildStatusBase("failure") {

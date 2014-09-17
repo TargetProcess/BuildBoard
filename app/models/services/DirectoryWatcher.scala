@@ -39,10 +39,8 @@ class DirectoryWatcher(val path: Path, val recursive: Boolean) {
     if (trace) {
       val prev = keys.getOrElse(key, null)
       if (prev == null) {
-        println("register: " + dir)
       } else {
         if (!dir.equals(prev)) {
-          println("update: " + prev + " -> " + dir)
         }
       }
     }
@@ -78,9 +76,7 @@ class DirectoryWatcher(val path: Path, val recursive: Boolean) {
     val future = Future {
       try {
         if (recursive) {
-          println("Scanning " + path + "...")
           registerAll(path)
-          println("Done.")
         } else {
           register(path)
         }

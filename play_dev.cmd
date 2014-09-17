@@ -1,1 +1,1 @@
-play -Dconfig.resource=dev.conf
+play debug -Dconfig.resource=dev.conf

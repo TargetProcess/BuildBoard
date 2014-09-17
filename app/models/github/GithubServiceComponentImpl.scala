@@ -33,9 +33,11 @@ trait GithubServiceComponentImpl extends GithubServiceComponent {
       PullRequestStatus(pr.isMergeable, pr.isMerged)
     }
 
-    private def createBranch(branch: org.eclipse.egit.github.core.RepositoryBranch) = Branch(branch.getName, GithubApplication.url(branch.getName))
+    private def createBranch(branch: org.eclipse.egit.github.core.RepositoryBranch) =
+      Branch(branch.getName, GithubApplication.url(branch.getName))
 
-    private def createPullRequest(pr: PR): PullRequest = PullRequest(pr.getHead.getRef, pr.getNumber, pr.getHtmlUrl, new DateTime(pr.getCreatedAt), PullRequestStatus(pr.isMergeable, pr.isMerged))
+    private def createPullRequest(pr: PR): PullRequest =
+      PullRequest(pr.getHead.getRef, pr.getNumber, pr.getHtmlUrl, new DateTime(pr.getCreatedAt), PullRequestStatus(pr.isMergeable, pr.isMerged))
 
     def mergePullRequest(number: Int, user: User): MergeResult = {
       val status = prService.merge(repo, number, s"Merged by ${user.fullName} (${user.githubLogin})")

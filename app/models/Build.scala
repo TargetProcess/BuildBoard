@@ -27,7 +27,13 @@ case class Build(number: Int,
     node.map(getTestRunBuildNodeInner).flatten
   }
 
-  val buildStatus = BuildStatus(status, toggled)
+  val buildStatus = {
+    val selfStatus = BuildStatus(status, toggled)
+    if (selfStatus == BuildStatus.Toggled)
+      selfStatus
+    else
+      node.map(_.buildStatus).getOrElse(selfStatus)
+  }
 
   def isPullRequest = pullRequestId.isDefined
 }
@@ -59,6 +65,8 @@ case class BuildNode(
 
     getTestCasesInner(testResults)
   }
+
+  val buildStatus:BuildStatusBase = BuildStatus.calculate(status, children)
 }
 
 case class BuildToggle(branch: String, buildNumber: Int)

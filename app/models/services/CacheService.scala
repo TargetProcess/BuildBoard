@@ -33,34 +33,6 @@ object CacheService extends FileApi{
 
 
   def start = {
-    val githubSubscription = Observable.timer(0 seconds, githubInterval)
-      .map(_ => Try {
-      registry.branchService.getBranches
-    })
-      .subscribe({
-      case Success(data) =>
-        val branches = registry.branchRepository.getBranches
-        watch("removing obsolete branches") {
-          Try {
-            branches
-              .filter(b => !data.exists(_.name == b.name))
-              .foreach(branch => {
-              registry.branchRepository.remove(branch)
-              registry.buildRepository.removeAll(branch)
-            })
-          }
-        }
-        watch("updating branches") {
-          Try {
-            data.foreach(branch => registry.branchRepository.update(branch))
-          }
-        }
-      case Failure(e) => play.Logger.error("Error", e)
-    },
-    error => {
-      play.Logger.error("Error in githubSubscription", error)
-    })
-
     val artifactsDir = new File(directory).toPath
 
     val dir_watcher = new DirectoryWatcher(artifactsDir, true)
@@ -98,8 +70,39 @@ object CacheService extends FileApi{
         })
 
     Subscription {
-      githubSubscription.unsubscribe()
+      subscribeToGithub.unsubscribe()
       jenkinsSubscription.unsubscribe()
     }
+  }
+
+  def subscribeToGithub: Subscription = {
+    val githubSubscription = Observable.timer(0 seconds, githubInterval)
+      .map(_ => Try {
+      registry.branchService.getBranches
+    })
+      .subscribe({
+      case Success(data) =>
+        val branches = registry.branchRepository.getBranches
+        watch("removing obsolete branches") {
+          Try {
+            branches
+              .filter(b => !data.exists(_.name == b.name))
+              .foreach(branch => {
+              registry.branchRepository.remove(branch)
+              registry.buildRepository.removeAll(branch)
+            })
+          }
+        }
+        watch("updating branches") {
+          Try {
+            data.foreach(branch => registry.branchRepository.update(branch))
+          }
+        }
+      case Failure(e) => play.Logger.error("Error", e)
+    },
+    error => {
+      play.Logger.error("Error in githubSubscription", error)
+    })
+    githubSubscription
   }
 }

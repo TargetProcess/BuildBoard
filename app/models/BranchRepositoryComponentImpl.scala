@@ -33,7 +33,7 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
     }
 
 
-    def getBranchInfos: List[Branch] = {
+    def getBranches: List[Branch] = {
       val builds = buildRepository.getBuilds.toList
 
 
@@ -58,8 +58,6 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
     }
 
     def getBranch(id: String): Option[Branch] = Branches.findOne(MongoDBObject("name" -> id))
-
-    def getBranches: List[Branch] = Branches.findAll().toList
 
     def remove(branch: Branch): Unit = Branches.remove(branch)
 
