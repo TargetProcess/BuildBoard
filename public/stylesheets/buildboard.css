@@ -50,6 +50,11 @@
     left: -85px;
 }
 
+.panel-heading .dropdown-menu{
+    left: -134px;
+}
+
+
 .view .dropdown-menu_state {
     left: 0;
 }

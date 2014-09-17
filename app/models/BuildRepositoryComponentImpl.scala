@@ -8,8 +8,6 @@ import com.novus.salat.dao.{SalatDAO, ModelCompanion}
 import se.radley.plugin.salat._
 import com.mongodb.casbah.Imports._
 import se.radley.plugin.salat.Binders.ObjectId
-import BuildImplicits._
-
 
 trait BuildRepositoryComponentImpl extends BuildRepositoryComponent {
   val buildRepository: BuildRepository = new BuildRepositoryImpl
@@ -38,25 +36,25 @@ trait BuildRepositoryComponentImpl extends BuildRepositoryComponent {
       "isPullRequest" -> "isPullRequest",
       "toggled" -> "toggled")
 
-    def getBuilds(branch: Branch) = Builds.find(MongoDBObject("branch" -> branch.name))
+    override def getBuilds(branch: Branch) = Builds.find(MongoDBObject("branch" -> branch.name))
 
-    def getBuildInfos: Iterator[BuildInfo] = Builds.findAll().map(toBuildInfo)
+    override def getBuilds: Iterator[Build] = Builds.findAll()
 
     def getBuildInfos(branch: Branch) = findInner(MongoDBObject("branch" -> branch.name))
 
-    private def findInner(predicate: DBObject) = Builds.find(predicate, buildInfoProjection).map(toBuildInfo)
+    private def findInner(predicate: DBObject) = Builds.find(predicate, buildInfoProjection)
 
 
-    def getBuild(branch: Branch, number: Int): Option[Build] = Builds.findOne(MongoDBObject("number" -> number, "branch" -> branch.name))
+    override def getBuild(branch: Branch, number: Int): Option[Build] = Builds.findOne(MongoDBObject("number" -> number, "branch" -> branch.name))
 
-    def toggleBuild(branch: Branch, number: Int, toggled: Boolean): Option[BuildInfo] = {
+    override def toggleBuild(branch: Branch, number: Int, toggled: Boolean): Option[Build] = {
       val predicate = MongoDBObject("branch" -> branch.name, "number" -> number)
       val build = Builds.findOne(predicate)
         .map(b => b.copy(toggled = toggled))
 
       build.foreach(b => Builds.update(predicate, b, upsert = false, multi = false, Builds.dao.collection.writeConcern))
 
-      build.map(toBuildInfo)
+      build
     }
 
 

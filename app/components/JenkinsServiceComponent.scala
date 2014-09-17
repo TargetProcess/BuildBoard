@@ -16,7 +16,7 @@ trait JenkinsServiceComponent {
 
     def forceReuseArtifactsBuild(action: models.BranchWithArtifactsReuseCustomBuildAction): Try[String]
 
-    def getUpdatedBuilds(existingBuilds:List[IBuildInfo], buildNamesToUpdate: Seq[String]):List[Build]
+    def getUpdatedBuilds(existingBuilds:List[Build], buildNamesToUpdate: Seq[String]):List[Build]
 
     def getTestRun(branch: Branch, buildNumber: Int, part: String, run: String) : Option[BuildNode]
 

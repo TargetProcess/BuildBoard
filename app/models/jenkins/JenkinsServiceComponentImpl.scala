@@ -3,7 +3,7 @@ package models.jenkins
 import java.io.File
 
 import components.{BranchRepositoryComponent, BuildRepositoryComponent, JenkinsServiceComponent, LoggedUserProviderComponent}
-import models.{Branch, Build, IBuildInfo}
+import models.{Branch, Build}
 import play.api.Play
 import play.api.Play.current
 
@@ -23,8 +23,8 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
   class JenkinsServiceImpl extends JenkinsService with FileApi with ParseFolder {
     private val jenkinsUrl = Play.configuration.getString("jenkins.url").get
 
-    override def getUpdatedBuilds(existingBuilds: List[IBuildInfo], buildNamesToUpdate: Seq[String]): List[Build] = {
-      val existingBuildsMap: Map[String, IBuildInfo] = existingBuilds.map(x => (x.name, x)).toMap
+    override def getUpdatedBuilds(existingBuilds: List[Build], buildNamesToUpdate: Seq[String]): List[Build] = {
+      val existingBuildsMap: Map[String, Build] = existingBuilds.map(x => (x.name, x)).toMap
 
       val allFolders = new Folder(directory).listFiles().filter(_.isDirectory).toList
 

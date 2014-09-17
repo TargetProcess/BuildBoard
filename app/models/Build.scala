@@ -3,38 +3,6 @@ package models
 import com.github.nscala_time.time.Imports._
 
 
-trait IBuildInfo {
-  val number: Int
-  val branch: String
-  val status: Option[String]
-  val toggled: Boolean
-  val timestamp: DateTime
-  val pullRequestId: Option[Int]
-  val name: String
-  val ref: Option[String]
-
-  val buildStatus = BuildStatus(status, toggled)
-
-  def isPullRequest = pullRequestId.isDefined
-
-  val initiator: Option[String]
-}
-
-case class BuildInfo(number: Int,
-                     branch: String,
-                     status: Option[String],
-                     override val timestamp: DateTime,
-                     toggled: Boolean = false,
-                     commits: List[Commit] = Nil,
-                     ref: Option[String] = None,
-                     pullRequestId: Option[Int] = None,
-                     initiator: Option[String] = None,
-                     name: String,
-                     possibleBuildActions: List[BuildAction],
-                     activityType: String = "build"
-                      ) extends ActivityEntry with IBuildInfo {
-
-}
 
 case class Build(number: Int,
                  branch: String,
@@ -47,7 +15,9 @@ case class Build(number: Int,
                  pullRequestId: Option[Int] = None,
                  name: String,
                  activityType: String = "build",
-                 node: Option[BuildNode]) extends IBuildInfo {
+                 node: Option[BuildNode],
+                 possibleBuildActions: List[BuildAction] = Nil
+                  ) extends ActivityEntry {
 
   def getTestRunBuildNode(part: String, run: String): Option[BuildNode] = {
     def getTestRunBuildNodeInner(node: BuildNode): Option[BuildNode] = node match {
@@ -56,15 +26,24 @@ case class Build(number: Int,
     }
     node.map(getTestRunBuildNodeInner).flatten
   }
+
+  val buildStatus = BuildStatus(status, toggled)
+
+  def isPullRequest = pullRequestId.isDefined
 }
 
-object BuildImplicits {
-  implicit def toBuildInfo(b: Build): BuildInfo = BuildInfo(b.number, b.branch, b.status, b.timestamp, b.toggled, b.commits, b.ref, b.pullRequestId, b.initiator,
-    b.name, List(BranchWithArtifactsReuseCustomBuildAction(b.branch, b.number, CustomCycle(List()))))
-}
 
-
-case class BuildNode(name: String, runName: String, status: Option[String], statusUrl: String, artifacts: List[Artifact], timestamp: DateTime, children: List[BuildNode] = Nil, testResults: List[TestCasePackage] = Nil) {
+case class BuildNode(
+                      name: String,
+                      runName: String,
+                      status: Option[String],
+                      statusUrl: String,
+                      artifacts: List[Artifact],
+                      timestamp: DateTime,
+                      children: List[BuildNode] = Nil,
+                      testResults: List[TestCasePackage] = Nil
+                      )
+{
   def getTestCase(name: String): Option[TestCase] = {
     def getTestCaseInner(tcPackage: TestCasePackage): Option[TestCase] = {
       tcPackage.testCases.filter(tc => tc.name == name) match {
