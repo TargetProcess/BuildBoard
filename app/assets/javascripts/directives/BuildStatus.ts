@@ -15,25 +15,26 @@ module buildBoard {
     }
 
     export class LastBuildStatusController {
-        public static $inject = ['$scope', BackendService.NAME];
+        public static $inject = ['$scope', BackendService.NAME, '$timeout', '$q'];
 
-        constructor(private $scope:any, backendService:BackendService) {
+        constructor(private $scope:any, backendService:BackendService, $timeout:ng.ITimeoutService, $q:ng.IQService) {
             this.$scope.forceBuild = (buildAction:BuildAction) => {
                 backendService.forceBuild(buildAction).success(build=> {
                     this.$scope.showList = false;
                     this.$scope.build = build;
                 });
             };
-            var timeoutId;
+            var timeoutId = $q.defer().promise;
             this.$scope.clearTimeoutOnFocus = () => {
-                window.clearTimeout(timeoutId);
+                $timeout.cancel(timeoutId);
             };
             this.$scope.hideOnBlur = () => {
-                timeoutId = setTimeout(() => {
+                timeoutId = $timeout(() => {
                     this.$scope.showList = false;
                     this.$scope.$digest()
                 }, 200);
             };
+
             this.$scope.toggleParameters = (buildAction:BuildAction) => {
                 var currentState = buildAction.showParameters;
                 this.$scope.buildActions.forEach(function (buildAction:BuildAction) {
