@@ -9,7 +9,6 @@
 .panel {
   background-color: #fff;
   margin-bottom: 10px;
-  border: 1px solid #00;
   border-radius: @radius;
   box-shadow: @panel-box-shadow-size rgba(0, 0, 0, 0.3);
 
@@ -34,6 +33,7 @@
   &.success {
     box-shadow: @panel-box-shadow-size darken(@success, 20%);
     background-color: fadeout(@success, 40%);
+    border-radius: 4px;
   }
 
   .clearfix;
@@ -47,6 +47,7 @@
     border: none;
     color: #000;
     width: 130px;
+    border-radius: 4px;
 
     &:hover {
       background-color: @btn-default-bg;
