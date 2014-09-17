@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/TargetProcess/BuildBoard.png?branch=master)](https://travis-ci.org/TargetProcess/BuildBoard)
 
-1. View all/my/per user entities/brnaches
+1. View all/my/per user entities/branches
 2. Per branch:
   + create PR
   + merge PR
