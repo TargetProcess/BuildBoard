@@ -33,10 +33,10 @@ module buildBoard {
     }
 
     export class EntityStateDirectiveController {
-        public static $inject = ['$scope', BackendService.NAME, '$timeout', '$q'];
+        public static $inject = ['$scope', BackendService.NAME, '$timeout'];
 
-        constructor($scope:IEntityStateDirectiveScope, backendService:BackendService, $timeout:ng.ITimeoutService, $q:ng.IQService) {
-            var timeoutId = $q.defer().promise;
+        constructor($scope:IEntityStateDirectiveScope, backendService:BackendService, $timeout:ng.ITimeoutService) {
+            var timeoutId:ng.IPromise<any> = null;
             $scope.clearTimeoutOnFocus = () => {
                 $timeout.cancel(timeoutId);
             };
