@@ -20,7 +20,6 @@ module buildBoard {
         builds:Build[];
         activity:ActivityEntry[];
         buildActions:BuildAction[];
-        buildActionsView:BuildAction[];
     }
 
     export interface PullRequest extends ActivityEntry {
