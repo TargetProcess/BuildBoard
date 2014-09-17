@@ -13,7 +13,7 @@ module buildBoard {
         template = [
             '<div onclick="this.focus();" onfocusin="this.focus();" ng-focus="clearTimeoutOnFocus();"  ng-blur="hideOnBlur();" tabindex="-1" class="dropdown open">',
             '<a href="" ng-click="showList = !showList" class="status {{type}} {{getStatusStatus(entity.state)}} dropdown-toggle" data-toggle="dropdown">{{entity.state.name}}</a>',
-            '<ul ng-if="showList" class="dropdown-menu">',
+            '<ul ng-if="showList" class="dropdown-menu dropdown-menu_state">',
             '<li ng-repeat="entityState in entity.state.nextStates"><a ng-click="changeEntityState(entityState.id)" class="status {{getStatusStatus(entityState)}}">{{entityState.name}}</a></li>',
             '</ul>',
             '</div>'
@@ -37,11 +37,8 @@ module buildBoard {
 
         constructor($scope:IEntityStateDirectiveScope, backendService:BackendService, $timeout:ng.ITimeoutService, $q:ng.IQService) {
             var timeoutId = $q.defer().promise;
-            var showList = false;
             $scope.clearTimeoutOnFocus = () => {
                 $timeout.cancel(timeoutId);
-                $scope.showList = false;
-                $scope.$digest();
             };
             $scope.hideOnBlur = () => {
                 timeoutId = $timeout(() => {
