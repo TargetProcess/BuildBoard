@@ -11,8 +11,6 @@ trait BranchRepositoryComponent {
 
     def getBranchByPullRequest(id: Int): Option[Branch]
 
-    def getBranchInfos: List[BranchInfo]
-
     def getBranches:List[Branch]
 
     def remove(branch:Branch)

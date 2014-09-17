@@ -33,8 +33,8 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
     }
 
 
-    def getBranchInfos: List[BranchInfo] = {
-      val builds = buildRepository.getBuildInfos.toList
+    def getBranchInfos: List[Branch] = {
+      val builds = buildRepository.getBuilds.toList
 
 
       Branches.findAll()
@@ -53,7 +53,7 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
           .sortBy(-_.timestamp.getMillis)
           .take(100)
 
-        BranchInfo(b.name, b.url, b.pullRequest, b.entity, buildsForBranch.headOption, activity)
+        Branch(b.name, b.url, b.pullRequest, b.entity, buildsForBranch.headOption, activity)
       })
     }
 
