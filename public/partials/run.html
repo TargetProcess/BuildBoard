@@ -1,7 +1,7 @@
 <div class="overlay" style="z-index: 200;" ng-click="closeView()"></div>
 <div class="view common" style="left: 400px; z-index: 250;">
     <div class="tests-results">
-        <div class="info">{{buildNode.runName}} - {{buildNode.name}}<span> {{totalCount}} tests, {{failedCount}} failed, {{skippedCount}} skipped</span></div>
+        <div class="info">{{buildNode.runName}} - {{buildNode.name}} <span>{{totalCount}} tests, {{failedCount}} failed, {{skippedCount}} skipped</span></div>
 
         <div class="time">Took {{totalTime | duration}}</div>
         <div class="logs" ng-show="logsUrl"><span><a href="jenkins/artifact?file={{logsUrl}}" target="_blank">Logs</a></span></div>
@@ -92,9 +92,9 @@
                         </ul>
                     </td>
                     <td>{{data.duration | duration}}</td>
-                    <td>{{data.failedCount}}</td>
-                    <td>{{data.skippedCount}}</td>
-                    <td>{{data.passedCount}}</td>
+                    <td>{{data.failedCount | suppressZero}}</td>
+                    <td>{{data.skippedCount | suppressZero}}</td>
+                    <td>{{data.passedCount | suppressZero}}</td>
                     <td>{{data.totalCount}}</td>
                 </tr>
             </tbody>

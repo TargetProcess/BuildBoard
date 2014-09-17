@@ -99,6 +99,10 @@ module buildBoard {
         }
     }
 
+    export function suppressZero() {
+        return (count:number) => count == 0 ? '' : ('' + count);
+    }
+
     export function friendlyDate($filter) {
         var dateFilter = $filter('date');
         return (dateN:number)=> {
