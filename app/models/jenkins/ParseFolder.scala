@@ -44,7 +44,7 @@ trait ParseFolder extends FileApi with Artifacts {
     Some(
       Build(number = buildSource.number,
         branch = buildSource.branch,
-        status = status,
+        status = node.map(_.buildStatus.name).orElse(status),
         timestamp = new DateTime(timestamp),
         toggled = toggled,
         commits = commits,
@@ -117,13 +117,17 @@ trait ParseFolder extends FileApi with Artifacts {
         case nme => (nme, nme)
       }
 
-      Some(BuildNode(name, runName, status, statusUrl.getOrElse(""), artifacts, new DateTime(timestamp), children))
+      val buildStatus:BuildStatusBase = BuildStatus.calculate(status, children)
+
+      Some(BuildNode(name, runName, Some(buildStatus.name), statusUrl.getOrElse(""), artifacts, new DateTime(timestamp), children))
     }
 
     //todo: add artifacts to root node
     val folder = new File(f, rootJobName)
     if (folder.exists) getBuildNodeInner(folder, f.getPath) else None
   }
+
+
 
   def getBuildDetails(folder: File): (Option[String], Option[String], DateTime) = {
     val contents = folder.listFiles
