@@ -11,9 +11,9 @@ module buildBoard {
         controller = EntityStateDirectiveController;
 
         template = [
-            '<div class="dropdown">',
-            '<a href="" class="status {{type}} {{getStatusStatus(entity.state)}} dropdown-toggle" data-toggle="dropdown">{{entity.state.name}}</a>',
-            '<ul class="dropdown-menu">',
+            '<div onclick="this.focus();" onfocusin="this.focus();" ng-focus="clearTimeoutOnFocus();"  ng-blur="hideOnBlur();" tabindex="-1" class="dropdown open">',
+            '<a href="" onclick="showList = !showList" class="status {{type}} {{getStatusStatus(entity.state)}} dropdown-toggle" data-toggle="dropdown">{{entity.state.name}}</a>',
+            '<ul ng-if="showList" class="dropdown-menu">',
             '<li ng-repeat="entityState in entity.state.nextStates"><a ng-click="changeEntityState(entityState.id)" class="status {{getStatusStatus(entityState)}}">{{entityState.name}}</a></li>',
             '</ul>',
             '</div>'
@@ -27,12 +27,28 @@ module buildBoard {
         entity: Entity
         changeEntityState(nextState:number)
         getStatusStatus(state:EntityState):string
+        showList:boolean
+        clearTimeoutOnFocus():void
+        hideOnBlur():void
     }
 
     export class EntityStateDirectiveController {
-        public static $inject = ['$scope', BackendService.NAME];
+        public static $inject = ['$scope', BackendService.NAME, '$timeout', '$q'];
 
-        constructor($scope:IEntityStateDirectiveScope, backendService:BackendService) {
+        constructor($scope:IEntityStateDirectiveScope, backendService:BackendService, $timeout:ng.ITimeoutService, $q:ng.IQService) {
+            var timeoutId = $q.defer().promise;
+            $scope.clearTimeoutOnFocus = () => {
+                $timeout.cancel(timeoutId);
+                $scope.showList = false;
+                $scope.$digest();
+            };
+            $scope.hideOnBlur = () => {
+                timeoutId = $timeout(() => {
+                    $scope.showList = false;
+                    $scope.$digest()
+                }, 200);
+            };
+
             $scope.changeEntityState = (nextState:number)=> {
                 backendService.changeEntityState($scope.entity.id, nextState).success(state=> {
                     $scope.entity.state = state
