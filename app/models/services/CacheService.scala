@@ -1,7 +1,6 @@
 package models.services
 
 import java.io.File
-import java.nio.file.Path
 
 import components.DefaultRegistry
 import models.AuthInfo
@@ -14,7 +13,7 @@ import src.Utils.watch
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
-object CacheService extends FileApi{
+object CacheService extends FileApi {
   val authInfo: AuthInfo = (for {
     tpToken <- Play.configuration.getString("cache.user.tp.token")
     gToken <- Play.configuration.getString("cache.user.github.token")
@@ -33,19 +32,13 @@ object CacheService extends FileApi{
 
 
   def start = {
-    val artifactsDir = new File(directory).toPath
+    val artifactsDir = new File(directory)
 
     val dir_watcher = new DirectoryWatcher(artifactsDir, true)
 
-    val jenkinsSubscription = dir_watcher.run().map({ case (dir, event) =>
-      val directoryName = artifactsDir.relativize(dir).subpath(0, 1)
-      println("file updated")
-      if (directoryName.toString == "") {
-        event.context().asInstanceOf[Path].toString
-      }
-      else {
-        directoryName.toString
-      }
+    val jenkinsSubscription = dir_watcher.observable.map(file => {
+      val directoryName = artifactsDir.toPath.relativize(file.toPath).subpath(0, 1)
+      directoryName.toString
     }).buffer(jenkinsInterval)
       .subscribe(fileChangedEvents => Try {
       watch("updating builds") {

@@ -4,6 +4,12 @@ version := "1.0"
 
 scalaVersion := "2.10.2"
 
+resolvers ++= Seq(
+  "snapshots" at "http://oss.sonatype.org/content/repositories/snapshots",
+  "releases" at "http://oss.sonatype.org/content/repositories/releases",
+  "java maven" at "https://maven.java.net/content/repositories/releases"
+)
+
 libraryDependencies ++= Seq(
   anorm,
   "se.radley" %% "play-plugins-salat" % "1.3.0",
@@ -13,7 +19,9 @@ libraryDependencies ++= Seq(
   "com.github.nscala-time" %% "nscala-time" % "0.8.0",
   "org.specs2" %% "specs2" % "2.3.3",
   "org.mockito" % "mockito-all" % "1.9.5",
-  "joda-time" % "joda-time" % "2.3"
+  "joda-time" % "joda-time" % "2.3",
+  "net.java.dev.jna" % "jna" % "4.1.0",
+  "net.java.dev.jna" % "jna-platform" % "4.1.0"
 )
 
 libraryDependencies += filters
@@ -28,10 +36,7 @@ scalacOptions ++= Seq(
   "-language:implicitConversions"
 )
 
-resolvers ++= Seq(
-  "snapshots" at "http://oss.sonatype.org/content/repositories/snapshots",
-  "releases" at "http://oss.sonatype.org/content/repositories/releases"
-)
+
 
 routesImport += "se.radley.plugin.salat.Binders._"
 
