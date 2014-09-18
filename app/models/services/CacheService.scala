@@ -62,14 +62,16 @@ object CacheService extends FileApi {
           play.Logger.error("Error in jenkinsSubscription", error)
         })
 
+    val githubSubscription = subscribeToGithub
+
     Subscription {
-      subscribeToGithub.unsubscribe()
+      githubSubscription.unsubscribe()
       jenkinsSubscription.unsubscribe()
     }
   }
 
   def subscribeToGithub: Subscription = {
-    val githubSubscription = Observable.timer(0 seconds, githubInterval)
+    Observable.timer(0 seconds, githubInterval)
       .map(_ => Try {
       registry.branchService.getBranches
     })
@@ -96,6 +98,5 @@ object CacheService extends FileApi {
     error => {
       play.Logger.error("Error in githubSubscription", error)
     })
-    githubSubscription
   }
 }
