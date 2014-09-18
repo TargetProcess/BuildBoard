@@ -15,8 +15,7 @@ case class Build(number: Int,
                  pullRequestId: Option[Int] = None,
                  name: String,
                  activityType: String = "build",
-                 node: Option[BuildNode],
-                 possibleBuildActions: List[BuildAction] = Nil
+                 node: Option[BuildNode]
                   ) extends ActivityEntry {
 
   def getTestRunBuildNode(part: String, run: String): Option[BuildNode] = {

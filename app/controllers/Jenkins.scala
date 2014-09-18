@@ -1,13 +1,12 @@
 package controllers
 
 import com.github.nscala_time.time.Imports._
-import controllers.Writes._
 import controllers.Reads._
+import controllers.Writes._
 import models.BuildStatus.{InProgress, Unknown}
 import models._
 import play.Play
 import play.api.libs.json._
-
 
 import scala.util.{Failure, Success}
 import scalaj.http.HttpException
@@ -41,8 +40,14 @@ object Jenkins extends Application {
                 case _ => component.jenkinsService.forceBuild(buildAction)
               }
               forceBuildResult match {
-                case Success(_) => Ok(Json.toJson(Build(-1, params.branchId.getOrElse("this"), Some("In progress"), DateTime.now,
-                  name = "", node = Some(BuildNode("this", "this", Some("In progress"), "#", List(), DateTime.now)))))
+                case Success(_) => Ok(Json.toJson(
+                  Build(
+                    number = -1,
+                    branch = params.branchId.getOrElse("this"), status = Some("In progress"),
+                    timestamp = DateTime.now,
+                    name = "",
+                    node = Some(BuildNode("this", "this", Some("In progress"), "#", List(), DateTime.now))
+                  )))
                 case Failure(e: HttpException) => BadRequest(e.toString)
                 case Failure(e) => InternalServerError("Something going wrong " + e.toString)
               }

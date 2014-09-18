@@ -1,17 +1,12 @@
 package models.jenkins
 
 import java.io.File
-import org.joda.time.DateTime
+
 import com.github.nscala_time.time.Imports._
 import models._
+import org.joda.time.DateTime
+
 import scala.xml.{Node, XML}
-import models.Artifact
-import models.Commit
-import models.BuildNode
-import scala.Some
-import models.TestCase
-import models.Build
-import models.TestCasePackage
 
 
 trait ParseFolder extends FileApi with Artifacts {
@@ -29,7 +24,8 @@ trait ParseFolder extends FileApi with Artifacts {
   def getBuild(buildSource: BuildSource, toggled: Boolean): Option[Build] = {
     val name: String = buildSource.folder.getName
 
-    play.Logger.info(s"getBuild ${buildSource.branch} - $name")
+    val branch: String = buildSource.branch
+    play.Logger.info(s"getBuild ${branch} - $name")
 
     val node = getBuildNode(new Folder(buildSource.folder, "Build"))
     val folder = new Folder(buildSource.folder, "Build/StartBuild")
@@ -41,9 +37,10 @@ trait ParseFolder extends FileApi with Artifacts {
     val commits = getCommits(new File(folder, "Checkout/GitChanges.log"))
     val ref = getRef(new File(folder, "Checkout/sha.txt"))
 
+    val number: Int = buildSource.number
     Some(
-      Build(number = buildSource.number,
-        branch = buildSource.branch,
+      Build(number = number,
+        branch = branch,
         status = node.map(_.buildStatus.name).orElse(status),
         timestamp = new DateTime(timestamp),
         toggled = toggled,
@@ -52,7 +49,8 @@ trait ParseFolder extends FileApi with Artifacts {
         pullRequestId = buildSource.pullRequestId,
         initiator = buildSource.params.parameters.get("WHO_STARTS"),
         node = node,
-        name = name)
+        name = name
+      )
     )
   }
 
