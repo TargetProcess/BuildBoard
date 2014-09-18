@@ -61,7 +61,6 @@ module buildBoard {
         toggled:boolean;
         status:string;
         parsedStatus:Status;
-        possibleBuildActions:BuildAction[];
     }
 
     export interface Build extends BuildBase {

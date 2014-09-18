@@ -121,4 +121,11 @@ object Jenkins extends Application {
         Ok.sendFile(file, inline = true)
       }
   }
+
+
+  def buildActions(branch:String, number: Int) = IsAuthorizedComponent(
+  component=>
+    request =>
+      Ok(Json.toJson(component.jenkinsService.getCustomBuildActions(branch, number)))
+  )
 }

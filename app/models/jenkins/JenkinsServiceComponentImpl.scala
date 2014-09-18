@@ -3,7 +3,7 @@ package models.jenkins
 import java.io.File
 
 import components.{BranchRepositoryComponent, BuildRepositoryComponent, JenkinsServiceComponent, LoggedUserProviderComponent}
-import models.{Branch, Build}
+import models._
 import play.api.Play
 import play.api.Play.current
 
@@ -158,6 +158,8 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
 
       ""
     }
+
+    override def getCustomBuildActions(branch: String, number: Int): List[BuildAction] = List(BranchWithArtifactsReuseCustomBuildAction(branch, number, CustomCycle(List())))
   }
 
 }

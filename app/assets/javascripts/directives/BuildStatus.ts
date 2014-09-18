@@ -4,7 +4,6 @@ module buildBoard {
         static NAME = "buildStatus";
         scope = {
             build: "=",
-            buildActions: "=",
             branch: "=",
             buildNumber: "=",
             isActivityBuild: "=",
@@ -28,6 +27,13 @@ module buildBoard {
                     }
                 });
             };
+
+            var build:Build = this.$scope.build;
+            if (build && build.branch && build.number) {
+                backendService.buildActions(build.branch, build.number).success(actions=>
+                        this.$scope.buildActions = actions
+                )
+            }
 
             var timeoutId:ng.IPromise<any> = null;
             this.$scope.clearTimeoutOnFocus = () => {

@@ -27,6 +27,10 @@ module buildBoard {
             return this.$http.get(this.controllers.Jenkins.build(branchId, buildNumber).absoluteURL());
         }
 
+        buildActions(branchId:string, buildNumber:number):ng.IHttpPromise<BuildAction[]> {
+            return this.$http.get(this.controllers.Jenkins.buildActions(branchId, buildNumber).absoluteURL());
+        }
+
         forceBuild(buildAction:BuildAction, buildNumber:number):ng.IHttpPromise<Build> {
             var categories:BuildParametersCategory[] = _.chain(buildAction.buildParametersCategories).map((x:BuildParametersCategory) => {
                     return {
