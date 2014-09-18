@@ -82,7 +82,7 @@ trait ParseFolder extends FileApi with Artifacts {
     if (!file.exists) {
       None
     }  else{
-      read(file)
+      read(file).map(_.takeWhile(_ != ' '))
     }
   }
 

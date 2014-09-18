@@ -32,20 +32,20 @@ module buildBoard {
         }
 
         forceBuild(buildAction:BuildAction, buildNumber:number):ng.IHttpPromise<Build> {
-            var categories:BuildParametersCategory[] = _.chain(buildAction.buildParametersCategories).map((x:BuildParametersCategory) => {
+          /*  var categories:BuildParametersCategory[] = _.chain(buildAction.buildParametersCategories).map((x:BuildParametersCategory) => {
                     return {
                         name: x.name,
                         parts: x.selectedParts == null ? [] : x.selectedParts
                     }
                 }
-            ).value();
+            ).value();*/
             return this.$http.post(this.controllers.Jenkins.forceBuild().absoluteURL(),
                 {
                     pullRequestId: buildAction.pullRequestId,
                     branchId: buildAction.branchId,
                     cycleName: buildAction.cycleName,
-                    buildNumber: buildNumber,
-                    parameters: categories
+                    buildNumber: buildNumber
+                    //parameters: categories
                 });
         }
 
