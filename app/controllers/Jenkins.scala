@@ -5,16 +5,18 @@ import controllers.Reads._
 import controllers.Writes._
 import models.BuildStatus.{InProgress, Unknown}
 import models._
+import models.buildActions._
 import play.Play
 import play.api.libs.json._
 
 import scala.util.{Failure, Success}
 import scalaj.http.HttpException
 
-case class ForceBuildParameters(pullRequestId: Option[Int], branchId: Option[String], cycleName: String, buildNumber: Option[Int], parameters: List[BuildParametersCategory]) {
-}
 
 object Jenkins extends Application {
+
+  case class ForceBuildParameters(pullRequestId: Option[Int], branchId: Option[String], cycleName: String, buildNumber: Option[Int])
+
 
   def forceBuild() = IsAuthorizedComponent {
     component =>
@@ -24,19 +26,19 @@ object Jenkins extends Application {
 
           val params = json.as[ForceBuildParameters]
 
-          val maybeAction: Option[BuildAction] = (params.pullRequestId, params.branchId, params.buildNumber, params.parameters) match {
-            case (Some(prId), None, None, Nil) => Some(PullRequestBuildAction(prId, BuildAction.find(params.cycleName)))
-            case (None, Some(brId), None, Nil) => Some(BranchBuildAction(brId, BuildAction.find(params.cycleName)))
-            case (None, Some(brId), None, x :: xs) => Some(BranchCustomBuildAction(brId, CustomCycle(x :: xs)))
-            case (Some(prId), None, None, x :: xs) => Some(PullRequestCustomBuildAction(prId, CustomCycle(x :: xs)))
-            case (None, Some(brId), Some(buildNumber), x :: xs) => Some(BranchWithArtifactsReuseCustomBuildAction(brId, buildNumber, CustomCycle(x :: xs)))
+          val maybeAction: Option[BuildAction] = (params.pullRequestId, params.branchId, params.buildNumber) match {
+            case (Some(prId), None, None) => Some(PullRequestBuildAction(prId, BuildAction.find(params.cycleName)))
+            case (None, Some(brId), None) => Some(BranchBuildAction(brId, BuildAction.find(params.cycleName)))
+            //case (None, Some(brId), None) => Some(BranchCustomBuildAction(brId, CustomCycle(x :: xs)))
+            //case (Some(prId), None, None) => Some(PullRequestCustomBuildAction(prId, CustomCycle(x :: xs)))
+            //case (None, Some(brId), Some(buildNumber)) => Some(BranchWithArtifactsReuseCustomBuildAction(brId, buildNumber, CustomCycle(x :: xs)))
             case _ => None
           }
 
           maybeAction match {
             case Some(buildAction) =>
               val forceBuildResult = buildAction match {
-                case c@BranchWithArtifactsReuseCustomBuildAction(brId, buildNumber, CustomCycle(x :: xs)) => component.jenkinsService.forceReuseArtifactsBuild(c)
+                //  case c@BranchWithArtifactsReuseCustomBuildAction(brId, buildNumber, CustomCycle(x :: xs)) => component.jenkinsService.forceReuseArtifactsBuild(c)
                 case _ => component.jenkinsService.forceBuild(buildAction)
               }
               forceBuildResult match {
@@ -98,7 +100,6 @@ object Jenkins extends Application {
       request => Ok.sendFile(content = component.jenkinsService.getArtifact(file))
   }
 
-
   def buildStatus(id: Int) = IsAuthorizedComponent {
     component =>
       request => {
@@ -122,10 +123,11 @@ object Jenkins extends Application {
       }
   }
 
+  def buildActions(branch: String) = IsAuthorizedComponent(
+    component =>
+      request => {
 
-  def buildActions(branch:String, number: Int) = IsAuthorizedComponent(
-  component=>
-    request =>
-      Ok(Json.toJson(component.jenkinsService.getCustomBuildActions(branch, number)))
+        Ok("hello")
+      }
   )
 }

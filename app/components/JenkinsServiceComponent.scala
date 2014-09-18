@@ -3,6 +3,10 @@ package components
 import java.io.File
 
 import models._
+import models.branches.Branch
+import models.buildActions.BuildAction
+
+//import models.buildActions.{BranchWithArtifactsReuseCustomBuildAction, BuildAction}
 
 import scala.util.Try
 
@@ -12,11 +16,11 @@ trait JenkinsServiceComponent {
 
 
   trait JenkinsService {
-    def getCustomBuildActions(branch: String, number: Int) : List[BuildAction]
+   // def getCustomBuildActions(branch: String) : Map[Int, List[BuildAction]]
 
-    def forceBuild(action: models.BuildAction): Try[String]
+    def forceBuild(action: BuildAction): Try[String]
 
-    def forceReuseArtifactsBuild(action: models.BranchWithArtifactsReuseCustomBuildAction): Try[String]
+    //def forceReuseArtifactsBuild(action: BranchWithArtifactsReuseCustomBuildAction): Try[String]
 
     def getUpdatedBuilds(existingBuilds:List[Build], buildNamesToUpdate: Seq[String]):List[Build]
 

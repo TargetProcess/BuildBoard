@@ -42,7 +42,7 @@ object CacheService extends FileApi {
     }).buffer(jenkinsInterval)
       .subscribe(fileChangedEvents => Try {
       watch("updating builds") {
-        val existingBuilds = registry.buildRepository.getBuilds.toList
+        val existingBuilds = registry.buildRepository.getAllBuilds.toList
         play.Logger.info(s"existingBuilds: ${existingBuilds.length}")
         play.Logger.info(s"files changed: ${fileChangedEvents.length}")
 
@@ -53,7 +53,7 @@ object CacheService extends FileApi {
           registry.buildRepository.update(updatedBuild)
         }
 
-        registry.notificationService.notifyAboutBuilds(registry.buildRepository.getBuilds.toList)
+        registry.notificationService.notifyAboutBuilds(registry.buildRepository.getAllBuilds.toList)
       }
     }.recover {
       case e => play.Logger.error("Error in jenkinsSubscription", e)

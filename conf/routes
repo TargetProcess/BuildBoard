@@ -18,7 +18,7 @@ GET         /jenkins/build               controllers.Jenkins.build(branch:String
 GET         /jenkins/run                 controllers.Jenkins.run(branch: String, build: Int, part: String, run: String)
 GET         /jenkins/testCase            controllers.Jenkins.testCase(branch: String, build: Int, part: String, run: String, test: String)
 GET         /jenkins/artifact            controllers.Jenkins.artifact(file: String)
-GET         /jenkins/buildActions        controllers.Jenkins.buildActions(branch:String, number:Int)
+GET         /jenkins/buildActions        controllers.Jenkins.buildActions(branch:String)
 
 POST        /jenkins/forceBuild          controllers.Jenkins.forceBuild()
 POST        /jenkins/toggleBuild         controllers.Jenkins.toggleBuild(branchId:String, buildNumber:Int, toggled:Boolean)

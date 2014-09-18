@@ -1,26 +1,24 @@
 package services
 
 import components.{BranchRepositoryComponent, GithubServiceComponent, TargetprocessComponent}
+import globals.EmptyGlobal
 import models._
+import models.branches.Branch
 import models.magicMerge.MagicMergeComponentImpl
 import org.joda.time.DateTime
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
-import play.api.GlobalSettings
 import play.api.test.Helpers._
 import play.api.test._
 
+import scala.language.reflectiveCalls
 import scala.util.{Failure, Success}
 
-// to use matchers like anyInt()
-
-
-class MagicMergeServiceSpec extends Specification
-with Mockito {
+class MagicMergeServiceSpec extends Specification with Mockito {
 
   "MagicMergeService" should {
     "use correct users for merging and closing" in {
-      running(FakeApplication(withGlobal = Some(new GlobalSettings {}))) {
+      running(FakeApplication(withGlobal = Some(EmptyGlobal))) {
         val user: User = User(tpId = 1, username = "tp", token = "token")
 
         val magicMerge = new MagicMergeComponentImpl with BranchRepositoryComponent with GithubServiceComponent with TargetprocessComponent {
@@ -71,6 +69,5 @@ with Mockito {
 
       }
     }
-
   }
 }

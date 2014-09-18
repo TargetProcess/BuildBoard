@@ -1,4 +1,7 @@
-package models
+package models.branches
+
+import models.buildActions._
+import models.{ActivityEntry, Build, Entity, PullRequest}
 
 case class Branch(
                        name: String,
@@ -10,39 +13,27 @@ case class Branch(
                        ) {
 
   val buildActions: List[BuildAction] = {
+
     val buildPackages = List(
       BranchBuildAction(name, BuildPackageOnly),
       BranchBuildAction(name, FullCycle)
     )
 
-    val buildBranches = name match {
+    val shortBuilds = name match {
       case BranchInfo.release(_) => Nil
       case BranchInfo.hotfix(_) => Nil
       case _ => List(BranchBuildAction(name, ShortCycle))
     }
 
-    val (buildPullRequests, buildPullRequestCustom) =
-      pullRequest match {
-        case Some(pr) if pr.status.isMergeable => (
-          List(
-            PullRequestBuildAction(pr.prId, ShortCycle),
-            PullRequestBuildAction(pr.prId, FullCycle)
-          ),
-          List(PullRequestCustomBuildAction(pr.prId, CustomCycle(List())))
-          )
-        case _ => (Nil, Nil)
-      }
-
-    val buildCustomBranch = name match {
-      case BranchInfo.release(_) => Nil
-      case BranchInfo.hotfix(_) => Nil
-      case BranchInfo.develop() => Nil
-      case _ => List(
-        BranchCustomBuildAction(name, CustomCycle(List()))
+    val pullRequestBuilds = pullRequest match {
+      case Some(pr) if pr.status.isMergeable => List(
+        PullRequestBuildAction(pr.prId, ShortCycle),
+        PullRequestBuildAction(pr.prId, FullCycle)
       )
+      case _ => Nil
     }
 
-    buildPackages ++ buildBranches ++ buildPullRequests ++ buildCustomBranch ++ buildPullRequestCustom
+    buildPackages ++ shortBuilds ++ pullRequestBuilds
   }
 }
 

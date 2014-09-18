@@ -1,5 +1,7 @@
 package controllers
 
+import models.branches.BranchInfo
+import models.buildActions.{BuildAction}
 import play.api.libs.json._
 import models._
 import play.api.libs.functional.syntax._
@@ -15,14 +17,14 @@ object Writes {
   implicit val commitWrite: Writes[Commit] = Json.writes[Commit]
 
   implicit val mergeResultWrite = Json.writes[MergeResult]
-  implicit val buildParametersCategoryWrite = Json.writes[BuildParametersCategory]
+  //implicit val buildParametersCategoryWrite = Json.writes[BuildParametersCategory]
 
 
-  implicit val buildActionWrite = ((__ \ "name").write[String] ~
+  implicit val buildActionWrite =  ((__ \ "name").write[String] ~
     (__ \ "pullRequestId").writeNullable[Int] ~
     (__ \ "branchId").writeNullable[String] ~
-    (__ \ "cycleName").write[String] ~
-    (__ \ "buildParametersCategories").write(list(buildParametersCategoryWrite)))(unlift(BuildAction.unapply))
+    (__ \ "cycleName").write[String]
+  )(unlift(BuildAction.unapply))
 
   implicit val buildWrite = Json.writes[Build]
 

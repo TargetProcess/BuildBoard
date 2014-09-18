@@ -1,15 +1,19 @@
 package components
 
-import models.{Build, Branch}
+import models.Build
+import models.branches.Branch
 
 trait BuildRepositoryComponent {
   val buildRepository: BuildRepository
 
   trait BuildRepository {
-    def getBuilds: Iterator[Build]
+    def getLastBuilds: Map[String, Build]
+
+    def getAllBuilds: Iterator[Build]
     def removeAll(branch:Branch)
     def update(build:Build)
     def getBuilds(branch: Branch): Iterator[Build]
+    def getBuilds(branch: String): Iterator[Build]
 
     def getLastBuild(branch: Branch):Option[Build]
 

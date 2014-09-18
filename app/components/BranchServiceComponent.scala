@@ -1,6 +1,7 @@
 package components
 
-import models.{User, Branch}
+import models.User
+import models.branches.Branch
 
 trait BranchServiceComponent {
   val branchService: BranchService

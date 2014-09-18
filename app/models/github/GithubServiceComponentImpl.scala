@@ -2,6 +2,7 @@ package models.github
 
 import components._
 import models._
+import models.branches.Branch
 import org.eclipse.egit.github.core.client.GitHubClient
 import org.eclipse.egit.github.core.service._
 import scala.collection.JavaConverters._

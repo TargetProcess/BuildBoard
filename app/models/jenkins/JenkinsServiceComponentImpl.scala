@@ -4,6 +4,8 @@ import java.io.File
 
 import components.{BranchRepositoryComponent, BuildRepositoryComponent, JenkinsServiceComponent, LoggedUserProviderComponent}
 import models._
+import models.branches.Branch
+import models.buildActions.BuildAction
 import play.api.Play
 import play.api.Play.current
 
@@ -77,7 +79,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
       .flatten
       .map(testRunBuildNode => testRunBuildNode.copy(testResults = getTestCasePackages(testRunBuildNode)))
 
-    def forceBuild(action: models.BuildAction) = Try {
+    def forceBuild(action: BuildAction) = Try {
       val url = s"$jenkinsUrl/job/$rootJobName/buildWithParameters"
 
       val parameters = action.parameters ++ loggedUser.map("WHO_STARTS" -> _.fullName)
@@ -118,7 +120,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
         .asString
     }
 
-    def forceReuseArtifactsBuild(action: models.BranchWithArtifactsReuseCustomBuildAction) = Try {
+ /*   def forceReuseArtifactsBuild(action: BranchWithArtifactsReuseCustomBuildAction) = Try {
 
       //This is Jenkins logic for naming artifacts folders
       val branchArtifactsFolderName = action.branch.replace("feature/", "").replace("merge/", "").replace("origin/", "")
@@ -128,38 +130,43 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
 
       val maybeBuildParams = BuildParams(getParamsFile(buildFolder))
 
-      val funcTestsFilter = action.cycle.parameters.find(x => x.name == models.Cycle.funcTestsCategoryName).map(x => x.parts.mkString(" ")).getOrElse("")
+      val funcTestsFilter = action.cycle.parameters.find(x => x.name == Cycle.funcTestsCategoryName).map(x => x.parts.mkString(" ")).getOrElse("")
       if (funcTestsFilter != "") {
         val funcTestsUrl = s"$jenkinsUrl/job/RunFuncTests/buildWithParameters"
         forceBuildCategory(maybeBuildParams, maybeRevision, funcTestsFilter, funcTestsUrl, action.buildNumber, "FuncTests")
       }
 
-      val unitTestsFilter = action.cycle.parameters.find(x => x.name == models.Cycle.unitTestsCategoryName).map(x => x.parts.mkString(" ")).getOrElse("")
+      val unitTestsFilter = action.cycle.parameters.find(x => x.name == buildActions.Cycle.unitTestsCategoryName).map(x => x.parts.mkString(" ")).getOrElse("")
       if (unitTestsFilter != "") {
         val unitTestsUrl = s"$jenkinsUrl/job/RunUnitTests/buildWithParameters"
         forceBuildCategory(maybeBuildParams, maybeRevision, unitTestsFilter, unitTestsUrl, action.buildNumber, "UnitTests")
       }
 
-      if (action.cycle.includeCasper){
+      if (action.cycle.includeCasper) {
         forceBuildCategory(maybeBuildParams, maybeRevision, "", s"$jenkinsUrl/job/RunCasperJSTests/buildWithParameters", action.buildNumber, "FuncTests")
       }
 
-      if (action.cycle.includeComet){
+      if (action.cycle.includeComet) {
         forceBuildCategory(maybeBuildParams, maybeRevision, "", s"$jenkinsUrl/job/CometOutOfProcess/buildWithParameters", action.buildNumber, "FuncTests")
       }
 
-      if (action.cycle.includeSlice){
+      if (action.cycle.includeSlice) {
         forceBuildCategory(maybeBuildParams, maybeRevision, "", s"$jenkinsUrl/job/RunSliceLoadTest/buildWithParameters", action.buildNumber, "FuncTests")
       }
 
-      if (action.cycle.includeDb){
+      if (action.cycle.includeDb) {
         forceBuildCategory(maybeBuildParams, maybeRevision, "", s"$jenkinsUrl/job/RunDBTest/buildWithParameters", action.buildNumber, "FuncTests")
       }
 
       ""
     }
 
-    override def getCustomBuildActions(branch: String, number: Int): List[BuildAction] = List(BranchWithArtifactsReuseCustomBuildAction(branch, number, CustomCycle(List())))
+    override def getCustomBuildActions(branch: String): Map[Int, List[BuildAction]] = {
+      buildRepository.getBuilds(branch)
+        .map(build => (build.number, List(BranchWithArtifactsReuseCustomBuildAction(branch, build.number, CustomCycle(List())))))
+        .toMap
+    }
+    */
   }
 
 }

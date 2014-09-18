@@ -1,6 +1,7 @@
 package components
 
-import models.{Build, Branch}
+import models.Build
+import models.branches.Branch
 
 trait NotificationComponent {
   val notificationService: NotificationService

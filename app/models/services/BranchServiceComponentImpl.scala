@@ -1,10 +1,10 @@
 package models.services
 
 import models.AuthInfo
+import models.branches.Branch
 import scala.util.matching.Regex
 import src.Utils.watch
 import components._
-import models.Branch
 import scala.Some
 
 

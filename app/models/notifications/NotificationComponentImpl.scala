@@ -2,12 +2,12 @@ package models.notifications
 
 import components.{GithubServiceComponent, UserRepositoryComponent, LoggedUserProviderComponent, NotificationComponent}
 import models._
+import models.branches.{BranchInfo, Branch}
 import play.api.Play
 import play.api.Play.current
 import scalaj.http.{HttpException, HttpOptions, Http}
 import models.BuildStatus._
 import com.mongodb.casbah.Imports._
-import models.Branch
 import scala.Some
 import scala.collection.immutable.Iterable
 import models.github.GithubStatus

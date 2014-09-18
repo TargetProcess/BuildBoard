@@ -1,10 +1,9 @@
-package models
+package models.branches
 
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.novus.salat.dao.{ModelCompanion, SalatDAO}
 import components.{BranchRepositoryComponent, BuildRepositoryComponent}
-import models.mongo.mongoContext
 import models.mongo.mongoContext._
 import play.api.Play.current
 import se.radley.plugin.salat.Binders.ObjectId
@@ -34,7 +33,7 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
 
 
     def getBranches: List[Branch] = {
-      val builds = buildRepository.getBuilds.toList
+      val builds = buildRepository.getAllBuilds.toList
 
 
       Branches.findAll()
@@ -66,6 +65,15 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
     def getBranchByPullRequest(id: Int): Option[Branch] = Branches.findOne(MongoDBObject("pullRequest.prId" -> id))
 
     override def getBranchEntity(id: Int): Option[Branch] = Branches.findOne(MongoDBObject("entity._id" -> id))
+
+    override def getBranchesWithLastBuild: List[Branch] = {
+      val lastBuilds = buildRepository.getLastBuilds
+
+      Branches.findAll()
+        .map(b => b.copy(lastBuild = lastBuilds.get(b.name).map(_.copy(commits = Nil, node = None))))
+        .toList
+    }
   }
 
 }
+
