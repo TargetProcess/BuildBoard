@@ -20,8 +20,13 @@ module buildBoard {
         }
 
         branches():ng.IHttpPromise<Branch[]> {
-            return this.$http.get(this.controllers.Branches.branches().absoluteURL());
+            return this.$http.get(this.controllers.Branches.branchesWithLastBuilds().absoluteURL());
         }
+
+        branch(branchId:string):ng.IHttpPromise<Branch> {
+            return this.$http.get(this.controllers.Branches.branch(branchId).absoluteURL());
+        }
+
 
         build(branchId:string, buildNumber:number):ng.IHttpPromise<Build> {
             return this.$http.get(this.controllers.Jenkins.build(branchId, buildNumber).absoluteURL());

@@ -7,20 +7,17 @@ module buildBoard {
     }
 
 
-    export class BranchLineController extends BranchControllerBase {
+    export class BranchLineController {
         public static NAME = 'branchLineController';
 
 
         public static $inject = [
-            '$scope',
-            BackendService.NAME,
-            ModelProvider.NAME
+            '$scope'
         ];
 
-        constructor($scope:IBranchLineScope, backendService:BackendService, modelProvider:ModelProvider) {
-            super($scope, backendService, modelProvider);
+        constructor(private $scope:IBranchLineScope) {
 
-            $scope.getBranch = ()=>$scope.branch;
+            //$scope.getBranch = ()=>$scope.branch;
         }
     }
 }

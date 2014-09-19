@@ -4,7 +4,8 @@
 
 # Home page
 GET         /                            controllers.Landing.index
-GET         /branches                    controllers.Branches.branches
+GET         /branches                    controllers.Branches.branchesWithLastBuilds
+GET         /branch                      controllers.Branches.branch(name:String)
 
 GET         /login                       controllers.Login.index
 GET         /login/github                controllers.Login.githubLogin
