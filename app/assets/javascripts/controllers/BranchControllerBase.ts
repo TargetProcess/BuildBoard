@@ -4,7 +4,7 @@ module buildBoard {
 
     export interface IBranchScope extends ng.IScope {
         branchName:string;
-        getBranch(): Branch;
+        getBranch: ng.IHttpPromise<Branch>;
         closeView():void;
         mergeStatus():MergeStatus;
         isPossibleToMerge():boolean;
@@ -14,11 +14,5 @@ module buildBoard {
     export interface MergeStatus {
         isEnabled:boolean;
         reasons:string[];
-    }
-
-    export class BranchControllerBase {
-        constructor(public $scope:IBranchScope, public backendService:BackendService, private modelProvider:ModelProvider) {
-            this.$scope.getBranch = () => modelProvider.findBranch(this.$scope.branchName);
-        }
     }
 }

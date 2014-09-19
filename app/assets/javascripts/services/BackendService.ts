@@ -20,22 +20,38 @@ module buildBoard {
         }
 
         branches():ng.IHttpPromise<Branch[]> {
-            return this.$http.get(this.controllers.Branches.branches().absoluteURL());
+            return this.$http.get(this.controllers.Branches.branchesWithLastBuilds().absoluteURL());
         }
+
+        branch(branchId:string):ng.IHttpPromise<Branch> {
+            return this.$http.get(this.controllers.Branches.branch(branchId).absoluteURL());
+        }
+
 
         build(branchId:string, buildNumber:number):ng.IHttpPromise<Build> {
             return this.$http.get(this.controllers.Jenkins.build(branchId, buildNumber).absoluteURL());
         }
 
-        forceBuild(buildAction:BuildAction):ng.IHttpPromise<Build> {
-            var categories:BuildParametersCategory[] = _.chain(buildAction.buildParametersCategories).map((x:BuildParametersCategory) => {
+        buildActions(branchId:string, buildNumber:number):ng.IHttpPromise<BuildAction[]> {
+            return this.$http.get(this.controllers.Jenkins.buildActions(branchId, buildNumber).absoluteURL());
+        }
+
+        forceBuild(buildAction:BuildAction, buildNumber:number):ng.IHttpPromise<Build> {
+          /*  var categories:BuildParametersCategory[] = _.chain(buildAction.buildParametersCategories).map((x:BuildParametersCategory) => {
                     return {
                         name: x.name,
                         parts: x.selectedParts == null ? [] : x.selectedParts
                     }
                 }
-            ).value();
-            return this.$http.post(this.controllers.Jenkins.forceBuild().absoluteURL(), {pullRequestId:buildAction.pullRequestId, branchId:buildAction.branchId, cycleName : buildAction.cycleName,  parameters: categories});
+            ).value();*/
+            return this.$http.post(this.controllers.Jenkins.forceBuild().absoluteURL(),
+                {
+                    pullRequestId: buildAction.pullRequestId,
+                    branchId: buildAction.branchId,
+                    cycleName: buildAction.cycleName,
+                    buildNumber: buildNumber
+                    //parameters: categories
+                });
         }
 
         toggleBuild(branchId:string, buildNumber:number, toggled:boolean):ng.IHttpPromise<Build> {

@@ -1,6 +1,7 @@
 package components
 
 import models._
+import models.branches.Branch
 import models.github.GithubStatus
 
 trait GithubServiceComponent {

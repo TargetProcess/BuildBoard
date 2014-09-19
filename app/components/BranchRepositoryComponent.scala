@@ -1,17 +1,18 @@
 package components
 
-import models.{BranchInfo, Branch}
+import models.branches.Branch
 
 trait BranchRepositoryComponent {
   val branchRepository: BranchRepository
 
   trait BranchRepository {
+    def getBranchesWithLastBuild: List[Branch]
+
+
     def getBranch(id: String): Option[Branch]
     def getBranchEntity(i: Int): Option[Branch]
 
     def getBranchByPullRequest(id: Int): Option[Branch]
-
-    def getBranchInfos: List[BranchInfo]
 
     def getBranches:List[Branch]
 

@@ -57,7 +57,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="branch in getBranches() | orderBy:orderingPredicate:reverse" ng-controller="branchLineController" ng-class="getLastBuildStatus()">
+            <tr ng-repeat="branch in getBranches() | orderBy:orderingPredicate:reverse" ng-class="getLastBuildStatus()">
                 <td class="entity-id-cell">
                     <a ng-show="branch.entity" target="_blank" href="{{branch.entity.url}}"
                        class="ui-entity ui-entity-{{branch.entity.entityType.toLowerCase()}}">{{branch.entity.id}}</a>
@@ -86,7 +86,7 @@
                     </div>
                 </td>
                 <td>
-                    <build-status build="branch.lastBuild" branch="branch" build-actions="branch.buildActions"></build-status>
+                    <build-status build="branch.lastBuild" is-activity-build="false" branch="branch" build-actions="branch.buildActions" build-actions-view="branch.buildActions"></build-status>
                 </td>
                 <td>
                     <merge-button branch="branch" size="small"></merge-button>

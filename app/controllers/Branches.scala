@@ -1,15 +1,19 @@
 package controllers
 
+import controllers.Writes._
 import play.api.libs.json._
-import Writes._
 
 object Branches extends Application {
 
-  def branches = IsAuthorizedComponent {
+  def branchesWithLastBuilds = IsAuthorizedComponent {
     component =>
       implicit request =>
-        val branches = component.branchRepository.getBranchInfos
+        Ok(Json.toJson(component.branchRepository.getBranchesWithLastBuild))
+  }
 
-        Ok(Json.toJson(branches))
+  def branch(name:String) = IsAuthorizedComponent {
+    component =>
+      implicit request =>
+        Ok(Json.toJson(component.branchRepository.getBranch(name)))
   }
 }

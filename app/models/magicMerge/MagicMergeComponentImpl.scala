@@ -1,10 +1,10 @@
 package models.magicMerge
 
 import components._
+import models.branches.Branch
 import scala.util.{Try, Success}
 import models._
 import models.PullRequest
-import models.Branch
 import scala.util.Failure
 import exceptions.NotFoundException
 import scala.Some

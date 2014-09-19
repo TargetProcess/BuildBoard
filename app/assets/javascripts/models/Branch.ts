@@ -61,6 +61,7 @@ module buildBoard {
         toggled:boolean;
         status:string;
         parsedStatus:Status;
+        buildActions:BuildAction[];
     }
 
     export interface Build extends BuildBase {
@@ -89,7 +90,6 @@ module buildBoard {
         showParameters:boolean;
         pullRequestId:number;
         cycleName:string;
-        buildParametersCategories: BuildParametersCategory[]
     }
 
     export interface BuildParametersCategory {

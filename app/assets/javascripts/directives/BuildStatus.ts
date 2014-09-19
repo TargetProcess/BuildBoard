@@ -6,6 +6,8 @@ module buildBoard {
             build: "=",
             buildActions: "=",
             branch: "=",
+            buildNumber: "=",
+            isActivityBuild: "=",
             type: "@"
         };
         controller = LastBuildStatusController;
@@ -15,16 +17,19 @@ module buildBoard {
     }
 
     export class LastBuildStatusController {
-        public static $inject = ['$scope', BackendService.NAME, '$timeout', '$q'];
+        public static $inject = ['$scope', BackendService.NAME, '$timeout'];
 
-        constructor(private $scope:any, backendService:BackendService, $timeout:ng.ITimeoutService, $q:ng.IQService) {
+        constructor(private $scope:any, backendService:BackendService, $timeout:ng.ITimeoutService) {
             this.$scope.forceBuild = (buildAction:BuildAction) => {
-                backendService.forceBuild(buildAction).success(build=> {
+                backendService.forceBuild(buildAction, this.$scope.buildNumber).success(buildResult=> {
                     this.$scope.showList = false;
-                    this.$scope.build = build;
+                    if (!this.$scope.isActivityBuild) {
+                        this.$scope.build = buildResult;
+                    }
                 });
             };
-            var timeoutId = $q.defer().promise;
+
+            var timeoutId:ng.IPromise<any> = null;
             this.$scope.clearTimeoutOnFocus = () => {
                 $timeout.cancel(timeoutId);
             };

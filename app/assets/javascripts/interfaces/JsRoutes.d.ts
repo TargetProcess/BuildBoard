@@ -24,7 +24,8 @@ declare module buildBoard {
         toggleBuild(branchId:string, buildNumber:number, toggled:boolean):IAction
         lastBuildInfos():IAction;
         builds(branch:string):IAction;
-        build(branch:string, buildNumber:number);
+        build(branch:string, buildNumber:number):IAction;
+        buildActions(branch:string, buildNumber:number):IAction;
         run(branch:string, build:number, part:string, run:string):IAction
         testCase(branch:string, build:number, part:string, run:string, test:string):IAction
     }
@@ -35,7 +36,8 @@ declare module buildBoard {
 
 
     interface IBranches {
-        branches(): IAction;
+        branchesWithLastBuilds(): IAction;
+        branch(branchId:string): IAction;
     }
 
     export interface ILogin {

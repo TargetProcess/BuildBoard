@@ -1,21 +1,22 @@
 package controllers
 
 import com.github.nscala_time.time.Imports._
-import controllers.Writes._
 import controllers.Reads._
+import controllers.Writes._
 import models.BuildStatus.{InProgress, Unknown}
 import models._
+import models.buildActions._
 import play.Play
 import play.api.libs.json._
-
 
 import scala.util.{Failure, Success}
 import scalaj.http.HttpException
 
-case class ForceBuildParameters(pullRequestId: Option[Int], branchId: Option[String], cycleName: String, parameters: List[BuildParametersCategory]) {
-}
 
 object Jenkins extends Application {
+
+  case class ForceBuildParameters(pullRequestId: Option[Int], branchId: Option[String], cycleName: String, buildNumber: Option[Int])
+
 
   def forceBuild() = IsAuthorizedComponent {
     component =>
@@ -25,18 +26,30 @@ object Jenkins extends Application {
 
           val params = json.as[ForceBuildParameters]
 
-          val maybeAction: Option[BuildAction] = (params.pullRequestId, params.branchId, params.parameters) match {
-            case (Some(prId), None, Nil) => Some(PullRequestBuildAction(prId, BuildAction.find(params.cycleName)))
-            case (None, Some(brId), Nil) => Some(BranchBuildAction(brId, BuildAction.find(params.cycleName)))
-            case (None, Some(brId), x::xs) => Some(BranchCustomBuildAction(brId, CustomCycle(x::xs)))
+          val maybeAction: Option[BuildAction] = (params.pullRequestId, params.branchId, params.buildNumber) match {
+            case (Some(prId), None, None) => Some(PullRequestBuildAction(prId, BuildAction.find(params.cycleName)))
+            case (None, Some(brId), None) => Some(BranchBuildAction(brId, BuildAction.find(params.cycleName)))
+            //case (None, Some(brId), None) => Some(BranchCustomBuildAction(brId, CustomCycle(x :: xs)))
+            //case (Some(prId), None, None) => Some(PullRequestCustomBuildAction(prId, CustomCycle(x :: xs)))
+            //case (None, Some(brId), Some(buildNumber)) => Some(BranchWithArtifactsReuseCustomBuildAction(brId, buildNumber, CustomCycle(x :: xs)))
             case _ => None
           }
 
           maybeAction match {
             case Some(buildAction) =>
-              component.jenkinsService.forceBuild(buildAction) match {
-                case Success(_) => Ok(Json.toJson(Build(-1, params.branchId.getOrElse("this"), Some("In progress"), DateTime.now,
-                  name = "", node = Some(BuildNode("this", "this", Some("In progress"), "#", List(), DateTime.now)))))
+              val forceBuildResult = buildAction match {
+                //  case c@BranchWithArtifactsReuseCustomBuildAction(brId, buildNumber, CustomCycle(x :: xs)) => component.jenkinsService.forceReuseArtifactsBuild(c)
+                case _ => component.jenkinsService.forceBuild(buildAction)
+              }
+              forceBuildResult match {
+                case Success(_) => Ok(Json.toJson(
+                  Build(
+                    number = -1,
+                    branch = params.branchId.getOrElse("this"), status = Some("In progress"),
+                    timestamp = DateTime.now,
+                    name = "",
+                    node = Some(BuildNode("this", "this", Some("In progress"), "#", List(), DateTime.now))
+                  )))
                 case Failure(e: HttpException) => BadRequest(e.toString)
                 case Failure(e) => InternalServerError("Something going wrong " + e.toString)
               }
@@ -87,7 +100,6 @@ object Jenkins extends Application {
       request => Ok.sendFile(content = component.jenkinsService.getArtifact(file))
   }
 
-
   def buildStatus(id: Int) = IsAuthorizedComponent {
     component =>
       request => {
@@ -110,4 +122,12 @@ object Jenkins extends Application {
         Ok.sendFile(file, inline = true)
       }
   }
+
+  def buildActions(branch: String) = IsAuthorizedComponent(
+    component =>
+      request => {
+
+        Ok("hello")
+      }
+  )
 }

@@ -1,9 +1,10 @@
 package components
 
+import models.branches.BranchRepositoryComponentImpl
 import models.github.GithubServiceComponentImpl
 import models.services.BranchServiceComponentImpl
 import models.tp.{UserRepositoryComponentImpl, TargetprocessComponentImpl}
-import models.{AuthInfo, User, BuildRepositoryComponentImpl, BranchRepositoryComponentImpl}
+import models.{AuthInfo, User, BuildRepositoryComponentImpl}
 import models.notifications.NotificationComponentImpl
 import models.jenkins.JenkinsServiceComponentImpl
 import models.magicMerge.MagicMergeComponentImpl
