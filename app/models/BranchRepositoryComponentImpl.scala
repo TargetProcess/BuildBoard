@@ -33,7 +33,7 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
 
 
     def getBranchInfos: List[Branch] = {
-      val builds = buildRepository.getBuildInfos.toList
+      val builds = buildRepository.getBuilds.toList
 
 
       Branches.findAll()
@@ -66,6 +66,14 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
     def getBranchByPullRequest(id: Int): Option[Branch] = Branches.findOne(MongoDBObject("pullRequest.prId" -> id))
 
     override def getBranchByEntity(id: Int): Option[Branch] = Branches.findOne(MongoDBObject("entity._id" -> id))
+
+    override def getBranchesWithLastBuild: List[Branch] = {
+      val lastBuilds = buildRepository.getLastBuilds
+
+      Branches.findAll()
+        .map(b => b.copy(lastBuild = lastBuilds.get(b.name).map(_.copy(commits = Nil, node = None))))
+        .toList
+    }
   }
 
 }

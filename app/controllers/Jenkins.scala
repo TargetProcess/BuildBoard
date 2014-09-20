@@ -1,13 +1,10 @@
 package controllers
 
 import com.github.nscala_time.time.Imports._
-import controllers.Writes._
 import controllers.Reads._
-import models.BuildStatus.{InProgress, Unknown}
+import controllers.Writes._
 import models._
-import play.Play
 import play.api.libs.json._
-
 
 import scala.util.{Failure, Success}
 import scalaj.http.HttpException
@@ -85,29 +82,5 @@ object Jenkins extends Application {
   def artifact(file: String) = IsAuthorizedComponent {
     component =>
       request => Ok.sendFile(content = component.jenkinsService.getArtifact(file))
-  }
-
-
-  def buildStatus(id: Int) = IsAuthorizedComponent {
-    component =>
-      request => {
-        val branch = component.branchRepository.getBranchByEntity(id)
-        val status = (for (b <- branch;
-                           lastBuild <- component.buildRepository.getLastBuild(b)
-        ) yield lastBuild.buildStatus).getOrElse(Unknown)
-
-        val fileName = status match {
-          case InProgress => "inprogress"
-          case _ => status.success match {
-            case None => "unknown"
-            case Some(true) => "ok"
-            case Some(false) => "fail"
-          }
-        }
-
-        val file = Play.application.getFile(s"public/images/build/$fileName.png")
-
-        Ok.sendFile(file, inline = true)
-      }
   }
 }

@@ -25,7 +25,6 @@ GET         /jenkins/artifact            controllers.Jenkins.artifact(file: Stri
 GET         /github/merge                controllers.Github.merge(branchName: String)
 GET         /github/status               controllers.Github.prStatus(id:Int)
 
-GET         /jenkins/status              controllers.Jenkins.buildStatus(id:Int)
 
 
 
