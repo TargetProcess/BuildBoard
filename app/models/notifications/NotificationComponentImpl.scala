@@ -1,16 +1,15 @@
 package models.notifications
 
-import components.{GithubServiceComponent, UserRepositoryComponent, LoggedUserProviderComponent, NotificationComponent}
+import com.mongodb.casbah.Imports._
+import components.{GithubServiceComponent, LoggedUserProviderComponent, NotificationComponent, UserRepositoryComponent}
+import models.BuildStatus._
 import models._
+import models.github.GithubStatus
 import play.api.Play
 import play.api.Play.current
-import scalaj.http.{HttpException, HttpOptions, Http}
-import models.BuildStatus._
-import com.mongodb.casbah.Imports._
-import models.Branch
-import scala.Some
+
 import scala.collection.immutable.Iterable
-import models.github.GithubStatus
+import scalaj.http.{Http, HttpException, HttpOptions}
 
 
 trait NotificationComponentImpl extends NotificationComponent {
@@ -35,7 +34,7 @@ trait NotificationComponentImpl extends NotificationComponent {
 
     val baseUrl = Play.configuration.getString("base.url").get
 
-    def updateGithub(build: IBuildInfo) = {
+    def updateGithub(build: Build) = {
       build.ref.foreach(sha => {
         val statusString = build.buildStatus match {
           case Unknown | InProgress => "pending"
@@ -53,7 +52,7 @@ trait NotificationComponentImpl extends NotificationComponent {
       })
     }
 
-    override def notifyToggle(branch: Branch, build: IBuildInfo): Unit = {
+    override def notifyToggle(branch: Branch, build: Build): Unit = {
 
       if (needBroadcast(branch.name)) {
 
@@ -71,12 +70,12 @@ trait NotificationComponentImpl extends NotificationComponent {
     }
 
 
-    val buildMap = scala.collection.mutable.Map[String, IBuildInfo]()
+    val buildMap = scala.collection.mutable.Map[String, Build]()
 
 
-    override def notifyAboutBuilds(updatedBuilds: List[IBuildInfo]) = {
+    override def notifyAboutBuilds(updatedBuilds: List[Build]) = {
 
-      val lastBuilds: Iterable[IBuildInfo] = updatedBuilds.groupBy(_.branch)
+      val lastBuilds: Iterable[Build] = updatedBuilds.groupBy(_.branch)
         .map {
         case (_, builds) => builds.maxBy(_.number)
       }
@@ -107,7 +106,7 @@ trait NotificationComponentImpl extends NotificationComponent {
       case _ => false
     }
 
-    def sendNotification(currentBuild: IBuildInfo, optionLastBuild: Option[IBuildInfo]) {
+    def sendNotification(currentBuild: Build, optionLastBuild: Option[Build]) {
       val was = optionLastBuild.fold("")(lastBuild => s"(was *${lastBuild.buildStatus.name}* at ${lastBuild.timestamp.toString("HH:mm dd/MM")})")
 
       val link = getBuildLink(currentBuild)
@@ -137,7 +136,7 @@ trait NotificationComponentImpl extends NotificationComponent {
     }
 
 
-    def getBuildLink(currentBuild: IBuildInfo): String = s"$baseUrl/#/list/branch?name=${currentBuild.branch}"
+    def getBuildLink(currentBuild: Build): String = s"$baseUrl/#/list/branch?name=${currentBuild.branch}"
 
     def post(text: String, channel: String) {
       val data = s"""{"channel": "$channel","text": "$text"}"""
@@ -155,7 +154,7 @@ trait NotificationComponentImpl extends NotificationComponent {
     }
 
 
-    def getIcon(build: IBuildInfo): String = {
+    def getIcon(build: Build): String = {
       val icon = build.buildStatus.success match {
         case Some(true) => ":white_check_mark:"
         case Some(false) => ":x:"
@@ -168,9 +167,9 @@ trait NotificationComponentImpl extends NotificationComponent {
 
   object NoNotifications extends NotificationService {
 
-    override def notifyAboutBuilds(builds: List[IBuildInfo]) = {}
+    override def notifyAboutBuilds(builds: List[Build]) = {}
 
-    override def notifyToggle(branch: Branch, build: IBuildInfo) = {}
+    override def notifyToggle(branch: Branch, build: Build) = {}
   }
 
 }

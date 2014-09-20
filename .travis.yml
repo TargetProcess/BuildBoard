@@ -6,3 +6,6 @@ notifications:
   slack:
     rooms:
       - targetprocess:o25eQr7bOyzMrwknqPXWsXQx#buildboard
+
+services:
+  - mongodb

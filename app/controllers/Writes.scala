@@ -13,8 +13,7 @@ object Writes {
   implicit val testCasePackageWrite: Writes[TestCasePackage] = Json.writes[TestCasePackage]
   implicit val buildNodeWrite: Writes[BuildNode] = Json.writes[BuildNode]
   implicit val commitWrite: Writes[Commit] = Json.writes[Commit]
-  implicit val buildInfoWrite = Json.writes[BuildInfo]
-  implicit val buildWrite = Json.writes[Build]
+  val buildWrite = Json.writes[Build]
   implicit val mergeResultWrite = Json.writes[MergeResult]
   implicit val buildParametersCategoryWrite = Json.writes[BuildParametersCategory]
 
@@ -31,27 +30,19 @@ implicit val buildActionWrite = ((__ \ "name").write[String] ~
 
   implicit val statusWrites = Json.writes[PullRequestStatus]
 
-  implicit val prWrite = Json.writes[PullRequest]
+  val prWrite = Json.writes[PullRequest]
 
-  val activityEntryWrites = new Writes[ActivityEntry] {
+  implicit val activityEntryWrites = new Writes[ActivityEntry] {
     override def writes(o: ActivityEntry): JsValue = o match {
       case b: Build => buildWrite.writes(b)
       case b: PullRequest => prWrite.writes(b)
-      case b: BuildInfo => buildInfoWrite.writes(b)
       case c: Commit => commitWrite.writes(c)
     }
   }
 
-  implicit val branchWrite =
-    (
-      (__ \ "name").write[String] ~
-        (__ \ "url").write[String] ~
-        (__ \ "pullRequest").writeNullable[PullRequest] ~
-        (__ \ "entity").writeNullable[Entity] ~
-        (__ \ "lastBuild").writeNullable[BuildInfo] ~
-        (__ \ "activity").write(list(activityEntryWrites)) ~
-        (__ \ "buildActions").write(list[BuildAction])
-      )(unlift(BranchInfo.serialize))
+
+
+  implicit val branchWrite = Json.writes[Branch]
 
 
   implicit val magicMergeResultWrite = (

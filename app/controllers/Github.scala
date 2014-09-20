@@ -32,7 +32,7 @@ object Github extends Application {
   def prStatus(id: Int) = IsAuthorizedComponent {
     component =>
       request => {
-        val branch = component.branchRepository.getBranchEntity(id)
+        val branch = component.branchRepository.getBranchByEntity(id)
         val status:Option[Boolean] = branch.flatMap(_.pullRequest).map(_.status.isMergeable)
 
         val fileName = status match {

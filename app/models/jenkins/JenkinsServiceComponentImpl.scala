@@ -1,7 +1,7 @@
 package models.jenkins
 
 import components.{LoggedUserProviderComponent, BuildRepositoryComponent, BranchRepositoryComponent, JenkinsServiceComponent}
-import models.{Branch, IBuildInfo, Build}
+import models.{Branch, Build}
 import java.io.File
 import play.api.Play
 import scala.util.Try
@@ -21,8 +21,8 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
   class JenkinsServiceImpl extends JenkinsService with FileApi with ParseFolder {
     private val jenkinsUrl = Play.configuration.getString("jenkins.url").get
 
-    override def getUpdatedBuilds(existingBuilds: List[IBuildInfo]): List[Build] = {
-      val existingBuildsMap: Map[String, IBuildInfo] = existingBuilds.map(x => (x.name, x)).toMap
+    override def getUpdatedBuilds(existingBuilds: List[Build]): List[Build] = {
+      val existingBuildsMap: Map[String, Build] = existingBuilds.map(x => (x.name, x)).toMap
 
       val allFolders = new Folder(directory).listFiles().filter(_.isDirectory).toList
 

@@ -23,7 +23,7 @@ module buildBoard {
                 $state.go("list");
             };
 
-            var defer = null;
+            var defer:ng.IHttpPromise<Build> = null;
             $scope.loadBuild = buildInfo => {
                 if (buildInfo.node == null && !defer) {
                     defer = backendService.build(this.$scope.getBranch().name, buildInfo.number).success(build => {

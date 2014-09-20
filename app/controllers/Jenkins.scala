@@ -91,7 +91,7 @@ object Jenkins extends Application {
   def buildStatus(id: Int) = IsAuthorizedComponent {
     component =>
       request => {
-        val branch = component.branchRepository.getBranchEntity(id)
+        val branch = component.branchRepository.getBranchByEntity(id)
         val status = (for (b <- branch;
                            lastBuild <- component.buildRepository.getLastBuild(b)
         ) yield lastBuild.buildStatus).getOrElse(Unknown)

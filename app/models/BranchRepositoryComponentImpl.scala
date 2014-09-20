@@ -4,7 +4,6 @@ import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.MongoDBObject
 import com.novus.salat.dao.{ModelCompanion, SalatDAO}
 import components.{BranchRepositoryComponent, BuildRepositoryComponent}
-import models.mongo.mongoContext
 import models.mongo.mongoContext._
 import play.api.Play.current
 import se.radley.plugin.salat.Binders.ObjectId
@@ -33,7 +32,7 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
     }
 
 
-    def getBranchInfos: List[BranchInfo] = {
+    def getBranchInfos: List[Branch] = {
       val builds = buildRepository.getBuildInfos.toList
 
 
@@ -42,7 +41,6 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
         .map(b => {
         val buildsForBranch = builds
           .filter(_.branch == b.name)
-          .toList
           .sortBy(-_.number)
         val commits = buildsForBranch
           .flatMap(_.commits)
@@ -53,13 +51,13 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
           .sortBy(-_.timestamp.getMillis)
           .take(100)
 
-        BranchInfo(b.name, b.url, b.pullRequest, b.entity, buildsForBranch.headOption, activity)
+        Branch(b.name, b.url, b.pullRequest, b.entity, buildsForBranch.headOption, activity)
       })
     }
 
     def getBranch(id: String): Option[Branch] = Branches.findOne(MongoDBObject("name" -> id))
 
-    def getBranches: List[Branch] = Branches.findAll().toList
+    def getBranches: Iterator[Branch] = Branches.findAll()
 
     def remove(branch: Branch): Unit = Branches.remove(branch)
 
@@ -67,7 +65,7 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
 
     def getBranchByPullRequest(id: Int): Option[Branch] = Branches.findOne(MongoDBObject("pullRequest.prId" -> id))
 
-    override def getBranchEntity(id: Int): Option[Branch] = Branches.findOne(MongoDBObject("entity._id" -> id))
+    override def getBranchByEntity(id: Int): Option[Branch] = Branches.findOne(MongoDBObject("entity._id" -> id))
   }
 
 }
