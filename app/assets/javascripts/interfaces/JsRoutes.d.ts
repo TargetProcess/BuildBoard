@@ -22,9 +22,10 @@ declare module buildBoard {
     interface IJenkins {
         forceBuild():IAction
         toggleBuild(branchId:string, buildNumber:number, toggled:boolean):IAction
-        lastBuildInfos():IAction;
+        lastBuilds(branch:string, count:number):IAction;
         builds(branch:string):IAction;
         build(branch:string, buildNumber:number);
+        buildActions(branch:string, buildNumber:number):IAction;
         run(branch:string, build:number, part:string, run:string):IAction
         testCase(branch:string, build:number, part:string, run:string, test:string):IAction
     }
@@ -36,6 +37,7 @@ declare module buildBoard {
 
     interface IBranches {
         branches(): IAction;
+        activities(name:string) : IAction;
     }
 
     export interface ILogin {

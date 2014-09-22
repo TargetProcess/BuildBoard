@@ -18,7 +18,7 @@
                         <div class="panel-group">
                             <div class="panel">
                                 <div class="panel-heading {{entry.parsedStatus | status2Class}}" >
-                                    <build-status build="entry" branch="getBranch()" type="btn"></build-status>
+                                    <build-status build="entry" branch="branch" type="btn"></build-status>
                                     <h4 class="panel-title toggle-state">
                                         <a ng-click="loadBuild(entry); isCollapsed = !isCollapsed">{{entry.isPullRequest ? "PR " : "" }}Build #{{entry.number}}</a>
                                     </h4>
@@ -97,12 +97,12 @@
 
         <div class="item">
             <h4>Jenkins</h4>
-            <build-status build="getBranch().lastBuild" branch="getBranch()" build-actions="getBranch().buildActions" type="btn"></build-status>
+            <build-status build="getBranch().lastBuild" branch="branch" build-actions="getBranch().buildActions" type="btn" show-timestamp="false"></build-status>
         </div>
 
         <div class="item">
             <h4>Merge</h4>
-            <merge-button branch="getBranch()" size="large"/>
+            <merge-button branch="branch" size="large"/>
         </div>
     </div>
 </div>

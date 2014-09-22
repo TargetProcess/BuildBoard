@@ -49,7 +49,7 @@ case class CustomCycle(parameters: List[BuildParametersCategory]) extends Cycle 
   val fullBuildCycle:Boolean = getBoolByCategory(cycleTypeCategoryName)
 
   def getBoolByCategory(categoryName: String): Boolean = {
-    parameters.find(x => x.name == categoryName).map(x => !x.parts.isEmpty).getOrElse(false)
+    parameters.find(x => x.name == categoryName).exists(x => x.parts.nonEmpty)
   }
 
   def getTestsByCategory(categoryName: String): String = {

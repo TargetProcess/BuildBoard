@@ -17,7 +17,6 @@ module buildBoard {
         pullRequest:PullRequest;
         lastBuild:Build;
         url:string;
-        builds:Build[];
         activity:ActivityEntry[];
         buildActions:BuildAction[];
     }
@@ -85,6 +84,7 @@ module buildBoard {
     }
 
     export interface BuildAction {
+        name:string;
         branchId:string;
         showParameters:boolean;
         pullRequestId:number;

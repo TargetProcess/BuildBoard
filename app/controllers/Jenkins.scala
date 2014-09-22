@@ -1,15 +1,12 @@
 package controllers
 
 import com.github.nscala_time.time.Imports._
-import controllers.Writes._
 import controllers.Reads._
-import models.BuildStatus.{InProgress, Unknown}
+import controllers.Writes._
 import models._
-import play.Play
 import play.api.libs.json._
 
-
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 import scalaj.http.HttpException
 
 case class ForceBuildParameters(pullRequestId: Option[Int], branchId: Option[String], cycleName: String, parameters: List[BuildParametersCategory]) {
@@ -24,17 +21,18 @@ object Jenkins extends Application {
         request.body.asJson.map { json =>
 
           val params = json.as[ForceBuildParameters]
+          val cycle = if (params.parameters.isEmpty) BuildAction.find(params.cycleName) else CustomCycle(params.parameters)
 
-          val maybeAction: Option[BuildAction] = (params.pullRequestId, params.branchId, params.parameters) match {
-            case (Some(prId), None, Nil) => Some(PullRequestBuildAction(prId, BuildAction.find(params.cycleName)))
-            case (None, Some(brId), Nil) => Some(BranchBuildAction(brId, BuildAction.find(params.cycleName)))
-            case (None, Some(brId), x::xs) => Some(BranchCustomBuildAction(brId, CustomCycle(x::xs)))
+          val maybeAction: Option[BuildAction] = (params.pullRequestId, params.branchId) match {
+            case (Some(prId), None) => Some(PullRequestBuildAction(prId, cycle))
+            case (None, Some(brId)) => Some(BranchBuildAction(brId, cycle))
             case _ => None
           }
 
           maybeAction match {
             case Some(buildAction) =>
-              component.jenkinsService.forceBuild(buildAction) match {
+              val forceBuildResult: Try[String] = component.jenkinsService.forceBuild(buildAction)
+              forceBuildResult match {
                 case Success(_) => Ok(Json.toJson(Build(-1, params.branchId.getOrElse("this"), Some("In progress"), DateTime.now,
                   name = "", node = Some(BuildNode("this", "this", Some("In progress"), "#", List(), DateTime.now)))))
                 case Failure(e: HttpException) => BadRequest(e.toString)
@@ -87,27 +85,18 @@ object Jenkins extends Application {
       request => Ok.sendFile(content = component.jenkinsService.getArtifact(file))
   }
 
-
-  def buildStatus(id: Int) = IsAuthorizedComponent {
+  def buildActions(branchName: String, number: Option[Int]) = IsAuthorizedComponent {
     component =>
-      request => {
-        val branch = component.branchRepository.getBranchEntity(id)
-        val status = (for (b <- branch;
-                           lastBuild <- component.buildRepository.getLastBuild(b)
-        ) yield lastBuild.buildStatus).getOrElse(Unknown)
+      request =>
+        val branch = component.branchRepository.getBranch(branchName)
 
-        val fileName = status match {
-          case InProgress => "inprogress"
-          case _ => status.success match {
-            case None => "unknown"
-            case Some(true) => "ok"
-            case Some(false) => "fail"
-          }
-        }
+        Ok(Json.toJson(branch.map(_.buildActions).getOrElse(Nil)))
+  }
 
-        val file = Play.application.getFile(s"public/images/build/$fileName.png")
 
-        Ok.sendFile(file, inline = true)
-      }
+  def lastBuilds(branch: String, count: Int) = IsAuthorizedComponent {
+    component =>
+      request =>
+        Ok(Json.toJson(component.buildRepository.getLastBuilds(branch, count)))
   }
 }

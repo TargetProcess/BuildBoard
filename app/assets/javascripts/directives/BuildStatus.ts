@@ -4,8 +4,8 @@ module buildBoard {
         static NAME = "buildStatus";
         scope = {
             build: "=",
-            buildActions: "=",
             branch: "=",
+            showTimestamp: "@",
             type: "@"
         };
         controller = LastBuildStatusController;
@@ -14,25 +14,72 @@ module buildBoard {
         replace = true;
     }
 
-    export class LastBuildStatusController {
-        public static $inject = ['$scope', BackendService.NAME, '$timeout', '$q'];
 
-        constructor(private $scope:any, backendService:BackendService, $timeout:ng.ITimeoutService, $q:ng.IQService) {
+    export interface IBuildStatusScope extends ng.IScope {
+        build:Build;
+        branch:Branch;
+        type:string;
+        showTimestamp: boolean;
+        showList: boolean;
+        forceBuild(buildAction:BuildAction);
+        toggleParameters(buildAction:BuildAction);
+        clearTimeoutOnFocus();
+        hideOnBlur();
+        buildActions:BuildAction[]
+        getBuildStatus(build:Build):Status;
+        toggleBuild(build:Build);
+        toggle();
+        pending:boolean;
+    }
+
+    export class LastBuildStatusController {
+        public static $inject = ['$scope', BackendService.NAME, '$timeout'];
+
+        constructor(private $scope:IBuildStatusScope, backendService:BackendService, $timeout:ng.ITimeoutService) {
+
+            this.$scope.toggle = () => {
+                if (!this.$scope.showList) {
+                    this.$scope.showList = true;
+                    this.$scope.pending = true;
+
+
+                    backendService.getBuildActions(this.$scope.branch.name).then(data=> {
+                        this.$scope.buildActions = data.data;
+                        this.$scope.pending = false;
+                    });
+
+
+                }
+                else {
+                    this.$scope.showList = false;
+                    this.$scope.buildActions = [];
+                }
+
+
+            };
+
+
             this.$scope.forceBuild = (buildAction:BuildAction) => {
+                console.log(buildAction);
+
                 backendService.forceBuild(buildAction).success(build=> {
                     this.$scope.showList = false;
                     this.$scope.build = build;
                 });
             };
-            var timeoutId = $q.defer().promise;
+
+            var timeoutId:ng.IPromise<any> = null;
+
+
             this.$scope.clearTimeoutOnFocus = () => {
                 $timeout.cancel(timeoutId);
             };
             this.$scope.hideOnBlur = () => {
                 timeoutId = $timeout(() => {
                     this.$scope.showList = false;
+                    this.$scope.buildActions = [];
                     this.$scope.$digest()
-                }, 200);
+                }, 0);
             };
 
             this.$scope.toggleParameters = (buildAction:BuildAction) => {

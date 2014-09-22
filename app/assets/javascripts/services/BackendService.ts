@@ -27,6 +27,10 @@ module buildBoard {
             return this.$http.get(this.controllers.Jenkins.build(branchId, buildNumber).absoluteURL());
         }
 
+        getLastBuilds(branchName:string, count:number):ng.IHttpPromise<Build[]> {
+            return this.$http.get(this.controllers.Jenkins.lastBuilds(branchName, count).absoluteURL());
+        }
+
         forceBuild(buildAction:BuildAction):ng.IHttpPromise<Build> {
             var categories:BuildParametersCategory[] = _.chain(buildAction.buildParametersCategories).map((x:BuildParametersCategory) => {
                     return {
@@ -46,6 +50,10 @@ module buildBoard {
             return this.$http.post(this.controllers.Targetprocess.changeEntityState(entityId, nextStateId).absoluteURL(), {});
         }
 
+        getBuildActions(branch:string, build?:number):ng.IHttpPromise<BuildAction[]>{
+           return this.$http.get(this.controllers.Jenkins.buildActions(branch, build).absoluteURL());
+        }
+
         run(branch:string, build:number, part:string, run:string):ng.IHttpPromise<BuildNode> {
             return this.$http.get(this.controllers.Jenkins.run(branch, build, part, run).absoluteURL())
         }
@@ -61,6 +69,11 @@ module buildBoard {
         updateInfo(slackName:string):ng.IHttpPromise<any> {
             return this.$http.post(this.controllers.Login.updateInfo(slackName).absoluteURL(), {});
         }
+
+        getActivities(branchName:string):ng.IHttpPromise<ActivityEntry[]> {
+            return this.$http.get(this.controllers.Branches.activities(branchName).absoluteURL());
+        }
+
     }
 
 }

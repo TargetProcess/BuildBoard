@@ -26,8 +26,13 @@ module buildBoard {
 
         ];
 
-        constructor(private $scope:IBranchesScope, $state:ng.ui.IStateService, $window:ng.IWindowService, private loggedUserService:LoggedUserService, private modelProvider:ModelProvider,
-            backendService:BackendService) {
+        constructor(private $scope:IBranchesScope,
+                    $state:ng.ui.IStateService,
+                    $window:ng.IWindowService,
+                    private loggedUserService:LoggedUserService,
+                    private modelProvider:ModelProvider,
+                    backendService:BackendService)
+        {
             this.$scope.userFilter = $state.params['user'] || 'all';
             this.$scope.branchesFilter = $state.params['branch'] || 'all';
 
@@ -39,10 +44,14 @@ module buildBoard {
                 }
             };
 
-            this.$scope.getUsers = ()=>this.getUsers(modelProvider.branches);
-            this.$scope.getBranches = () => this.filter(modelProvider.branches, this.$scope.userFilter, this.$scope.branchesFilter);
-            this.$scope.countBy = (userFilter:string, branchesFilter:string)=>this.filter(modelProvider.branches, userFilter || this.$scope.userFilter, branchesFilter || "all").length;
 
+            modelProvider.branches.then(branches=>{
+
+                this.$scope.getUsers = ()=>this.getUsers(branches);
+                this.$scope.getBranches = () => this.filter(branches, this.$scope.userFilter, this.$scope.branchesFilter);
+                this.$scope.countBy = (userFilter:string, branchesFilter:string)=>this.filter(branches, userFilter || this.$scope.userFilter, branchesFilter || "all").length;
+
+            });
 
             if (!loggedUserService.getLoggedUser().slackName){
                 var slackName = prompt('Provide your slack login (not an email!)');

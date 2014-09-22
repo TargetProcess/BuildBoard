@@ -28,7 +28,42 @@ object CacheService {
 
 
   def start = {
-    val githubSubscription = Observable.timer(0 seconds, githubInterval)
+    val githubSubscription = subscribeToGithub
+    val jenkinsSubscription = subscribeToJenkins
+
+    Subscription {
+      githubSubscription.unsubscribe()
+      jenkinsSubscription.unsubscribe()
+    }
+  }
+
+  def subscribeToJenkins: Subscription = {
+    Observable.timer(0 seconds, jenkinsInterval)
+      .subscribe(_ => Try {
+
+      watch("updating builds") {
+        val existingBuilds = registry.buildRepository.getBuilds.toList
+        play.Logger.info(s"existingBuilds: ${existingBuilds.length}")
+
+        val buildToUpdate = registry.jenkinsService.getUpdatedBuilds(existingBuilds)
+        play.Logger.info(s"buildToUpdate: ${buildToUpdate.length}")
+
+        for (updatedBuild <- buildToUpdate) {
+          registry.buildRepository.update(updatedBuild)
+        }
+
+        registry.notificationService.notifyAboutBuilds(registry.buildRepository.getBuilds.toList)
+      }
+    }.recover {
+      case e => play.Logger.error("Error in jenkinsSubscription", e)
+    },
+        error => {
+          play.Logger.error("Error in jenkinsSubscription", error)
+        })
+  }
+
+  def subscribeToGithub: Subscription = {
+    Observable.timer(0 seconds, githubInterval)
       .map(_ => Try {
       registry.branchService.getBranches
     })
@@ -55,33 +90,5 @@ object CacheService {
     error => {
       play.Logger.error("Error in githubSubscription", error)
     })
-
-    val jenkinsSubscription = Observable.timer(0 seconds, jenkinsInterval)
-      .subscribe(_ => Try {
-
-      watch("updating builds") {
-        val existingBuilds = registry.buildRepository.getBuildInfos.toList
-        play.Logger.info(s"existingBuilds: ${existingBuilds.length}")
-
-        val buildToUpdate = registry.jenkinsService.getUpdatedBuilds(existingBuilds)
-        play.Logger.info(s"buildToUpdate: ${buildToUpdate.length}")
-
-        for (updatedBuild <- buildToUpdate) {
-          registry.buildRepository.update(updatedBuild)
-        }
-
-        registry.notificationService.notifyAboutBuilds(registry.buildRepository.getBuildInfos.toList)
-      }
-    }.recover {
-      case e => play.Logger.error("Error in jenkinsSubscription", e)
-    },
-        error => {
-          play.Logger.error("Error in jenkinsSubscription", error)
-        })
-
-    Subscription {
-      githubSubscription.unsubscribe()
-      jenkinsSubscription.unsubscribe()
-    }
   }
 }
