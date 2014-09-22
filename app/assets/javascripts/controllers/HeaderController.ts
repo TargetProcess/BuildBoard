@@ -17,9 +17,7 @@ module buildBoard {
             $scope.logout = backendService.controllers.Login.logout().absoluteURL();
 
             modelProvider.lastDevelopBuilds.then(builds=>{
-                console.log(builds);
                 $scope.getLastBuild =()=> builds[0];
-
                 $scope.getPrevBuild =()=> builds[1];
             });
 
