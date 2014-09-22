@@ -52,7 +52,9 @@ module buildBoard {
             return this.$q.all([activitiesQ, branchQ])
                 .then(results=> {
                     var branch = <Branch>results[1];
-                    branch.activity = results[0];
+                    if (branch) {
+                        branch.activity = results[0];
+                    }
                     return branch;
                 });
 
