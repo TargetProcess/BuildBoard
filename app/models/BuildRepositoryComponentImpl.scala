@@ -29,7 +29,19 @@ trait BuildRepositoryComponentImpl extends BuildRepositoryComponent {
 
     override def getBuilds: Iterator[Build] = Builds.findAll()
 
-    override def getBuilds(branch: Branch) = getBuilds(branch.name)
+    private val buildInfoProjection = MongoDBObject(
+      "number" -> "number",
+      "branch" -> "branch",
+      "status" -> "status",
+      "timestamp" -> "timestamp",
+      "commits" -> "commits",
+      "isPullRequest" -> "isPullRequest",
+      "toggled" -> "toggled")
+
+
+    override def getBuilds(branch: Branch, limit:Int) = Builds.find(MongoDBObject("branch" -> branch.name))
+      .sort(MongoDBObject("number" -> -1))
+      .limit(limit)
 
     override def getBuilds(branch: String) = Builds.find(MongoDBObject("branch" -> branch))
 

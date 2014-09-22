@@ -52,10 +52,11 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
     }
 
     override def getBranchActivities(branch: Branch): List[ActivityEntry] = {
-      val builds = buildRepository.getBuilds(branch).limit(100).toList
+      val builds = buildRepository.getBuilds(branch, 100)
+
+        .toList
 
       val buildsForBranch = builds
-        .sortBy(-_.number)
         .map(_.copy(node = None, commits = Nil))
         .toList
       val commits = builds
