@@ -1,5 +1,6 @@
 package components
 
+import com.novus.salat.dao.SalatMongoCursor
 import models.{Build, Branch}
 
 trait BuildRepositoryComponent {
@@ -11,7 +12,7 @@ trait BuildRepositoryComponent {
     def update(build:Build)
 
     def getBuilds: Iterator[Build]
-    def getBuilds(branch: Branch): Iterator[Build]
+    def getBuilds(branch: Branch): SalatMongoCursor[Build]
     def getBuilds(branch: String): Iterator[Build]
 
     def getLastBuilds(branch: String, count:Int = 1):List[Build]

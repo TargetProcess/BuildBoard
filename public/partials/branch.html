@@ -97,12 +97,12 @@
 
         <div class="item">
             <h4>Jenkins</h4>
-            <build-status build="getBranch().lastBuild" branch="branch" build-actions="getBranch().buildActions" type="btn" show-timestamp="false"></build-status>
+            <build-status build="getBranch().lastBuild" branch="getBranch()" build-actions="getBranch().buildActions" type="btn" show-timestamp="false"></build-status>
         </div>
 
         <div class="item">
             <h4>Merge</h4>
-            <merge-button branch="branch" size="large"/>
+            <merge-button branch="getBranch()" size="large"/>
         </div>
     </div>
 </div>
