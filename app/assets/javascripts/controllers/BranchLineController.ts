@@ -7,9 +7,7 @@ module buildBoard {
 
 
         public static $inject = [
-            '$scope',
-            BackendService.NAME,
-            ModelProvider.NAME
+            '$scope'
         ];
 
         constructor($scope:IBranchScope) {

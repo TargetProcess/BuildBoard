@@ -25,6 +25,7 @@ declare module buildBoard {
         lastBuildInfos():IAction;
         builds(branch:string):IAction;
         build(branch:string, buildNumber:number);
+        buildActions(branch:string, buildNumber:number):IAction;
         run(branch:string, build:number, part:string, run:string):IAction
         testCase(branch:string, build:number, part:string, run:string, test:string):IAction
     }

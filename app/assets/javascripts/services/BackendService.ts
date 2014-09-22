@@ -46,6 +46,10 @@ module buildBoard {
             return this.$http.post(this.controllers.Targetprocess.changeEntityState(entityId, nextStateId).absoluteURL(), {});
         }
 
+        getBuildActions(branch:string, build?:number):ng.IHttpPromise<BuildAction[]>{
+           return this.$http.get(this.controllers.Jenkins.buildActions(branch, build).absoluteURL());
+        }
+
         run(branch:string, build:number, part:string, run:string):ng.IHttpPromise<BuildNode> {
             return this.$http.get(this.controllers.Jenkins.run(branch, build, part, run).absoluteURL())
         }

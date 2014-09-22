@@ -18,6 +18,7 @@ POST        /login/update                controllers.Login.updateInfo(slackName:
 GET         /jenkins/build               controllers.Jenkins.build(branch:String, number: Int)
 POST        /jenkins/forceBuild          controllers.Jenkins.forceBuild()
 POST        /jenkins/toggleBuild         controllers.Jenkins.toggleBuild(branchId:String, buildNumber:Int, toggled:Boolean)
+GET         /jenkins/buildActions        controllers.Jenkins.buildActions(branchName:String, buildNumber:Option[Int])
 
 GET         /jenkins/run                 controllers.Jenkins.run(branch: String, build: Int, part: String, run: String)
 GET         /jenkins/testCase            controllers.Jenkins.testCase(branch: String, build: Int, part: String, run: String, test: String)

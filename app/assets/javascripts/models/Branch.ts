@@ -84,6 +84,7 @@ module buildBoard {
     }
 
     export interface BuildAction {
+        name:string;
         branchId:string;
         showParameters:boolean;
         pullRequestId:number;

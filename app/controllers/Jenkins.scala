@@ -83,4 +83,12 @@ object Jenkins extends Application {
     component =>
       request => Ok.sendFile(content = component.jenkinsService.getArtifact(file))
   }
+
+  def buildActions(branchName: String, number: Option[Int]) = IsAuthorizedComponent {
+    component =>
+      request =>
+      val branch = component.branchRepository.getBranch(branchName)
+
+      Ok(Json.toJson(branch.map(_.buildActions).getOrElse(Nil)))
+  }
 }
