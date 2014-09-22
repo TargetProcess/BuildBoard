@@ -21,8 +21,8 @@ module buildBoard {
                 if (!branch) {
                     return null;
                 }
-                var lastDevelop = modelProvider.getLastBuild('develop');
-                var prevDevelop = modelProvider.getPrevBuild('develop');
+                var lastDevelop = null; //modelProvider.getLastBuild('develop');
+                var prevDevelop = null;// modelProvider.getPrevBuild('develop');
 
                 if (!lastDevelop || !prevDevelop) {
                     return null;

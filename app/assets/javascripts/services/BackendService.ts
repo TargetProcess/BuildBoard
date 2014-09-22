@@ -61,6 +61,11 @@ module buildBoard {
         updateInfo(slackName:string):ng.IHttpPromise<any> {
             return this.$http.post(this.controllers.Login.updateInfo(slackName).absoluteURL(), {});
         }
+
+        getActivities(branchName:string):ng.IHttpPromise<ActivityEntry[]> {
+            return this.$http.get(this.controllers.Branches.activities(branchName).absoluteURL());
+        }
+
     }
 
 }

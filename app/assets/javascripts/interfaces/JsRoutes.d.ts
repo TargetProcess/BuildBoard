@@ -36,6 +36,7 @@ declare module buildBoard {
 
     interface IBranches {
         branches(): IAction;
+        activities(name:string) : IAction;
     }
 
     export interface ILogin {

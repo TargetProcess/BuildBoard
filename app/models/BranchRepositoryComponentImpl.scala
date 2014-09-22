@@ -31,30 +31,6 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
       collection.ensureIndex(DBObject("name" -> 1), "", unique = true)
     }
 
-
-    def getBranchInfos: List[Branch] = {
-      val builds = buildRepository.getBuilds.toList
-
-
-      Branches.findAll()
-        .toList
-        .map(b => {
-        val buildsForBranch = builds
-          .filter(_.branch == b.name)
-          .sortBy(-_.number)
-        val commits = buildsForBranch
-          .flatMap(_.commits)
-          .map(c => (c.timestamp, c))
-          .groupBy(_._1)
-          .map(_._2.head._2)
-        val activity = (buildsForBranch ++ b.pullRequest ++ commits)
-          .sortBy(-_.timestamp.getMillis)
-          .take(100)
-
-        Branch(b.name, b.url, b.pullRequest, b.entity, buildsForBranch.headOption, activity)
-      })
-    }
-
     def getBranch(id: String): Option[Branch] = Branches.findOne(MongoDBObject("name" -> id))
 
     def getBranches: Iterator[Branch] = Branches.findAll()
@@ -73,6 +49,26 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
       Branches.findAll()
         .map(b => b.copy(lastBuild = lastBuilds.get(b.name).map(_.copy(commits = Nil, node = None))))
         .toList
+    }
+
+    override def getBranchActivities(branch: Branch): List[ActivityEntry] = {
+      val builds = buildRepository.getBuilds(branch).toList
+
+      val buildsForBranch = builds
+        .sortBy(-_.number)
+        .map(_.copy(node = None, commits = Nil))
+        .toList
+      val commits = builds
+        .flatMap(_.commits)
+        .map(c => (c.timestamp, c))
+        .groupBy(_._1)
+        .map(_._2.head._2)
+
+      val activity = (buildsForBranch ++ branch.pullRequest ++ commits)
+        .sortBy(-_.timestamp.getMillis)
+        .take(100)
+
+      activity
     }
   }
 

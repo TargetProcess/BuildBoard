@@ -14,7 +14,7 @@
 /// <reference path='interfaces/IBuildBoardWindow.ts' />
 /// <reference path='interfaces/IBuildBoardRoadParamsService.ts'/>
 /// <reference path='controllers/StatusController.ts'/>
-/// <reference path='controllers/BranchControllerBase.ts'/>
+/// <reference path='controllers/IBranchScope.ts'/>
 /// <reference path='controllers/BranchesController.ts' />
 /// <reference path='controllers/BranchController.ts' />
 /// <reference path='controllers/BranchLineController.ts' />

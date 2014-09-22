@@ -17,7 +17,6 @@ module buildBoard {
         pullRequest:PullRequest;
         lastBuild:Build;
         url:string;
-        builds:Build[];
         activity:ActivityEntry[];
         buildActions:BuildAction[];
     }

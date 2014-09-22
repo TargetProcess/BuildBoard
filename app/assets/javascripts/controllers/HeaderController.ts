@@ -16,9 +16,9 @@ module buildBoard {
             $scope.user = loggedUser.getLoggedUser();
             $scope.logout = backendService.controllers.Login.logout().absoluteURL();
 
-            $scope.getLastBuild = () => modelProvider.getLastBuild('develop');
+           // $scope.getLastBuild = () => modelProvider.getLastBuild('develop');
 
-            $scope.getPrevBuild = () => modelProvider.getPrevBuild('develop');
+           // $scope.getPrevBuild = () => modelProvider.getPrevBuild('develop');
         }
     }
 

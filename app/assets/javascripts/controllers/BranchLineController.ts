@@ -2,12 +2,7 @@
 module buildBoard {
     'use strict';
 
-    export interface IBranchLineScope extends IBranchScope {
-        branch:Branch;
-    }
-
-
-    export class BranchLineController extends BranchControllerBase {
+    export class BranchLineController {
         public static NAME = 'branchLineController';
 
 
@@ -17,10 +12,9 @@ module buildBoard {
             ModelProvider.NAME
         ];
 
-        constructor($scope:IBranchLineScope, backendService:BackendService, modelProvider:ModelProvider) {
-            super($scope, backendService, modelProvider);
+        constructor($scope:IBranchScope) {
 
-            $scope.getBranch = ()=>$scope.branch;
+            //$scope.getBranch = ()=>$scope.branch;
         }
     }
 }

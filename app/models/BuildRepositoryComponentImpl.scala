@@ -31,7 +31,7 @@ trait BuildRepositoryComponentImpl extends BuildRepositoryComponent {
 
     override def getBuilds(branch: Branch) = getBuilds(branch.name)
 
-    def getBuilds(branch: String) = Builds.find(MongoDBObject("branch" -> branch))
+    override def getBuilds(branch: String) = Builds.find(MongoDBObject("branch" -> branch))
 
     def getAllBuilds: Iterator[Build] = Builds.findAll()
 

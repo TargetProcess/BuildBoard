@@ -5,23 +5,29 @@ module buildBoard {
     export interface IBranchDetailsScope extends IBranchScope {
         loadBuild(buildInfo:Build): void;
         getActivity(): ActivityEntry[];
+        getBranch():Branch;
     }
 
-    export class BranchController extends BranchControllerBase {
+    export class BranchController {
         public static $inject = [
             '$scope',
             '$state',
-            BackendService.NAME,
-            ModelProvider.NAME
+            ModelProvider.NAME,
+            BackendService.NAME
         ];
 
-        constructor($scope:IBranchDetailsScope, $state:ng.ui.IStateService, backendService:BackendService, modelProvider:ModelProvider) {
-            super($scope, backendService, modelProvider);
+        constructor(private $scope:IBranchDetailsScope, $state:ng.ui.IStateService, modelProvider:ModelProvider, backendService:BackendService) {
+
 
             this.$scope.branchName = $state.params['name'];
-            this.$scope.closeView = ()=> {
-                $state.go("list");
-            };
+            this.$scope.closeView = ()=> $state.go("list");
+
+            modelProvider.getBranchWithActivities(this.$scope.branchName)
+                .then(branch => {
+                    this.$scope.getBranch = ()=> branch;
+                    this.$scope.getActivity = ()=>branch.activity;
+                });
+
 
             var defer:ng.IHttpPromise<Build> = null;
             $scope.loadBuild = buildInfo => {
@@ -32,14 +38,6 @@ module buildBoard {
                     });
                 }
             };
-
-            $scope.getActivity = () => {
-                var branch = this.$scope.getBranch();
-                if (!branch)
-                    return null;
-
-                return branch.activity;
-            }
         }
     }
 }

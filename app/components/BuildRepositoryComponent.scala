@@ -12,6 +12,7 @@ trait BuildRepositoryComponent {
 
     def getBuilds: Iterator[Build]
     def getBuilds(branch: Branch): Iterator[Build]
+    def getBuilds(branch: String): Iterator[Build]
 
     def getLastBuild(branch: Branch):Option[Build]
     def getLastBuilds: Map[String, Build]
