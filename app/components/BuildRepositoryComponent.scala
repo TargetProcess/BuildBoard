@@ -14,7 +14,7 @@ trait BuildRepositoryComponent {
     def getBuilds(branch: Branch): Iterator[Build]
     def getBuilds(branch: String): Iterator[Build]
 
-    def getLastBuild(branch: Branch):Option[Build]
+    def getLastBuilds(branch: String, count:Int = 1):List[Build]
     def getLastBuilds: Map[String, Build]
 
     def toggleBuild(branch: Branch, number: Int, toggled: Boolean): Option[Build]

@@ -57,8 +57,8 @@ trait BuildRepositoryComponentImpl extends BuildRepositoryComponent {
         "branch" -> build.branch),
       build, upsert = true, multi = false, Builds.dao.collection.writeConcern)
 
-    override def getLastBuild(branch: Branch): Option[Build] = Builds.find(MongoDBObject("branch" -> branch.name))
-      .sort(MongoDBObject("number" -> -1)).limit(1).toList.headOption
+    override def getLastBuilds(branch: String, count:Int = 1): List[Build] = Builds.find(MongoDBObject("branch" -> branch))
+      .sort(MongoDBObject("number" -> -1)).limit(count).toList
 
     override def getLastBuilds: Map[String, Build] = {
 

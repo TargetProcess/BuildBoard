@@ -22,7 +22,7 @@ declare module buildBoard {
     interface IJenkins {
         forceBuild():IAction
         toggleBuild(branchId:string, buildNumber:number, toggled:boolean):IAction
-        lastBuildInfos():IAction;
+        lastBuilds(branch:string, count:number):IAction;
         builds(branch:string):IAction;
         build(branch:string, buildNumber:number);
         buildActions(branch:string, buildNumber:number):IAction;

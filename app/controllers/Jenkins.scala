@@ -6,7 +6,7 @@ import controllers.Writes._
 import models._
 import play.api.libs.json._
 
-import scala.util.{Try, Failure, Success}
+import scala.util.{Failure, Success, Try}
 import scalaj.http.HttpException
 
 case class ForceBuildParameters(pullRequestId: Option[Int], branchId: Option[String], cycleName: String, parameters: List[BuildParametersCategory]) {
@@ -88,8 +88,15 @@ object Jenkins extends Application {
   def buildActions(branchName: String, number: Option[Int]) = IsAuthorizedComponent {
     component =>
       request =>
-      val branch = component.branchRepository.getBranch(branchName)
+        val branch = component.branchRepository.getBranch(branchName)
 
-      Ok(Json.toJson(branch.map(_.buildActions).getOrElse(Nil)))
+        Ok(Json.toJson(branch.map(_.buildActions).getOrElse(Nil)))
+  }
+
+
+  def lastBuilds(branch: String, count: Int) = IsAuthorizedComponent {
+    component =>
+      request =>
+        Ok(Json.toJson(component.buildRepository.getLastBuilds(branch, count)))
   }
 }

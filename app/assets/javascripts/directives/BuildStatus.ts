@@ -5,6 +5,7 @@ module buildBoard {
         scope = {
             build: "=",
             branch: "=",
+            showTimestamp: "@",
             type: "@"
         };
         controller = LastBuildStatusController;
@@ -17,7 +18,8 @@ module buildBoard {
     export interface IBuildStatusScope extends ng.IScope {
         build:Build;
         branch:Branch;
-        type: string;
+        type:string;
+        showTimestamp: boolean;
         showList: boolean;
         forceBuild(buildAction:BuildAction);
         toggleParameters(buildAction:BuildAction);
