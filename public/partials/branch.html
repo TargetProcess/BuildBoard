@@ -18,7 +18,7 @@
                         <div class="panel-group">
                             <div class="panel">
                                 <div class="panel-heading {{entry.parsedStatus | status2Class}}" >
-                                    <build-status build="entry" branch="branch" type="btn"></build-status>
+                                    <build-status build="entry" branch="getBranch()" type="btn"></build-status>
                                     <h4 class="panel-title toggle-state">
                                         <a ng-click="loadBuild(entry); isCollapsed = !isCollapsed">{{entry.isPullRequest ? "PR " : "" }}Build #{{entry.number}}</a>
                                     </h4>
