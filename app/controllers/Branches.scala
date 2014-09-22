@@ -7,7 +7,7 @@ object Branches extends Application {
   def branches = IsAuthorizedComponent {
     component =>
       implicit request =>
-        val branches = component.branchRepository.getBranches
+        val branches = component.branchRepository.getBranchesWithLastBuild
         import controllers.Writes._
 
         Ok(Json.toJson(branches.toList))
