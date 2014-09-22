@@ -6,7 +6,7 @@ import controllers.Writes._
 import models._
 import play.api.libs.json._
 
-import scala.util.{Failure, Success}
+import scala.util.{Try, Failure, Success}
 import scalaj.http.HttpException
 
 case class ForceBuildParameters(pullRequestId: Option[Int], branchId: Option[String], cycleName: String, parameters: List[BuildParametersCategory]) {
@@ -21,17 +21,18 @@ object Jenkins extends Application {
         request.body.asJson.map { json =>
 
           val params = json.as[ForceBuildParameters]
+          val cycle = if (params.parameters.isEmpty) BuildAction.find(params.cycleName) else CustomCycle(params.parameters)
 
-          val maybeAction: Option[BuildAction] = (params.pullRequestId, params.branchId, params.parameters) match {
-            case (Some(prId), None, Nil) => Some(PullRequestBuildAction(prId, BuildAction.find(params.cycleName)))
-            case (None, Some(brId), Nil) => Some(BranchBuildAction(brId, BuildAction.find(params.cycleName)))
-            case (None, Some(brId), x::xs) => Some(BranchCustomBuildAction(brId, CustomCycle(x::xs)))
+          val maybeAction: Option[BuildAction] = (params.pullRequestId, params.branchId) match {
+            case (Some(prId), None) => Some(PullRequestBuildAction(prId, cycle))
+            case (None, Some(brId)) => Some(BranchBuildAction(brId, cycle))
             case _ => None
           }
 
           maybeAction match {
             case Some(buildAction) =>
-              component.jenkinsService.forceBuild(buildAction) match {
+              val forceBuildResult: Try[String] = component.jenkinsService.forceBuild(buildAction)
+              forceBuildResult match {
                 case Success(_) => Ok(Json.toJson(Build(-1, params.branchId.getOrElse("this"), Some("In progress"), DateTime.now,
                   name = "", node = Some(BuildNode("this", "this", Some("In progress"), "#", List(), DateTime.now)))))
                 case Failure(e: HttpException) => BadRequest(e.toString)
