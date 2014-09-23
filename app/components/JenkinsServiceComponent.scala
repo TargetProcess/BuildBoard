@@ -14,7 +14,7 @@ trait JenkinsServiceComponent {
   trait JenkinsService {
     def forceBuild(action: models.BuildAction): Try[String]
 
-    def getUpdatedBuilds(existingBuilds:List[Build]):List[Build]
+    def getUpdatedBuilds(existingBuilds:List[Build], buildNamesToUpdate: Seq[String]):List[Build]
 
     def getTestRun(branch: Branch, buildNumber: Int, part: String, run: String) : Option[BuildNode]
 

@@ -1,15 +1,18 @@
 package models.services
 
-import scala.util.{Try, Success, Failure}
-import rx.lang.scala.{Subscription, Observable}
+import java.io.File
+
+import components.DefaultRegistry
+import models.AuthInfo
+import models.jenkins.FileApi
 import play.api.Play
 import play.api.Play.current
-import models.AuthInfo
-import src.Utils.watch
-import components.DefaultRegistry
-import scala.concurrent.duration._
+import rx.lang.scala.{Observable, Subscription}
 
-object CacheService {
+import scala.concurrent.duration._
+import scala.util.{Failure, Success, Try}
+
+object CacheService extends FileApi {
   val authInfo: AuthInfo = (for {
     tpToken <- Play.configuration.getString("cache.user.tp.token")
     gToken <- Play.configuration.getString("cache.user.github.token")
@@ -28,6 +31,9 @@ object CacheService {
 
 
   def start = {
+
+    updateBuilds(Nil)
+
     val githubSubscription = subscribeToGithub
     val jenkinsSubscription = subscribeToJenkins
 
@@ -38,28 +44,45 @@ object CacheService {
   }
 
   def subscribeToJenkins: Subscription = {
-    Observable.timer(0 seconds, jenkinsInterval)
-      .subscribe(_ => Try {
+    val artifactsDir = new File(directory)
 
-      watch("updating builds") {
-        val existingBuilds = registry.buildRepository.getBuilds.toList
-        play.Logger.info(s"existingBuilds: ${existingBuilds.length}")
+    val dir_watcher = new DirectoryWatcher(artifactsDir, true)
 
-        val buildToUpdate = registry.jenkinsService.getUpdatedBuilds(existingBuilds)
-        play.Logger.info(s"buildToUpdate: ${buildToUpdate.length}")
+    dir_watcher.observable.map(file => {
+      val directoryName = artifactsDir.toPath.relativize(file.toPath).subpath(0, 1)
+      directoryName.toString
 
-        for (updatedBuild <- buildToUpdate) {
-          registry.buildRepository.update(updatedBuild)
-        }
+    }).buffer(jenkinsInterval)
+      .map(_.distinct)
+      .subscribe(fileChangedEvents => Try {
 
-        registry.notificationService.notifyAboutBuilds(registry.buildRepository.getBuilds.toList)
+
+      play.Logger.info(s"files changed: ${fileChangedEvents.length}")
+      if (fileChangedEvents.nonEmpty) {
+        updateBuilds(fileChangedEvents)
       }
+
     }.recover {
       case e => play.Logger.error("Error in jenkinsSubscription", e)
     },
         error => {
           play.Logger.error("Error in jenkinsSubscription", error)
         })
+
+  }
+
+  def updateBuilds(fileChangedEvents: Seq[String]) {
+    val existingBuilds = registry.buildRepository.getBuilds.toList
+    play.Logger.info(s"existingBuilds: ${existingBuilds.length}")
+
+    val buildToUpdate = registry.jenkinsService.getUpdatedBuilds(existingBuilds, fileChangedEvents)
+    play.Logger.info(s"buildToUpdate: ${buildToUpdate.length}")
+
+    for (updatedBuild <- buildToUpdate) {
+      registry.buildRepository.update(updatedBuild)
+    }
+
+    registry.notificationService.notifyAboutBuilds(registry.buildRepository.getBuilds.toList)
   }
 
   def subscribeToGithub: Subscription = {
@@ -70,21 +93,21 @@ object CacheService {
       .subscribe({
       case Success(data) =>
         val branches = registry.branchRepository.getBranches
-        watch("removing obsolete branches") {
-          Try {
-            branches
-              .filter(b => !data.exists(_.name == b.name))
-              .foreach(branch => {
-              registry.branchRepository.remove(branch)
-              registry.buildRepository.removeAll(branch)
-            })
-          }
+
+        Try {
+          branches
+            .filter(b => !data.exists(_.name == b.name))
+            .foreach(branch => {
+            registry.branchRepository.remove(branch)
+            registry.buildRepository.removeAll(branch)
+          })
         }
-        watch("updating branches") {
-          Try {
-            data.foreach(branch => registry.branchRepository.update(branch))
-          }
+
+
+        Try {
+          data.foreach(branch => registry.branchRepository.update(branch))
         }
+
       case Failure(e) => play.Logger.error("Error", e)
     },
     error => {

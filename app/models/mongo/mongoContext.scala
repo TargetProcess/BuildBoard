@@ -1,17 +1,9 @@
 package models.mongo
 
-import com.novus.salat.{TypeHintFrequency, Context}
+import com.mongodb.casbah.commons.conversions.scala.RegisterJodaTimeConversionHelpers
+import com.novus.salat.{Context, StringTypeHintStrategy, TypeHintFrequency}
 import play.api.Play
 import play.api.Play.current
-import com.novus.salat.dao.{SalatDAO, ModelCompanion}
-import models._
-import se.radley.plugin.salat._
-import com.mongodb.casbah.Imports._
-import se.radley.plugin.salat.Binders.ObjectId
-import models.Branch
-import com.novus.salat.StringTypeHintStrategy
-import models.Build
-import com.mongodb.casbah.commons.conversions.scala.RegisterJodaTimeConversionHelpers
 
 object mongoContext {
   implicit val context = {
