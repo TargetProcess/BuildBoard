@@ -12,6 +12,19 @@ object Cycle {
 }
 
 trait Cycle {
+  lazy val parameters = {
+    List("IncludeUnitTests" -> unitTests,
+      "IncludeFuncTests" -> funcTests,
+      "BuildFullPackage" -> buildFullPackage.toString,
+      "INCLUDE_UNSTABLE" -> includeUnstable.toString,
+      "Cycle" -> (if (isFull) "Full" else "Short"),
+      "INCLUDE_COMET" -> includeComet.toString,
+      "INCLUDE_SLICE" -> includeSlice.toString,
+      "INCLUDE_CASPER" -> includeCasper.toString,
+      "INCLUDE_DB" -> includeDb.toString)
+  }
+
+
   val name: String
 
   def friendlyName = name
@@ -24,9 +37,10 @@ trait Cycle {
   val includeSlice: Boolean
   val includeCasper: Boolean
   val includeDb: Boolean
+  val isFull: Boolean
 }
 
-case class CustomCycle(parameters: List[BuildParametersCategory]) extends Cycle {
+case class CustomCycle(buildParametersCategory: List[BuildParametersCategory]) extends Cycle {
   val sliceCategoryName = "SliceLoadTests"
   val cometCategoryName = "CometTests"
   val casperCategoryName = "CasperTests"
@@ -46,14 +60,14 @@ case class CustomCycle(parameters: List[BuildParametersCategory]) extends Cycle 
   override val includeSlice: Boolean = getBoolByCategory(sliceCategoryName)
   override val includeCasper: Boolean = getBoolByCategory(casperCategoryName)
   override val includeDb: Boolean = getBoolByCategory(dbCategoryName)
-  val fullBuildCycle:Boolean = getBoolByCategory(cycleTypeCategoryName)
+  override val isFull: Boolean = getBoolByCategory(cycleTypeCategoryName)
 
   def getBoolByCategory(categoryName: String): Boolean = {
-    parameters.find(x => x.name == categoryName).exists(x => x.parts.nonEmpty)
+    buildParametersCategory.find(x => x.name == categoryName).exists(x => x.parts.nonEmpty)
   }
 
   def getTestsByCategory(categoryName: String): String = {
-    parameters.find(x => x.name == categoryName).map(x => if (x.parts.isEmpty) "" else "\"" + x.parts.mkString(" ") + "\"").getOrElse("All")
+    buildParametersCategory.find(x => x.name == categoryName).map(x => if (x.parts.isEmpty) "" else "\"" + x.parts.mkString(" ") + "\"").getOrElse("All")
   }
 }
 
@@ -81,6 +95,7 @@ case object BuildPackageOnly extends ConfigurableCycle("PackageOnly") {
   val includeSlice = false
   override val includeCasper = false
   override val includeDb = false
+  override val isFull = false
 }
 
 case object FullCycle extends ConfigurableCycle("Full") {
@@ -88,6 +103,7 @@ case object FullCycle extends ConfigurableCycle("Full") {
   val includeSlice = true
   override val includeCasper = true
   override val includeDb = true
+  override val isFull = true
 }
 
 case object ShortCycle extends ConfigurableCycle("Short") {
@@ -95,6 +111,8 @@ case object ShortCycle extends ConfigurableCycle("Short") {
   val includeSlice = false
   override val includeCasper = true
   override val includeDb = false
+  override val isFull = false
+
 }
 
 trait BuildAction {
@@ -104,16 +122,6 @@ trait BuildAction {
 
   lazy val parameters: List[(String, String)] = List(
     "BRANCHNAME" -> branchName,
-    "IncludeUnitTests" -> cycle.unitTests,
-    "IncludeFuncTests" -> cycle.funcTests,
-    "BuildFullPackage" -> (if (cycle.buildFullPackage) "true" else "false"),
-    "INCLUDE_UNSTABLE" -> (if (cycle.includeUnstable) "true" else "false"),
-    "Cycle" -> (cycle match {
-      case FullCycle => "Full"
-      case ShortCycle => "Short"
-      case BuildPackageOnly => "Short"
-      case c@CustomCycle(_) => if (c.fullBuildCycle) "Full" else "Short"
-    }),
     "BUILDPRIORITY" -> (branchName match {
       case BranchInfo.hotfix(_) => "1"
       case BranchInfo.release(_) => "2"
@@ -121,12 +129,8 @@ trait BuildAction {
       case BranchInfo.develop() => "4"
       case BranchInfo.feature(_) => "5"
       case _ => "10"
-    }),
-    "INCLUDE_COMET" -> cycle.includeComet.toString,
-    "INCLUDE_SLICE" -> cycle.includeSlice.toString,
-    "INCLUDE_CASPER" -> cycle.includeCasper.toString,
-    "INCLUDE_DB" -> cycle.includeDb.toString
-  )
+    })
+  ) ++ cycle.parameters
 
   val name: String
 }
@@ -144,13 +148,13 @@ object BuildAction {
   }
 }
 
-trait BranchBuildActionTrait extends BuildAction{
+trait BranchBuildActionTrait extends BuildAction {
   val branch: String
   val branchName: String = s"origin/$branch"
   val name = s"Build ${cycle.friendlyName} on branch"
 }
 
-trait PullRequestBuildActionTrait extends BuildAction{
+trait PullRequestBuildActionTrait extends BuildAction {
   val pullRequestId: Int
   val branchName: String = s"origin/pr/$pullRequestId/merge"
   val name = s"Build ${cycle.friendlyName} on pull request"
@@ -165,15 +169,16 @@ case class BranchBuildAction(branch: String, cycle: Cycle) extends BranchBuildAc
 case class BuildParametersCategory(name: String, parts: List[String]) {
 }
 
-case class PullRequestCustomBuildAction(pullRequestId: Int, cycle: CustomCycle) extends CustomBuildAction with PullRequestBuildActionTrait{
+case class PullRequestCustomBuildAction(pullRequestId: Int, cycle: CustomCycle) extends CustomBuildAction with PullRequestBuildActionTrait {
 
 }
 
-case class BranchCustomBuildAction(branch: String, cycle: CustomCycle) extends CustomBuildAction with BranchBuildActionTrait{
+case class BranchCustomBuildAction(branch: String, cycle: CustomCycle) extends CustomBuildAction with BranchBuildActionTrait {
 }
 
 trait CustomBuildAction extends BuildAction {
   val cycle: CustomCycle
+
   def getPossibleBuildParameters: List[BuildParametersCategory] = {
     val cycleName = cycle.name
     val config = Play.configuration.getConfig(s"build.cycle.$cycleName").get
