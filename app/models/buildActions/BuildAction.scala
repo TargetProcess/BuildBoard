@@ -8,11 +8,19 @@ object BuildAction {
 
   def find(name: String) = cycles.find(_.name == name).get
 
-  def unapply(action: BuildAction) = action match {
-    case PullRequestBuildAction(id, _) => Some(action.name, Some(id), None, action.cycle.name, List[BuildParametersCategory]())
-    case BranchBuildAction(branch, _) => Some(action.name, None, Some(branch), action.cycle.name, List[BuildParametersCategory]())
-    case customAction@BranchCustomBuildAction(branch, _) => Some(action.name, None, Some(branch), action.cycle.name, customAction.getPossibleBuildParameters)
-    case customAction@PullRequestCustomBuildAction(pullRequestId, _) => Some(action.name, Some(pullRequestId), None, action.cycle.name, customAction.getPossibleBuildParameters)
+  def unapply(action: BuildAction) = {
+
+    val (prId, branch) = action match {
+      case PullRequestBuildAction(id, _) => (Some(id), None)
+      case BranchBuildAction(b, _) => (None, Some(b))
+    }
+
+    val possibleBuildParameters = action.cycle match {
+      case c@CustomCycle(_)=>c.getPossibleBuildParameters
+      case _ => Nil
+    }
+
+    Some(action.name, prId, branch, action.cycle.name, possibleBuildParameters)
   }
 }
 

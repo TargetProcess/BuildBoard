@@ -33,7 +33,7 @@ case class Branch(
             PullRequestBuildAction(pr.prId, ShortCycle),
             PullRequestBuildAction(pr.prId, FullCycle)
           ),
-          List(PullRequestCustomBuildAction(pr.prId, CustomCycle(List())))
+          List(PullRequestBuildAction(pr.prId, CustomCycle()))
           )
         case _ => (Nil, Nil)
       }
@@ -43,7 +43,7 @@ case class Branch(
       case BranchInfo.hotfix(_) => Nil
       case BranchInfo.develop() => Nil
       case _ => List(
-        BranchCustomBuildAction(name, CustomCycle(List()))
+        BranchBuildAction(name, CustomCycle())
       )
     }
 
