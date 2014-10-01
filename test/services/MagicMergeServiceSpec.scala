@@ -8,10 +8,9 @@ import org.joda.time.DateTime
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import play.api.test.Helpers._
+import scala.language.reflectiveCalls
 
 import scala.util.{Failure, Success}
-
-// to use matchers like anyInt()
 
 
 class MagicMergeServiceSpec extends Specification

@@ -2,6 +2,7 @@ package components
 
 import java.io.File
 
+import models.buildActions.BuildAction
 import models.{Branch, Build, BuildNode}
 
 import scala.util.Try
@@ -12,7 +13,7 @@ trait JenkinsServiceComponent {
 
 
   trait JenkinsService {
-    def forceBuild(action: models.BuildAction): Try[String]
+    def forceBuild(action: BuildAction): Try[String]
 
     def getUpdatedBuilds(existingBuilds:List[Build], buildNamesToUpdate: Seq[String]):List[Build]
 

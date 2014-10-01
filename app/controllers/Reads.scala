@@ -1,6 +1,6 @@
 package controllers
 
-import models.BuildParametersCategory
+import models.buildActions.BuildParametersCategory
 import play.api.libs.json.{Json}
 
 object Reads {

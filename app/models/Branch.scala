@@ -1,5 +1,8 @@
 package models
 
+import models.buildActions._
+import models.cycles.{ShortCycle, FullCycle, CustomCycle, PackageOnlyCycle}
+
 case class Branch(
 
 
@@ -13,7 +16,7 @@ case class Branch(
 
   val buildActions: List[BuildAction] = {
     val buildPackages = List(
-      BranchBuildAction(name, BuildPackageOnly),
+      BranchBuildAction(name, PackageOnlyCycle),
       BranchBuildAction(name, FullCycle)
     )
 

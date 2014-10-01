@@ -1,5 +1,6 @@
 package controllers
 
+import models.buildActions.{BuildAction, BuildParametersCategory}
 import play.api.libs.json._
 import models._
 import play.api.libs.functional.syntax._

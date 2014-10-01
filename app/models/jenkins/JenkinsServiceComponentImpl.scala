@@ -3,6 +3,7 @@ package models.jenkins
 import java.io.File
 
 import components.{BranchRepositoryComponent, BuildRepositoryComponent, JenkinsServiceComponent, LoggedUserProviderComponent}
+import models.buildActions.BuildAction
 import models.{Branch, Build}
 import play.api.Play
 import play.api.Play.current
@@ -83,7 +84,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
       .flatten
       .map(testRunBuildNode => testRunBuildNode.copy(testResults = getTestCasePackages(testRunBuildNode)))
 
-    def forceBuild(action: models.BuildAction) = Try {
+    def forceBuild(action: BuildAction) = Try {
       val url = s"$jenkinsUrl/job/$rootJobName/buildWithParameters"
 
       val parameters = action.parameters ++ loggedUser.map("WHO_STARTS" -> _.fullName)

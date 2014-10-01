@@ -2,7 +2,7 @@ package cycles
 
 
 import globals.context
-import models.BuildAction
+import models.buildActions.BuildAction
 import org.specs2.mutable.Specification
 import play.api.test.Helpers._
 
