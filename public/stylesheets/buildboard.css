@@ -46,9 +46,6 @@
     overflow-x: hidden;
     margin-bottom: 32px;
 }
-.view .dropdown-menu{
-    left: -85px;
-}
 
 .view .dropdown-menu_state {
     left: 0;
