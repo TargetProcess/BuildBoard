@@ -2,8 +2,9 @@ package models.cycles
 
 import models.buildActions.BuildParametersCategory
 import play.api.Play
-import scala.collection.JavaConverters._
 import play.api.Play.current
+
+import scala.collection.JavaConverters._
 
 
 case class CustomCycle(buildParametersCategory: List[BuildParametersCategory] = Nil) extends Cycle {
@@ -29,12 +30,11 @@ case class CustomCycle(buildParametersCategory: List[BuildParametersCategory] = 
     buildParametersCategory.find(x => x.name == categoryName).map(x => if (x.parts.isEmpty) "" else "\"" + x.parts.mkString(" ") + "\"").getOrElse("All")
   }
 
-  def getPossibleBuildParameters: List[BuildParametersCategory] = {
-    val config = Play.configuration.getConfig(s"build.cycle.$name").get
+  val getPossibleBuildParameters: List[BuildParametersCategory] = {
     List(
       BuildParametersCategory(Cycle.cycleTypeCategoryName, List("build full package")),
-      BuildParametersCategory(Cycle.unitTestsCategoryName, config.getStringList(Cycle.unitTestsCategoryName).get.asScala.toList.distinct),
-      BuildParametersCategory(Cycle.funcTestsCategoryName, config.getStringList(Cycle.funcTestsCategoryName).get.asScala.toList.distinct),
+      BuildParametersCategory(Cycle.unitTestsCategoryName, getTests(Cycle.unitTestsCategoryName)),
+      BuildParametersCategory(Cycle.funcTestsCategoryName,  getTests(Cycle.funcTestsCategoryName)),
       BuildParametersCategory(Cycle.cometCategoryName, List("Include")),
       BuildParametersCategory(Cycle.sliceCategoryName, List("Include")),
       BuildParametersCategory(Cycle.casperCategoryName, List("Include")),
@@ -42,4 +42,8 @@ case class CustomCycle(buildParametersCategory: List[BuildParametersCategory] = 
     )
   }
 
+  def getTests(testName: String): List[String] = {
+    val config = Play.configuration.getConfig("build").get
+    config.getStringList(testName).get.asScala.toList.distinct
+  }
 }
