@@ -5,8 +5,8 @@ module buildBoard {
         scope = {
             build: "=",
             branch: "=",
-            showTimestamp: "@",
-            type: "@"
+            type: "@",
+            statusType:"@"
         };
         controller = LastBuildStatusController;
         templateUrl = 'assets/partials/buildStatus.html';
@@ -19,7 +19,8 @@ module buildBoard {
         build:Build;
         branch:Branch;
         type:string;
-        showTimestamp: boolean;
+        statusType: string;
+        showTimestamp:boolean;
         showList: boolean;
         forceBuild(buildAction:BuildAction);
         toggleParameters(buildAction:BuildAction);
@@ -37,13 +38,17 @@ module buildBoard {
 
         constructor(private $scope:IBuildStatusScope, backendService:BackendService, $timeout:ng.ITimeoutService) {
 
+            this.$scope.showTimestamp = this.$scope.statusType == "branch";
+
             this.$scope.toggle = () => {
                 if (!this.$scope.showList) {
                     this.$scope.showList = true;
                     this.$scope.pending = true;
 
+                    var buildNumber =
+                        this.$scope.statusType=="branch"? null : this.$scope.build.number;
 
-                    backendService.getBuildActions(this.$scope.branch.name).then(data=> {
+                    backendService.getBuildActions(this.$scope.branch.name, buildNumber).then(data=> {
                         this.$scope.buildActions = data.data;
                         this.$scope.pending = false;
                     });
@@ -60,7 +65,9 @@ module buildBoard {
 
 
             this.$scope.forceBuild = (buildAction:BuildAction) => {
-                console.log(buildAction);
+                if (this.$scope.statusType == 'build') {
+                    buildAction.buildNumber = this.$scope.build.number;
+                }
 
                 backendService.forceBuild(buildAction).success(build=> {
                     this.$scope.showList = false;

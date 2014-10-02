@@ -4,8 +4,6 @@ import models.buildActions._
 import models.cycles.{ShortCycle, FullCycle, CustomCycle, PackageOnlyCycle}
 
 case class Branch(
-
-
                    name: String,
                    url: String,
                    pullRequest: Option[PullRequest] = None,

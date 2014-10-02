@@ -3,13 +3,12 @@ package models.jenkins
 import java.io.File
 
 import components.{BranchRepositoryComponent, BuildRepositoryComponent, JenkinsServiceComponent, LoggedUserProviderComponent}
-import models.buildActions.BuildAction
+import models.buildActions.{BuildAction, ReuseArtifactsBuildAction}
 import models.{Branch, Build}
 import play.api.Play
 import play.api.Play.current
 
 import scala.util.Try
-import scalaj.http.Http
 
 
 trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
@@ -29,10 +28,10 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
       val existingBuildsMap: Map[String, Build] = existingBuilds.map(x => (x.name, x)).toMap
 
 
-      val folders = if (buildNamesToUpdate.isEmpty){
+      val folders = if (buildNamesToUpdate.isEmpty) {
         buildNamesToUpdate.map(x => new Folder(directory, x))
       }
-      else{
+      else {
         val allFolders = new Folder(directory).listFiles().filter(_.isDirectory).toList
         val newFolders: List[Folder] = allFolders.filterNot(x => existingBuildsMap.get(x.getName).isDefined)
         val foldersToUpdate: List[Folder] = existingBuilds.filter(_.status.isEmpty).map(x => new Folder(directory, x.name))
@@ -84,16 +83,63 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
       .flatten
       .map(testRunBuildNode => testRunBuildNode.copy(testResults = getTestCasePackages(testRunBuildNode)))
 
-    def forceBuild(action: BuildAction) = Try {
-      val url = s"$jenkinsUrl/job/$rootJobName/buildWithParameters"
 
-      val parameters = action.parameters ++ loggedUser.map("WHO_STARTS" -> _.fullName)
+    def forceBuild(action: BuildAction) = action match {
+        case x: ReuseArtifactsBuildAction => forceReuseArtifactsBuild(x)
+        case x: BuildAction => forceSimpleBuild(x)
+      }
+
+
+    def post(url: String, parameters: List[(String, String)]) = Try {
 
       play.Logger.info(s"Force build to $url with parameters $parameters")
 
-      Http.post(url)
+
+      /*Http.post(url)
         .params(parameters)
-        .asString
+        .asString*/
+
+    }
+
+    def forceSimpleBuild(action: BuildAction) = {
+      val url = s"$jenkinsUrl/job/$rootJobName/buildWithParameters"
+      val parameters = action.parameters ++ loggedUser.map("WHO_STARTS" -> _.fullName)
+      post(url, parameters)
+    }
+
+
+    def forceReuseArtifactsBuild(action: ReuseArtifactsBuildAction):Try[Unit] = Try {
+      val buildFolder = new Folder(s"$directory/${action.buildName}")
+      val maybeRevision = read(new File(buildFolder, "Artifacts/Revision.txt")).map(x => x.replaceAll("REVISION=", ""))
+      val maybeBuildParams = BuildParams(getParamsFile(buildFolder))
+
+
+
+      val forcePart = (job: String, postfix: String, filter: String) => forceBuildCategory(maybeBuildParams, maybeRevision, filter, s"$jenkinsUrl/job/$job/buildWithParameters",action.buildNumber, postfix)
+
+      if (action.cycle.funcTests != "") {
+        forcePart("RunFuncTests", "FuncTests", action.cycle.funcTests)
+      }
+
+      if (action.cycle.unitTests != "") {
+        forcePart(s"RunUnitTests", "UnitTests", action.cycle.unitTests)
+      }
+
+      if (action.cycle.includeCasper) {
+        forcePart("RunCasperJSTests", "FuncTests", "")
+      }
+
+      if (action.cycle.includeComet) {
+        forcePart("CometOutOfProcess", "FuncTests", "")
+      }
+
+      if (action.cycle.includeSlice) {
+        forcePart("RunSliceLoadTest", "FuncTests", "")
+      }
+
+      if (action.cycle.includeDb) {
+        forcePart("RunDBTest", "FuncTests", "")
+      }
     }
 
     def forceBuildCategory(maybeBuildParams: Option[BuildParams], maybeRevision: Option[String], filter: String, url: String, buildNumber: Int, buildPathPostfix: String) = {
@@ -107,6 +153,8 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
           case ("ARTIFACTS", value) => ("ARTIFACTS", value)
           case (_, _) => ("", "")
         }
+
+
           .filter(x => x._1 != "")
           .++(List(
           ("VERSION", revision + "." + buildNumber),
@@ -118,53 +166,9 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
         params.++(List(("FILTER", filter), ("RERUN", "true")))
       } else params
 
-      play.Logger.info(s"Force build to $url with parameters $paramsWithFilter")
-
-      Http.post(url)
-        .params(paramsWithFilter.toList)
-        .asString
+      post(url, paramsWithFilter)
     }
 
-//    def forceReuseArtifactsBuild(action: models.BranchWithArtifactsReuseCustomBuildAction) = Try {
-//
-//      //This is Jenkins logic for naming artifacts folders
-//      val branchArtifactsFolderName = action.branch.replace("feature/", "").replace("merge/", "").replace("origin/", "")
-//
-//      val buildFolder = new Folder(s"$directory/${branchArtifactsFolderName}_${action.buildNumber}")
-//      val maybeRevision = read(new File(buildFolder, "Artifacts/Revision.txt")).map(x => x.replaceAll("REVISION=", ""))
-//
-//      val maybeBuildParams = BuildParams(getParamsFile(buildFolder))
-//
-//      val funcTestsFilter = action.cycle.parameters.find(x => x.name == models.Cycle.funcTestsCategoryName).map(x => x.parts.mkString(" ")).getOrElse("")
-//      if (funcTestsFilter != "") {
-//        val funcTestsUrl = s"$jenkinsUrl/job/RunFuncTests/buildWithParameters"
-//        forceBuildCategory(maybeBuildParams, maybeRevision, funcTestsFilter, funcTestsUrl, action.buildNumber, "FuncTests")
-//      }
-//
-//      val unitTestsFilter = action.cycle.parameters.find(x => x.name == models.Cycle.unitTestsCategoryName).map(x => x.parts.mkString(" ")).getOrElse("")
-//      if (unitTestsFilter != "") {
-//        val unitTestsUrl = s"$jenkinsUrl/job/RunUnitTests/buildWithParameters"
-//        forceBuildCategory(maybeBuildParams, maybeRevision, unitTestsFilter, unitTestsUrl, action.buildNumber, "UnitTests")
-//      }
-//
-//      if (action.cycle.includeCasper){
-//        forceBuildCategory(maybeBuildParams, maybeRevision, "", s"$jenkinsUrl/job/RunCasperJSTests/buildWithParameters", action.buildNumber, "FuncTests")
-//      }
-//
-//      if (action.cycle.includeComet){
-//        forceBuildCategory(maybeBuildParams, maybeRevision, "", s"$jenkinsUrl/job/CometOutOfProcess/buildWithParameters", action.buildNumber, "FuncTests")
-//      }
-//
-//      if (action.cycle.includeSlice){
-//        forceBuildCategory(maybeBuildParams, maybeRevision, "", s"$jenkinsUrl/job/RunSliceLoadTest/buildWithParameters", action.buildNumber, "FuncTests")
-//      }
-//
-//      if (action.cycle.includeDb){
-//        forceBuildCategory(maybeBuildParams, maybeRevision, "", s"$jenkinsUrl/job/RunDBTest/buildWithParameters", action.buildNumber, "FuncTests")
-//      }
-//
-//      ""
-//    }
   }
 
 }

@@ -4,19 +4,20 @@ import models._
 import models.cycles._
 
 object BuildAction {
-  val cycles = List(FullCycle, ShortCycle, PackageOnlyCycle)
+  val branchCycles = List(FullCycle, ShortCycle, PackageOnlyCycle)
 
-  def find(name: String) = cycles.find(_.name == name).get
+  def find(name: String) = branchCycles.find(_.name == name).get
 
   def unapply(action: BuildAction) = {
 
     val (prId, branch) = action match {
       case PullRequestBuildAction(id, _) => (Some(id), None)
       case BranchBuildAction(b, _) => (None, Some(b))
+      case ReuseArtifactsBuildAction(b, _, _) => (None, Some(b))
     }
 
     val possibleBuildParameters = action.cycle match {
-      case c@CustomCycle(_)=>c.getPossibleBuildParameters
+      case c@CustomCycle(_) => c.getPossibleBuildParameters
       case _ => Nil
     }
 

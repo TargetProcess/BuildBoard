@@ -39,7 +39,14 @@ module buildBoard {
                     }
                 }
             ).value();
-            return this.$http.post(this.controllers.Jenkins.forceBuild().absoluteURL(), {pullRequestId:buildAction.pullRequestId, branchId:buildAction.branchId, cycleName : buildAction.cycleName,  parameters: categories});
+            return this.$http.post(this.controllers.Jenkins.forceBuild().absoluteURL(), {
+                pullRequestId:buildAction.pullRequestId,
+                branchId:buildAction.branchId,
+                cycleName : buildAction.cycleName,
+                parameters: categories,
+                buildNumber: buildAction.buildNumber
+            }
+            );
         }
 
         toggleBuild(branchId:string, buildNumber:number, toggled:boolean):ng.IHttpPromise<Build> {

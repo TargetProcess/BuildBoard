@@ -90,6 +90,7 @@ module buildBoard {
         pullRequestId:number;
         cycleName:string;
         buildParametersCategories: BuildParametersCategory[]
+        buildNumber?: number;
     }
 
     export interface BuildParametersCategory {

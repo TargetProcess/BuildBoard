@@ -13,7 +13,7 @@ trait JenkinsServiceComponent {
 
 
   trait JenkinsService {
-    def forceBuild(action: BuildAction): Try[String]
+    def forceBuild(action: BuildAction): Try[Unit]
 
     def getUpdatedBuilds(existingBuilds:List[Build], buildNamesToUpdate: Seq[String]):List[Build]
 

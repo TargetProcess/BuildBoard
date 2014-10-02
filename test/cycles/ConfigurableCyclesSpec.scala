@@ -12,7 +12,7 @@ class ConfigurableCyclesSpec extends Specification {
   "Configurable cycles" should {
     "be correctly read from config" in context {
       running(context.fakeApp) {
-        val cycles = BuildAction.cycles
+        val cycles = BuildAction.branchCycles
 
         val parameters = cycles.map(_.parameters)
 
