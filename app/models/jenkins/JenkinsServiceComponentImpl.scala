@@ -9,6 +9,7 @@ import play.api.Play
 import play.api.Play.current
 
 import scala.util.Try
+import scalaj.http.Http
 
 
 trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
@@ -95,9 +96,10 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
       play.Logger.info(s"Force build to $url with parameters $parameters")
 
 
-      /*Http.post(url)
+      Http.post(url)
         .params(parameters)
-        .asString*/
+        .asString
+
 
     }
 
@@ -105,6 +107,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
       val url = s"$jenkinsUrl/job/$rootJobName/buildWithParameters"
       val parameters = action.parameters ++ loggedUser.map("WHO_STARTS" -> _.fullName)
       post(url, parameters)
+
     }
 
 
