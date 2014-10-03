@@ -3,9 +3,11 @@ package controllers
 import com.github.nscala_time.time.Imports._
 import controllers.Reads._
 import controllers.Writes._
+import models.BuildStatus.{InProgress, Unknown}
 import models._
 import models.buildActions._
 import models.cycles.{CustomCycle, Cycle}
+import play.Play
 import play.api.libs.json._
 
 import scala.util.{Failure, Success, Try}
@@ -115,5 +117,30 @@ object Jenkins extends Application {
     component =>
       request =>
         Ok(Json.toJson(component.buildRepository.getLastBuilds(branch, count)))
+  }
+
+
+  def buildStatus(id: Int) = IsAuthorizedComponent {
+    component =>
+      request => {
+        val branch = component.branchRepository.getBranchByEntity(id)
+        val status = branch
+          .flatMap(b => component.buildRepository.getLastBuilds(b.name, 1).headOption)
+          .map(_.buildStatus)
+          .getOrElse(Unknown)
+
+        val fileName = status match {
+          case InProgress => "inprogress"
+          case _ => status.success match {
+            case None => "unknown"
+            case Some(true) => "ok"
+            case Some(false) => "fail"
+          }
+        }
+
+        val file = Play.application.getFile(s"public/images/build/$fileName.png")
+
+        Ok.sendFile(file, inline = true)
+      }
   }
 }

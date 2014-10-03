@@ -57,7 +57,7 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
         .toList
 
       val buildsForBranch = builds
-        .map(_.copy(node = None, commits = Nil))
+        .map(b=>b.copy(node = None, commits = Nil, status = Some(b.buildStatus.name) ))
         .toList
       val commits = builds
         .flatMap(_.commits)
