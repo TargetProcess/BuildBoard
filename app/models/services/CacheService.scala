@@ -57,7 +57,8 @@ object CacheService extends FileApi {
       .subscribe(fileChangedEvents => Try {
 
 
-      play.Logger.info(s"files changed: ${fileChangedEvents.length}")
+      play.Logger.info(s"directories changed: ${fileChangedEvents.length}")
+
       if (fileChangedEvents.nonEmpty) {
         updateBuilds(fileChangedEvents)
       }

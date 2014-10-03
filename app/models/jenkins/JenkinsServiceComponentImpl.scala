@@ -29,7 +29,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
       val existingBuildsMap: Map[String, Build] = existingBuilds.map(x => (x.name, x)).toMap
 
 
-      val folders = if (buildNamesToUpdate.isEmpty) {
+      val folders = if (buildNamesToUpdate.nonEmpty) {
         buildNamesToUpdate.map(x => new Folder(directory, x))
       }
       else {
@@ -86,9 +86,9 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
 
 
     def forceBuild(action: BuildAction) = action match {
-        case x: ReuseArtifactsBuildAction => forceReuseArtifactsBuild(x)
-        case x: BuildAction => forceSimpleBuild(x)
-      }
+      case x: ReuseArtifactsBuildAction => forceReuseArtifactsBuild(x)
+      case x: BuildAction => forceSimpleBuild(x)
+    }
 
 
     def post(url: String, parameters: List[(String, String)]) = Try {
@@ -99,26 +99,25 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
       Http.post(url)
         .params(parameters)
         .asString
-
-
     }
 
     def forceSimpleBuild(action: BuildAction) = {
       val url = s"$jenkinsUrl/job/$rootJobName/buildWithParameters"
-      val parameters = action.parameters ++ loggedUser.map("WHO_STARTS" -> _.fullName)
+      val parameters = action.parameters ++ loggedUser.map("WHO_STARTS" -> _.fullName) ++ List("UID"->action.name)
       post(url, parameters)
 
     }
 
 
-    def forceReuseArtifactsBuild(action: ReuseArtifactsBuildAction):Try[Unit] = Try {
+    def forceReuseArtifactsBuild(action: ReuseArtifactsBuildAction): Try[Unit] = Try {
       val buildFolder = new Folder(s"$directory/${action.buildName}")
       val maybeRevision = read(new File(buildFolder, "Artifacts/Revision.txt")).map(x => x.replaceAll("REVISION=", ""))
       val maybeBuildParams = BuildParams(getParamsFile(buildFolder))
 
 
 
-      val forcePart = (job: String, postfix: String, filter: String) => forceBuildCategory(maybeBuildParams, maybeRevision, filter, s"$jenkinsUrl/job/$job/buildWithParameters",action.buildNumber, postfix)
+      val forcePart = (job: String, postfix: String, filter: String) =>
+        forceBuildCategory(maybeBuildParams, maybeRevision, filter.replaceAll("^\"|\"$", ""), s"$jenkinsUrl/job/$job/buildWithParameters", action.buildNumber, postfix)
 
       if (action.cycle.funcTests != "") {
         forcePart("RunFuncTests", "FuncTests", action.cycle.funcTests)
@@ -151,7 +150,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
         buildParams <- maybeBuildParams.toList
         param <- buildParams.parameters.map {
           case ("Cycle", value) => ("CYCLE", value)
-          case ("BUILDPATH", value) => ("BUILDPATH", value + "\\" + buildPathPostfix)
+          case ("BUILDPATH", value) => ("BUILDPATH", s"""$value\$buildPathPostfix""")
           case ("LOCAL_BRANCH", value) => ("LOCALREPONAME", value)
           case ("ARTIFACTS", value) => ("ARTIFACTS", value)
           case (_, _) => ("", "")
