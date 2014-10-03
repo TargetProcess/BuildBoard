@@ -103,7 +103,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
 
     def forceSimpleBuild(action: BuildAction) = {
       val url = s"$jenkinsUrl/job/$rootJobName/buildWithParameters"
-      val parameters = action.parameters ++ loggedUser.map("WHO_STARTS" -> _.fullName) ++ List("UID"->action.name)
+      val parameters = action.parameters ++ loggedUser.map("WHO_STARTS" -> _.fullName) ++ List("UID" -> action.name)
       post(url, parameters)
 
     }
@@ -111,13 +111,13 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
 
     def forceReuseArtifactsBuild(action: ReuseArtifactsBuildAction): Try[Unit] = Try {
       val buildFolder = new Folder(s"$directory/${action.buildName}")
-      val maybeRevision = read(new File(buildFolder, "Artifacts/Revision.txt")).map(x => x.replaceAll("REVISION=", ""))
-      val maybeBuildParams = BuildParams(getParamsFile(buildFolder))
+      val revision = read(new File(buildFolder, "Artifacts/Revision.txt")).map(x => x.replaceAll("REVISION=", "")).get
+      val buildParams = BuildParams(getParamsFile(buildFolder)).get
 
 
 
       val forcePart = (job: String, postfix: String, filter: String) =>
-        forceBuildCategory(maybeBuildParams, maybeRevision, filter.replaceAll("^\"|\"$", ""), s"$jenkinsUrl/job/$job/buildWithParameters", action.buildNumber, postfix)
+        forceBuildCategory(buildParams, revision, filter.replaceAll( """^\"|\"$""", ""), s"$jenkinsUrl/job/$job/buildWithParameters", action.buildNumber, postfix)
 
       if (action.cycle.funcTests != "") {
         forcePart("RunFuncTests", "FuncTests", action.cycle.funcTests)
@@ -144,28 +144,22 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
       }
     }
 
-    def forceBuildCategory(maybeBuildParams: Option[BuildParams], maybeRevision: Option[String], filter: String, url: String, buildNumber: Int, buildPathPostfix: String) = {
-      val params = for {
-        revision <- maybeRevision.toList
-        buildParams <- maybeBuildParams.toList
-        param <- buildParams.parameters.map {
-          case ("Cycle", value) => ("CYCLE", value)
-          case ("BUILDPATH", value) => ("BUILDPATH", s"""$value\$buildPathPostfix""")
-          case ("LOCAL_BRANCH", value) => ("LOCALREPONAME", value)
-          case ("ARTIFACTS", value) => ("ARTIFACTS", value)
-          case (_, _) => ("", "")
-        }
+    def forceBuildCategory(buildParams: BuildParams, revision: String, filter: String, url: String, buildNumber: Int, buildPathPostfix: String) = {
 
-
-          .filter(x => x._1 != "")
-          .++(List(
+      val params: List[(String, String)] = buildParams.parameters.flatMap {
+        case ("Cycle", value) => Some("CYCLE", value)
+        case ("BUILDPATH", value) => Some("BUILDPATH", value + "\\" + buildPathPostfix)
+        case ("LOCAL_BRANCH", value) => Some("LOCALREPONAME", value)
+        case ("ARTIFACTS", value) => Some("ARTIFACTS", value)
+        case _ => None
+      }.toList ++
+        List(
           ("VERSION", revision + "." + buildNumber),
           ("BUILDPRIORITY", "10")
-        ))
-      } yield param
+        )
 
       val paramsWithFilter = if (filter != "") {
-        params.++(List(("FILTER", filter), ("RERUN", "true")))
+        params ++ List(("FILTER", filter), ("RERUN", "true"))
       } else params
 
       post(url, paramsWithFilter)

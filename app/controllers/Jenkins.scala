@@ -44,7 +44,7 @@ object Jenkins extends Application {
                 case Success(_) => Ok(Json.toJson(Build(-1, params.branchId.getOrElse("this"), Some("In progress"), DateTime.now,
                   name = "", node = Some(BuildNode("this", "this", Some("In progress"), "#", List(), DateTime.now)))))
                 case Failure(e: HttpException) => BadRequest(e.toString)
-                case Failure(e) => InternalServerError("Something going wrong " + e.toString)
+                case Failure(e) => throw e
               }
             case None => BadRequest("There is no pullRequestId or branchId")
           }

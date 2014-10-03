@@ -2,10 +2,12 @@ package models
 
 import com.github.nscala_time.time.Imports._
 
+
+
 case class Build(number: Int,
                  branch: String,
                  status: Option[String],
-                 override val timestamp: DateTime,
+                 timestamp: DateTime,
                  toggled: Boolean = false,
                  commits: List[Commit] = Nil,
                  ref: Option[String] = None,
@@ -13,13 +15,8 @@ case class Build(number: Int,
                  pullRequestId: Option[Int] = None,
                  name: String,
                  activityType: String = "build",
-                 node: Option[BuildNode] = None
+                 node: Option[BuildNode]
                   ) extends ActivityEntry {
-
-  val buildStatus = BuildStatus(status, toggled)
-
-  def isPullRequest = pullRequestId.isDefined
-
 
   def getTestRunBuildNode(part: String, run: String): Option[BuildNode] = {
     def getTestRunBuildNodeInner(node: BuildNode): Option[BuildNode] = node match {
@@ -29,19 +26,29 @@ case class Build(number: Int,
     node.map(getTestRunBuildNodeInner).flatten
   }
 
+  val buildStatus = {
+    val selfStatus = BuildStatus(status, toggled)
+    if (selfStatus == BuildStatus.Toggled)
+      selfStatus
+    else
+      node.map(_.buildStatus).getOrElse(selfStatus)
+  }
+
+  def isPullRequest = pullRequestId.isDefined
 }
 
 
-case class BuildNode(name: String,
-                     runName: String,
-                     status: Option[String],
-                     statusUrl: String,
-                     artifacts: List[Artifact],
-                     timestamp: DateTime,
-                     children: List[BuildNode] = Nil,
-                     testResults: List[TestCasePackage] = Nil
-                      ) {
-
+case class BuildNode(
+                      name: String,
+                      runName: String,
+                      status: Option[String],
+                      statusUrl: String,
+                      artifacts: List[Artifact],
+                      timestamp: DateTime,
+                      children: List[BuildNode] = Nil,
+                      testResults: List[TestCasePackage] = Nil
+                      )
+{
   def getTestCase(name: String): Option[TestCase] = {
     def getTestCaseInner(tcPackage: TestCasePackage): Option[TestCase] = {
       tcPackage.testCases.filter(tc => tc.name == name) match {
@@ -57,6 +64,8 @@ case class BuildNode(name: String,
 
     getTestCasesInner(testResults)
   }
+
+  val buildStatus:BuildStatusBase = BuildStatus.getBuildStatus(status, children)
 }
 
 case class BuildToggle(branch: String, buildNumber: Int)
