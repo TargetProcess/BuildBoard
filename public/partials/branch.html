@@ -17,7 +17,6 @@
                     <div class="description" ng-show="entry.activityType == 'build'">
                         <div class="panel-group">
                             <div class="panel">
-                                <span style="display: none">{{entry | json }}</span>
                                 <div class="panel-heading {{ getBuildStatus(entry) | status2Class}}" >
                                     <build-status build="entry" branch="getBranch()" type="btn" status-type="build"></build-status>
                                     <h4 class="panel-title toggle-state">
@@ -52,6 +51,9 @@
                     </div>
                 </span>
                 <span ng-show="entry.activityType == 'commit'">
+                    <div class="avatar">
+                        <img title="{{entry.email}}" ng-src="http://www.gravatar.com/avatar/{{ getGravatar(entry.authorEmail) }}?d=retro&s=32" style="width: 32px; height: 32px;">
+                    </div>
                     <div class="description" ng-show="entry.activityType == 'commit'">
                         <div class="panel-group">
                             <div class="panel default">
