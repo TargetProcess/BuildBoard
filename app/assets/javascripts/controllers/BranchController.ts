@@ -6,6 +6,7 @@ module buildBoard {
         loadBuild(buildInfo:Build): void;
         getActivity(): ActivityEntry[];
         getBranch():Branch;
+        getBuildStatus(build:Build):Status;
     }
 
     export class BranchController {
@@ -21,6 +22,7 @@ module buildBoard {
 
             this.$scope.branchName = $state.params['name'];
             this.$scope.closeView = ()=> $state.go("list");
+            this.$scope.getBuildStatus = StatusHelper.parse;
 
             modelProvider.getBranchWithActivities(this.$scope.branchName)
                 .then(branch => {

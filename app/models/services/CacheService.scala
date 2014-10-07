@@ -9,8 +9,10 @@ import play.api.Play
 import play.api.Play.current
 import rx.lang.scala.{Observable, Subscription}
 
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
+import ExecutionContext.Implicits.global
 
 object CacheService extends FileApi {
   val authInfo: AuthInfo = (for {
@@ -32,14 +34,14 @@ object CacheService extends FileApi {
 
   def start = {
 
-    updateBuilds(Nil)
-
+    val jenkinsSubscription: Future[Subscription] = Future {
+      updateBuilds(Nil)
+    }.map(_ => subscribeToJenkins)
     val githubSubscription = subscribeToGithub
-    val jenkinsSubscription = subscribeToJenkins
 
     Subscription {
       githubSubscription.unsubscribe()
-      jenkinsSubscription.unsubscribe()
+      jenkinsSubscription.onSuccess { case x => x.unsubscribe()}
     }
   }
 

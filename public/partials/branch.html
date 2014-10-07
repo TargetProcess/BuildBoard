@@ -17,7 +17,8 @@
                     <div class="description" ng-show="entry.activityType == 'build'">
                         <div class="panel-group">
                             <div class="panel">
-                                <div class="panel-heading {{entry.parsedStatus | status2Class}}" >
+                                <span style="display: none">{{entry | json }}</span>
+                                <div class="panel-heading {{ getBuildStatus(entry) | status2Class}}" >
                                     <build-status build="entry" branch="getBranch()" type="btn" status-type="build"></build-status>
                                     <h4 class="panel-title toggle-state">
                                         <a ng-click="loadBuild(entry); isCollapsed = !isCollapsed">{{entry.isPullRequest ? "PR " : "" }}Build #{{entry.number}}</a>
