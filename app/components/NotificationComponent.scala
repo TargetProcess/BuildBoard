@@ -6,7 +6,7 @@ trait NotificationComponent {
   val notificationService: NotificationService
 
   trait NotificationService {
-    def notifyAboutBuilds(builds: List[Build])
+    def notifyAboutBuilds(builds: Iterator[Build])
     def notifyToggle(branch: Branch, build:Build)
   }
 

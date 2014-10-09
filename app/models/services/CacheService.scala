@@ -83,9 +83,11 @@ object CacheService extends FileApi {
 
     for (updatedBuild <- buildToUpdate) {
       registry.buildRepository.update(updatedBuild)
+      registry.buildWatcher.rerunFailedParts(updatedBuild)
     }
 
-    registry.notificationService.notifyAboutBuilds(registry.buildRepository.getBuilds.toList)
+    registry.notificationService.notifyAboutBuilds(registry.buildRepository.getBuilds)
+
   }
 
   def subscribeToGithub: Subscription = {

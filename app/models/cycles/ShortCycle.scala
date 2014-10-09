@@ -1,20 +1,6 @@
 package models.cycles
 
-
-
-
-
-
-
-
-
-
-
-
-
-case object ShortCycle extends ConfigurableCycle("Short") {
-
-}
+case object ShortCycle extends ConfigurableCycle("Short")
 
 
 

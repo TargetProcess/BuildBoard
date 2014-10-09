@@ -1,12 +1,13 @@
 package components
 
+import models.buildWatcher.BuildWatcherComponentImpl
 import models.github.GithubServiceComponentImpl
-import models.services.BranchServiceComponentImpl
-import models.tp.{UserRepositoryComponentImpl, TargetprocessComponentImpl}
-import models.{AuthInfo, User, BuildRepositoryComponentImpl, BranchRepositoryComponentImpl}
-import models.notifications.NotificationComponentImpl
 import models.jenkins.JenkinsServiceComponentImpl
 import models.magicMerge.MagicMergeComponentImpl
+import models.notifications.{NotificationComponentImpl, NotificationRepositoryComponentImpl}
+import models.services.BranchServiceComponentImpl
+import models.tp.{TargetprocessComponentImpl, UserRepositoryComponentImpl}
+import models.{AuthInfo, BranchRepositoryComponentImpl, BuildRepositoryComponentImpl, User}
 
 trait DefaultComponent
   extends AuthInfoProviderComponent
@@ -20,6 +21,8 @@ trait DefaultComponent
   with NotificationComponentImpl
   with UserRepositoryComponentImpl
   with MagicMergeComponentImpl
+  with BuildWatcherComponentImpl
+  with NotificationRepositoryComponentImpl
 
 
 class DefaultRegistry(val loggedUser: Option[User], val authInfo:AuthInfo) extends DefaultComponent {

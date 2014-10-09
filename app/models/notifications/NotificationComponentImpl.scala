@@ -1,7 +1,7 @@
 package models.notifications
 
 import com.mongodb.casbah.Imports._
-import components.{GithubServiceComponent, LoggedUserProviderComponent, NotificationComponent, UserRepositoryComponent}
+import components._
 import models.BuildStatus._
 import models._
 import models.github.GithubStatus
@@ -18,6 +18,7 @@ trait NotificationComponentImpl extends NotificationComponent {
     with LoggedUserProviderComponent
     with UserRepositoryComponent
     with GithubServiceComponent
+    with NotificationRepositoryComponent
   =>
 
   val notificationService: NotificationService = {
@@ -70,12 +71,10 @@ trait NotificationComponentImpl extends NotificationComponent {
     }
 
 
-    val buildMap = scala.collection.mutable.Map[String, Build]()
 
+    override def notifyAboutBuilds(updatedBuilds: Iterator[Build]) = {
 
-    override def notifyAboutBuilds(updatedBuilds: List[Build]) = {
-
-      val lastBuilds: Iterable[Build] = updatedBuilds.groupBy(_.branch)
+      val lastBuilds: Iterable[Build] = updatedBuilds.toStream.groupBy(_.branch)
         .map {
         case (_, builds) => builds.maxBy(_.number)
       }
@@ -83,18 +82,19 @@ trait NotificationComponentImpl extends NotificationComponent {
 
       for (build <- lastBuilds) {
 
-        val prevBuild = buildMap.get(build.branch)
+        val prevNotification = notificationRepository.getLastNotification(build.branch)
 
-        prevBuild match {
-          case Some(oldBuild) =>
-            if (oldBuild.status != build.status) {
-              sendNotification(build, prevBuild)
+        prevNotification match {
+          case Some(notification) =>
+            if (notification.status != build.buildStatus.name) {
+              sendNotification(build, Some(notification))
             }
           case None =>
             sendNotification(build, None)
         }
 
-        buildMap(build.branch) = build
+        notificationRepository.setLastNotification(build.branch, Notification(build.branch, build.buildStatus.name, build.timestamp))
+
 
       }
     }
@@ -106,8 +106,8 @@ trait NotificationComponentImpl extends NotificationComponent {
       case _ => false
     }
 
-    def sendNotification(currentBuild: Build, optionLastBuild: Option[Build]) {
-      val was = optionLastBuild.fold("")(lastBuild => s"(was *${lastBuild.buildStatus.name}* at ${lastBuild.timestamp.toString("HH:mm dd/MM")})")
+    def sendNotification(currentBuild: Build, lastNotification: Option[Notification]) {
+      val was = lastNotification.map(notification => s"(was *${notification.status}* at ${notification.timestamp.toString("HH:mm dd/MM")})").getOrElse("")
 
       val link = getBuildLink(currentBuild)
 
@@ -167,7 +167,7 @@ trait NotificationComponentImpl extends NotificationComponent {
 
   object NoNotifications extends NotificationService {
 
-    override def notifyAboutBuilds(builds: List[Build]) = {}
+    override def notifyAboutBuilds(builds: Iterator[Build]) = {}
 
     override def notifyToggle(branch: Branch, build: Build) = {}
   }
