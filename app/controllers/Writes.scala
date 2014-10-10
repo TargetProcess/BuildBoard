@@ -1,7 +1,7 @@
 package controllers
 
-import components.MagicMergeResult
 import models.buildActions.{BuildAction, BuildParametersCategory}
+import models.magicMerge.MagicMergeResult
 import models.{PullRequestStatus, _}
 import org.joda.time.DateTime
 import play.api.libs.functional.syntax._
@@ -20,6 +20,7 @@ object Writes {
       (__ \ "statusUrl").write[String] ~
       (__ \ "artifacts").write(list(artifactWrite)) ~
       (__ \ "timestamp").write[DateTime] ~
+      (__ \ "rerun").writeNullable[Boolean] ~
       (__ \ "children").lazyWrite(list(buildNodeWrite)) ~
       (__ \ "testResults").write(list(testCasePackageWrite))
     )((node: BuildNode) => BuildNode.unapply(node.copy(status = Some(node.buildStatus.name.toUpperCase))).get)

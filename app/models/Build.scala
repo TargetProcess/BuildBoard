@@ -3,7 +3,6 @@ package models
 import com.github.nscala_time.time.Imports._
 
 
-
 case class Build(number: Int,
                  branch: String,
                  status: Option[String],
@@ -26,15 +25,18 @@ case class Build(number: Int,
     node.map(getTestRunBuildNodeInner).flatten
   }
 
+
+  def isPullRequest = pullRequestId.isDefined
+
+  val selfBuildStatus = BuildStatus(status, toggled)
+
   val buildStatus = {
-    val selfStatus = BuildStatus(status, toggled)
+    val selfStatus = selfBuildStatus
     if (selfStatus == BuildStatus.Toggled)
       selfStatus
     else
       node.map(_.buildStatus).getOrElse(selfStatus)
   }
-
-  def isPullRequest = pullRequestId.isDefined
 }
 
 
@@ -45,17 +47,20 @@ case class BuildNode(
                       statusUrl: String,
                       artifacts: List[Artifact],
                       timestamp: DateTime,
+                      rerun: Option[Boolean],
                       children: List[BuildNode] = Nil,
                       testResults: List[TestCasePackage] = Nil
-                      )
-{
+                      ) {
+
+  def allChildren: Stream[BuildNode] = {
+    children.toStream.flatMap(x => x #:: x.allChildren)
+  }
+
   def getTestCase(name: String): Option[TestCase] = {
     def getTestCaseInner(tcPackage: TestCasePackage): Option[TestCase] = {
-      tcPackage.testCases.filter(tc => tc.name == name) match {
-        case tc :: _ => Some(tc)
-        case Nil => getTestCasesInner(tcPackage.packages)
-      }
+      tcPackage.testCases.find(tc => tc.name == name).orElse(getTestCasesInner(tcPackage.packages))
     }
+
     def getTestCasesInner(packages: List[TestCasePackage]): Option[TestCase] = packages
       .map(getTestCaseInner)
       .filter(tc => tc.isDefined)
@@ -65,7 +70,7 @@ case class BuildNode(
     getTestCasesInner(testResults)
   }
 
-  val buildStatus:BuildStatusBase = BuildStatus.getBuildStatus(status, children)
+  val buildStatus: BuildStatusBase = BuildStatus.getBuildStatus(status, children)
 }
 
 case class BuildToggle(branch: String, buildNumber: Int)

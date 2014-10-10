@@ -14,7 +14,7 @@ trait GithubServiceComponentImpl extends GithubServiceComponent {
     with AuthInfoProviderComponent
   =>
 
-  val githubService = new GithubServiceImpl(authInfo)
+  override val githubService:GithubService = new GithubServiceImpl(authInfo)
 
   class GithubServiceImpl(authInfo: AuthInfo) extends GithubService {
     private val github = new GitHubClient().setOAuth2Token(authInfo.githubToken)

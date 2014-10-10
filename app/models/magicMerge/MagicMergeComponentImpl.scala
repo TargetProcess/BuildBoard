@@ -1,14 +1,10 @@
 package models.magicMerge
 
 import components._
-import scala.util.{Try, Success}
-import models._
-import models.PullRequest
-import models.Branch
-import scala.util.Failure
 import exceptions.NotFoundException
-import scala.Some
-import components.MagicMergeResult
+import models.{Branch, PullRequest, _}
+
+import scala.util.{Failure, Success, Try}
 
 
 trait MagicMergeComponentImpl extends MagicMergeComponent {

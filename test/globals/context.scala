@@ -4,15 +4,12 @@ import com.mongodb.casbah.MongoConnection
 import org.specs2.mutable.BeforeAfter
 import play.api.test.FakeApplication
 
-/**
-* Created by fomin on 9/18/2014.
-*/
 object context extends BeforeAfter {
 
   lazy val dummy_db_name = "test_app_db"
 
   lazy val fakeApp = FakeApplication(
-    additionalConfiguration = Map("mongodb.default.db" -> dummy_db_name),
+    additionalConfiguration = Map("mongodb.default.db" -> dummy_db_name, "autoRerun.others" -> true),
     withGlobal = Some(EmptyGlobal)
   )
 
@@ -23,3 +20,5 @@ object context extends BeforeAfter {
 
   def after = ()
 }
+
+

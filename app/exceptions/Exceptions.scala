@@ -1,6 +1,6 @@
 package exceptions
 
-import components.MagicMergeResult
+import models.magicMerge.MagicMergeResult
 
 class NotFoundException(message:String) extends Exception(message)
 

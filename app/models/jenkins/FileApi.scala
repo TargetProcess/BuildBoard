@@ -1,10 +1,12 @@
 package models.jenkins
 
-import scala.util.Try
 import java.io.File
-import scala.io.{BufferedSource, Source}
+
 import play.api.Play
 import play.api.Play.current
+
+import scala.io.{BufferedSource, Source}
+import scala.util.Try
 
 trait FileApi {
 
@@ -17,4 +19,12 @@ trait FileApi {
 
     result
   }.toOption
+
+  def readAsMap(f: File): Option[Map[Int, String]] = read(f)
+    .map(
+      _.split('\n')
+        .map(_.replace("\r", "").trim)
+        .zipWithIndex.map(_.swap).toMap
+    )
+
 }

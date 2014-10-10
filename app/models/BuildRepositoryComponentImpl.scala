@@ -52,7 +52,7 @@ trait BuildRepositoryComponentImpl extends BuildRepositoryComponent {
 
     override def toggleBuild(branch: Branch, number: Int, toggled: Boolean): Option[Build] = {
       val predicate = MongoDBObject("branch" -> branch.name, "number" -> number)
-      val build = Builds.findOne(predicate)
+      val build: Option[Build] = Builds.findOne(predicate)
         .map(b => b.copy(toggled = toggled))
 
       build.foreach(b => Builds.update(predicate, b, upsert = false, multi = false, Builds.dao.collection.writeConcern))
