@@ -16,7 +16,7 @@ trait RerunRepositoryComponentImpl extends RerunRepositoryComponent {
 
 
     private object Reruns extends ModelCompanion[RerunInfo, ObjectId] {
-      def collection = mongoCollection("notifications")
+      def collection = mongoCollection("reruns")
       val dao = new SalatDAO[RerunInfo, ObjectId](collection) {}
     }
 
