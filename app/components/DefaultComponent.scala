@@ -1,6 +1,6 @@
 package components
 
-import models.buildWatcher.BuildWatcherComponentImpl
+import models.buildWatcher.{BuildWatcherComponentImpl, RerunRepositoryComponentImpl}
 import models.github.GithubServiceComponentImpl
 import models.jenkins.JenkinsServiceComponentImpl
 import models.magicMerge.MagicMergeComponentImpl
@@ -23,11 +23,13 @@ trait DefaultComponent
   with MagicMergeComponentImpl
   with BuildWatcherComponentImpl
   with NotificationRepositoryComponentImpl
+  with RerunRepositoryComponentImpl
 
 
-class DefaultRegistry(val loggedUser: Option[User], val authInfo:AuthInfo) extends DefaultComponent {
-  def this(user:User) = this(Some(user), user)
-  def this(authInfo:AuthInfo) = this(None, authInfo)
+class DefaultRegistry(val loggedUser: Option[User], val authInfo: AuthInfo) extends DefaultComponent {
+  def this(user: User) = this(Some(user), user)
+
+  def this(authInfo: AuthInfo) = this(None, authInfo)
 }
 
 object Registry extends UserRepositoryComponentImpl

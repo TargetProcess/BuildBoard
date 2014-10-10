@@ -28,8 +28,10 @@ case class Build(number: Int,
 
   def isPullRequest = pullRequestId.isDefined
 
+  val selfBuildStatus = BuildStatus(status, toggled)
+
   val buildStatus = {
-    val selfStatus = BuildStatus(status, toggled)
+    val selfStatus = selfBuildStatus
     if (selfStatus == BuildStatus.Toggled)
       selfStatus
     else
