@@ -9,9 +9,8 @@ import se.radley.plugin.salat.Binders.ObjectId
 import se.radley.plugin.salat._
 
 trait RerunRepositoryComponentImpl extends RerunRepositoryComponent {
-  override val rerunRepository = new RerunRepository {
+  final override val rerunRepository = new RerunRepository {
 
-    case class RerunInfo(build: String, category: String, part: String)
 
     import models.mongo.mongoContext._
 
@@ -41,3 +40,5 @@ trait RerunRepositoryComponentImpl extends RerunRepositoryComponent {
     }
   }
 }
+
+case class RerunInfo(build: String, category: String, part: String)

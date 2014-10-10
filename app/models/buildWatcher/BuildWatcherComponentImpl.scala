@@ -3,7 +3,7 @@ package models.buildWatcher
 import components.{BuildWatcherComponent, JenkinsServiceComponent, RerunRepositoryComponent}
 import models.buildActions.{BuildParametersCategory, ReuseArtifactsBuildAction}
 import models.cycles.{CustomCycle, Cycle}
-import models.{Build, BuildStatus}
+import models.{BranchInfo, Build, BuildStatus}
 import play.api.Play.current
 import play.api.{Logger, Play}
 
@@ -15,15 +15,24 @@ trait BuildWatcherComponentImpl extends BuildWatcherComponent {
     with RerunRepositoryComponent
   =>
 
+
   override val buildWatcher: BuildWatcher = new BuildWatcher {
 
+    val autoRerunConfig = Play.configuration.getConfig("autoRerun")
+
+    def autoRerun(name: String): Boolean = autoRerunConfig.flatMap(_.getBoolean(name)).getOrElse(false)
+
+
     def shouldRerunBuild(build: Build): Boolean = {
+
+
       build.branch match {
-        //        case BranchInfo.develop() => true
-        //        case BranchInfo.hotfix(_) => true
-        //        case BranchInfo.release(_) => true
-        //        case BranchInfo.feature(_) => true
-        case _ => true
+        case BranchInfo.develop() => autoRerun("develop")
+        case BranchInfo.hotfix(_) => autoRerun("hotfix")
+        case BranchInfo.release(_) => autoRerun("release")
+        case BranchInfo.feature(_) => autoRerun("feature")
+        case BranchInfo.vs(_) => autoRerun("vs")
+        case _ => autoRerun("others")
       }
 
 
