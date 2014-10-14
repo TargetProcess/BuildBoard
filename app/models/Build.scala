@@ -32,7 +32,7 @@ case class Build(number: Int,
 
   val buildStatus = {
     val selfStatus = selfBuildStatus
-    if (selfStatus == BuildStatus.Toggled)
+    if (selfStatus == BuildStatus.Toggled || selfStatus == BuildStatus.InProgress)
       selfStatus
     else
       node.map(_.buildStatus).getOrElse(selfStatus)
