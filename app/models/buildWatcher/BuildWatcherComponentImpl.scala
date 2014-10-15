@@ -3,7 +3,7 @@ package models.buildWatcher
 import components.{BuildWatcherComponent, JenkinsServiceComponent, RerunRepositoryComponent}
 import models.buildActions.{BuildParametersCategory, ReuseArtifactsBuildAction}
 import models.cycles.{CustomCycle, Cycle}
-import models.{BranchInfo, Build, BuildStatus}
+import models.{BranchInfo, Build}
 import play.api.Play.current
 import play.api.{Logger, Play}
 
@@ -17,6 +17,30 @@ trait BuildWatcherComponentImpl extends BuildWatcherComponent {
 
 
   override val buildWatcher: BuildWatcher = new BuildWatcher {
+
+    override def rerunFailedParts(updatedBuild: Build) {
+      if (shouldRerunBuild(updatedBuild)) {
+
+        val funcTestsToRerun = getNodesToRerun(updatedBuild, Cycle.funcTestsCategoryName)
+        val unitTestsToRerun = getNodesToRerun(updatedBuild, Cycle.unitTestsCategoryName)
+
+
+        if (funcTestsToRerun.nonEmpty || unitTestsToRerun.nonEmpty) {
+
+          rerunRepository.markAsRerun(updatedBuild, Cycle.funcTestsCategoryName, funcTestsToRerun)
+          rerunRepository.markAsRerun(updatedBuild, Cycle.unitTestsCategoryName, unitTestsToRerun)
+
+          val action = ReuseArtifactsBuildAction(updatedBuild.name, updatedBuild.number, CustomCycle(List(
+            BuildParametersCategory(Cycle.funcTestsCategoryName, funcTestsToRerun),
+            BuildParametersCategory(Cycle.unitTestsCategoryName, unitTestsToRerun)
+          )))
+
+          Logger.info(s"Rerun: $action")
+          jenkinsService.forceBuild(action)
+        }
+      }
+    }
+
 
     val autoRerunConfig = Play.configuration.getConfig("autoRerun")
 
@@ -57,33 +81,6 @@ trait BuildWatcherComponentImpl extends BuildWatcherComponent {
       failedNodes.map(_.map(_.name).toList).getOrElse(Nil)
     }
 
-    override def rerunFailedParts(updatedBuild: Build) {
-      if (shouldRerunBuild(updatedBuild)) {
-
-
-        updatedBuild.selfBuildStatus match {
-
-          case BuildStatus.Failure | BuildStatus.TimedOut =>
-            val funcTestsToRerun = getNodesToRerun(updatedBuild, Cycle.funcTestsCategoryName)
-            val unitTestsToRerun = getNodesToRerun(updatedBuild, Cycle.unitTestsCategoryName)
-
-            rerunRepository.markAsRerun(updatedBuild, Cycle.funcTestsCategoryName, funcTestsToRerun)
-            rerunRepository.markAsRerun(updatedBuild, Cycle.unitTestsCategoryName, unitTestsToRerun)
-
-
-            val action = ReuseArtifactsBuildAction(updatedBuild.name, updatedBuild.number, CustomCycle(List(
-              BuildParametersCategory(Cycle.funcTestsCategoryName, funcTestsToRerun),
-              BuildParametersCategory(Cycle.unitTestsCategoryName, unitTestsToRerun)
-            )))
-
-            if (funcTestsToRerun.nonEmpty || unitTestsToRerun.nonEmpty) {
-              Logger.info(s"Rerun: $action")
-              jenkinsService.forceBuild(action)
-            }
-          case _ =>
-        }
-      }
-    }
   }
 
 }

@@ -25,26 +25,6 @@ with Mockito {
 
 
   "BuildWatcher" should {
-    "not run on 'in progress' builds" in context {
-      running(context.fakeApp) {
-
-        val buildWatcherComponent = getBuildWatcher
-
-        val buildToRerun = build(inProgress,
-          node("StartBuild", inProgress,
-            node("FuncTests", fail,
-              node("Part1", fail)
-            )
-          )
-        )
-
-        buildWatcherComponent.buildWatcher.rerunFailedParts(buildToRerun)
-
-        there was no(buildWatcherComponent.jenkinsService).forceBuild(any[BuildAction])
-
-      }
-    }
-
     "should rerun failed builds" in context {
       running(context.fakeApp) {
         val buildWatcherComponent = getBuildWatcher
