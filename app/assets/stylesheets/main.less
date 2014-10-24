@@ -1156,3 +1156,29 @@ body[state='list.branch'], body[state='list.branch.run'], body[state='list.branc
 .dropdown:focus {
   outline: none;
 }
+
+.statistics-link {
+  &:hover {
+    .dropdown-menu {
+      display: block;
+      top:21px;
+    }
+  }
+  .dropdown-menu {
+    max-width: none;
+    display: none;
+    li {
+      display: block;
+      float: none;
+      padding:0 5px;
+    }
+  }
+  position: relative;
+  > a {
+    padding: 10px 0;
+    height: 20px;
+    line-height: 0px;
+    cursor: pointer;
+    display: block;
+  }
+}
