@@ -7,6 +7,10 @@ GET         /                            controllers.Landing.index
 GET         /branches                    controllers.Branches.branches
 GET         /branch                      controllers.Branches.activities(branchName: String)
 
+GET         /open                        controllers.Landing.redirect(id:Int)
+
+
+
 GET         /login                       controllers.Login.index
 GET         /login/github                controllers.Login.githubLogin
 GET         /login/oauth                 controllers.Login.oauth(code ?= "")
@@ -29,6 +33,7 @@ GET         /jenkins/artifact            controllers.Jenkins.artifact(file: Stri
 
 GET         /github/merge                controllers.Github.merge(branchName: String)
 GET         /github/status               controllers.Github.prStatus(id:Int)
+GET         /github/pullRequest          controllers.Github.pullRequest(id:Int)
 
 
 

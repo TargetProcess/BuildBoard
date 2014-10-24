@@ -121,8 +121,8 @@ object Jenkins extends Application {
 
 
   def buildStatus(id: Int) = IsAuthorizedComponent {
-    component =>
-      request => {
+        component =>
+          request => {
         val branch = component.branchRepository.getBranchByEntity(id)
         val status = branch
           .flatMap(b => component.buildRepository.getLastBuilds(b.name, 1).headOption)
