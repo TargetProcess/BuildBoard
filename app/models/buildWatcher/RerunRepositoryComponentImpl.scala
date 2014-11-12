@@ -4,6 +4,7 @@ import com.mongodb.casbah.commons.MongoDBObject
 import com.novus.salat.dao.{ModelCompanion, SalatDAO}
 import components.RerunRepositoryComponent
 import models.Build
+import org.joda.time.DateTime
 import play.api.Play.current
 import se.radley.plugin.salat.Binders.ObjectId
 import se.radley.plugin.salat._
@@ -34,11 +35,12 @@ trait RerunRepositoryComponentImpl extends RerunRepositoryComponent {
         Reruns.update(MongoDBObject(
           "build" -> build.name,
           "category" -> category,
-          "part" -> part
-        ), RerunInfo(build.name, category, part), upsert = true, multi = false, Reruns.dao.collection.writeConcern)
+          "part" -> part,
+          "timestamp" -> Some(build.timestamp)
+        ), RerunInfo(build.name, category, part, Some(build.timestamp)), upsert = true, multi = false, Reruns.dao.collection.writeConcern)
       })
     }
   }
 }
 
-case class RerunInfo(build: String, category: String, part: String)
+case class RerunInfo(build: String, category: String, part: String, timestamp: Option[DateTime])

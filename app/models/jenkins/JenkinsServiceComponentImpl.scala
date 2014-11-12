@@ -9,7 +9,7 @@ import play.api.Play
 import play.api.Play.current
 
 import scala.util.Try
-import scalaj.http.Http
+import scalaj.http.{HttpOptions, Http}
 
 
 trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
@@ -98,6 +98,8 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
 
       Http.post(url)
         .params(parameters)
+        .option(HttpOptions.connTimeout(1000))
+        .option(HttpOptions.readTimeout(5000))
         .asString
     }
 
