@@ -113,7 +113,14 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
 
     def forceReuseArtifactsBuild(action: ReuseArtifactsBuildAction): Try[Unit] = Try {
       val buildFolder = new Folder(s"$directory/${action.buildName}")
-      val revision = read(new File(buildFolder, "Artifacts/Revision.txt")).map(x => x.replaceAll("REVISION=", "")).get
+      val revision = readAsMap(new File(buildFolder, "Artifacts/Revision.txt"))
+        .flatMap(_.map(_._2)
+          .filter(x => x.toString.startsWith("REVISION="))
+          .map(x => x.replaceAll("REVISION=", ""))
+          .headOption
+        )
+      .get
+
       val buildParams = BuildParams(getParamsFile(buildFolder)).get
 
 
