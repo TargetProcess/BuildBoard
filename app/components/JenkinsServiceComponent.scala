@@ -20,6 +20,8 @@ trait JenkinsServiceComponent {
     def getTestRun(branch: Branch, buildNumber: Int, part: String, run: String) : Option[BuildNode]
 
     def getArtifact(file: String): File
+
+    def deployBuild(buildName:String, deployFolderName: String)
   }
 
 }

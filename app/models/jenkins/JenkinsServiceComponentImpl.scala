@@ -110,6 +110,23 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
 
     }
 
+    def deployBuild(buildName:String, deployFolderName: String) {
+
+        val buildFolder = new Folder(s"$directory/${buildName}/Artifacts/Code/Releases")
+        val deployFolder = new Folder(s"$deployDirectory/${deployFolderName}")
+
+       for (file <- deployFolder.listFiles()) {
+          file.delete();
+       }
+
+        
+
+       for (file <- buildFolder.listFiles()) {
+          if(file.getName().endsWith("archive.zip")) {
+              copyFile(file, deployFolder)
+          }
+       }       
+    }
 
     def forceReuseArtifactsBuild(action: ReuseArtifactsBuildAction): Try[Unit] = Try {
       val buildFolder = new Folder(s"$directory/${action.buildName}")

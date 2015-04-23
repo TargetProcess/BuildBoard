@@ -10,11 +10,11 @@ object BuildAction {
 
   def unapply(action: BuildAction) = {
 
-    val (prId:Option[Int], branch:Option[String], cycle:Option[Cycle]) = action match {
-      case a@PullRequestBuildAction(id, _) => (Some(id), None, Some(a.cycle))
-      case a@BranchBuildAction(b, _) => (None, Some(b), Some(a.cycle))
-      case a@ReuseArtifactsBuildAction(b, _, cycle) => (None, Some(b), Some(cycle))
-      case DeployBuildAction(b, _, _) => (None, Some(b), None)
+    val (prId:Option[Int], branch:Option[String], cycle:Option[Cycle], cycleName: String) = action match {
+      case a@PullRequestBuildAction(id, _) => (Some(id), None, Some(a.cycle), a.cycle.name)
+      case a@BranchBuildAction(b, _) => (None, Some(b), Some(a.cycle), a.cycle.name)
+      case a@ReuseArtifactsBuildAction(b, _, cycle) => (None, Some(b), Some(cycle), a.cycle.name)
+      case DeployBuildAction(b, _, cycleName) => (None, Some(b), None, cycleName)
     }
 
     val possibleBuildParameters = cycle.map {
@@ -23,7 +23,7 @@ object BuildAction {
     }.getOrElse(Nil)
 
 
-    Some(action.name, prId, branch, cycle.map(_.name).getOrElse(""), action.action, possibleBuildParameters)
+    Some(action.name, prId, branch, cycleName, action.action, possibleBuildParameters)
   }
 }
 

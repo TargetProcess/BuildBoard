@@ -9,9 +9,12 @@ import models.buildActions._
 import models.cycles.{CustomCycle, Cycle}
 import play.Play
 import play.api.libs.json._
+import play.api.Play.current
 
 import scala.util.{Failure, Success, Try}
 import scalaj.http.HttpException
+
+import scala.collection.JavaConverters._
 
 case class ForceBuildParameters(pullRequestId: Option[Int],
                                 branchId: Option[String],
@@ -99,12 +102,17 @@ object Jenkins extends Application {
     component =>
       request =>
         val branch: Option[Branch] = component.branchRepository.getBranch(branchName)
-
+        
+        val foldersForDeploy = play.api.Play.configuration.getStringList("foldersForDeploy")            
+            .map(_.asScala.toList)
+            .getOrElse(Nil);
 
         val list = branch.flatMap(b => {
           number match {
             case Some(id) => component.buildRepository.getBuild(b, id)
-              .map(build => List(ReuseArtifactsBuildAction(build.name, build.number), DeployBuildAction(build.name, build.number, "Alaska")))
+              .map(build => List(
+                ReuseArtifactsBuildAction(build.name, build.number)
+              )++foldersForDeploy.map(DeployBuildAction(build.name, build.number, _)))
             case None => Some(b.buildActions)
           }
         })
@@ -147,11 +155,11 @@ object Jenkins extends Application {
   def deployBuild(buildId:String, environment: String) = IsAuthorizedComponent {
         component =>
           request => {
-
-                println(s"$buildId $environment")
-
+                component.jenkinsService.deployBuild(buildId,environment);  
                 Ok(Json.obj("message" -> "Ok"))
 
+                             
+            
           }
   }
 }
