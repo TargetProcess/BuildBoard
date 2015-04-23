@@ -2,7 +2,7 @@ package buildWatcher
 
 import components.{JenkinsServiceComponent, RerunRepositoryComponent}
 import globals.context
-import models.buildActions.{BuildAction, ReuseArtifactsBuildAction}
+import models.buildActions.{JenkinsBuildAction, ReuseArtifactsBuildAction}
 import models.buildWatcher.{BuildWatcherComponentImpl, RerunRepositoryComponentImpl}
 import models.cycles.CustomCycle
 import models.{Build, BuildNode}
@@ -104,8 +104,8 @@ with Mockito {
     }
   }
 
-  def isRerunFor(funcTests: List[String] = Nil, unitTests: List[String] = Nil) = new Matcher[BuildAction] {
-    override def apply[S <: BuildAction](t: Expectable[S]): MatchResult[S] = {
+  def isRerunFor(funcTests: List[String] = Nil, unitTests: List[String] = Nil) = new Matcher[JenkinsBuildAction] {
+    override def apply[S <: JenkinsBuildAction](t: Expectable[S]): MatchResult[S] = {
       val expected = t.value.asInstanceOf[ReuseArtifactsBuildAction]
 
 
