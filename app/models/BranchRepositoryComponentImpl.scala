@@ -42,22 +42,23 @@ trait BranchRepositoryComponentImpl extends BranchRepositoryComponent {
     def getBranchByPullRequest(id: Int): Option[Branch] = Branches.findOne(MongoDBObject("pullRequest.prId" -> id))
 
     override def getBranchByEntity(id: Int): Option[Branch] = Branches.findOne(MongoDBObject("entity._id" -> id))
-
+    def truncateBuild (b:Build) = b.copy(node = None, commits = Nil, status = Some(b.buildStatus.name));
+    
     override def getBranchesWithLastBuild: List[Branch] = {
       val lastBuilds = buildRepository.getLastBuilds
 
       Branches.findAll()
-        .map(b => b.copy(lastBuild = lastBuilds.get(b.name).map(_.copy(commits = Nil, node = None))))
+        .map(b => b.copy(lastBuild = lastBuilds.get(b.name).map(truncateBuild)))
         .toList
     }
-
+   
     override def getBranchActivities(branch: Branch): List[ActivityEntry] = {
       val builds = buildRepository.getBuilds(branch, 100)
 
         .toList
 
       val buildsForBranch = builds
-        .map(b=>b.copy(node = None, commits = Nil, status = Some(b.buildStatus.name) ))
+        .map(truncateBuild)
         .toList
       val commits = builds
         .flatMap(_.commits)
