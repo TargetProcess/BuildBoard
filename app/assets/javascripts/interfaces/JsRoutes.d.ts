@@ -28,6 +28,7 @@ declare module buildBoard {
         buildActions(branch:string, buildNumber:number):IAction;
         run(branch:string, build:number, part:string, run:string):IAction
         testCase(branch:string, build:number, part:string, run:string, test:string):IAction
+        deployBuild(branch:string, environmentName:string);
     }
 
     interface IGithub {

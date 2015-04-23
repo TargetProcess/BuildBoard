@@ -22,7 +22,7 @@ module buildBoard {
         statusType: string;
         showTimestamp:boolean;
         showList: boolean;
-        forceBuild(buildAction:BuildAction);
+        execute(buildAction:BuildAction);
         toggleParameters(buildAction:BuildAction);
         clearTimeoutOnFocus();
         hideOnBlur();
@@ -64,14 +64,18 @@ module buildBoard {
             };
 
 
-            this.$scope.forceBuild = (buildAction:BuildAction) => {
+            this.$scope.execute = (buildAction:BuildAction) => {
                 if (this.$scope.statusType == 'build') {
                     buildAction.buildNumber = this.$scope.build.number;
                 }
 
-                backendService.forceBuild(buildAction).success(build=> {
+                backendService[buildAction.action](buildAction).success(build => {
                     this.$scope.showList = false;
-                    this.$scope.build = build;
+                    if(build.message !== 'Ok') {
+                        this.$scope.build = build;
+                    } else {
+                        alert('build deploy')
+                    }
                 });
             };
 

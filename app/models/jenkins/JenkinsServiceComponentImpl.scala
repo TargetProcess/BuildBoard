@@ -3,7 +3,7 @@ package models.jenkins
 import java.io.File
 
 import components.{BranchRepositoryComponent, BuildRepositoryComponent, JenkinsServiceComponent, LoggedUserProviderComponent}
-import models.buildActions.{BuildAction, ReuseArtifactsBuildAction}
+import models.buildActions.{JenkinsBuildAction, ReuseArtifactsBuildAction}
 import models.{Branch, Build}
 import play.api.Play
 import play.api.Play.current
@@ -85,9 +85,9 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
       .map(testRunBuildNode => testRunBuildNode.copy(testResults = getTestCasePackages(testRunBuildNode)))
 
 
-    def forceBuild(action: BuildAction) = action match {
+    def forceBuild(action: JenkinsBuildAction) = action match {
       case x: ReuseArtifactsBuildAction => forceReuseArtifactsBuild(x)
-      case x: BuildAction => forceSimpleBuild(x)
+      case x: JenkinsBuildAction => forceSimpleBuild(x)
     }
 
 
@@ -103,7 +103,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
         .asString
     }
 
-    def forceSimpleBuild(action: BuildAction) = {
+    def forceSimpleBuild(action: JenkinsBuildAction) = {
       val url = s"$jenkinsUrl/job/$rootJobName/buildWithParameters"
       val parameters = action.parameters ++ loggedUser.map("WHO_STARTS" -> _.fullName) ++ List("UID" -> action.name)
       post(url, parameters)

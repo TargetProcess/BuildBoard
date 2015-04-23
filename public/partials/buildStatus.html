@@ -15,7 +15,7 @@
         <hr ng-show="build && buildActions">
         <li ng-repeat="action in buildActions track by $index">
 
-            <a class="jenkins" ng-show="!action.buildParametersCategories || action.buildParametersCategories.length === 0" href="" ng-click="forceBuild(action)">{{action.name}}</a>
+            <a class="jenkins" ng-show="!action.buildParametersCategories || action.buildParametersCategories.length === 0" href="" ng-click="execute(action)">{{action.name}}</a>
             <a class="jenkins collapse action"  ng-show="action.buildParametersCategories.length" onclick="event.stopPropagation();" ng-click="toggleParameters(action);">{{action.name}}</a>
             <div class="custom-parts-build" ng-show="action.showParameters">
                 <div class="custom-parts-build_categories">
@@ -34,7 +34,7 @@
                     </ul>
                 </div>
                 <nav class="jenkins start-build">
-                        <button type="button"  ng-click="forceBuild(action)" class="btn btn-success">Start</button>
+                        <button type="button"  ng-click="execute(action)" class="btn btn-success">Start</button>
                 </nav>
             </div>
         </li>

@@ -25,6 +25,7 @@ POST        /jenkins/toggleBuild         controllers.Jenkins.toggleBuild(branchI
 GET         /jenkins/buildActions        controllers.Jenkins.buildActions(branchName:String, buildNumber:Option[Int])
 GET         /jenkins/lastBuilds          controllers.Jenkins.lastBuilds(branchName:String, count:Int)
 GET         /jenkins/buildStatus         controllers.Jenkins.buildStatus(id:Int)
+POST         /jenkins/deployBuild         controllers.Jenkins.deployBuild(build:String, environment:String)
 
 
 GET         /jenkins/run                 controllers.Jenkins.run(branch: String, build: Int, part: String, run: String)

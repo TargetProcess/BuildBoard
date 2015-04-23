@@ -91,6 +91,7 @@ module buildBoard {
         cycleName:string;
         buildParametersCategories: BuildParametersCategory[]
         buildNumber?: number;
+        action: string;
     }
 
     export interface BuildParametersCategory {

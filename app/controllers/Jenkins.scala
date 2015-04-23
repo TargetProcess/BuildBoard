@@ -31,7 +31,7 @@ object Jenkins extends Application {
 
           val cycle: Cycle = if (params.parameters.isEmpty) BuildAction.find(params.cycleName) else CustomCycle(params.parameters)
 
-          val maybeAction: Option[BuildAction] =
+          val maybeAction: Option[JenkinsBuildAction] =
             (params.buildNumber, params.pullRequestId, params.branchId) match {
               case (Some(number), _, Some(branch)) => Some(ReuseArtifactsBuildAction(branch, number, cycle))
               case (None, Some(prId), None) => Some(PullRequestBuildAction(prId, cycle))
@@ -104,7 +104,7 @@ object Jenkins extends Application {
         val list = branch.flatMap(b => {
           number match {
             case Some(id) => component.buildRepository.getBuild(b, id)
-              .map(build => List(ReuseArtifactsBuildAction(build.name, build.number)))
+              .map(build => List(ReuseArtifactsBuildAction(build.name, build.number), DeployBuildAction(build.name, build.number, "Alaska")))
             case None => Some(b.buildActions)
           }
         })
@@ -142,5 +142,16 @@ object Jenkins extends Application {
 
         Ok.sendFile(file, inline = true)
       }
+  }
+
+  def deployBuild(buildId:String, environment: String) = IsAuthorizedComponent {
+        component =>
+          request => {
+
+                println(s"$buildId $environment")
+
+                Ok(Json.obj("message" -> "Ok"))
+
+          }
   }
 }

@@ -10,25 +10,31 @@ object BuildAction {
 
   def unapply(action: BuildAction) = {
 
-    val (prId, branch) = action match {
-      case PullRequestBuildAction(id, _) => (Some(id), None)
-      case BranchBuildAction(b, _) => (None, Some(b))
-      case ReuseArtifactsBuildAction(b, _, _) => (None, Some(b))
+    val (prId:Option[Int], branch:Option[String], cycle:Option[Cycle]) = action match {
+      case a@PullRequestBuildAction(id, _) => (Some(id), None, Some(a.cycle))
+      case a@BranchBuildAction(b, _) => (None, Some(b), Some(a.cycle))
+      case a@ReuseArtifactsBuildAction(b, _, cycle) => (None, Some(b), Some(cycle))
+      case DeployBuildAction(b, _, _) => (None, Some(b), None)
     }
 
-    val possibleBuildParameters = action.cycle match {
+    val possibleBuildParameters = cycle.map {
       case c@CustomCycle(_) => c.getPossibleBuildParameters
       case _ => Nil
-    }
+    }.getOrElse(Nil)
 
-    Some(action.name, prId, branch, action.cycle.name, possibleBuildParameters)
+
+    Some(action.name, prId, branch, cycle.map(_.name).getOrElse(""), action.action, possibleBuildParameters)
   }
 }
 
 trait BuildAction {
-  val cycle: Cycle
-
   val branchName: String
+  val name: String
+  val action: String
+}
+
+trait JenkinsBuildAction extends BuildAction {
+  val cycle: Cycle
 
   lazy val parameters: List[(String, String)] = List(
     "BRANCHNAME" -> branchName,
@@ -40,7 +46,6 @@ trait BuildAction {
       case BranchInfo.feature(_) => "5"
       case _ => "10"
     })
-  ) ++ cycle.parameters
-
-  val name: String
+  ) ++ cycle.parameters  
+  override val action = "forceBuild"
 }

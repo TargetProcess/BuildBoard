@@ -49,6 +49,14 @@ module buildBoard {
             );
         }
 
+        deployBuild(buildAction:BuildAction):ng.IHttpPromise<Build> {
+            return this.$http.post(this.controllers.Jenkins
+                .deployBuild(buildAction.branchId, buildAction.cycleName)
+                .absoluteURL(),{
+
+            });
+        }
+
         toggleBuild(branchId:string, buildNumber:number, toggled:boolean):ng.IHttpPromise<Build> {
             return this.$http.post(this.controllers.Jenkins.toggleBuild(branchId, buildNumber, toggled).absoluteURL(), {});
         }
