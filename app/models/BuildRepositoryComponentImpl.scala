@@ -47,8 +47,9 @@ trait BuildRepositoryComponentImpl extends BuildRepositoryComponent {
 
     def getAllBuilds: Iterator[Build] = Builds.findAll()
 
-
     override def getBuild(branch: Branch, number: Int): Option[Build] = Builds.findOne(MongoDBObject("number" -> number, "branch" -> branch.name))
+
+    override def getBuild(name:String): Option[Build] = Builds.findOne(MongoDBObject("name" -> name))
 
     override def toggleBuild(branch: Branch, number: Int, toggled: Boolean): Option[Build] = {
       val predicate = MongoDBObject("branch" -> branch.name, "number" -> number)

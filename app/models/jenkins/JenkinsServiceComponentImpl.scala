@@ -2,27 +2,32 @@ package models.jenkins
 
 import java.io.File
 
-import components.{BranchRepositoryComponent, BuildRepositoryComponent, JenkinsServiceComponent, LoggedUserProviderComponent}
-import models.buildActions.{JenkinsBuildAction, ReuseArtifactsBuildAction}
+import components._
+import models.buildActions.{DeployBuildAction, JenkinsBuildAction, ReuseArtifactsBuildAction}
 import models.{Branch, Build}
-import play.api.Play
-import play.api.Play.current
+import src.Utils
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.util.Try
-import scalaj.http.{HttpOptions, Http}
-
+import scalaj.http.{Http, HttpOptions}
 
 trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
   this: JenkinsServiceComponentImpl
     with BranchRepositoryComponent
     with BuildRepositoryComponent
     with LoggedUserProviderComponent
+    with NotificationComponent
+    with ConfigComponent
   =>
 
   val jenkinsService: JenkinsService = new JenkinsServiceImpl
 
-  class JenkinsServiceImpl extends JenkinsService with FileApi with ParseFolder {
-    private val jenkinsUrl = Play.configuration.getString("jenkins.url").get
+  class JenkinsServiceImpl extends JenkinsService with ParseFolder {
+
+    lazy val directory = config.jenkinsDataPath
+    lazy val deployDirectory = config.deployDirectoryRoot
+
 
     override def getUpdatedBuilds(existingBuilds: List[Build], buildNamesToUpdate: Seq[String]): List[Build] = {
 
@@ -42,7 +47,6 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
       val buildSources = folders.distinct.flatMap(createBuildSource)
 
 
-
       val result = buildSources.flatMap(buildSource => {
         val name: String = buildSource.folder.getName
         val toggled = existingBuildsMap.get(name).fold(false)(_.toggled)
@@ -51,6 +55,53 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
 
       result.toList
     }
+
+    def getTestRun(branch: Branch, build: Int, part: String, run: String) = findBuild(branch, build)
+      .map(b => b.getTestRunBuildNode(part, run))
+      .flatten
+      .map(testRunBuildNode => testRunBuildNode.copy(testResults = getTestCasePackages(testRunBuildNode)))
+
+    def forceBuild(action: JenkinsBuildAction) = action match {
+      case x: ReuseArtifactsBuildAction => forceReuseArtifactsBuild(x)
+      case x: JenkinsBuildAction => forceSimpleBuild(x)
+    }
+
+    def deployBuild(buildName: String, deployFolderName: String) = {
+
+
+      val buildFolder = new Folder(s"$directory/$buildName/Artifacts/Code/Releases")
+      val deployFolder = new Folder(s"$deployDirectory/$deployFolderName")
+
+      Future {
+        Utils.watch(s"Deploy $buildName to $deployFolderName") {
+          for (file <- deployFolder.listFiles()) {
+            file.delete()
+          }
+
+          for (file <- buildFolder.listFiles()) {
+            if (file.getName.endsWith("archive.zip")) {
+              FileApi.copyFile(file, deployFolder)
+            }
+          }
+        }
+      }
+    }
+
+    def canDeployBuild(buildName: String) = {
+      val buildFolder = new Folder(s"$directory/$buildName/Artifacts/Code/Releases")
+      buildFolder.exists
+    }
+
+    override def getBuildActions(build: Build) = {
+
+      val deployActions = if (canDeployBuild(build.name))
+        config.teams.map(team => DeployBuildAction(build.name, build.number, team.name))
+      else
+        Nil
+
+      ReuseArtifactsBuildAction(build.name, build.number) :: deployActions
+    }
+
 
     def getBuildNumbers(name: String): Option[(Int, Option[Int])] = {
       val prR = """pr_(\d+)_(\d+)""".r
@@ -79,18 +130,6 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
 
     def findBuild(branch: Branch, buildId: Int): Option[Build] = buildRepository.getBuild(branch, buildId)
 
-    def getTestRun(branch: Branch, build: Int, part: String, run: String) = findBuild(branch, build)
-      .map(b => b.getTestRunBuildNode(part, run))
-      .flatten
-      .map(testRunBuildNode => testRunBuildNode.copy(testResults = getTestCasePackages(testRunBuildNode)))
-
-
-    def forceBuild(action: JenkinsBuildAction) = action match {
-      case x: ReuseArtifactsBuildAction => forceReuseArtifactsBuild(x)
-      case x: JenkinsBuildAction => forceSimpleBuild(x)
-    }
-
-
     def post(url: String, parameters: List[(String, String)]) = Try {
 
       play.Logger.info(s"Force build to $url with parameters $parameters")
@@ -104,46 +143,28 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
     }
 
     def forceSimpleBuild(action: JenkinsBuildAction) = {
-      val url = s"$jenkinsUrl/job/$rootJobName/buildWithParameters"
+      val url = s"${config.jenkinsUrl}/job/$rootJobName/buildWithParameters"
       val parameters = action.parameters ++ loggedUser.map("WHO_STARTS" -> _.fullName) ++ List("UID" -> action.name)
       post(url, parameters)
 
     }
 
-    def deployBuild(buildName:String, deployFolderName: String) {
-
-        val buildFolder = new Folder(s"$directory/${buildName}/Artifacts/Code/Releases")
-        val deployFolder = new Folder(s"$deployDirectory/${deployFolderName}")
-
-       for (file <- deployFolder.listFiles()) {
-          file.delete();
-       }
-
-        
-
-       for (file <- buildFolder.listFiles()) {
-          if(file.getName().endsWith("archive.zip")) {
-              copyFile(file, deployFolder)
-          }
-       }       
-    }
-
     def forceReuseArtifactsBuild(action: ReuseArtifactsBuildAction): Try[Unit] = Try {
       val buildFolder = new Folder(s"$directory/${action.buildName}")
-      val revision = readAsMap(new File(buildFolder, "Artifacts/Revision.txt"))
+      val revision = FileApi.readAsMap(new File(buildFolder, "Artifacts/Revision.txt"))
         .flatMap(_.map(_._2)
-          .filter(x => x.toString.startsWith("REVISION="))
-          .map(x => x.replaceAll("REVISION=", ""))
-          .headOption
+        .filter(x => x.toString.startsWith("REVISION="))
+        .map(x => x.replaceAll("REVISION=", ""))
+        .headOption
         )
-      .get
+        .get
 
       val buildParams = BuildParams(getParamsFile(buildFolder)).get
 
 
 
       val forcePart = (job: String, postfix: String, filter: String) =>
-        forceBuildCategory(buildParams, revision, filter.replaceAll( """^\"|\"$""", ""), s"$jenkinsUrl/job/$job/buildWithParameters", action.buildNumber, postfix)
+        forceBuildCategory(buildParams, revision, filter.replaceAll( """^\"|\"$""", ""), s"${config.jenkinsUrl}/job/$job/buildWithParameters", action.buildNumber, postfix)
 
       if (action.cycle.funcTests != "") {
         forcePart("RunFuncTests", "FuncTests", action.cycle.funcTests)

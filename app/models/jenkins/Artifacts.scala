@@ -5,7 +5,11 @@ import java.io.File
 import scala.xml.Node
 
 trait Artifacts {
-  this: FileApi =>
+  //this: FileApi =>
+
+  val directory: String
+  val deployDirectory: String
+
 
   protected val screenshot = "screenshot"
   protected val testNameRegex = """.*\.(\w+)\.(\w+)$""".r

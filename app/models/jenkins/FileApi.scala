@@ -1,18 +1,11 @@
 package models.jenkins
 
-import java.io.{File,FileInputStream,FileOutputStream}
-
-import play.api.Play
-import play.api.Play.current
+import java.io.{File, FileInputStream, FileOutputStream}
 
 import scala.io.{BufferedSource, Source}
 import scala.util.Try
 
-trait FileApi {
-
-  val directory = Play.configuration.getString("jenkins.data.path").get
-  val deployDirectory = Play.configuration.getString("jenkins.data.deployPath").get
-
+object FileApi {
   def read(f: File): Option[String] = Try {
     val file: BufferedSource = Source.fromFile(f)
     val result = file.mkString
@@ -30,11 +23,8 @@ trait FileApi {
 
   def copyFile(fromFile: File, toFolder: File) = {
     val src = fromFile
-    val dest = new File(toFolder.getPath() + "/" + fromFile.getName())
+    val dest = new File(s"${toFolder.getPath}/${fromFile.getName}")
     new FileOutputStream(dest) getChannel() transferFrom(
-    new FileInputStream(src) getChannel, 0, Long.MaxValue )
+      new FileInputStream(src) getChannel, 0, Long.MaxValue)
   }
-
-
-
 }

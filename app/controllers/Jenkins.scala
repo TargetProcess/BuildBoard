@@ -9,12 +9,10 @@ import models.buildActions._
 import models.cycles.{CustomCycle, Cycle}
 import play.Play
 import play.api.libs.json._
-import play.api.Play.current
 
 import scala.util.{Failure, Success, Try}
 import scalaj.http.HttpException
-
-import scala.collection.JavaConverters._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 case class ForceBuildParameters(pullRequestId: Option[Int],
                                 branchId: Option[String],
@@ -99,27 +97,21 @@ object Jenkins extends Application {
   }
 
   def buildActions(branchName: String, number: Option[Int]) = IsAuthorizedComponent {
-    component =>
+    implicit component =>
       request =>
         val branch: Option[Branch] = component.branchRepository.getBranch(branchName)
-        
-        val foldersForDeploy = play.api.Play.configuration.getStringList("foldersForDeploy")            
-            .map(_.asScala.toList)
-            .getOrElse(Nil);
 
-        val list = branch.flatMap(b => {
-          number match {
-            case Some(id) => component.buildRepository.getBuild(b, id)
-              .map(build => List(
-                ReuseArtifactsBuildAction(build.name, build.number)
-              )++foldersForDeploy.map(DeployBuildAction(build.name, build.number, _)))
-            case None => Some(b.buildActions)
-          }
-        })
+        val branchMapper = number match {
+          case Some(id) => (branch: Branch) =>
+            component.buildRepository.getBuild(branch, id)
+              .map(component.jenkinsService.getBuildActions)
+          case None => (branch: Branch) => Some(branch.buildActions)
+        }
 
-        Ok(Json.toJson(list.getOrElse(Nil)))
+        val buildActions = branch.flatMap(branchMapper)
+
+        Ok(Json.toJson(buildActions.getOrElse(Nil)))
   }
-
 
   def lastBuilds(branch: String, count: Int) = IsAuthorizedComponent {
     component =>
@@ -129,8 +121,8 @@ object Jenkins extends Application {
 
 
   def buildStatus(id: Int) = IsAuthorizedComponent {
-        component =>
-          request => {
+    component =>
+      request => {
         val branch = component.branchRepository.getBranchByEntity(id)
         val status = branch
           .flatMap(b => component.buildRepository.getLastBuilds(b.name, 1).headOption)
@@ -152,14 +144,21 @@ object Jenkins extends Application {
       }
   }
 
-  def deployBuild(buildId:String, environment: String) = IsAuthorizedComponent {
-        component =>
-          request => {
-                component.jenkinsService.deployBuild(buildId,environment);  
-                Ok(Json.obj("message" -> "Ok"))
+  def deployBuild(buildId: String, teamName: String) = IsAuthorizedComponent {
+    component =>
+      request => {
 
-                             
-            
-          }
+        for (
+          build <- component.buildRepository.getBuild(buildId);
+          team <- component.config.teams.find(_.name == teamName)
+        ) {
+          component.notificationService.notifyStartDeploy(team, build)
+          val deploy = component.jenkinsService.deployBuild(buildId, team.deployFolder)
+          deploy.onComplete(component.notificationService.notifyDoneDeploy(team, build, _))
+          deploy.onFailure { case e => play.Logger.error("Error during deploy", e) }
+        }
+
+        Ok(Json.obj("message" -> "Ok"))
+      }
   }
 }

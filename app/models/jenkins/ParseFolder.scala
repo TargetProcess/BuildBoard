@@ -10,7 +10,7 @@ import org.joda.time.DateTime
 import scala.xml.{Node, XML}
 
 
-trait ParseFolder extends FileApi with Artifacts {
+trait ParseFolder extends Artifacts {
 
   protected val screenshotQualifiedFileNameRegex = """.*\\(\w+)\.(\w+)[-].*$""".r
   protected val screenshotFileNameRegex = """.*\\(\w+)[-].*$""".r
@@ -62,7 +62,7 @@ trait ParseFolder extends FileApi with Artifacts {
       return Nil
     }
 
-    read(file) match {
+    FileApi.read(file) match {
       case Some(contents) => splitRegex.split(contents)
         .toList
         .filter(_.length > 0)
@@ -82,7 +82,7 @@ trait ParseFolder extends FileApi with Artifacts {
     if (!file.exists) {
       None
     } else {
-      read(file)
+      FileApi.read(file)
     }
   }
 
@@ -106,7 +106,6 @@ trait ParseFolder extends FileApi with Artifacts {
       val children: List[BuildNode] = contents
         .filter(f => f.isDirectory && !f.getName.startsWith("."))
         .flatMap(f => getBuildNodeInner(f, folder.getPath))
-        .toList
 
       val artifacts = getArtifacts(contents)
 
@@ -137,7 +136,7 @@ trait ParseFolder extends FileApi with Artifacts {
     val contents = folder.listFiles
     val startedFile: Option[File] = contents.find(_.getName.endsWith("started"))
 
-    val startedFileContent: Option[Map[Int, String]] = startedFile.flatMap(readAsMap)
+    val startedFileContent: Option[Map[Int, String]] = startedFile.flatMap(FileApi.readAsMap)
 
 
     val statusUrl = startedFileContent.flatMap(_.get(0))
@@ -156,7 +155,7 @@ trait ParseFolder extends FileApi with Artifacts {
     val startedStatus = if (startedFile.isDefined) None else Some("FAILURE")
 
     val status: Option[String] = startedStatus
-      .orElse(contents.find(_.getName.endsWith("finished")).flatMap(read))
+      .orElse(contents.find(_.getName.endsWith("finished")).flatMap(FileApi.read))
       .orElse(if ((DateTime.now - timeout) > timestamp) Some("TIMED OUT") else None)
 
     BuildDetails(status, statusUrl, timestamp, rerun)
@@ -207,7 +206,7 @@ trait ParseFolder extends FileApi with Artifacts {
 
     testRunBuildNode.artifacts
       .find(a => a.name == "testResults")
-      .flatMap(file => read(this.getArtifact(file.url)))
+      .flatMap(file => FileApi.read(this.getArtifact(file.url)))
       .map(xmlString => (XML.loadString(xmlString) \ "test-suite").map(getTestCasePackage).toList)
       .getOrElse(Nil)
   }

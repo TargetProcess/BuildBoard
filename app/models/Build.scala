@@ -18,12 +18,17 @@ case class Build(number: Int,
                   ) extends ActivityEntry {
 
   def getTestRunBuildNode(part: String, run: String): Option[BuildNode] = {
+    getBuildNode(n => n.name == part && n.runName == run)
+  }
+
+  def getBuildNode(filter: BuildNode => Boolean): Option[BuildNode] = {
     def getTestRunBuildNodeInner(node: BuildNode): Option[BuildNode] = node match {
-      case n: BuildNode if n.name == part && n.runName == run => Some(n)
+      case n: BuildNode if filter(n) => Some(n)
       case n => n.children.map(getTestRunBuildNodeInner).filter(_.isDefined).flatten.headOption
     }
     node.map(getTestRunBuildNodeInner).flatten
   }
+
 
 
   def isPullRequest = pullRequestId.isDefined
