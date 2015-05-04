@@ -2,14 +2,15 @@ package models.notifications
 
 import com.mongodb.casbah.Imports._
 import components._
-import models.BuildStatus._
 import models._
 import models.github.GithubStatus
 import play.api.Play
 import play.api.Play.current
 
 import scala.collection.immutable.Iterable
+import scala.util.{Failure, Success, Try}
 import scalaj.http.{Http, HttpException, HttpOptions}
+import models.teams.Team
 
 
 trait NotificationComponentImpl extends NotificationComponent {
@@ -38,10 +39,10 @@ trait NotificationComponentImpl extends NotificationComponent {
     def updateGithub(build: Build) = {
       build.ref.foreach(sha => {
         val statusString = build.buildStatus match {
-          case Unknown | InProgress => "pending"
-          case Toggled | Ok => "success"
-          case Failure => "error"
-          case Aborted | TimedOut => "failure"
+          case models.BuildStatus.Unknown | models.BuildStatus.InProgress => "pending"
+          case models.BuildStatus.Toggled | models.BuildStatus.Ok => "success"
+          case models.BuildStatus.Failure => "error"
+          case models.BuildStatus.Aborted | models.BuildStatus.TimedOut => "failure"
         }
 
         val text = s"Build is ${build.buildStatus.obj} at ${build.timestamp.toString("HH:mm dd/MM")}"
@@ -57,7 +58,7 @@ trait NotificationComponentImpl extends NotificationComponent {
 
       if (needBroadcast(branch.name)) {
 
-        val status = if (build.buildStatus == Toggled) "green" else build.buildStatus.name
+        val status = if (build.buildStatus == models.BuildStatus.Toggled) "green" else build.buildStatus.name
 
         val icon: String = getIcon(build)
 
@@ -69,7 +70,6 @@ trait NotificationComponentImpl extends NotificationComponent {
       updateGithub(build)
 
     }
-
 
 
     override def notifyAboutBuilds(updatedBuilds: Iterator[Build]) = {
@@ -135,6 +135,21 @@ trait NotificationComponentImpl extends NotificationComponent {
 
     }
 
+    def notifyStartDeploy(team: Team, build: Build) {
+      post(s"Build <${getBuildLink(build)}> is starting to deploy for ${team.name}", team.channel)
+    }
+
+    def notifyDoneDeploy(team: Team, build: Build, result:Try[Any]) {
+      val deployText = result match {
+        case Success(_)=>"copied"
+        case Failure(_)=>"not copied"
+      }
+
+      val message = s"Build <${getBuildLink(build)}> is $deployText for ${team.name}"
+
+      post(message, team.channel)
+    }
+
 
     def getBuildLink(currentBuild: Build): String = s"$baseUrl/#/list/branch?name=${currentBuild.branch}"
 
@@ -170,6 +185,14 @@ trait NotificationComponentImpl extends NotificationComponent {
     override def notifyAboutBuilds(builds: Iterator[Build]) = {}
 
     override def notifyToggle(branch: Branch, build: Build) = {}
+
+    def notifyStartDeploy(team: Team, build: Build) = {
+      play.Logger.info(s"StartDeploy $build -> $team")
+    }
+
+    def notifyDoneDeploy(team: Team, build: Build, result:Try[Any]) = {
+      play.Logger.info(s"DoneDeploy $build -> $team, $result")
+    }
   }
 
 }

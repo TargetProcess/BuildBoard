@@ -30,3 +30,4 @@ public/javascripts/all.js
 public/javascripts/all.js.map
 data/*
 /artifacts/
+node_modules/

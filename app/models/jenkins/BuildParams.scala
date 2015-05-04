@@ -5,11 +5,11 @@ import java.io.File
 // branch => origin/develop | origin/pr/1044/merge | origin/feature/us76314
 case class BuildParams(branch: String, parameters: Map[String, String])
 
-object BuildParams extends FileApi {
+object BuildParams {
   val branchName = "BRANCHNAME"
   val paramR = "([^:]*): (.*)".r
 
-  def apply(file: File) = read(file).flatMap(str => {
+  def apply(file: File) = FileApi.read(file).flatMap(str => {
     val lines = str.split('\n')
     val parameters: Map[String, String] = lines
       .flatMap {

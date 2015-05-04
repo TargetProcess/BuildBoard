@@ -4,17 +4,17 @@ import java.io.File
 
 import components.DefaultRegistry
 import models.AuthInfo
-import models.jenkins.FileApi
 import play.api.Play
 import play.api.Play.current
 import rx.lang.scala.{Observable, Subscription}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
-import ExecutionContext.Implicits.global
 
-object CacheService extends FileApi {
+object CacheService {
+
   val authInfo: AuthInfo = (for {
     tpToken <- Play.configuration.getString("cache.user.tp.token")
     gToken <- Play.configuration.getString("cache.user.github.token")
@@ -25,8 +25,10 @@ object CacheService extends FileApi {
       override val token: String = tpToken
     }).get
 
-
   val registry = new DefaultRegistry(authInfo)
+
+  val directory: String = registry.config.jenkinsDataPath
+
 
   val githubInterval = Play.configuration.getMilliseconds("github.cache.interval").getOrElse(600000L).milliseconds
   val jenkinsInterval = Play.configuration.getMilliseconds("jenkins.cache.interval").getOrElse(60000L).milliseconds
