@@ -69,11 +69,14 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
     def deployBuild(buildName: String, deployFolderName: String) = {
 
 
-      val buildFolder = new Folder(s"$directory/$buildName/Artifacts/Code/Releases")
-      val deployFolder = new Folder(s"$deployDirectory/$deployFolderName")
+      val buildFolderPath: String = s"$directory\\$buildName\\Artifacts\\Code\\Releases\\"
+      val deployFolderPath: String = s"$deployDirectory\\$deployFolderName\\"
+
+      val buildFolder = new Folder(buildFolderPath)
+      val deployFolder = new Folder(deployFolderPath)
 
       Future {
-        Utils.watch(s"Deploy $buildName to $deployFolderName") {
+        Utils.watch(s"Deploy $buildFolderPath to $deployFolderPath") {
           for (file <- deployFolder.listFiles()) {
             file.delete()
           }

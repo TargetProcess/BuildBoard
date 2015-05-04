@@ -19,7 +19,7 @@ trait ConfigComponentImpl extends ConfigComponent {
       name <- teamConfig.getString("name");
       deployTo <- teamConfig.getString("deployTo");
       channel <- teamConfig.getString("channel")
-    ) yield Team(name, deployTo, channel)).toList
+    ) yield Team(name, channel, deployTo)).toList
 
 
     private def getString(path: String) = Play.configuration.getString(path).get
