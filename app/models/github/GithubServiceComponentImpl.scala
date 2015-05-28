@@ -37,7 +37,7 @@ trait GithubServiceComponentImpl extends GithubServiceComponent {
 
       val isLgtm = isReviewed(id)
 
-      PullRequestStatus(pr.isMergeable, pr.isMerged, isLgtm = isLgtm)
+      PullRequestStatus(pr.isMergeable, pr.isMerged, isLgtm = Some(isLgtm))
     }
 
     def isReviewed(id: Int): Boolean = {
@@ -60,7 +60,7 @@ trait GithubServiceComponentImpl extends GithubServiceComponent {
     private def createBranch(branch: org.eclipse.egit.github.core.RepositoryBranch) = Branch(branch.getName, GithubApplication.url(branch.getName))
 
     private def parsePullRequest(pr: PR): PullRequest = PullRequest(pr.getHead.getRef, pr.getNumber, pr.getHtmlUrl, new DateTime(pr.getCreatedAt),
-      PullRequestStatus(pr.isMergeable, pr.isMerged, isReviewed(pr.getId.toInt)))
+      PullRequestStatus(pr.isMergeable, pr.isMerged, Some(isReviewed(pr.getId.toInt))))
 
     def mergePullRequest(prId: Int, user: User): MergeResult = {
       val pr = prService.getPullRequest(repo, prId)

@@ -60,7 +60,7 @@ module buildBoard {
                         }
 
                         if (!pullRequest.status.isLgtm) {
-                            mergeStatus.reasons.push("Pull requested is not reviewed");
+                            mergeStatus.reasons.push("Pull request is not reviewed");
                         }
 
                     } else {

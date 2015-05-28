@@ -32,7 +32,7 @@ with Mockito {
                   Branch("branch", "http://branch",
                     pullRequest = Some(PullRequest("branch", 1, "http://pr1",
                       timestamp = DateTime.now(),
-                      status = PullRequestStatus(isMergeable = true, isMerged = false, isLgtm = true)
+                      status = PullRequestStatus(isMergeable = true, isMerged = false, isLgtm = None)
                     )),
                     entity = Some(Entity(10, "entity", "UserStory",
                       url = "http://tp",
