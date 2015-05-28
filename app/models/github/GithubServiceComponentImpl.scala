@@ -1,20 +1,20 @@
 package models.github
 
 import components._
-import models._
+import models.{PullRequest, PullRequestStatus, _}
 import org.eclipse.egit.github.core.client.GitHubClient
 import org.eclipse.egit.github.core.service._
-import scala.collection.JavaConverters._
+import org.eclipse.egit.github.core.{CommitStatus, PullRequest => PR, RepositoryId}
 import org.joda.time.DateTime
-import org.eclipse.egit.github.core.{PullRequest => PR, CommitStatus, RepositoryId}
-import models.{PullRequestStatus, PullRequest}
+
+import scala.collection.JavaConverters._
 
 trait GithubServiceComponentImpl extends GithubServiceComponent {
   this: GithubServiceComponentImpl
     with AuthInfoProviderComponent
   =>
 
-  override val githubService:GithubService = new GithubServiceImpl(authInfo)
+  override val githubService: GithubService = new GithubServiceImpl(authInfo)
 
   class GithubServiceImpl(authInfo: AuthInfo) extends GithubService {
     private val github = new GitHubClient().setOAuth2Token(authInfo.githubToken)
@@ -23,22 +23,49 @@ trait GithubServiceComponentImpl extends GithubServiceComponent {
     private val repo = new RepositoryId(GithubApplication.user, GithubApplication.repo)
     private val referenceService = new ReferenceService(github)
     private val commitService = new CommitService(github)
+    private val issueService = new IssueService(github)
 
-    def getBranches: List[Branch] = repositoryService.getBranches(repo).asScala.map(b=>createBranch(b)).toList
+    def getBranches: List[Branch] = repositoryService.getBranches(repo).asScala.map(b => createBranch(b)).toList
 
-    def getPullRequests: List[PullRequest] = prService.getPullRequests(repo, "open").asScala.map(createPullRequest).toList
+    def getPullRequests: List[PullRequest] = prService.getPullRequests(repo, "open").asScala.map(parsePullRequest).toList
+
+    def minOptionBy[A, B: Ordering](seq: Seq[A])(f: A => B) =
+      seq reduceOption Ordering.by(f).min
 
     def getPullRequestStatus(id: Int) = {
       val pr = prService.getPullRequest(repo, id)
-      PullRequestStatus(pr.isMergeable, pr.isMerged)
+
+      val isLgtm = isReviewed(id)
+
+      PullRequestStatus(pr.isMergeable, pr.isMerged, isLgtm = isLgtm)
+    }
+
+    def isReviewed(id: Int): Boolean = {
+      val commitsM = util.Try(prService.getCommits(repo, id).asScala).toOption
+      val commentsM = util.Try(issueService.getComments(repo, id).asScala).toOption
+
+
+      val isLgtm = for (commits <- commitsM;
+                        comments <- commentsM;
+                        lastCommitDate = commits.map(_.getCommit.getCommitter.getDate).max;
+                        lastComment <- minOptionBy(comments.filter(_.getBody.toLowerCase.contains("lgtm")))(_.getCreatedAt)
+                        if new DateTime(lastComment.getCreatedAt).isAfter(new DateTime(lastCommitDate))
+      )
+        yield true
+
+      isLgtm.getOrElse(false)
+
     }
 
     private def createBranch(branch: org.eclipse.egit.github.core.RepositoryBranch) = Branch(branch.getName, GithubApplication.url(branch.getName))
 
-    private def createPullRequest(pr: PR): PullRequest = PullRequest(pr.getHead.getRef, pr.getNumber, pr.getHtmlUrl, new DateTime(pr.getCreatedAt), PullRequestStatus(pr.isMergeable, pr.isMerged))
+    private def parsePullRequest(pr: PR): PullRequest = PullRequest(pr.getHead.getRef, pr.getNumber, pr.getHtmlUrl, new DateTime(pr.getCreatedAt),
+      PullRequestStatus(pr.isMergeable, pr.isMerged, isReviewed(pr.getId.toInt)))
 
-    def mergePullRequest(number: Int, user: User): MergeResult = {
-      val status = prService.merge(repo, number, s"Merged by ${user.fullName} (${user.githubLogin})")
+    def mergePullRequest(prId: Int, user: User): MergeResult = {
+      val pr = prService.getPullRequest(repo, prId)
+
+      val status = prService.merge(repo, prId, s"Merged by ${user.fullName} (${user.githubLogin})\n${pr.getTitle}\n${pr.getBodyText}")
       MergeResult(status.isMerged, status.getMessage, status.getSha)
     }
 
@@ -55,7 +82,3 @@ trait GithubServiceComponentImpl extends GithubServiceComponent {
   }
 
 }
-
-
-
-

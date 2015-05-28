@@ -1,9 +1,12 @@
 package models.github
 
-import org.eclipse.egit.github.core.service.DataService
-import org.eclipse.egit.github.core.client.GitHubClient
+import java.io.IOException
+
 import org.eclipse.egit.github.core.IRepositoryIdProvider
+import org.eclipse.egit.github.core.client.GitHubClient
 import org.eclipse.egit.github.core.client.IGitHubConstants._
+import org.eclipse.egit.github.core.service.DataService;
+
 
 class ReferenceService(client: GitHubClient) extends DataService(client) {
   /**
@@ -26,3 +29,4 @@ class ReferenceService(client: GitHubClient) extends DataService(client) {
     client.delete(uri.toString())
   }
 }
+
