@@ -52,6 +52,7 @@ module buildBoard {
     export interface PullRequestStatus {
         isMerged:boolean;
         isMergeable:boolean;
+        isLgtm:boolean;
     }
 
     export interface BuildBase extends ActivityEntry {

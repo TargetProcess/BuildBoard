@@ -29,20 +29,28 @@ module buildBoard {
                         return null;
                     }
 
-                    if (!lastDevelop || !prevDevelop) {
-                        return null;
-                    }
-
                     var mergeStatus = <MergeStatus>{
                         isEnabled: false,
                         reasons: []
                     };
 
-                    var status = (lastDevelop.parsedStatus == Status.InProgress || lastDevelop.parsedStatus == Status.Unknown) ? prevDevelop.parsedStatus : lastDevelop.parsedStatus;
+
+
+
+                    var status:Status;
+
+
+                    if (!lastDevelop || !prevDevelop) {
+                        status = Status.Unknown;
+                    }
+                    else {
+                        status = (lastDevelop.parsedStatus == Status.InProgress || lastDevelop.parsedStatus == Status.Unknown) ? prevDevelop.parsedStatus : lastDevelop.parsedStatus;
+
+                    }
 
 
                     if (status !== Status.Success && status !== Status.Toggled) {
-                        mergeStatus.reasons.push("Develop is red");
+                        mergeStatus.reasons.push("Develop is not green");
                     }
 
                     var pullRequest = branch.pullRequest;
@@ -50,6 +58,11 @@ module buildBoard {
                         if (!pullRequest.status.isMergeable) {
                             mergeStatus.reasons.push("There are conflicts in pull request");
                         }
+
+                        if (!pullRequest.status.isLgtm) {
+                            mergeStatus.reasons.push("Pull requested is not reviewed");
+                        }
+
                     } else {
                         mergeStatus.reasons.push("There is no pull request")
                     }
@@ -71,6 +84,7 @@ module buildBoard {
 
                     mergeStatus.isEnabled = mergeStatus.reasons.length === 0;
 
+                    console.log(mergeStatus.reasons.join(' '));
                     return mergeStatus;
                 };
 

@@ -65,7 +65,8 @@ trait GithubServiceComponentImpl extends GithubServiceComponent {
     def mergePullRequest(prId: Int, user: User): MergeResult = {
       val pr = prService.getPullRequest(repo, prId)
 
-      val status = prService.merge(repo, prId, s"Merged by ${user.fullName} (${user.githubLogin})\n${pr.getTitle}\n${pr.getBodyText}")
+      val description: String = s"Merged by ${user.fullName} (${user.githubLogin})\n${pr.getTitle}\n${pr.getBodyText}"
+      val status = prService.merge(repo, prId, description)
       MergeResult(status.isMerged, status.getMessage, status.getSha)
     }
 

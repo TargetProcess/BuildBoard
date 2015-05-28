@@ -104,6 +104,13 @@
         </div>
 
         <div class="item">
+            <h4>Review</h4>
+            <a target="_blank" href="{{getBranch().pullRequest.url}}"
+               class="btn review {{ getBranch().pullRequest && getBranch().pullRequest.status.isLgtm ? 'success' : 'warning' }}"
+                    >{{ getBranch().pullRequest && getBranch().pullRequest.status.isLgtm ? 'Looks good' : 'Not reviewed' }}</a>
+        </div>
+
+        <div class="item">
             <h4>Merge</h4>
             <merge-button branch="getBranch()" size="large"/>
         </div>

@@ -43,14 +43,17 @@
                     </a>
                 </th>
                 <th>
+                    <a ng-click="orderingPredicate='name'; reverse=!reverse" href=""
+                       ng-class="{sorting:orderingPredicate == 'pullRequest.status.isLgtm', up:reverse, down:!reverse}">
+                        Review
+                    </a>
+                </th>
+                <th>
                     <a ng-click="orderingPredicate='lastBuild.timestamp'; reverse=!reverse" href=""
                        ng-class="{sorting:orderingPredicate == 'lastBuild.timestamp', up:reverse, down:!reverse}">
                         Jenkins
                     </a>
                 </th>
-                <!--th>
-                    <a ng-click="orderingPredicate='name'; reverse=!reverse" href="" ng-class="{sorting:orderingPredicate == 'name', up:reverse, down:!reverse}">Review</a>
-                </th>-->
                 <th>
                     Merge
                 </th>
@@ -83,6 +86,14 @@
                         <a target="_blank" href="{{branch.pullRequest.url}}"
                            class="pr status {{ branch.pullRequest | pullRequestStatus | status2Class }}"
                            title="{{branch.pullRequest.created | date}}">#{{branch.pullRequest.prId}}</a>
+                    </div>
+                </td>
+                <td>
+                    <div ng-show="branch.pullRequest" class="dropdown">
+                        <a target="_blank" href="{{branch.pullRequest.url}}"
+                           class="pr review {{ branch.pullRequest && branch.pullRequest.status.isLgtm ? 'success' : 'warning' }}"
+                           ></a>
+
                     </div>
                 </td>
                 <td>
