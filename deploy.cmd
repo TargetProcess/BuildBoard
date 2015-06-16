@@ -13,4 +13,4 @@ xcopy /E /Y BuildBoard-1.0\* %dest%\BuildBoard\
 del %dest%\BuildBoard\bin\RUNNING_PID
 popd
 xcopy /E /Y conf\BUILDBOARD_config.txt %dest%\BuildBoard\  
-utils\psexec -d -w c:\BuildBoard\bin %dest% c:\BuildBoard\bin\buildboard.bat 
+utils\psexec -s -d -w c:\BuildBoard\bin %dest% c:\BuildBoard\bin\buildboard.bat 

@@ -4,4 +4,4 @@ if NOT ('%pid%' == '') (
 	utils\pskill -t %dest% %pid%
 )
 del %dest%\BuildBoard\bin\RUNNING_PID
-utils\psexec -d -w c:\BuildBoard\bin %dest% c:\BuildBoard\bin\buildboard.bat 
+utils\psexec -s -d -w c:\BuildBoard\bin %dest% c:\BuildBoard\bin\buildboard.bat 
