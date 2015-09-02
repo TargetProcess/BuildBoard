@@ -4,72 +4,43 @@
     <build-status-badge build="getLastBuild" name="develop" time="now"></build-status-badge>
 
     <build-status-badge build="getPrevBuild" name="develop" time="past"></build-status-badge>
-
-
+    <span style="padding-left: 20px" >Status Transifex integration: <a href="http://jm2:8080/job/Transifex/"><img title="status transifex integration" src="http://jm2:8080/buildStatus/icon?job=Transifex" alt="staus transifex integration"/></a></span>
     <ul class="links">
         <li class="statistics-link"><a>Statistics</a>
             <ul class="dropdown-menu">
                 <li>
                     <a target="_blank"
-                       href="http://tauspy.com/report.html#group/1f4594d4-869f-411f-9fc4-94421642bc11/69530dac-da61-424f-9d1c-21072b163442"
+                       href="http://kibana.tpminsk.by/#/visualize/edit/Jenkins-Full-Build-Cycle-Time?_g=(time:(from:now-30d,mode:quick,to:now))&_a=(filters:!(),linked:!f,query:(query_string:(analyze_wildcard:!t,query:'_type:%22esbuild%22%20AND%20cycle:%22full%22')),vis:(aggs:!((id:'1',params:(field:minutes),schema:metric,type:avg),(id:'2',params:(extended_bounds:(),field:startDate,interval:day,min_doc_count:1),schema:segment,type:date_histogram)),listeners:(),params:(addLegend:!t,addTooltip:!t,defaultYExtents:!f,shareYAxis:!t),type:line))"
                             >
-                        Jenkins TestRuns Min/Max/Avg
+                        Jenkins Full Build Cycle Time
                     </a>
                 </li>
                 <li>
                     <a target="_blank"
-                       href="http://tauspy.com/report.html#group/1f4594d4-869f-411f-9fc4-94421642bc11/6e89d3bb-0f6d-4b5b-ba57-6e9c6ed0cde8"
+                       href="http://kibana.tpminsk.by/#/visualize/edit/Jenkins-FuncTest?_g=(time:(from:now-30d,mode:quick,to:now))&_a=(filters:!(),linked:!f,query:(query_string:(analyze_wildcard:!t,query:'_type:%22esjob%22%20AND%20name:RunFuncTests*')),vis:(aggs:!((id:'1',params:(field:minutes),schema:metric,type:avg),(id:'2',params:(extended_bounds:(),field:startDate,interval:day,min_doc_count:1),schema:segment,type:date_histogram),(id:'3',params:(field:name,order:desc,orderBy:'1',size:60),schema:group,type:terms)),listeners:(),params:(addLegend:!t,addTooltip:!t,defaultYExtents:!f,shareYAxis:!t),type:line))"
                             >
-                        Jenkins ALL Tests execution time by date
+                        Jenkins FuncTest
                     </a>
                 </li>
                 <li>
                     <a target="_blank"
-                       href="http://tauspy.com/report.html#group/1f4594d4-869f-411f-9fc4-94421642bc11/8da0382a-c37a-4f7d-9f45-c8e410d09d1a"
+                       href="http://kibana.tpminsk.by/#/visualize/edit/Jenkins-Short-Build-Cycle-Time?_g=(time:(from:now-30d,mode:quick,to:now))&_a=(filters:!(),linked:!f,query:(query_string:(analyze_wildcard:!t,query:'_type:%22esbuild%22%20AND%20cycle:%22short%22')),vis:(aggs:!((id:'1',params:(field:minutes),schema:metric,type:avg),(id:'2',params:(extended_bounds:(),field:startDate,interval:day,min_doc_count:1),schema:segment,type:date_histogram)),listeners:(),params:(addLegend:!t,addTooltip:!t,defaultYExtents:!f,shareYAxis:!t),type:line))"
                             >
-                        Jenkins FUNC test execution time by date
+                        Jenkins Short Build Cycle Time
                     </a>
                 </li>
                 <li>
                     <a target="_blank"
-                       href="http://tauspy.com/report.html#group/1f4594d4-869f-411f-9fc4-94421642bc11/45f6f43a-3a9b-4376-ad07-c731e1bed4e9"
+                       href="http://kibana.tpminsk.by/#/visualize/edit/Jenkins-Total-Builds-Per-Day?_g=(time:(from:now-30d,mode:quick,to:now))&_a=(filters:!(),linked:!f,query:(query_string:(analyze_wildcard:!t,query:'_type:%22esbuild%22')),vis:(aggs:!((id:'1',params:(),schema:metric,type:count),(id:'2',params:(extended_bounds:(),field:startDate,interval:day,min_doc_count:1),schema:segment,type:date_histogram)),listeners:(),params:(addLegend:!t,addTooltip:!t,defaultYExtents:!f,shareYAxis:!t),type:line))"
                             >
-                        Jenkins UNIT TESTS execution time
+                        Jenkins Total Builds Per Day
                     </a>
                 </li>
                 <li>
                     <a target="_blank"
-                       href="http://tauspy.com/report.html#group/1f4594d4-869f-411f-9fc4-94421642bc11/ac543802-0496-4ec6-bb10-f18f32449a0d"
+                       href="http://kibana.tpminsk.by/#/visualize/edit/Jenkins-UnitTests?_g=(time:(from:now-30d,mode:quick,to:now))&_a=(filters:!(),linked:!f,query:(query_string:(analyze_wildcard:!t,query:'_type:%22esjob%22%20AND%20name:RunUnit*')),vis:(aggs:!((id:'1',params:(field:minutes),schema:metric,type:avg),(id:'2',params:(extended_bounds:(),field:startDate,interval:day,min_doc_count:1),schema:segment,type:date_histogram),(id:'3',params:(field:name,order:desc,orderBy:'1',size:60),schema:group,type:terms)),listeners:(),params:(addLegend:!t,addTooltip:!t,defaultYExtents:!f,shareYAxis:!t),type:line))"
                             >
-                        Jenkins SHORT builds execution time
-                    </a>
-                </li>
-                <li>
-                    <a target="_blank"
-                       href="http://tauspy.com/report.html#group/1f4594d4-869f-411f-9fc4-94421642bc11/b883814f-7be7-41b8-a978-1982ed871daf"
-                            >
-                        Jenkins SHORT builds FUNC tests
-                    </a>
-                </li>
-                <li>
-                    <a target="_blank"
-                       href="http://tauspy.com/report.html#group/1f4594d4-869f-411f-9fc4-94421642bc11/da9f8bb4-903b-479f-8d55-8bdeb0e046f1"
-                            >
-                        Jenkins SHORT builds UNIT tests
-                    </a>
-                </li>
-                <li>
-                    <a target="_blank"
-                       href="http://tauspy.com/report.html#group/1f4594d4-869f-411f-9fc4-94421642bc11/c40bbac9-0711-4328-8de6-c681e18a99f5"
-                            >
-                        Jenkins build cycle candles
-                    </a>
-                </li>
-                <li>
-                    <a target="_blank"
-                       href="http://tauspy.com/report.html#/group/1f4594d4-869f-411f-9fc4-94421642bc11/88ec574f-583a-4373-b457-a80cee29e74c"
-                            >
-                        Jenkins TOP failed tests
+                        Jenkins UnitTests
                     </a>
                 </li>
             </ul>
