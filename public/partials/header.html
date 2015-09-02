@@ -10,6 +10,13 @@
             <ul class="dropdown-menu">
                 <li>
                     <a target="_blank"
+                       href="http://kibana.tpminsk.by/#/dashboard/Jenkins?_g=(time:(from:now-60d,mode:quick,to:now))&_a=(filters:!(),panels:!((col:1,id:Jenkins-Full-Build-Cycle-Time,row:1,size_x:6,size_y:4,type:visualization),(col:7,id:Jenkins-FuncTest,row:5,size_x:6,size_y:5,type:visualization),(col:7,id:Jenkins-Short-Build-Cycle-Time,row:1,size_x:6,size_y:4,type:visualization),(col:1,id:Jenkins-Total-Builds-Per-Day,row:10,size_x:12,size_y:5,type:visualization),(col:1,id:Jenkins-UnitTests,row:5,size_x:6,size_y:5,type:visualization)),query:(query_string:(analyze_wildcard:!t,query:'*')),title:Jenkins)"
+                            >
+                        Jenkins Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a target="_blank"
                        href="http://kibana.tpminsk.by/#/visualize/edit/Jenkins-Full-Build-Cycle-Time?_g=(time:(from:now-30d,mode:quick,to:now))&_a=(filters:!(),linked:!f,query:(query_string:(analyze_wildcard:!t,query:'_type:%22esbuild%22%20AND%20cycle:%22full%22')),vis:(aggs:!((id:'1',params:(field:minutes),schema:metric,type:avg),(id:'2',params:(extended_bounds:(),field:startDate,interval:day,min_doc_count:1),schema:segment,type:date_histogram)),listeners:(),params:(addLegend:!t,addTooltip:!t,defaultYExtents:!f,shareYAxis:!t),type:line))"
                             >
                         Jenkins Full Build Cycle Time
