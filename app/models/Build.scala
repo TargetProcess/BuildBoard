@@ -26,7 +26,7 @@ case class Build(number: Int,
       case n: BuildNode if filter(n) => Some(n)
       case n => n.children.map(getTestRunBuildNodeInner).filter(_.isDefined).flatten.headOption
     }
-    node.map(getTestRunBuildNodeInner).flatten
+    node.flatMap(getTestRunBuildNodeInner)
   }
 
 
@@ -53,6 +53,7 @@ case class BuildNode(
                       artifacts: List[Artifact],
                       timestamp: DateTime,
                       rerun: Option[Boolean],
+                      isUnstable: Option[Boolean] = None,
                       children: List[BuildNode] = Nil,
                       testResults: List[TestCasePackage] = Nil
                       ) {

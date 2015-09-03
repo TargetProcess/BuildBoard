@@ -21,6 +21,7 @@ object Writes {
       (__ \ "artifacts").write(list(artifactWrite)) ~
       (__ \ "timestamp").write[DateTime] ~
       (__ \ "rerun").writeNullable[Boolean] ~
+      (__ \ "rerun").writeNullable[Boolean] ~
       (__ \ "children").lazyWrite(list(buildNodeWrite)) ~
       (__ \ "testResults").write(list(testCasePackageWrite))
     )((node: BuildNode) => BuildNode.unapply(node.copy(status = Some(node.buildStatus.name.toUpperCase))).get)

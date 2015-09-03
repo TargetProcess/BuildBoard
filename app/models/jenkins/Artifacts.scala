@@ -5,7 +5,6 @@ import java.io.File
 import scala.xml.Node
 
 trait Artifacts {
-  //this: FileApi =>
 
   val directory: String
   val deployDirectory: String
@@ -21,16 +20,15 @@ trait Artifacts {
       .map(Artifact(artifactName, _))
       .toList
 
-    contents.map(file => file.getName match {
+    contents.flatMap(file => file.getName match {
       case ".TestResults" => getArtifactsInner(file, f => f.getName.endsWith(".xml"), "testResults")
       case ".Logs" => getArtifactsInner(file, f => f.getName.startsWith("SessionLogs"), "logs")
       case ".Screenshots" => getArtifactsInner(file, _ => true, screenshot)
       case _ => List()
     })
-      .flatten
   }
 
   def getArtifact(file: String): File = new File(directory, file)
 
-  def getAttribute(n: Node, key: String): Option[String] = n.attribute(key).map(_.headOption.map(_.text)).flatten
+  def getAttribute(n: Node, key: String): Option[String] = n.attribute(key).flatMap(_.headOption.map(_.text))
 }

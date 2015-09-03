@@ -21,9 +21,8 @@ trait ConfigComponentImpl extends ConfigComponent {
       channel <- teamConfig.getString("channel")
     ) yield Team(name, channel, deployTo)).toList
 
-
     private def getString(path: String) = Play.configuration.getString(path).get
 
-
+    override val unstableNodes: List[String] = Play.configuration.getStringList("build.unstableNodes").get.asScala.toList
   }
 }

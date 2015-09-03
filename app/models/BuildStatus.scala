@@ -34,11 +34,12 @@ object BuildStatus {
 
 
   def getBuildStatus(status: Option[String], children: List[BuildNode]): BuildStatusBase = {
+    val stableNodes: List[BuildNode] = children.filterNot(_.isUnstable.getOrElse(false))
 
-    if (children.isEmpty)
+    if (stableNodes.isEmpty)
       BuildStatus(status, toggled = false)
-    else
-      children.foldLeft[BuildStatusBase](BuildStatus.Unknown)((status, node) => {
+    else {
+      stableNodes.foldLeft[BuildStatusBase](BuildStatus.Unknown)((status, node) => {
         val nodeStatus: BuildStatusBase = node.buildStatus
         (status, nodeStatus) match {
           case (BuildStatus.Failure, _) => BuildStatus.Failure
@@ -48,6 +49,7 @@ object BuildStatus {
           case _ => nodeStatus
         }
       })
+    }
 
   }
 

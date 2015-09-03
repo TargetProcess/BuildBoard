@@ -28,6 +28,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
     lazy val directory = config.jenkinsDataPath
     lazy val deployDirectory = config.deployDirectoryRoot
 
+    lazy val unstableNodeNames = config.unstableNodes
 
     override def getUpdatedBuilds(existingBuilds: List[Build], buildNamesToUpdate: Seq[String]): List[Build] = {
 
@@ -46,7 +47,6 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
 
       val buildSources = folders.distinct.flatMap(createBuildSource)
 
-
       val result = buildSources.flatMap(buildSource => {
         val name: String = buildSource.folder.getName
         val toggled = existingBuildsMap.get(name).fold(false)(_.toggled)
@@ -56,10 +56,10 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
       result.toList
     }
 
-    def getTestRun(branch: Branch, build: Int, part: String, run: String) = findBuild(branch, build)
-      .map(b => b.getTestRunBuildNode(part, run))
-      .flatten
-      .map(testRunBuildNode => testRunBuildNode.copy(testResults = getTestCasePackages(testRunBuildNode)))
+    def getTestRun(branch: Branch, build: Int, part: String, run: String) =
+      findBuild(branch, build)
+        .flatMap(b => b.getTestRunBuildNode(part, run))
+        .map(testRunBuildNode => testRunBuildNode.copy(testResults = getTestCasePackages(testRunBuildNode)))
 
     def forceBuild(action: JenkinsBuildAction) = action match {
       case x: ReuseArtifactsBuildAction => forceReuseArtifactsBuild(x)
@@ -155,10 +155,11 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
     def forceReuseArtifactsBuild(action: ReuseArtifactsBuildAction): Try[Unit] = Try {
       val buildFolder = new Folder(s"$directory/${action.buildName}")
       val revision = FileApi.readAsMap(new File(buildFolder, "Artifacts/Revision.txt"))
-        .flatMap(_.map(_._2)
-        .filter(x => x.toString.startsWith("REVISION="))
-        .map(x => x.replaceAll("REVISION=", ""))
-        .headOption
+        .flatMap(
+          _.values
+            .filter(_.toString.startsWith("REVISION="))
+            .map(_.replaceAll("REVISION=", ""))
+            .headOption
         )
         .get
 

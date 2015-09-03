@@ -11,14 +11,15 @@ import scala.xml.{Node, XML}
 
 
 trait ParseFolder extends Artifacts {
+  type Folder = File
 
   protected val screenshotQualifiedFileNameRegex = """.*\\(\w+)\.(\w+)[-].*$""".r
   protected val screenshotFileNameRegex = """.*\\(\w+)[-].*$""".r
-
   protected val rootJobName = "StartBuild"
 
-  type Folder = File
   private val timeout = 5.hours
+
+  val unstableNodeNames:List[String]
 
   case class BuildSource(branch: String, number: Int, pullRequestId: Option[Int], folder: Folder, params: BuildParams)
 
@@ -65,15 +66,13 @@ trait ParseFolder extends Artifacts {
     FileApi.read(file) match {
       case Some(contents) => splitRegex.split(contents)
         .toList
-        .filter(_.length > 0)
-        .map {
+        .filter(_.length > 0).flatMap {
         case commitRegex(sha1, name, email, date, comment) =>
           val normalizedComment = comment.trim
           val commitName = getCommitName(name, normalizedComment)
           Some(Commit(sha1, normalizedComment, commitName, email, new DateTime(new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy Z").parse(date).getTime)))
         case _ => None
       }
-        .flatten
       case None => Nil
     }
   }
@@ -94,6 +93,8 @@ trait ParseFolder extends Artifacts {
     case _ => name
   }
 
+
+  def isUnstable(name: String): Boolean = unstableNodeNames.contains(name)
 
   def getBuildNode(f: File): Option[BuildNode] = {
 
@@ -120,7 +121,9 @@ trait ParseFolder extends Artifacts {
         buildDetails.status,
         buildDetails.statusUrl.getOrElse(""),
         artifacts,
-        buildDetails.timestamp, buildDetails.rerun, children = children))
+        buildDetails.timestamp,
+        buildDetails.rerun,
+        children = children, isUnstable = Some(isUnstable(name))))
     }
 
     //todo: add artifacts to root node

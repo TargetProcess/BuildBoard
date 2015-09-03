@@ -10,6 +10,8 @@ trait ConfigComponent {
     val jenkinsDataPath:String
     val jenkinsUrl:String
     val teams:List[Team]
+
+    val unstableNodes:List[String]
   }
 
 }
