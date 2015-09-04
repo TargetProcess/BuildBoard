@@ -65,7 +65,9 @@
                                 <div class="tree panel-collapse" ng-show="!isCollapsed">
                                     <div class="panel-body">
                                         <a href="https://github.com/TargetProcess/TP/commit/{{entry.sha1}}">{{entry.sha1}}</a>
-                                        <pre>{{entry.message}}</pre>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div btf-markdown="processCommitMessage(entry.message)"></div>
                                     </div>
                                 </div>
                             </div>

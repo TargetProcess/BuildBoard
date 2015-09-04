@@ -8,6 +8,7 @@ module buildBoard {
         getBranch():Branch;
         getBuildStatus(build:Build):Status;
         getGravatar(email:string):string;
+        processCommitMessage(message:string):string;
     }
 
     export class BranchController {
@@ -26,11 +27,14 @@ module buildBoard {
             this.$scope.getBuildStatus = StatusHelper.parse;
 
             this.$scope.getGravatar = _.memoize((email:string)=> email ? md5(email.toLowerCase().trim()) : '0');
+            this.$scope.processCommitMessage = subject=>subject&&subject.replace(/Merge pull request #(\d+)/g,
+                'Merge pull request <a href="https://github.com/TargetProcess/TP/pull/$1" target="_blank">#$1</a>');
+
 
             modelProvider.getBranchWithActivities(this.$scope.branchName)
                 .then(branch => {
                     this.$scope.getBranch = ()=> branch;
-                    this.$scope.getActivity = ()=>branch.activity;
+                    this.$scope.getActivity = ()=> branch.activity;
                 });
 
 
