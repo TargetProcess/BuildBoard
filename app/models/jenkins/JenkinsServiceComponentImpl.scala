@@ -146,7 +146,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
     }
 
     def forceSimpleBuild(action: JenkinsBuildAction) = {
-      val url = s"${config.jenkinsUrl}/job/$rootJobName/buildWithParameters"
+      val url = s"${config.jenkinsUrl}/job/${action.jobName}/buildWithParameters"
       val parameters = action.parameters ++ loggedUser.map("WHO_STARTS" -> _.fullName) ++ List("UID" -> action.name)
       post(url, parameters)
 

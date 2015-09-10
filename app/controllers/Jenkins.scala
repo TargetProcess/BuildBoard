@@ -16,10 +16,31 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 case class ForceBuildParameters(pullRequestId: Option[Int],
                                 branchId: Option[String],
+                                buildNumber: Option[Int],
                                 cycleName: String,
-                                parameters: List[BuildParametersCategory],
-                                buildNumber: Option[Int]
-                                 )
+                                parameters: List[BuildParametersCategory]
+                                 ){
+  def createBuildAction:Option[JenkinsBuildAction] = {
+
+    if (cycleName == "transifex"){
+      branchId.map(TransifexBuildAction)
+    }
+    else {
+
+      val cycle: Cycle = if (parameters.isEmpty) BuildAction.find(cycleName) else CustomCycle(parameters)
+
+      val maybeAction: Option[JenkinsBuildAction] =
+        (buildNumber, pullRequestId, branchId) match {
+          case (Some(number), _, Some(branch)) => Some(ReuseArtifactsBuildAction(branch, number, cycle))
+          case (None, Some(prId), None) => Some(PullRequestBuildAction(prId, cycle))
+          case (None, None, Some(brId)) => Some(BranchBuildAction(brId, cycle))
+
+          case _ => None
+        }
+      maybeAction
+    }
+  }
+}
 
 object Jenkins extends Application {
 
@@ -30,18 +51,7 @@ object Jenkins extends Application {
 
           val params = json.as[ForceBuildParameters]
 
-          val cycle: Cycle = if (params.parameters.isEmpty) BuildAction.find(params.cycleName) else CustomCycle(params.parameters)
-
-          val maybeAction: Option[JenkinsBuildAction] =
-            (params.buildNumber, params.pullRequestId, params.branchId) match {
-              case (Some(number), _, Some(branch)) => Some(ReuseArtifactsBuildAction(branch, number, cycle))
-              case (None, Some(prId), None) => Some(PullRequestBuildAction(prId, cycle))
-              case (None, None, Some(brId)) => Some(BranchBuildAction(brId, cycle))
-              case _ => None
-            }
-
-          maybeAction match {
-            case Some(buildAction) =>
+          params.createBuildAction.map(buildAction=>{
               val forceBuildResult: Try[Any] = component.jenkinsService.forceBuild(buildAction)
               forceBuildResult match {
                 case Success(_) => Ok(Json.toJson(Build(-1, params.branchId.getOrElse("this"), Some("In progress"), DateTime.now,
@@ -49,12 +59,13 @@ object Jenkins extends Application {
                 case Failure(e: HttpException) => BadRequest(e.toString)
                 case Failure(e) => throw e
               }
-            case None => BadRequest("There is no pullRequestId or branchId")
-          }
+          }).getOrElse(BadRequest("There is no pullRequestId or branchId"))
+
         }.getOrElse {
           BadRequest("Expecting Json data")
         }
   }
+
 
   def toggleBuild(branchId: String, buildNumber: Int, toggled: Boolean) = IsAuthorizedComponent {
     repository =>
@@ -86,8 +97,8 @@ object Jenkins extends Application {
     component =>
 
       val branchEntity = component.branchRepository.getBranch(branch)
-      val buildNode: Option[BuildNode] = branchEntity.map(component.jenkinsService.getTestRun(_, build, part, run)).flatten
-      val testCase = buildNode.map(n => n.getTestCase(test)).flatten
+      val buildNode: Option[BuildNode] = branchEntity.flatMap(component.jenkinsService.getTestRun(_, build, part, run))
+      val testCase = buildNode.flatMap(n => n.getTestCase(test))
       request => Ok(Json.toJson(testCase))
   }
 

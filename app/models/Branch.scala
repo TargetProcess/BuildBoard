@@ -45,7 +45,12 @@ case class Branch(
       )
     }
 
-    buildPackages ++ buildBranches ++ buildPullRequests ++ buildCustomBranch ++ buildPullRequestCustom
+    buildPackages ++
+      buildBranches ++
+      buildPullRequests ++
+      buildCustomBranch ++
+      buildPullRequestCustom ++
+      List(TransifexBuildAction(name))
   }
 
 }
