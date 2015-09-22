@@ -47,6 +47,7 @@ trait ParseFolder extends Artifacts {
           ref = ref,
           pullRequestId = buildSource.pullRequestId,
           initiator = buildSource.params.parameters.get("WHO_STARTS"),
+          description = buildSource.params.parameters.get("DESCRIPTION").orElse(buildSource.params.parameters.get("UID")),
           node = node,
           name = name)
       )

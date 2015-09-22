@@ -38,6 +38,7 @@ object Writes {
         (__ \ "commits").write(list(commitWrite)) ~
         (__ \ "ref").writeNullable[String] ~
         (__ \ "initiator").writeNullable[String] ~
+        (__ \ "description").writeNullable[String] ~
         (__ \ "pullRequestId").writeNullable[Int] ~
         (__ \ "name").write[String] ~
         (__ \ "activityType").write[String] ~
