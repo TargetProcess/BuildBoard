@@ -27,8 +27,8 @@ module buildBoard {
             this.$scope.getBuildStatus = StatusHelper.parse;
 
             this.$scope.getGravatar = _.memoize((email:string)=> email ? md5(email.toLowerCase().trim()) : '0');
-            this.$scope.processCommitMessage = subject=>subject&&subject.replace(/Merge pull request #(\d+)/g,
-                'Merge pull request <a href="https://github.com/TargetProcess/TP/pull/$1" target="_blank">#$1</a>');
+            this.$scope.processCommitMessage = subject=>subject &&
+                subject.replace(/Merge pull request #(\d+) from (.*)/g, 'Merge pull request <a href="https://github.com/TargetProcess/TP/pull/$1" target="_blank">#$1</a> from <span>$2</span>');
 
 
             modelProvider.getBranchWithActivities(this.$scope.branchName)

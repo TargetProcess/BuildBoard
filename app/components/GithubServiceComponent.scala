@@ -11,7 +11,7 @@ trait GithubServiceComponent {
 
     def getPullRequests: List[PullRequest]
 
-    def mergePullRequest(number: Int, user: User): MergeResult
+    def mergePullRequest(number: Int, user: User, description:Option[String]=None): MergeResult
 
     def deleteBranch(branchName: String)
 
