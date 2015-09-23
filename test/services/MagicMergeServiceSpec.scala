@@ -6,6 +6,7 @@ import models.{Branch, PullRequest, PullRequestStatus, User, _}
 import models.magicMerge.MagicMergeComponentImpl
 import org.joda.time.DateTime
 import org.specs2.mock.Mockito
+import org.specs2.mock.mockito.MockitoMatchers
 import org.specs2.mutable.Specification
 import play.api.test.Helpers._
 import scala.language.reflectiveCalls
@@ -46,7 +47,7 @@ with Mockito {
 
             override val githubService: GithubService = mock[GithubService]
 
-            githubService.mergePullRequest(1, user).returns(MergeResult(isMerged = true, "Merged", "sha"))
+            githubService.mergePullRequest(any[Int], any[User], any[Option[String]]).returns(MergeResult(isMerged = true, "Merged", "sha"))
 
 
             val entityRepo = mock[EntityRepository]
