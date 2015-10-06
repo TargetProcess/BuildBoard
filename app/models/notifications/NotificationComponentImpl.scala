@@ -37,7 +37,7 @@ trait NotificationComponentImpl extends NotificationComponent {
     val baseUrl = Play.configuration.getString("base.url").get
 
     def updateGithub(build: Build) = {
-      build.ref.foreach(sha => {
+      build.ref.map(_.trim).foreach(sha => {
         val statusString = build.buildStatus match {
           case models.BuildStatus.Unknown | models.BuildStatus.InProgress => "pending"
           case models.BuildStatus.Toggled | models.BuildStatus.Ok => "success"

@@ -3,8 +3,8 @@ package models.jenkins
 import java.io.File
 
 import components._
-import models.buildActions.{DeployBuildAction, JenkinsBuildAction, ReuseArtifactsBuildAction}
-import models.{Branch, Build}
+import models.buildActions._
+import models.{BranchInfo, Branch, Build}
 import src.Utils
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -146,8 +146,20 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
     }
 
     def forceSimpleBuild(action: JenkinsBuildAction) = {
+      val branch = action match {
+        case PullRequestBuildAction(prId, _) => branchRepository.getBranchByPullRequest(prId).map(_.name)
+        case BranchBuildAction(name, _) => Some(name)
+        case _ => None
+      }
+
+      val lastBuild = branch.flatMap(buildRepository.getLastBuilds(_, 1).headOption)
+
       val url = s"${config.jenkinsUrl}/job/${action.jobName}/buildWithParameters"
-      val parameters = action.parameters ++ loggedUser.map("WHO_STARTS" -> _.fullName) ++ List("DESCRIPTION" -> action.name)
+      val parameters = action.parameters ++
+        loggedUser.map("WHO_STARTS" -> _.fullName) ++
+        List("DESCRIPTION" -> action.name) ++
+        lastBuild.flatMap(_.ref).map("PREVIOUS_COMMIT" -> _.trim)
+
       post(url, parameters)
 
     }

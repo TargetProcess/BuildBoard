@@ -51,16 +51,14 @@ trait MagicMergeComponentImpl extends MagicMergeComponent {
     private def mergeAndDelete(branch: Branch, pullRequest: PullRequest, user:User): MagicMergeResult = {
 
       val tryMerge = Try {
-        githubService.mergePullRequest(pullRequest.prId, user, branch.entity.map(e=>s"${e.entityType}#<a href='${e.url}'>${e.id}</a> ${e.name}"))
+        githubService.mergePullRequest(pullRequest.prId, user, branch.entity.map(e=>s"${e.entityType}#${e.id} ${e.name}"))
       }
       val tryDelete = tryMerge.flatMap(_ => Try {
         githubService.deleteBranch(branch.name)
       })
 
 
-      val tryChangeState: Try[Option[EntityState]] = tryDelete match {
-        case e@Failure(ex) => Failure(ex)
-        case Success(_) =>
+      val tryChangeState: Try[Option[EntityState]] = tryDelete.flatMap[Option[EntityState]](_=> {
           val pair: Option[(Entity, EntityState)] = for (
             entity <- branch.entity;
             finalState <- entity.state.nextStates.find(_.isFinal)
@@ -69,12 +67,12 @@ trait MagicMergeComponentImpl extends MagicMergeComponent {
           pair match {
             case None => Success(None)
             case Some((entity, finalState)) =>
-              val result: Try[Option[EntityState]] = Try {
+              Try {
                 Some(entityRepository.changeEntityState(entity.id, finalState.id))
               }
-              result
           }
-      }
+      })
+
 
       log(tryMerge, tryDelete, tryChangeState)
 
