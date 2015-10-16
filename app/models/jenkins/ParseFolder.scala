@@ -217,12 +217,6 @@ trait ParseFolder extends Artifacts {
         def getTestCasePackageInner(node: Node, namespace: String = ""): TestCasePackage = {
 
           val name = node.attribute("name").map(a => a.head.text).getOrElse("All")
-          val currentNamespace = getAttribute(node, "classname") match {
-            case Some("Namespace") => if (namespace.isEmpty) name else s"$namespace.$name"
-            case _ => namespace
-          }
-          println(currentNamespace)
-
           val testCases = (node \ "testcase").map(tcNode => {
             val executed = (tcNode \ "skipped").length == 0
             val error = tcNode \ "error"
@@ -233,20 +227,10 @@ trait ParseFolder extends Artifacts {
             val (message, stackTrace) = failureNode.map(node => (getAttribute(node, "message"), Some(node.text))).getOrElse(None, None)
             val tcName: String = s"${getAttribute(tcNode, "classname").get}.${getAttribute(tcNode, "name").get}"
 
-            val tcScreenshots = tcName match {
-              case testNameRegex(className, methodName) =>
-                screenshots.filter(s => s.url match {
-                  case screenshotQualifiedFileNameRegex(scrClassName, scrMethodName) => className == scrClassName && methodName == scrMethodName
-                  case screenshotFileNameRegex(scrMethodName) => methodName == scrMethodName
-                  case _ => false
-                }).map(s => Artifact(s"$className.$methodName", s.url))
-              case _ => Nil
-            }
-
-            TestCase(tcName, result, getAttribute(tcNode, "time").map(_.toDouble).getOrElse(0.0), message, tcScreenshots, stackTrace)
+            TestCase(tcName, result, getAttribute(tcNode, "time").map(_.toDouble).getOrElse(0.0), message = message, stackTrace = stackTrace)
           }).toList
 
-          TestCasePackage(if (currentNamespace.isEmpty) name else s"$namespace.$name", Nil, testCases)
+          TestCasePackage(name, Nil, testCases)
         }
 
         getTestCasePackageInner(node)
@@ -264,10 +248,9 @@ trait ParseFolder extends Artifacts {
     }
 
     val testResultAdapters = Map(
-      ("NUnit", nunitParser),
-      ("JUnit", junitParser)
+      ("nunit", nunitParser),
+      ("junit", junitParser)
     )
-
 
     testRunBuildNode.artifacts
       .find(a => a.name == "testResults")
@@ -275,8 +258,8 @@ trait ParseFolder extends Artifacts {
       .flatMap(fileXmlPair => {
         val fileName: String = new File(fileXmlPair._1.url).getName
         testResultAdapters
-          .filter(pair => fileName.toLowerCase().startsWith(pair._1.toLowerCase()))
-          .headOption.flatMap(pair => fileXmlPair._2.map(xml => pair._2(xml)))
+          .find(pair => fileName.toLowerCase.startsWith(pair._1))
+          .flatMap(pair => fileXmlPair._2.map(xml => pair._2(xml)))
       })
       .getOrElse(Nil)
   }
