@@ -17,6 +17,7 @@ case class CustomCycle(buildParametersCategory: List[BuildParametersCategory] = 
   override val unitTests: String = getTestsByCategory(Cycle.unitTestsCategoryName)
   override val includeComet: Boolean = getBoolByCategory(Cycle.cometCategoryName)
   override val funcTests: String = getTestsByCategory(Cycle.funcTestsCategoryName)
+  override val pythonFuncTests: String = getTestsByCategory(Cycle.pythonFuncTestsCategoryName)
   override val includeSlice: Boolean = getBoolByCategory(Cycle.sliceCategoryName)
   override val includeCasper: Boolean = getBoolByCategory(Cycle.casperCategoryName)
   override val includeDb: Boolean = getBoolByCategory(Cycle.dbCategoryName)
@@ -35,6 +36,7 @@ case class CustomCycle(buildParametersCategory: List[BuildParametersCategory] = 
       BuildParametersCategory(Cycle.cycleTypeCategoryName, List("build full package")),
       BuildParametersCategory(Cycle.unitTestsCategoryName, getTests(Cycle.unitTestsCategoryName)),
       BuildParametersCategory(Cycle.funcTestsCategoryName,  getTests(Cycle.funcTestsCategoryName)),
+      BuildParametersCategory(Cycle.pythonFuncTestsCategoryName,  getTests(Cycle.pythonFuncTestsCategoryName)),
       BuildParametersCategory(Cycle.cometCategoryName, List("Include")),
       BuildParametersCategory(Cycle.sliceCategoryName, List("Include")),
       BuildParametersCategory(Cycle.casperCategoryName, List("Include")),

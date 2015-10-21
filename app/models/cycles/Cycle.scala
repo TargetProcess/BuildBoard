@@ -3,6 +3,7 @@ package models.cycles
 object Cycle {
   val unitTestsCategoryName = "unitTests"
   val funcTestsCategoryName = "funcTests"
+  val pythonFuncTestsCategoryName = "pythonFuncTests"
   val sliceCategoryName = "SliceLoadTests"
   val cometCategoryName = "CometTests"
   val casperCategoryName = "CasperTests"
@@ -17,6 +18,7 @@ trait Cycle {
   val buildFullPackage: Boolean
   val unitTests: String
   val funcTests: String
+  val pythonFuncTests: String
   val includeComet: Boolean
   val includeSlice: Boolean
   val includeCasper: Boolean

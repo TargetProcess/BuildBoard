@@ -186,6 +186,10 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
         forcePart("RunFuncTests", "FuncTests", action.cycle.funcTests)
       }
 
+      if (action.cycle.pythonFuncTests != "") {
+        forcePart("RunFuncTestsPython", "FuncTests", action.cycle.pythonFuncTests)
+      }
+
       if (action.cycle.unitTests != "") {
         forcePart(s"RunUnitTests", "UnitTests", action.cycle.unitTests)
       }
