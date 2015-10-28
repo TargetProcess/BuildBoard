@@ -9,7 +9,7 @@ import src.Utils
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.Try
+import scala.util.{Success, Try}
 import scalaj.http.{Http, HttpOptions}
 
 trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
@@ -153,14 +153,25 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
       }
 
       val lastBuild = branch.flatMap(buildRepository.getLastBuilds(_, 1).headOption)
-
       val url = s"${config.jenkinsUrl}/job/${action.jobName}/buildWithParameters"
-      val parameters = action.parameters ++
+      val funcTestsKey = "IncludeFuncTests"
+      val actionParameters = action.parameters map {
+        case (key, tests) if key == funcTestsKey && !tests.isEmpty && !action.cycle.pythonFuncTests.isEmpty =>
+          //without substrings we get something like "Part0" "PartPy1"
+          //and with substrings it's "Part0 PartPy1"
+          (key, tests.substring(0, tests.length - 1) + (if (action.cycle.pythonFuncTests.length > 0) " " + action.cycle.pythonFuncTests.substring(1)))
+        case (key, tests) if key == funcTestsKey && tests.isEmpty => (key, action.cycle.pythonFuncTests)
+        case (key, value) => (key, value)
+      }
+
+      val parameters = actionParameters ++
         loggedUser.map("WHO_STARTS" -> _.fullName) ++
         List("DESCRIPTION" -> action.name) ++
         lastBuild.flatMap(_.ref).map("PREVIOUS_COMMIT" -> _.trim)
 
       post(url, parameters)
+
+      Success(Unit)
 
     }
 
