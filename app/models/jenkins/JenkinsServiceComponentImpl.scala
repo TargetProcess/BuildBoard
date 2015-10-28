@@ -4,6 +4,7 @@ import java.io.File
 
 import components._
 import models.buildActions._
+import models.cycles.{Cycle, CustomCycle}
 import models.{BranchInfo, Branch, Build}
 import src.Utils
 
@@ -155,13 +156,33 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
       val lastBuild = branch.flatMap(buildRepository.getLastBuilds(_, 1).headOption)
       val url = s"${config.jenkinsUrl}/job/${action.jobName}/buildWithParameters"
       val funcTestsKey = "IncludeFuncTests"
-      val actionParameters = action.parameters map {
-        case (key, tests) if key == funcTestsKey && !tests.isEmpty && !action.cycle.pythonFuncTests.isEmpty =>
-          //without substrings we get something like "Part0" "PartPy1"
-          //and with substrings it's "Part0 PartPy1"
-          (key, tests.substring(0, tests.length - 1) + (if (action.cycle.pythonFuncTests.length > 0) " " + action.cycle.pythonFuncTests.substring(1)))
-        case (key, tests) if key == funcTestsKey && tests.isEmpty => (key, action.cycle.pythonFuncTests)
-        case (key, value) => (key, value)
+
+      val actionParameters = action.cycle match {
+        case customCycle @ CustomCycle(_) =>
+          action.parameters map {
+            case (key, tests) if key == funcTestsKey =>
+              def getPartsFor(category: String, parts: String): String = {
+                if (parts == "All") customCycle.getTestsByCategory(category) else parts
+              }
+              def mergeParts(parts1: String, parts2: String): String = {
+                def trim(str: String): String = if (str.isEmpty) "" else str.substring(1, str.length - 1)
+
+                val part1 = trim(parts1)
+                val part2 = trim(parts2)
+                val space = if (!part1.isEmpty && !part2.isEmpty) " " else ""
+                //this ugly hack is to overcome bug in scala https://issues.scala-lang.org/browse/SI-6476
+                val escape = "\""
+
+                s"$escape$part1$space$part2$escape"
+              }
+
+              val funcTestParts = getPartsFor(Cycle.funcTestsCategoryName, tests)
+              val pythonFuncTestParts = getPartsFor(Cycle.pythonFuncTestsCategoryName, action.cycle.pythonFuncTests)
+
+              (key, mergeParts(funcTestParts, pythonFuncTestParts))
+            case (key, value) => (key, value)
+          }
+        case _ => action.parameters
       }
 
       val parameters = actionParameters ++
@@ -170,9 +191,6 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
         lastBuild.flatMap(_.ref).map("PREVIOUS_COMMIT" -> _.trim)
 
       post(url, parameters)
-
-      Success(Unit)
-
     }
 
     def forceReuseArtifactsBuild(action: ReuseArtifactsBuildAction): Try[Unit] = Try {
