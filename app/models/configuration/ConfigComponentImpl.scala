@@ -5,7 +5,7 @@ import models.teams.Team
 import play.api.Play
 import play.api.Play.current
 import scala.collection.JavaConverters._
-
+import scala.concurrent.duration._
 trait ConfigComponentImpl extends ConfigComponent {
 
   override val config = new ConfigService {
@@ -24,5 +24,6 @@ trait ConfigComponentImpl extends ConfigComponent {
     private def getString(path: String) = Play.configuration.getString(path).get
 
     override val unstableNodes: List[String] = Play.configuration.getStringList("build.unstableNodes").get.asScala.toList
+    override val jenkinsInterval: FiniteDuration =  Play.configuration.getMilliseconds("jenkins.cache.interval").getOrElse(60000L).milliseconds
   }
 }

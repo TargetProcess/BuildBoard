@@ -9,8 +9,6 @@ GET         /branch                      controllers.Branches.activities(branchN
 
 GET         /open                        controllers.Landing.redirect(id:Int)
 
-
-
 GET         /login                       controllers.Login.index
 GET         /login/github                controllers.Login.githubLogin
 GET         /login/oauth                 controllers.Login.oauth(code ?= "")
@@ -18,14 +16,14 @@ POST        /login/submit                controllers.Login.submit
 GET         /login/logout                controllers.Login.logout
 POST        /login/update                controllers.Login.updateInfo(slackName:String)
 
-
 GET         /jenkins/build               controllers.Jenkins.build(branch:String, number: Int)
 POST        /jenkins/forceBuild          controllers.Jenkins.forceBuild()
 POST        /jenkins/toggleBuild         controllers.Jenkins.toggleBuild(branchId:String, buildNumber:Int, toggled:Boolean)
 GET         /jenkins/buildActions        controllers.Jenkins.buildActions(branchName:String, buildNumber:Option[Int])
 GET         /jenkins/lastBuilds          controllers.Jenkins.lastBuilds(branchName:String, count:Int)
 GET         /jenkins/buildStatus         controllers.Jenkins.buildStatus(id:Int)
-POST         /jenkins/deployBuild         controllers.Jenkins.deployBuild(build:String, environment:String)
+POST        /jenkins/deployBuild         controllers.Jenkins.deployBuild(build:String, environment:String)
+POST        /jenkins/updateBuild         controllers.Jenkins.updateBuild()
 
 
 GET         /jenkins/run                 controllers.Jenkins.run(branch: String, build: Int, part: String, run: String)

@@ -1,6 +1,6 @@
-package models.buildWatcher
+package models.buildRerun
 
-import components.{BuildWatcherComponent, JenkinsServiceComponent, RerunRepositoryComponent}
+import components.{BuildRerunComponent, JenkinsServiceComponent, RerunRepositoryComponent}
 import models.buildActions.{BuildParametersCategory, ReuseArtifactsBuildAction}
 import models.cycles.{CustomCycle, Cycle}
 import models.{BranchInfo, Build}
@@ -9,14 +9,14 @@ import play.api.{Logger, Play}
 
 import scala.collection.JavaConverters._
 
-trait BuildWatcherComponentImpl extends BuildWatcherComponent {
-  this: BuildWatcherComponentImpl
+trait BuildRerunComponentImpl extends BuildRerunComponent {
+  this: BuildRerunComponentImpl
     with JenkinsServiceComponent
     with RerunRepositoryComponent
   =>
 
 
-  override val buildWatcher: BuildWatcher = new BuildWatcher {
+  override val buildRerun: BuildRerun = new BuildRerun {
 
     override def rerunFailedParts(updatedBuild: Build) {
       if (shouldRerunBuild(updatedBuild)) {

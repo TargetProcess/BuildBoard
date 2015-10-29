@@ -3,7 +3,7 @@ package buildWatcher
 import components.{JenkinsServiceComponent, RerunRepositoryComponent}
 import globals.context
 import models.buildActions.{JenkinsBuildAction, ReuseArtifactsBuildAction}
-import models.buildWatcher.{BuildWatcherComponentImpl, RerunRepositoryComponentImpl}
+import models.buildRerun.{BuildRerunComponentImpl, RerunRepositoryComponentImpl}
 import models.cycles.CustomCycle
 import models.{Build, BuildNode}
 import org.joda.time.DateTime
@@ -43,7 +43,7 @@ with Mockito {
           )
         )
 
-        buildWatcherComponent.buildWatcher.rerunFailedParts(buildToRerun)
+        buildWatcherComponent.buildRerun.rerunFailedParts(buildToRerun)
 
         there was one(buildWatcherComponent.jenkinsService).forceBuild(argThat(isRerunFor(List("Part1"), List("Part2"))))
 
@@ -53,7 +53,7 @@ with Mockito {
 
     "should not rerun twice" in context {
       running(context.fakeApp) {
-        val watcher = new BuildWatcherComponentImpl with JenkinsServiceComponent with RerunRepositoryComponentImpl {
+        val watcher = new BuildRerunComponentImpl with JenkinsServiceComponent with RerunRepositoryComponentImpl {
           override val jenkinsService: JenkinsService = mock[JenkinsService]
         }
 
@@ -71,8 +71,8 @@ with Mockito {
           )
         )
 
-        watcher.buildWatcher.rerunFailedParts(buildToRerun)
-        watcher.buildWatcher.rerunFailedParts(buildToRerun)
+        watcher.buildRerun.rerunFailedParts(buildToRerun)
+        watcher.buildRerun.rerunFailedParts(buildToRerun)
 
         there was one(watcher.jenkinsService).forceBuild(argThat(isRerunFor(List("Part1"), List("Part2"))))
 
@@ -97,7 +97,7 @@ with Mockito {
             node("AnotherPart", fail))
         )
       )
-      buildWatcherComponent.buildWatcher.rerunFailedParts(buildToRerun)
+      buildWatcherComponent.buildRerun.rerunFailedParts(buildToRerun)
 
       there was one(buildWatcherComponent.jenkinsService).forceBuild(argThat(isRerunFor(Nil, List("Part2"))))
 
@@ -125,8 +125,8 @@ with Mockito {
   }
 
 
-  def getBuildWatcher: BuildWatcherComponentImpl with JenkinsServiceComponent with RerunRepositoryComponent = {
-    new BuildWatcherComponentImpl with JenkinsServiceComponent with RerunRepositoryComponent {
+  def getBuildWatcher: BuildRerunComponentImpl with JenkinsServiceComponent with RerunRepositoryComponent = {
+    new BuildRerunComponentImpl with JenkinsServiceComponent with RerunRepositoryComponent {
       override val jenkinsService: JenkinsService = mock[JenkinsService]
       override val rerunRepository: RerunRepository = mock[RerunRepository]
     }

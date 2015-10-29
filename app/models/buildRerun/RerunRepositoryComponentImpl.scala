@@ -1,4 +1,4 @@
-package models.buildWatcher
+package models.buildRerun
 
 import com.mongodb.casbah.commons.MongoDBObject
 import com.novus.salat.dao.{ModelCompanion, SalatDAO}

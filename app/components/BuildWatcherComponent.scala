@@ -1,11 +1,13 @@
 package components
 
-import models.Build
+import rx.lang.scala.Observable
 
 trait BuildWatcherComponent {
   val buildWatcher: BuildWatcher
 
   trait BuildWatcher {
-    def rerunFailedParts(updatedBuild:Build)
+    def start:Observable[String]
+    def forceUpdate(build:String)
   }
+
 }

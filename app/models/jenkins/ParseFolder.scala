@@ -1,13 +1,13 @@
 package models.jenkins
 
-import java.io.{Serializable, File}
+import java.io.File
 import java.text.SimpleDateFormat
 
 import com.github.nscala_time.time.Imports._
 import models.{Artifact, Build, BuildNode, Commit, TestCase, TestCasePackage}
 import org.joda.time.DateTime
 
-import scala.xml.{NodeSeq, Node, XML}
+import scala.xml.{Node, XML}
 
 
 trait ParseFolder extends Artifacts {
@@ -19,7 +19,7 @@ trait ParseFolder extends Artifacts {
 
   private val timeout = 5.hours
 
-  val unstableNodeNames:List[String]
+  val unstableNodeNames: List[String]
 
   case class BuildSource(branch: String, number: Int, pullRequestId: Option[Int], folder: Folder, params: BuildParams)
 
@@ -150,7 +150,7 @@ trait ParseFolder extends Artifacts {
 
     val rerunRegex = "RERUN=(true|false)".r
 
-    val rerun = startedFileContent.flatMap(_.get(2)).flatMap{
+    val rerun = startedFileContent.flatMap(_.get(2)).flatMap {
       case rerunRegex(value) => Some(value == "true")
       case _ => None
     }
@@ -167,7 +167,7 @@ trait ParseFolder extends Artifacts {
   def getTestCasePackages(testRunBuildNode: BuildNode): List[TestCasePackage] = {
     val screenshots = testRunBuildNode.artifacts.filter(a => a.name == screenshot)
 
-    def getNUnitTestCasePackage(xml:String): List[TestCasePackage] = {
+    def getNUnitTestCasePackage(xml: String): List[TestCasePackage] = {
       def getTestCasePackage(node: Node): TestCasePackage = {
         def getTestCasePackageInner(node: Node, namespace: String = ""): TestCasePackage = {
 

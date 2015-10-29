@@ -1,7 +1,8 @@
 package controllers
 
+import java.nio.file.Paths
+
 import com.github.nscala_time.time.Imports._
-import controllers.Reads._
 import controllers.Writes._
 import models.BuildStatus.{InProgress, Unknown}
 import models._
@@ -10,9 +11,9 @@ import models.cycles.{CustomCycle, Cycle}
 import play.Play
 import play.api.libs.json._
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success, Try}
 import scalaj.http.HttpException
-import scala.concurrent.ExecutionContext.Implicits.global
 
 case class ForceBuildParameters(pullRequestId: Option[Int],
                                 branchId: Option[String],
@@ -44,6 +45,10 @@ case class ForceBuildParameters(pullRequestId: Option[Int],
 
 object Jenkins extends Application {
 
+  implicit val buildParametersCategoryReads = Json.reads[BuildParametersCategory]
+  implicit val buildParameterCategoryReads: play.api.libs.json.Reads[List[BuildParametersCategory]] = play.api.libs.json.Reads.list[BuildParametersCategory]
+  implicit val reads = Json.reads[ForceBuildParameters]
+
   def forceBuild() = IsAuthorizedComponent {
     component =>
       request =>
@@ -51,14 +56,14 @@ object Jenkins extends Application {
 
           val params = json.as[ForceBuildParameters]
 
-          params.createBuildAction.map(buildAction=>{
-              val forceBuildResult: Try[Any] = component.jenkinsService.forceBuild(buildAction)
-              forceBuildResult match {
-                case Success(_) => Ok(Json.toJson(Build(-1, params.branchId.getOrElse("this"), Some("In progress"), DateTime.now,
-                  name = "", node = Some(BuildNode("this", "this", Some("In progress"), "#", List(), DateTime.now, None)))))
-                case Failure(e: HttpException) => BadRequest(e.toString)
-                case Failure(e) => throw e
-              }
+          params.createBuildAction.map(buildAction => {
+            val forceBuildResult: Try[Any] = component.jenkinsService.forceBuild(buildAction)
+            forceBuildResult match {
+              case Success(_) => Ok(Json.toJson(Build(-1, params.branchId.getOrElse("this"), Some("In progress"), DateTime.now,
+                name = "", node = Some(BuildNode("this", "this", Some("In progress"), "#", List(), DateTime.now, None)))))
+              case Failure(e: HttpException) => BadRequest(e.toString)
+              case Failure(e) => throw e
+            }
           }).getOrElse(BadRequest("There is no pullRequestId or branchId"))
 
         }.getOrElse {
@@ -130,7 +135,6 @@ object Jenkins extends Application {
         Ok(Json.toJson(component.buildRepository.getLastBuilds(branch, count)))
   }
 
-
   def buildStatus(id: Int) = IsAuthorizedComponent {
     component =>
       request => {
@@ -172,4 +176,35 @@ object Jenkins extends Application {
         Ok(Json.obj("message" -> "Ok"))
       }
   }
+
+  case class UpdateInfo(name: String, url: String, build: BuildInfo)
+
+  case class BuildInfo(full_url: String, number: Int, phase: String, status: String, url: String, parameters: Map[String, String])
+
+  implicit val buildInfoRead = Json.reads[BuildInfo]
+  implicit val updateInfoRead = Json.reads[UpdateInfo]
+
+  def updateBuild() = IsAuthorizedComponent {
+    component =>
+      request => {
+        request.body.asJson.flatMap { json =>
+          val params = json.as[UpdateInfo]
+
+          // \\JM2\Artifacts\pr_3219_21298\Artifacts
+          val artifactsPath = params.build.parameters.get("ARTIFACTS").map(x => Paths.get(x))
+
+          // \\jm2\Artifacts
+          val root = Paths.get(component.config.jenkinsDataPath)
+
+          val buildName = artifactsPath.map(root.relativize(_).subpath(0, 1).toString)
+
+          buildName.foreach(component.buildWatcher.forceUpdate)
+
+          buildName
+        }
+          .map(_ => Ok(Json.obj("message" -> "NotOk")))
+          .getOrElse(BadRequest(Json.obj("message" -> "Error updating build")))
+      }
+  }
 }
+

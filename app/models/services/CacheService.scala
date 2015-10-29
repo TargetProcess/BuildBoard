@@ -1,7 +1,5 @@
 package models.services
 
-import java.io.File
-
 import components.DefaultRegistry
 import models.AuthInfo
 import play.api.Play
@@ -27,11 +25,10 @@ object CacheService {
 
   val registry = new DefaultRegistry(authInfo)
 
-  val directory: String = registry.config.jenkinsDataPath
-
+  val jenkinsDataPath: String = registry.config.jenkinsDataPath
 
   val githubInterval = Play.configuration.getMilliseconds("github.cache.interval").getOrElse(600000L).milliseconds
-  val jenkinsInterval = Play.configuration.getMilliseconds("jenkins.cache.interval").getOrElse(60000L).milliseconds
+  val jenkinsInterval = registry.config.jenkinsInterval
 
 
   def start = {
@@ -48,24 +45,15 @@ object CacheService {
   }
 
   def subscribeToJenkins: Subscription = {
-    val artifactsDir = new File(directory)
+    val buildObservable = registry.buildWatcher.start
 
-    val dir_watcher = new DirectoryWatcher(artifactsDir, true)
-
-    dir_watcher.observable.map(file => {
-      val directoryName = artifactsDir.toPath.relativize(file.toPath).subpath(0, 1)
-      directoryName.toString
-
-    }).buffer(jenkinsInterval)
+    buildObservable
+      .buffer(jenkinsInterval)
       .map(_.distinct)
-      .subscribe(fileChangedEvents => Try {
-
-
-      play.Logger.info(s"directories changed: ${fileChangedEvents.length}")
-
-      if (fileChangedEvents.nonEmpty) {
-        updateBuilds(fileChangedEvents)
-      }
+      .subscribe(buildNames => Try {
+        if (buildNames.nonEmpty) {
+          updateBuilds(buildNames)
+        }
 
     }.recover {
       case e => play.Logger.error("Error in jenkinsSubscription", e)
@@ -76,16 +64,16 @@ object CacheService {
 
   }
 
-  def updateBuilds(fileChangedEvents: Seq[String]) {
+  def updateBuilds(updatedBuildNames: Seq[String]) {
     val existingBuilds = registry.buildRepository.getBuilds.toList
     play.Logger.info(s"existingBuilds: ${existingBuilds.length}")
 
-    val buildToUpdate = registry.jenkinsService.getUpdatedBuilds(existingBuilds, fileChangedEvents)
+    val buildToUpdate = registry.jenkinsService.getUpdatedBuilds(existingBuilds, updatedBuildNames)
     play.Logger.info(s"buildToUpdate: ${buildToUpdate.length}")
 
     for (updatedBuild <- buildToUpdate) {
       registry.buildRepository.update(updatedBuild)
-      registry.buildWatcher.rerunFailedParts(updatedBuild)
+      registry.buildRerun.rerunFailedParts(updatedBuild)
     }
 
     registry.notificationService.notifyAboutBuilds(registry.buildRepository.getBuilds)
