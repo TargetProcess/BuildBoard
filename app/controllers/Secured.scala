@@ -26,6 +26,8 @@ trait Secured {
       }
     }
 
+  def IsAuthorizedComponent(f: => DefaultComponent => Request[AnyContent] => Result): EssentialAction = IsAuthorizedComponent(parse.anyContent)(f)
+
   def IsAuthorizedComponent[A](bodyParser: BodyParser[A])(f: => DefaultComponent => Request[A] => Result) =
     IsAuthorized(bodyParser) {
       user => {
@@ -38,6 +40,9 @@ trait Secured {
 
   def IsAuthenticated(f: => String => Request[AnyContent] => Result): EssentialAction = IsAuthenticated(parse.anyContent)(f)
 
-  def IsAuthorizedComponent(f: => DefaultComponent => Request[AnyContent] => Result): EssentialAction = IsAuthorizedComponent(parse.anyContent)(f)
+  def Component(f: => DefaultComponent => Request[AnyContent] => Result): EssentialAction = Component(parse.anyContent)(f)
 
+  def Component[A](bodyParser: BodyParser[A])(f: => DefaultComponent => Request[A] => Result) = {
+    Action(bodyParser)(request => f(DefaultRegistry)(request))
+  }
 }

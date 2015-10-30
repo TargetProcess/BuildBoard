@@ -10,6 +10,8 @@ import models.notifications.{NotificationComponentImpl, NotificationRepositoryCo
 import models.services.BranchServiceComponentImpl
 import models.tp.{TargetprocessComponentImpl, UserRepositoryComponentImpl}
 import models.{AuthInfo, BranchRepositoryComponentImpl, BuildRepositoryComponentImpl, User}
+import play.api.Play
+import play.api.Play.current
 
 trait DefaultComponent
   extends AuthInfoProviderComponent
@@ -35,5 +37,10 @@ class DefaultRegistry(val loggedUser: Option[User], val authInfo: AuthInfo) exte
 
   def this(authInfo: AuthInfo) = this(None, authInfo)
 }
+
+object DefaultRegistry extends DefaultRegistry( new AuthInfo {
+  override val token: String = Play.configuration.getString("cache.user.tp.token").get
+  override val githubToken: String = Play.configuration.getString("cache.user.github.token").get
+})
 
 object Registry extends UserRepositoryComponentImpl

@@ -184,7 +184,7 @@ object Jenkins extends Application {
   implicit val buildInfoRead = Json.reads[BuildInfo]
   implicit val updateInfoRead = Json.reads[UpdateInfo]
 
-  def updateBuild() = IsAuthorizedComponent {
+  def updateBuild() = Component {
     component =>
       request => {
         request.body.asJson.flatMap { json =>
@@ -202,7 +202,7 @@ object Jenkins extends Application {
 
           buildName
         }
-          .map(_ => Ok(Json.obj("message" -> "NotOk")))
+          .map(buildName => Ok(Json.obj("message" -> "Ok", "build" -> buildName)))
           .getOrElse(BadRequest(Json.obj("message" -> "Error updating build")))
       }
   }

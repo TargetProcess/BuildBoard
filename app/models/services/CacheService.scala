@@ -1,7 +1,6 @@
 package models.services
 
 import components.DefaultRegistry
-import models.AuthInfo
 import play.api.Play
 import play.api.Play.current
 import rx.lang.scala.{Observable, Subscription}
@@ -13,17 +12,7 @@ import scala.util.{Failure, Success, Try}
 
 object CacheService {
 
-  val authInfo: AuthInfo = (for {
-    tpToken <- Play.configuration.getString("cache.user.tp.token")
-    gToken <- Play.configuration.getString("cache.user.github.token")
-  }
-
-  yield new AuthInfo {
-      override val githubToken: String = gToken
-      override val token: String = tpToken
-    }).get
-
-  val registry = new DefaultRegistry(authInfo)
+  val registry = DefaultRegistry
 
   val jenkinsDataPath: String = registry.config.jenkinsDataPath
 
