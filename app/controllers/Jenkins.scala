@@ -177,9 +177,9 @@ object Jenkins extends Application {
       }
   }
 
-  case class UpdateInfo(name: String, url: String, build: BuildInfo)
+  case class UpdateInfo(name: Option[String], url: Option[String], build: Option[BuildInfo])
 
-  case class BuildInfo(full_url: String, number: Int, phase: String, status: String, url: String, parameters: Map[String, String])
+  case class BuildInfo(full_url: Option[String], number: Option[Int], phase: Option[String], status: Option[String], url: Option[String], parameters: Option[Map[String, String]])
 
   implicit val buildInfoRead = Json.reads[BuildInfo]
   implicit val updateInfoRead = Json.reads[UpdateInfo]
@@ -191,7 +191,10 @@ object Jenkins extends Application {
           val params = json.as[UpdateInfo]
 
           // \\JM2\Artifacts\pr_3219_21298\Artifacts
-          val artifactsPath = params.build.parameters.get("ARTIFACTS").map(x => Paths.get(x))
+          val artifactsPath = for (buildInfo <- params.build;
+                                   parameters <- buildInfo.parameters;
+                                   artifacts <- parameters.get("ARTIFACTS")
+          ) yield Paths.get(artifacts)
 
           // \\jm2\Artifacts
           val root = Paths.get(component.config.jenkinsDataPath)
@@ -203,7 +206,7 @@ object Jenkins extends Application {
           buildName
         }
           .map(buildName => Ok(Json.obj("message" -> "Ok", "build" -> buildName)))
-          .getOrElse(BadRequest(Json.obj("message" -> "Error updating build")))
+          .getOrElse(Ok(Json.obj("message" -> "Error updating build")))
       }
   }
 }
