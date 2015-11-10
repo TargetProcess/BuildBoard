@@ -22,16 +22,19 @@ trait BuildRerunComponentImpl extends BuildRerunComponent {
       if (shouldRerunBuild(updatedBuild)) {
 
         val funcTestsToRerun = getNodesToRerun(updatedBuild, Cycle.funcTestsCategoryName)
+        val pythonFuncTestsToRerun = getNodesToRerun(updatedBuild, Cycle.pythonFuncTestsCategoryName)
         val unitTestsToRerun = getNodesToRerun(updatedBuild, Cycle.unitTestsCategoryName)
 
 
-        if (funcTestsToRerun.nonEmpty || unitTestsToRerun.nonEmpty) {
+        if (funcTestsToRerun.nonEmpty || pythonFuncTestsToRerun.nonEmpty || unitTestsToRerun.nonEmpty) {
 
           rerunRepository.markAsRerun(updatedBuild, Cycle.funcTestsCategoryName, funcTestsToRerun)
+          rerunRepository.markAsRerun(updatedBuild, Cycle.pythonFuncTestsCategoryName, pythonFuncTestsToRerun)
           rerunRepository.markAsRerun(updatedBuild, Cycle.unitTestsCategoryName, unitTestsToRerun)
 
           val action = ReuseArtifactsBuildAction(updatedBuild.name, updatedBuild.number, CustomCycle(List(
             BuildParametersCategory(Cycle.funcTestsCategoryName, funcTestsToRerun),
+            BuildParametersCategory(Cycle.pythonFuncTestsCategoryName, pythonFuncTestsToRerun),
             BuildParametersCategory(Cycle.unitTestsCategoryName, unitTestsToRerun)
           )))
 
