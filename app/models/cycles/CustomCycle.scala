@@ -22,9 +22,14 @@ case class CustomCycle(buildParametersCategory: List[BuildParametersCategory] = 
   override val includeCasper: Boolean = getBoolByCategory(Cycle.casperCategoryName)
   override val includeDb: Boolean = getBoolByCategory(Cycle.dbCategoryName)
   override val isFull: Boolean = getBoolByCategory(Cycle.cycleTypeCategoryName)
+  override val includePerfTests: Boolean = getBoolByCategory(Cycle.perfCategoryName)
 
   def getBoolByCategory(categoryName: String): Boolean = {
     buildParametersCategory.find(x => x.name == categoryName).exists(x => x.parts.nonEmpty)
+  }
+
+  def getParamsByCategory(categoryName: String): Map[String, String] = {
+    buildParametersCategory.filter(_.name == categoryName).flatMap(x => x.params).toMap
   }
 
   def getTestsByCategory(categoryName: String): String = {
@@ -33,6 +38,7 @@ case class CustomCycle(buildParametersCategory: List[BuildParametersCategory] = 
 
   val getPossibleBuildParameters: List[BuildParametersCategory] = {
     List(
+      BuildParametersCategory(Cycle.perfCategoryName, List("Include"), Map(("TestClass", ""), ("TestMethod", ""))),
       BuildParametersCategory(Cycle.cycleTypeCategoryName, List("build full package")),
       BuildParametersCategory(Cycle.unitTestsCategoryName, getTests(Cycle.unitTestsCategoryName)),
       BuildParametersCategory(Cycle.funcTestsCategoryName,  getTests(Cycle.funcTestsCategoryName)),
@@ -48,4 +54,6 @@ case class CustomCycle(buildParametersCategory: List[BuildParametersCategory] = 
     val config = Play.configuration.getConfig("build").get
     config.getStringList(testName).get.asScala.toList.distinct
   }
+
+
 }

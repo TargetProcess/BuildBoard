@@ -1,4 +1,4 @@
-<div onclick="this.focus();" onfocusin="this.focus();" ng-focus="clearTimeoutOnFocus()"  ng-blur="hideOnBlur();" tabindex="-1" class="dropdown open">
+<div tabindex="-1" class="dropdown open">
     <a ng-show="build" ng-click="toggle()" href=""
        class="jenkins status {{type}} {{ getBuildStatus(build) | status2Class }} dropdown-toggle"
        title="{{ getBuildStatus(build) | status2text }}">
@@ -29,12 +29,17 @@
                                         {{part}}
                                     </label>
                                 </li>
+                                <li ng-repeat="(name, value) in category.params" class="category-list__parameters__param" ng-show="category.selectedParts.length">
+                                    <label>{{name}}
+                                        <input type="text" name="{{name}}" ng-model="category.selectedParams[name]">
+                                    </label>
+                                </li>
                             </ul>
                         </li>
                     </ul>
                 </div>
                 <nav class="jenkins start-build">
-                        <button type="button"  ng-click="execute(action)" class="btn btn-success">Start</button>
+                        <button type="button" ng-click="execute(action)" class="btn btn-success">Start</button>
                 </nav>
             </div>
         </li>

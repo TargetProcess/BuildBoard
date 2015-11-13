@@ -18,6 +18,7 @@ abstract class ConfigurableCycle(val name: String) extends Cycle {
   val includeCasper = getBoolean("includeCasper")
   val includeDb = getBoolean("includeDb")
   val isFull = getBoolean("isFull")
+  val includePerfTests = getBoolean("includePerfTests")
 
 
   def getBoolean(path: String) = config.getBoolean(path).getOrElse(false)

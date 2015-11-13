@@ -206,41 +206,51 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
 
       val buildParams = BuildParams(getParamsFile(buildFolder)).get
 
+      def forcePart(job: String, postfix: String, params: Map[String, String] = Map.empty): Unit = {
+        forceBuildCategory(buildParams, revision, params, s"${config.jenkinsUrl}/job/$job/buildWithParameters", action.buildNumber, postfix)
+      }
 
-
-      val forcePart = (job: String, postfix: String, filter: String) =>
-        forceBuildCategory(buildParams, revision, filter.replaceAll( """^\"|\"$""", ""), s"${config.jenkinsUrl}/job/$job/buildWithParameters", action.buildNumber, postfix)
+      val forcePartWithFilter = (job: String, postfix: String, filter: String) =>
+        forcePart(job, postfix, Map(("FILTER", filter.replaceAll( """^\"|\"$""", ""))))
 
       if (action.cycle.funcTests != "") {
-        forcePart("RunFuncTests", "FuncTests", action.cycle.funcTests)
+        forcePartWithFilter("RunFuncTests", "FuncTests", action.cycle.funcTests)
       }
 
       if (action.cycle.pythonFuncTests != "") {
-        forcePart("RunFuncTestsPython", "FuncTests", action.cycle.pythonFuncTests)
+        forcePartWithFilter("RunFuncTestsPython", "FuncTests", action.cycle.pythonFuncTests)
       }
 
       if (action.cycle.unitTests != "") {
-        forcePart(s"RunUnitTests", "UnitTests", action.cycle.unitTests)
+        forcePartWithFilter(s"RunUnitTests", "UnitTests", action.cycle.unitTests)
       }
 
       if (action.cycle.includeCasper) {
-        forcePart("RunCasperJSTests", "FuncTests", "")
+        forcePart("RunCasperJSTests", "FuncTests")
       }
 
       if (action.cycle.includeComet) {
-        forcePart("CometOutOfProcess", "FuncTests", "")
+        forcePart("CometOutOfProcess", "FuncTests")
       }
 
       if (action.cycle.includeSlice) {
-        forcePart("RunSliceLoadTest", "FuncTests", "")
+        forcePart("RunSliceLoadTest", "FuncTests")
       }
 
       if (action.cycle.includeDb) {
-        forcePart("RunDBTest", "FuncTests", "")
+        forcePart("RunDBTest", "FuncTests")
+      }
+
+      if (action.cycle.includePerfTests) {
+        val parameters: Map[String, String] = action.cycle match {
+          case c @ CustomCycle(_) => c.getParamsByCategory(Cycle.perfCategoryName)
+          case _ => Map.empty
+        }
+        forcePart("RunPerfTests", "PerfTests", parameters)
       }
     }
 
-    def forceBuildCategory(buildParams: BuildParams, revision: String, filter: String, url: String, buildNumber: Int, buildPathPostfix: String) = {
+    def forceBuildCategory(buildParams: BuildParams, revision: String, parameters: Map[String, String], url: String, buildNumber: Int, buildPathPostfix: String) = {
 
       val params: List[(String, String)] = buildParams.parameters.flatMap {
         case ("Cycle", value) => Some("CYCLE", value)
@@ -254,11 +264,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
           ("BUILDPRIORITY", "10")
         )
 
-      val paramsWithFilter = if (filter != "") {
-        params ++ List(("FILTER", filter), ("RERUN", "true"))
-      } else params
-
-      post(url, paramsWithFilter)
+      post(url, params ++ (parameters.filter(p => p._2 != "") ++ List(("RERUN", "true"))).toList)
     }
 
   }

@@ -10,6 +10,7 @@ import models.buildActions._
 import models.cycles.{CustomCycle, Cycle}
 import play.Play
 import play.api.libs.json._
+import play.api.libs.functional.syntax._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success, Try}
@@ -20,10 +21,10 @@ case class ForceBuildParameters(pullRequestId: Option[Int],
                                 buildNumber: Option[Int],
                                 cycleName: String,
                                 parameters: List[BuildParametersCategory]
-                                 ){
-  def createBuildAction:Option[JenkinsBuildAction] = {
+                               ) {
+  def createBuildAction: Option[JenkinsBuildAction] = {
 
-    if (cycleName == "transifex"){
+    if (cycleName == "transifex") {
       branchId.map(TransifexBuildAction)
     }
     else {
@@ -45,7 +46,11 @@ case class ForceBuildParameters(pullRequestId: Option[Int],
 
 object Jenkins extends Application {
 
-  implicit val buildParametersCategoryReads = Json.reads[BuildParametersCategory]
+  implicit val buildParametersCategoryReads = (
+    (__ \ "name").read[String] ~
+      (__ \ "parts").read[List[String]] ~
+      (__ \ "params").read(Reads.optionNoError[Map[String, String]])
+    ) ((name, parts, params) => BuildParametersCategory(name, parts, params.getOrElse(Map.empty)))
   implicit val buildParameterCategoryReads: play.api.libs.json.Reads[List[BuildParametersCategory]] = play.api.libs.json.Reads.list[BuildParametersCategory]
   implicit val reads = Json.reads[ForceBuildParameters]
 
