@@ -38,7 +38,6 @@ case class CustomCycle(buildParametersCategory: List[BuildParametersCategory] = 
 
   val getPossibleBuildParameters: List[BuildParametersCategory] = {
     List(
-      BuildParametersCategory(Cycle.perfCategoryName, List("Include"), Map(("TestClass", ""), ("TestMethod", ""))),
       BuildParametersCategory(Cycle.cycleTypeCategoryName, List("build full package")),
       BuildParametersCategory(Cycle.unitTestsCategoryName, getTests(Cycle.unitTestsCategoryName)),
       BuildParametersCategory(Cycle.funcTestsCategoryName,  getTests(Cycle.funcTestsCategoryName)),
@@ -46,7 +45,8 @@ case class CustomCycle(buildParametersCategory: List[BuildParametersCategory] = 
       BuildParametersCategory(Cycle.cometCategoryName, List("Include")),
       BuildParametersCategory(Cycle.sliceCategoryName, List("Include")),
       BuildParametersCategory(Cycle.casperCategoryName, List("Include")),
-      BuildParametersCategory(Cycle.dbCategoryName, List("Include"))
+      BuildParametersCategory(Cycle.dbCategoryName, List("Include")),
+      BuildParametersCategory(Cycle.perfCategoryName, List("Include"), Map(("TestClass", ""), ("TestMethod", "")))
     )
   }
 
