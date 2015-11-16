@@ -77,7 +77,6 @@ module buildBoard {
             var timeoutId:ng.IPromise<any> = null;
 
             $element[0].addEventListener('focus', ()=> {
-                console.log('focus');
                 $timeout.cancel(timeoutId);
             }, true);
             $element[0].addEventListener('blur', ()=> {
