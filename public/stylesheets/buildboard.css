@@ -25,6 +25,12 @@
     padding: 2px 0;
 }
 
+.category-list__parameters__param {
+    display: block;
+    width: 130px;
+    padding: 2px 0;
+}
+
 .category-list__checkbox{
     position: relative;
     top:2px;

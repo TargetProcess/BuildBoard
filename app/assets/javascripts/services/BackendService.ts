@@ -35,7 +35,8 @@ module buildBoard {
             var categories:BuildParametersCategory[] = _.chain(buildAction.buildParametersCategories).map((x:BuildParametersCategory) => {
                     return {
                         name: x.name,
-                        parts: x.selectedParts == null ? [] : x.selectedParts
+                        parts: x.selectedParts == null ? [] : x.selectedParts,
+                        params: x.selectedParams == null ? [] : x.selectedParams
                     }
                 }
             ).value();

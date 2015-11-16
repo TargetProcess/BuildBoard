@@ -6,7 +6,7 @@ module buildBoard {
             build: "=",
             branch: "=",
             type: "@",
-            statusType:"@"
+            statusType: "@"
         };
         controller = LastBuildStatusController;
         templateUrl = 'assets/partials/buildStatus.html';
@@ -34,9 +34,9 @@ module buildBoard {
     }
 
     export class LastBuildStatusController {
-        public static $inject = ['$scope', BackendService.NAME, '$timeout'];
+        public static $inject = ['$scope', '$element', BackendService.NAME, '$timeout'];
 
-        constructor(private $scope:IBuildStatusScope, backendService:BackendService, $timeout:ng.ITimeoutService) {
+        constructor(private $scope:IBuildStatusScope, private $element:JQuery, backendService:BackendService, $timeout:ng.ITimeoutService) {
 
             this.$scope.showTimestamp = this.$scope.statusType == "branch";
 
@@ -46,23 +46,18 @@ module buildBoard {
                     this.$scope.pending = true;
 
                     var buildNumber =
-                        this.$scope.statusType=="branch"? null : this.$scope.build.number;
+                        this.$scope.statusType == "branch" ? null : this.$scope.build.number;
 
                     backendService.getBuildActions(this.$scope.branch.name, buildNumber).then(data=> {
                         this.$scope.buildActions = data.data;
                         this.$scope.pending = false;
                     });
-
-
                 }
                 else {
                     this.$scope.showList = false;
                     this.$scope.buildActions = [];
                 }
-
-
             };
-
 
             this.$scope.execute = (buildAction:BuildAction) => {
                 if (this.$scope.statusType == 'build') {
@@ -71,7 +66,7 @@ module buildBoard {
 
                 backendService[buildAction.action](buildAction).success(build => {
                     this.$scope.showList = false;
-                    if(build.message !== 'Ok') {
+                    if (build.message !== 'Ok') {
                         this.$scope.build = build;
                     } else {
                         alert('build deploy')
@@ -81,17 +76,16 @@ module buildBoard {
 
             var timeoutId:ng.IPromise<any> = null;
 
-
-            this.$scope.clearTimeoutOnFocus = () => {
+            $element[0].addEventListener('focus', ()=> {
                 $timeout.cancel(timeoutId);
-            };
-            this.$scope.hideOnBlur = () => {
+            }, true);
+            $element[0].addEventListener('blur', ()=> {
                 timeoutId = $timeout(() => {
                     this.$scope.showList = false;
                     this.$scope.buildActions = [];
-                    this.$scope.$digest()
-                }, 0);
-            };
+                    this.$scope.$digest();
+                }, 50);
+            }, true);
 
             this.$scope.toggleParameters = (buildAction:BuildAction) => {
                 var currentState = buildAction.showParameters;

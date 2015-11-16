@@ -9,6 +9,7 @@ object Cycle {
   val casperCategoryName = "CasperTests"
   val dbCategoryName = "DbTests"
   val cycleTypeCategoryName = "CycleType"
+  val perfCategoryName = "PerfTests"
 }
 
 trait Cycle {
@@ -24,10 +25,12 @@ trait Cycle {
   val includeCasper: Boolean
   val includeDb: Boolean
   val isFull: Boolean
+  val includePerfTests: Boolean
 
   lazy val parameters = {
     List("IncludeUnitTests" -> unitTests,
       "IncludeFuncTests" -> funcTests,
+      "IncludePerfTests" -> includePerfTests.toString,
       "BuildFullPackage" -> buildFullPackage.toString,
       "INCLUDE_UNSTABLE" -> includeUnstable.toString,
       "Cycle" -> (if (isFull) "Full" else "Short"),
