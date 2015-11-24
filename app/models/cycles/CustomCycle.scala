@@ -46,7 +46,7 @@ case class CustomCycle(buildParametersCategory: List[BuildParametersCategory] = 
       BuildParametersCategory(Cycle.sliceCategoryName, List("Include")),
       BuildParametersCategory(Cycle.casperCategoryName, List("Include")),
       BuildParametersCategory(Cycle.dbCategoryName, List("Include")),
-      BuildParametersCategory(Cycle.perfCategoryName, List("Include"), Map(("TestClass", ""), ("TestMethod", "")))
+      BuildParametersCategory(Cycle.perfCategoryName, List("Include"), Map(("PerfTestClass", ""), ("PerfTestMethod", "")))
     )
   }
 
