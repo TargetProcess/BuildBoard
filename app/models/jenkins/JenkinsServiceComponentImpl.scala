@@ -138,7 +138,6 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
 
       play.Logger.info(s"Force build to $url with parameters $parameters")
 
-
       Http.post(url)
         .params(parameters)
         .option(HttpOptions.connTimeout(1000))
@@ -155,12 +154,11 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
 
       val lastBuild = branch.flatMap(buildRepository.getLastBuilds(_, 1).headOption)
       val url = s"${config.jenkinsUrl}/job/${action.jobName}/buildWithParameters"
-      val funcTestsKey = "IncludeFuncTests"
 
       val actionParameters = action.cycle match {
         case customCycle @ CustomCycle(_) =>
-          action.parameters map {
-            case (key, tests) if key == funcTestsKey =>
+          action.parameters flatMap {
+            case (key, tests) if key == Cycle.includeFuncTestsKey =>
               def getPartsFor(category: String, parts: String): String = {
                 if (parts == "All") customCycle.getTestsByCategory(category) else parts
               }
@@ -179,8 +177,11 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
               val funcTestParts = getPartsFor(Cycle.funcTestsCategoryName, tests)
               val pythonFuncTestParts = getPartsFor(Cycle.pythonFuncTestsCategoryName, action.cycle.pythonFuncTests)
 
-              (key, mergeParts(funcTestParts, pythonFuncTestParts))
-            case (key, value) => (key, value)
+              List((key, mergeParts(funcTestParts, pythonFuncTestParts)))
+            case (key, value) if key == Cycle.includePerfTestsKey && value == true.toString =>
+              List((key, value)) ++ customCycle.getParamsByCategory(Cycle.perfCategoryName)
+            case (key, value) =>
+              List((key, value))
           }
         case _ => action.parameters
       }

@@ -10,6 +10,9 @@ object Cycle {
   val dbCategoryName = "DbTests"
   val cycleTypeCategoryName = "CycleType"
   val perfCategoryName = "PerfTests"
+
+  val includePerfTestsKey = "INCLUDE_PERF"
+  val includeFuncTestsKey = "IncludeFuncTests"
 }
 
 trait Cycle {
@@ -29,8 +32,8 @@ trait Cycle {
 
   lazy val parameters = {
     List("IncludeUnitTests" -> unitTests,
-      "IncludeFuncTests" -> funcTests,
-      "IncludePerfTests" -> includePerfTests.toString,
+      Cycle.includeFuncTestsKey -> funcTests,
+      Cycle.includePerfTestsKey -> includePerfTests.toString,
       "BuildFullPackage" -> buildFullPackage.toString,
       "INCLUDE_UNSTABLE" -> includeUnstable.toString,
       "Cycle" -> (if (isFull) "Full" else "Short"),
