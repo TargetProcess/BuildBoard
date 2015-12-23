@@ -164,7 +164,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
           }
 
           action.parameters flatMap {
-            case (key, tests) if key == Cycle.includePerfTestsKey =>
+            case (key, tests) if key == Cycle.includePythonTestsKey =>
               val pythonFuncTestParts = getPartsFor(Cycle.pythonFuncTestsCategoryName, action.cycle.pythonFuncTests)
               List((key, pythonFuncTestParts))
             case (key, tests) if key == Cycle.includeFuncTestsKey =>
