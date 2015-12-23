@@ -12,7 +12,7 @@ object Cycle {
   val perfCategoryName = "PerfTests"
 
   val includePerfTestsKey = "INCLUDE_PERF"
-  val includeFuncTestsKey = "FunctTestsFilter"
+  val includeFuncTestsKey = "FuncTestsFilter"
   val includePythonTestsKey = "PythonTestsFilter"
 }
 

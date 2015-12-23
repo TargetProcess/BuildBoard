@@ -97,9 +97,9 @@ module buildBoard {
     export interface BuildParametersCategory {
         name:string;
         parts:string[];
-        selectedParts:{[name:string]:string;};
+        selectedParts:any;
         params:string[];
-        selectedParams:{[name:string]:string;};
+        selectedParams:any;
     }
 
     export interface ToggledBuild {
