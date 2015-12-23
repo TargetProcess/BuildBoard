@@ -4,13 +4,13 @@ import java.io.File
 
 import components._
 import models.buildActions._
-import models.cycles.{Cycle, CustomCycle}
-import models.{BranchInfo, Branch, Build}
+import models.cycles.{CustomCycle, Cycle}
+import models.{Branch, Build}
 import src.Utils
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.{Success, Try}
+import scala.util.Try
 import scalaj.http.{Http, HttpOptions}
 
 trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
@@ -155,29 +155,21 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
       val lastBuild = branch.flatMap(buildRepository.getLastBuilds(_, 1).headOption)
       val url = s"${config.jenkinsUrl}/job/${action.jobName}/buildWithParameters"
 
+
+
       val actionParameters = action.cycle match {
         case customCycle @ CustomCycle(_) =>
+          def getPartsFor(category: String, parts: String): String = {
+            if (parts == "All") customCycle.getTestsByCategory(category) else parts
+          }
+
           action.parameters flatMap {
-            case (key, tests) if key == Cycle.includeFuncTestsKey =>
-              def getPartsFor(category: String, parts: String): String = {
-                if (parts == "All") customCycle.getTestsByCategory(category) else parts
-              }
-              def mergeParts(parts1: String, parts2: String): String = {
-                def trim(str: String): String = if (str.isEmpty) "" else str.substring(1, str.length - 1)
-
-                val part1 = trim(parts1)
-                val part2 = trim(parts2)
-                val space = if (!part1.isEmpty && !part2.isEmpty) " " else ""
-                //this ugly hack is to overcome bug in scala https://issues.scala-lang.org/browse/SI-6476
-                val escape = "\""
-
-                s"$escape$part1$space$part2$escape"
-              }
-
-              val funcTestParts = getPartsFor(Cycle.funcTestsCategoryName, tests)
+            case (key, tests) if key == Cycle.includePerfTestsKey =>
               val pythonFuncTestParts = getPartsFor(Cycle.pythonFuncTestsCategoryName, action.cycle.pythonFuncTests)
-
-              List((key, mergeParts(funcTestParts, pythonFuncTestParts)))
+              List((key, pythonFuncTestParts))
+            case (key, tests) if key == Cycle.includeFuncTestsKey =>
+              val funcTestParts = getPartsFor(Cycle.funcTestsCategoryName, tests)
+              List((key, funcTestParts))
             case (key, value) if key == Cycle.includePerfTestsKey && value == true.toString =>
               List((key, value)) ++ customCycle.getParamsByCategory(Cycle.perfCategoryName)
             case (key, value) =>
@@ -211,19 +203,19 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
         forceBuildCategory(buildParams, revision, params, s"${config.jenkinsUrl}/job/$job/buildWithParameters", action.buildNumber, postfix)
       }
 
-      val forcePartWithFilter = (job: String, postfix: String, filter: String) =>
-        forcePart(job, postfix, Map(("FILTER", filter.replaceAll( """^\"|\"$""", ""))))
+      val forcePartWithFilter = (job: String, postfix: String, filterKey: String, filter: String) =>
+        forcePart(job, postfix, Map((filterKey, filter.replaceAll( """^\"|\"$""", ""))))
 
       if (action.cycle.funcTests != "") {
-        forcePartWithFilter("RunFuncTests", "FuncTests", action.cycle.funcTests)
+        forcePartWithFilter("RunFuncTests", "FuncTests", "FuncTestsFilter", action.cycle.funcTests)
       }
 
       if (action.cycle.pythonFuncTests != "") {
-        forcePartWithFilter("RunFuncTestsPython", "FuncTests", action.cycle.pythonFuncTests)
+        forcePartWithFilter("RunFuncTestsPython", "FuncTests", "PythonTestsFilter", action.cycle.pythonFuncTests)
       }
 
       if (action.cycle.unitTests != "") {
-        forcePartWithFilter(s"RunUnitTests", "UnitTests", action.cycle.unitTests)
+        forcePartWithFilter(s"RunUnitTests", "UnitTests", "UnitTestsFilter", action.cycle.unitTests)
       }
 
       if (action.cycle.includeCasper) {

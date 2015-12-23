@@ -12,7 +12,8 @@ object Cycle {
   val perfCategoryName = "PerfTests"
 
   val includePerfTestsKey = "INCLUDE_PERF"
-  val includeFuncTestsKey = "IncludeFuncTests"
+  val includeFuncTestsKey = "FunctTestsFilter"
+  val includePythonTestsKey = "PythonTestsFilter"
 }
 
 trait Cycle {
@@ -31,8 +32,9 @@ trait Cycle {
   val includePerfTests: Boolean
 
   lazy val parameters = {
-    List("IncludeUnitTests" -> unitTests,
+    List("UnitTestsFilter" -> unitTests,
       Cycle.includeFuncTestsKey -> funcTests,
+      Cycle.includePythonTestsKey -> pythonFuncTests,
       Cycle.includePerfTestsKey -> includePerfTests.toString,
       "BuildFullPackage" -> buildFullPackage.toString,
       "INCLUDE_UNSTABLE" -> includeUnstable.toString,
