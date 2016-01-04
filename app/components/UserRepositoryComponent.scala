@@ -11,6 +11,8 @@ trait UserRepositoryComponent {
 
     def authenticate(username: String, password: String): Try[(TpUser, String)]
 
+    def findByToken(token: String): Option[User]
+
     def save(tpUser: TpUser, token: String)
 
     def save(tpUser: User)

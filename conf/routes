@@ -3,41 +3,44 @@
 # ~~~~
 
 # Home page
-GET         /                            controllers.Landing.index
-GET         /branches                    controllers.Branches.branches
-GET         /branch                      controllers.Branches.activities(branchName: String)
+GET           /                                      controllers.Landing.index
+GET           /branches                              controllers.Branches.branches
+GET           /branch                                controllers.Branches.activities(branchName: String)
 
-GET         /open                        controllers.Landing.redirect(id:Int)
+GET           /open                                  controllers.Landing.redirect(id:Int)
 
-GET         /login                       controllers.Login.index
-GET         /login/github                controllers.Login.githubLogin
-GET         /login/oauth                 controllers.Login.oauth(code ?= "")
-POST        /login/submit                controllers.Login.submit
-GET         /login/logout                controllers.Login.logout
-POST        /login/update                controllers.Login.updateInfo(slackName:String)
+GET           /login                                 controllers.Login.index
+GET           /login/github                          controllers.Login.githubLogin
+GET           /login/oauth                           controllers.Login.oauth(code ?= "")
+POST          /login/submit                          controllers.Login.submit
+GET           /login/logout                          controllers.Login.logout
+POST          /login/update                          controllers.Login.updateInfo(slackName:String)
 
-GET         /jenkins/build               controllers.Jenkins.build(branch:String, number: Int)
-POST        /jenkins/forceBuild          controllers.Jenkins.forceBuild()
-POST        /jenkins/toggleBuild         controllers.Jenkins.toggleBuild(branchId:String, buildNumber:Int, toggled:Boolean)
-GET         /jenkins/buildActions        controllers.Jenkins.buildActions(branchName:String, buildNumber:Option[Int])
-GET         /jenkins/lastBuilds          controllers.Jenkins.lastBuilds(branchName:String, count:Int)
-GET         /jenkins/buildStatus         controllers.Jenkins.buildStatus(id:Int)
-POST        /jenkins/deployBuild         controllers.Jenkins.deployBuild(build:String, environment:String)
-POST        /jenkins/updateBuild         controllers.Jenkins.updateBuild()
-
-
-GET         /jenkins/run                 controllers.Jenkins.run(branch: String, build: Int, part: String, run: String)
-GET         /jenkins/testCase            controllers.Jenkins.testCase(branch: String, build: Int, part: String, run: String, test: String)
-GET         /jenkins/artifact            controllers.Jenkins.artifact(file: String)
-
-GET         /github/merge                controllers.Github.merge(branchName: String)
-GET         /github/status               controllers.Github.prStatus(id:Int)
-GET         /github/pullRequest          controllers.Github.pullRequest(id:Int)
+GET           /jenkins/build                         controllers.Jenkins.build(branch:String, number: Int)
+POST          /jenkins/forceBuild                    controllers.Jenkins.forceBuild()
+POST          /jenkins/toggleBuild                   controllers.Jenkins.toggleBuild(branchId:String, buildNumber:Int, toggled:Boolean)
+GET           /jenkins/buildActions                  controllers.Jenkins.buildActions(branchName:String, buildNumber:Option[Int])
+GET           /jenkins/lastBuilds                    controllers.Jenkins.lastBuilds(branchName:String, count:Int)
+GET           /jenkins/buildStatus                   controllers.Jenkins.buildStatus(id:Int)
+POST          /jenkins/deployBuild                   controllers.Jenkins.deployBuild(build:String, environment:String)
+POST          /jenkins/updateBuild                   controllers.Jenkins.updateBuild()
 
 
+GET           /jenkins/run                           controllers.Jenkins.run(branch: String, build: Int, part: String, run: String)
+GET           /jenkins/testCase                      controllers.Jenkins.testCase(branch: String, build: Int, part: String, run: String, test: String)
+GET           /jenkins/artifact                      controllers.Jenkins.artifact(file: String)
 
+GET           /github/merge                          controllers.Github.merge(branchName: String)
+GET           /github/status                         controllers.Github.prStatus(id:Int)
+GET           /github/pullRequest                    controllers.Github.pullRequest(id:Int)
 
-POST        /tp/changeEntityState        controllers.Targetprocess.changeEntityState(entityId:Int, entityStateId:Int)
+POST          /tp/changeEntityState                  controllers.Targetprocess.changeEntityState(entityId:Int, entityStateId:Int)
+
+GET           /buildboard2                           buildboard2.controllers.Settings.settings
+GET           /buildboard2/account/:toolToken        buildboard2.controllers.Accounts.account(toolToken: String)
+POST          /buildboard2/account/:toolToken        buildboard2.controllers.Accounts.save(toolToken: String)
+DELETE        /buildboard2/account/:toolToken        buildboard2.controllers.Accounts.delete(toolToken: String)
+GET           /buildboard2/builds                    buildboard2.controllers.Builds.builds(take: Integer)
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /assets/*file                controllers.Assets.at(path="/public", file)
+GET           /assets/*file                          controllers.Assets.at(path="/public", file)
