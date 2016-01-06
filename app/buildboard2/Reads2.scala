@@ -1,6 +1,6 @@
-package buildboard2.controllers
+package buildboard2
 
-import buildboard2.{Account, AccountConfig}
+import buildboard2.model.{AccountConfig, Account}
 import play.api.libs.json._
 
 object Reads2 {

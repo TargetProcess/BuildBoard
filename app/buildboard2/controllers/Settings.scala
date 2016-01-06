@@ -1,8 +1,9 @@
 package buildboard2.controllers
 
+import buildboard2.Writes2
 import play.api.libs.json.Json
 import play.api.mvc.{Controller, Action}
-import buildboard2.controllers.Writes2._
+import Writes2._
 
 object Settings extends Controller {
   def settings = Action {

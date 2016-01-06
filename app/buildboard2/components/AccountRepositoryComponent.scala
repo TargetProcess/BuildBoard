@@ -1,6 +1,6 @@
 package buildboard2.components
 
-import buildboard2.Account
+import buildboard2.model.Account
 
 trait AccountRepositoryComponent {
   val accountRepository: AccountRepository
@@ -11,6 +11,8 @@ trait AccountRepositoryComponent {
     def findByToken(token: String): Option[Account]
 
     def remove(token: String): Unit
+
+    def getAll: Iterator[Account]
   }
 
 }

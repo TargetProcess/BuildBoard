@@ -1,6 +1,6 @@
 package buildboard2.components
 
-import buildboard2.Account
+import buildboard2.model.Account
 import models.mongo.mongoContext
 import play.api.Play.current
 import com.novus.salat.dao.{SalatDAO, ModelCompanion}
@@ -25,6 +25,8 @@ trait AccountRepositoryComponentImpl extends AccountRepositoryComponent {
     override def findByToken(token: String): Option[Account] = Accounts.findOne(MongoDBObject("toolToken" -> token))
 
     override def remove(token: String): Unit = Accounts.remove(MongoDBObject("toolToken" -> token))
+
+    override def getAll: Iterator[Account] = Accounts.findAll()
   }
 
 }

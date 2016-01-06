@@ -1,9 +1,10 @@
 package buildboard2.controllers
 
-import buildboard2.Account
+import buildboard2.model.Account
+import buildboard2.{Reads2, Writes2}
 import play.api.libs.json.Json
-import buildboard2.controllers.Writes2._
-import buildboard2.controllers.Reads2._
+import Writes2._
+import Reads2._
 import play.api.mvc.Controller
 
 object Accounts extends Controller with Secured {

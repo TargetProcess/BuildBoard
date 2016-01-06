@@ -1,6 +1,6 @@
-package buildboard2.controllers
+package buildboard2
 
-import buildboard2.{Account, AccountConfig, BuildInfo}
+import buildboard2.model.{BuildInfo, AccountConfig, Account}
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Writes._
 import play.api.libs.json._
