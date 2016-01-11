@@ -22,7 +22,7 @@ case class Build2(id: String,
 
 object Build2 {
   def create(build: Build): Build2 = {
-    Build2(build.number.toString,
+    Build2(build.timestamp.getMillis.toString,
       name = build.name,
       timestamp = build.timestamp,
       build.number,
@@ -58,7 +58,7 @@ object Job2 {
       Map.empty,
       buildNode.status)
   }
-  def getId(buildNode: BuildNode) = buildNode.id
+  def getId(buildNode: BuildNode) = buildNode.timestamp.getMillis.toString
   def getName(buildNode: BuildNode) = if (buildNode.runName.isEmpty) buildNode.name else s"${buildNode.runName} - ${buildNode.name}"
 }
 

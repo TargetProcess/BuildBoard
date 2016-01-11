@@ -10,7 +10,6 @@ import play.api.Play.current
 import play.api.libs.json.{JsValue, Json}
 import scala.util.{Try, Failure, Success}
 import scalaj.http.{Http, HttpOptions}
-import src.Utils.watch
 
 object BuildBoard2CacheService {
   val registry = new DefaultRegistry
@@ -55,14 +54,11 @@ object BuildBoard2CacheService {
     for (account <- registry.accountRepository.getAll) {
       notifyBuild(account, build2)
       for (job <- jobs) {
-        watch("jobs") {
-          notifyJob(account, job)
-        }
+        notifyJob(account, job)
+
       }
       for (artifact <- artifacts) {
-        watch("artifacts") {
-          notifyArtifact(account, artifact)
-        }
+        notifyArtifact(account, artifact)
       }
     }
 
