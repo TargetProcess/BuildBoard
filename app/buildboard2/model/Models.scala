@@ -58,7 +58,7 @@ object Job2 {
       Map.empty,
       buildNode.status)
   }
-  def getId(buildNode: BuildNode) = buildNode.timestamp.getMillis.toString
+  def getId(buildNode: BuildNode) = s"${buildNode.timestamp.getMillis}${buildNode.name}"
   def getName(buildNode: BuildNode) = if (buildNode.runName.isEmpty) buildNode.name else s"${buildNode.runName} - ${buildNode.name}"
 }
 
