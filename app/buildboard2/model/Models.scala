@@ -16,7 +16,7 @@ case class Build2(id: String,
                   config: Map[String, String],
                   initiator: Option[String],
                   branch: Option[String],
-                  pullRequestId: Option[Int],
+                  pullRequest: Option[Int],
                   status: Option[String],
                   commit: Option[String])
 
@@ -40,9 +40,9 @@ case class Job2(id: String,
                 name: String,
                 url: String,
                 number: Int,
-                buildId: String,
+                build: String,
                 timestamp: DateTime,
-                parentId: Option[String],
+                parent: Option[String],
                 config: Map[String, String],
                 status: Option[String])
 
