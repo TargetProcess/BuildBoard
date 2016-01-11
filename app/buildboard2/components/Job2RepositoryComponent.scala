@@ -8,8 +8,6 @@ trait Job2RepositoryComponent {
   trait Job2Repository {
     def save(job: Job2): Unit
 
-    def remove(id: String) : Unit
-
     def count: Long
 
     def getAll: Iterator[Job2]

@@ -8,8 +8,6 @@ trait Build2RepositoryComponent {
   trait Build2Repository {
     def save(build: Build2): Unit
 
-    def remove(id: String): Unit
-
     def count: Long
 
     def getAll: Iterator[Build2]

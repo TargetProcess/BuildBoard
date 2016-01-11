@@ -21,9 +21,10 @@ trait Build2RepositoryComponentImpl extends Build2RepositoryComponent {
       val dao = new SalatDAO[Build2, ObjectId](collection) {}
     }
 
-    override def save(build: Build2): Unit = Builds2.save(build)
-
-    override def remove(id: String): Unit = Builds2.remove(MongoDBObject("id" -> id))
+    override def save(build: Build2): Unit = {
+      Builds2.remove(MongoDBObject("id" -> build.id))
+      Builds2.save(build)
+    }
 
     override def getAll: Iterator[Build2] = Builds2.findAll()
 

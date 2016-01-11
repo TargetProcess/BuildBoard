@@ -1,7 +1,6 @@
 package buildboard2.controllers
 
 import buildboard2.Writes2
-import play.api.libs.json.Json
 import play.api.mvc.Controller
 import Writes2._
 

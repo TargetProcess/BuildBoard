@@ -21,9 +21,10 @@ trait Job2RepositoryComponentImpl extends Job2RepositoryComponent{
       val dao = new SalatDAO[Job2, ObjectId](collection) {}
     }
 
-    override def save(job: Job2): Unit = Jobs2.save(job)
-
-    override def remove(id: String): Unit = Jobs2.remove(MongoDBObject("id" -> id))
+    override def save(job: Job2): Unit = {
+      Jobs2.remove(MongoDBObject("id" -> job.id))
+      Jobs2.save(job)
+    }
 
     override def getAll: Iterator[Job2] = Jobs2.findAll()
 

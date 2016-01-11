@@ -1,6 +1,6 @@
 package buildboard2.model
 
-import models.{BuildNode, Build}
+import models.{Artifact, BuildNode, Build}
 import org.joda.time.DateTime
 
 
@@ -48,8 +48,8 @@ case class Job2(id: String,
 
 object Job2 {
   def create(build: Build, buildNode: BuildNode, parentNode: Option[BuildNode]) = {
-    Job2(buildNode.id,
-      if (buildNode.runName.isEmpty) buildNode.name else s"${buildNode.runName} - ${buildNode.name}",
+    Job2(getId(buildNode),
+      getName(buildNode),
       buildNode.statusUrl,
       buildNode.number,
       build.number.toString,
@@ -58,7 +58,11 @@ object Job2 {
       Map.empty,
       buildNode.status)
   }
+  def getId(buildNode: BuildNode) = buildNode.id
+  def getName(buildNode: BuildNode) = if (buildNode.runName.isEmpty) buildNode.name else s"${buildNode.runName} - ${buildNode.name}"
 }
+
+case class Artifact2(id: String, name: String, url: String, job: String)
 
 
 
