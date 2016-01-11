@@ -1,6 +1,6 @@
 package buildboard2.model
 
-import models.Build
+import models.{BuildNode, Build}
 import org.joda.time.DateTime
 
 
@@ -8,19 +8,21 @@ case class Account(name: Option[String], toolToken: String, config: AccountConfi
 
 case class AccountConfig(user: String, token: String)
 
-case class BuildInfo(id: String,
-                     name: String,
-                     timestamp: DateTime,
-                     number: Int,
-                     url: String,
-                     config: Map[String, String],
-                     initiator: Option[String],
-                     branch: Option[String],
-                     pullRequestId: Option[Int],
-                     status: Option[String],
-                     commit: Option[String]) {
-  def this(build: Build) {
-    this(build.number.toString,
+case class Build2(id: String,
+                  name: String,
+                  timestamp: DateTime,
+                  number: Int,
+                  url: String,
+                  config: Map[String, String],
+                  initiator: Option[String],
+                  branch: Option[String],
+                  pullRequestId: Option[Int],
+                  status: Option[String],
+                  commit: Option[String])
+
+object Build2 {
+  def create(build: Build): Build2 = {
+    Build2(build.number.toString,
       name = build.name,
       timestamp = build.timestamp,
       build.number,
@@ -31,6 +33,30 @@ case class BuildInfo(id: String,
       build.pullRequestId,
       build.status,
       build.ref)
+  }
+}
+
+case class Job2(id: String,
+                name: String,
+                url: String,
+                number: Int,
+                buildId: String,
+                timestamp: DateTime,
+                parentId: Option[String],
+                config: Map[String, String],
+                status: Option[String])
+
+object Job2 {
+  def create(build: Build, buildNode: BuildNode, parentNode: Option[BuildNode]) = {
+    Job2(buildNode.id,
+      if (buildNode.runName.isEmpty) buildNode.name else s"${buildNode.runName} - ${buildNode.name}",
+      buildNode.statusUrl,
+      buildNode.number,
+      build.number.toString,
+      buildNode.timestamp,
+      parentNode.map(_.id),
+      Map.empty,
+      buildNode.status)
   }
 }
 

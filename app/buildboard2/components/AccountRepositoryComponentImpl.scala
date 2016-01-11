@@ -15,7 +15,7 @@ trait AccountRepositoryComponentImpl extends AccountRepositoryComponent {
     import mongoContext.context
 
     object Accounts extends ModelCompanion[Account, ObjectId] {
-      def collection = mongoCollection("accounts")
+      def collection = mongoCollection("accounts2")
 
       val dao = new SalatDAO[Account, ObjectId](collection) {}
     }

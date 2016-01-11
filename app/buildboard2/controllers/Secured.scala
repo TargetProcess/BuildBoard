@@ -4,6 +4,7 @@ import buildboard2.components.{DefaultComponent, DefaultRegistry}
 import play.api.mvc._
 
 trait Secured {
+  //todo: pass token explicitly from action
   def TokenAuthenticatedComponent(token: String)(f: => DefaultComponent => Request[AnyContent] => Result): EssentialAction = Action {
     implicit request => {
       val component = new DefaultRegistry
@@ -16,15 +17,12 @@ trait Secured {
     }
   }
 
-  def ToolTokenAuthenticatedComponent(f: => DefaultComponent => Request[AnyContent] => Result): EssentialAction = Action {
+  def ToolTokenAuthenticatedComponent(token: String)(f: => DefaultComponent => Request[AnyContent] => Result): EssentialAction = Action {
     implicit request => {
       val component = new DefaultRegistry
-      val result = request.queryString("token")
-        .find(tkn => component.accountRepository.findByToken(tkn).isDefined)
+      component.accountRepository.findByToken(token)
         .map(_ => f(component)(request))
         .getOrElse(Results.Status(401))
-
-      result
     }
   }
 }

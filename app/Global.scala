@@ -1,4 +1,4 @@
-import buildboard2.model.services.BuildBoard2NotificationService
+import buildboard2.model.services.BuildBoard2CacheService
 import models.services.CacheService
 import play.api._
 import play.api.mvc.WithFilters
@@ -11,7 +11,7 @@ object Global extends WithFilters(new GzipFilter()) with GlobalSettings {
 
   override def onStart(app: Application) {
     subscription = CacheService.start
-    bb2Subscription = BuildBoard2NotificationService.start()
+    bb2Subscription = BuildBoard2CacheService.start()
   }
 
   override def onStop(app: Application) {

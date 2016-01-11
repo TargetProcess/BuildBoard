@@ -16,7 +16,7 @@ case class Build(number: Int,
                  name: String,
                  activityType: String = "build",
                  node: Option[BuildNode]
-                  ) extends ActivityEntry {
+                ) extends ActivityEntry {
 
   def getTestRunBuildNode(part: String, run: String): Option[BuildNode] = {
     getBuildNode(n => n.name == part && n.runName == run)
@@ -29,7 +29,6 @@ case class Build(number: Int,
     }
     node.flatMap(getTestRunBuildNodeInner)
   }
-
 
 
   def isPullRequest = pullRequestId.isDefined
@@ -47,8 +46,10 @@ case class Build(number: Int,
 
 
 case class BuildNode(
+                      id: String,
                       name: String,
                       runName: String,
+                      number: Int,
                       status: Option[String],
                       statusUrl: String,
                       artifacts: List[Artifact],
@@ -57,7 +58,7 @@ case class BuildNode(
                       isUnstable: Option[Boolean] = None,
                       children: List[BuildNode] = Nil,
                       testResults: List[TestCasePackage] = Nil
-                      ) {
+                    ) {
 
   def allChildren: Stream[BuildNode] = {
     children.toStream.flatMap(x => x #:: x.allChildren)

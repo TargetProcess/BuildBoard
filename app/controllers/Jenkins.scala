@@ -65,7 +65,7 @@ object Jenkins extends Application {
             val forceBuildResult: Try[Any] = component.jenkinsService.forceBuild(buildAction)
             forceBuildResult match {
               case Success(_) => Ok(Json.toJson(Build(-1, params.branchId.getOrElse("this"), Some("In progress"), DateTime.now,
-                name = "", node = Some(BuildNode("this", "this", Some("In progress"), "#", List(), DateTime.now, None)))))
+                name = "", node = Some(BuildNode("-1", "this", "this", -1, Some("In progress"), "#", List(), DateTime.now, None)))))
               case Failure(e: HttpException) => BadRequest(e.toString)
               case Failure(e) => throw e
             }

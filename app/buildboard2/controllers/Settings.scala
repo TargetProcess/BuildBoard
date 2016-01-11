@@ -1,9 +1,7 @@
 package buildboard2.controllers
 
-import buildboard2.Writes2
 import play.api.libs.json.Json
-import play.api.mvc.{Controller, Action}
-import Writes2._
+import play.api.mvc.{Action, Controller}
 
 object Settings extends Controller {
   def settings = Action {
@@ -26,13 +24,7 @@ object Settings extends Controller {
             "get" -> Map.empty[String, String]
           )),
           "jobs" -> Json.toJson(Map(
-            "get" -> Map(
-              "params" -> Map(
-                "build.id" -> Map(
-                  "required" -> Json.toJson(true)
-                )
-              )
-            )
+            "get" -> Map.empty[String, String]
           ))
         ))
       )))
