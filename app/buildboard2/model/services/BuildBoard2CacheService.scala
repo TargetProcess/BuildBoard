@@ -25,8 +25,6 @@ object BuildBoard2CacheService {
   def processBuild(build: Build): Try[Build] = Try {
     val build2 = Build2.create(build)
 
-    registry.build2Repository.save(build2)
-
     def getJobs(node: BuildNode, parentNode: Option[BuildNode] = None): List[Job2] = {
       Job2.create(build, node, parentNode) :: node.children.flatMap(c => getJobs(c, Some(node)))
     }
@@ -47,16 +45,13 @@ object BuildBoard2CacheService {
       registry.job2Repository.save(job)
     }
 
-    for (artifact <- artifacts) {
-      registry.artifact2Repository.save(artifact)
-    }
-
     for (account <- registry.accountRepository.getAll) {
       notifyBuild(account, build2)
+
       for (job <- jobs) {
         notifyJob(account, job)
-
       }
+
       for (artifact <- artifacts) {
         notifyArtifact(account, artifact)
       }

@@ -25,6 +25,8 @@ trait BuildRepositoryComponent {
     def getBuild(branch: Branch, number: Int): Option[Build]
 
     def getBuild(name: String): Option[Build]
+
+    def count(): Long
   }
 
 }

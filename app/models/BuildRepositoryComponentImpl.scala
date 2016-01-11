@@ -109,9 +109,8 @@ trait BuildRepositoryComponentImpl extends BuildRepositoryComponent {
 
     }
 
+    override def count(): Long = Builds.count()
   }
-
-
 }
 
 case class ResultMapReduce(_id: String, value: Build)
