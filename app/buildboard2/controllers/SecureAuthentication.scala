@@ -3,17 +3,18 @@ package buildboard2.controllers
 import buildboard2.components.{DefaultComponent, DefaultRegistry}
 import play.api.mvc._
 
-trait Secured {
-  //todo: pass token explicitly from action
+trait SecureAuthentication {
+  val secretToken = "bbftw"
+
   def TokenAuthenticatedComponent(token: String)(f: => DefaultComponent => Request[AnyContent] => Result): EssentialAction = Action {
     implicit request => {
       val component = new DefaultRegistry
-      val result = request.queryString("token")
-        .find(tkn => tkn == token)
-        .map(_ => f(component)(request))
-        .getOrElse(Results.Status(401))
-
-      result
+      if (token == secretToken){
+        f(component)(request)
+      }
+      else {
+        Results.Status(401)
+      }
     }
   }
 

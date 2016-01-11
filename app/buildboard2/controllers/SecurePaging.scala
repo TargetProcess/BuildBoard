@@ -5,8 +5,8 @@ import buildboard2.components.DefaultComponent
 import play.api.libs.json._
 import play.api.mvc._
 
-trait Pageable {
-  this: Secured =>
+trait SecurePaging {
+  this: SecureAuthentication =>
 
   def SecurePage[A](take: Option[Int], skip: Option[Int], token: String)(f: => DefaultComponent => Page[A])(implicit writes: Writes[A]) = ToolTokenAuthenticatedComponent(token) {
     component =>

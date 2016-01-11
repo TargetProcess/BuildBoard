@@ -5,7 +5,7 @@ import play.api.libs.json.Json
 import play.api.mvc.Controller
 import Writes2._
 
-object Jobs extends Controller with Secured with Pageable {
+object Jobs extends Controller with SecureAuthentication with SecurePaging {
   def jobs(take: Option[Int], skip: Option[Int], token: String) = SecurePage(take, skip, token) {
     component => Page(component.job2Repository.getAll, component.job2Repository.count)
   }

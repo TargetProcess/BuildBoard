@@ -7,10 +7,10 @@ import Writes2._
 import Reads2._
 import play.api.mvc.Controller
 
-object Accounts extends Controller with Secured {
-  val secretToken = "bbftw"
+object Accounts extends Controller with SecureAuthentication {
 
-  def save(toolToken: String) = TokenAuthenticatedComponent(secretToken) {
+
+  def save(toolToken: String, token: String) = TokenAuthenticatedComponent(token) {
     component =>
       implicit request =>
         val account = request.body.asJson.get.as[Account]
@@ -21,14 +21,14 @@ object Accounts extends Controller with Secured {
         Created(Json.toJson(account))
   }
 
-  def account(toolToken: String) = TokenAuthenticatedComponent(secretToken) {
+  def account(toolToken: String, token: String) = TokenAuthenticatedComponent(token) {
     component =>
       implicit request =>
         val account = component.accountRepository.findByToken(toolToken)
         Ok(Json.toJson(account))
   }
 
-  def delete(toolToken: String) = TokenAuthenticatedComponent(secretToken) {
+  def delete(toolToken: String, token: String) = TokenAuthenticatedComponent(token) {
     component =>
       implicit request =>
         val account = component.accountRepository.remove(toolToken)
