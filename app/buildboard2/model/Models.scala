@@ -1,6 +1,6 @@
 package buildboard2.model
 
-import models.{Artifact, BuildNode, Build}
+import models.{Build, BuildNode}
 import org.joda.time.DateTime
 
 
@@ -62,7 +62,7 @@ object Job2 {
   def getName(buildNode: BuildNode) = if (buildNode.runName.isEmpty) buildNode.name else s"${buildNode.runName} - ${buildNode.name}"
 }
 
-case class Artifact2(id: String, name: String, url: String, job: String)
+case class Artifact2(id: String, name: String, url: String, job: Option[String] = None, build: Option[String] = None)
 
 
 

@@ -1,5 +1,7 @@
 package buildboard2.model.services
 
+import java.nio.file.Paths
+
 import buildboard2.Writes2._
 import buildboard2.components.DefaultRegistry
 import buildboard2.model.{Artifact2, Job2, Account, Build2}
@@ -30,7 +32,7 @@ object BuildBoard2CacheService {
     }
 
     def getArtifacts(node: BuildNode): List[Artifact2] = {
-      node.artifacts.map(a => Artifact2(a.url, a.name, s"${registry.config.jenkinsDataPath}/${a.url}", Job2.getId(node))) ::: node.children.flatMap(getArtifacts)
+      node.artifacts.map(a => Artifact2(a.url, a.name, Paths.get(registry.config.jenkinsDataPath, a.url).toString, Some(Job2.getId(node)))) ::: node.children.flatMap(getArtifacts)
     }
 
     val jobs = build.node

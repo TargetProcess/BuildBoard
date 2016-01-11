@@ -43,6 +43,7 @@ object Writes {
         (__ \ "description").writeNullable[String] ~
         (__ \ "pullRequestId").writeNullable[Int] ~
         (__ \ "name").write[String] ~
+        (__ \ "artifacts").write(list[Artifact]) ~
         (__ \ "activityType").write[String] ~
         (__ \ "node").writeNullable[BuildNode]
 

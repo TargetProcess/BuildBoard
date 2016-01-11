@@ -14,6 +14,7 @@ case class Build(number: Int,
                  description: Option[String] = None,
                  pullRequestId: Option[Int] = None,
                  name: String,
+                 artifacts: List[Artifact] = Nil,
                  activityType: String = "build",
                  node: Option[BuildNode]
                 ) extends ActivityEntry {
