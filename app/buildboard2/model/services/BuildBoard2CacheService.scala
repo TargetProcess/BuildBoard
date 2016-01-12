@@ -5,7 +5,7 @@ import java.nio.file.Paths
 import buildboard2.Writes2._
 import buildboard2.components.DefaultRegistry
 import buildboard2.model.{Artifact2, Job2, Account, Build2}
-import models.{BuildNode, Build}
+import models.{Artifact, BuildNode, Build}
 import models.notifications.BuildNotification
 import play.api.Play
 import play.api.Play.current
@@ -31,20 +31,31 @@ object BuildBoard2CacheService {
       Job2.create(build, node, parentNode) :: node.children.flatMap(c => getJobs(c, Some(node)))
     }
 
+    def getArtifactUrl(a: Artifact): String = {
+      if (a.name != "output") {
+        Paths.get(registry.config.jenkinsDataPath, a.url).toString
+      } else a.url
+    }
+
     def getArtifacts(node: BuildNode): List[Artifact2] = {
-      node.artifacts.map(a => Artifact2(a.url, a.name, Paths.get(registry.config.jenkinsDataPath, a.url).toString, Some(Job2.getId(node)))) ::: node.children.flatMap(getArtifacts)
+      node.artifacts.map(a => Artifact2(a.url, a.name, getArtifactUrl(a), Some(Job2.getId(node)))) ::: node.children.flatMap(getArtifacts)
     }
 
     val jobs = build.node
       .map(getJobs(_))
       .getOrElse(Nil)
 
-    val artifacts = build.node
+    val artifacts = build.artifacts
+      .map(a => Artifact2(a.url, a.name, getArtifactUrl(a), build = Some(Build2.getId(build)))) ::: build.node
       .map(getArtifacts)
       .getOrElse(Nil)
 
     for (job <- jobs) {
       registry.job2Repository.save(job)
+    }
+
+    for (artifact <- artifacts) {
+      registry.artifact2Repository.save(artifact)
     }
 
     for (account <- registry.accountRepository.getAll) {

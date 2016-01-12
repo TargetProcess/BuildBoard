@@ -1,7 +1,6 @@
 package models.jenkins
 
 import java.io.File
-import java.nio.file.Paths
 import java.text.SimpleDateFormat
 
 import com.github.nscala_time.time.Imports._
@@ -56,15 +55,6 @@ trait ParseFolder extends Artifacts {
     }
   }
 
-  def getBuildArtifacts(folder: File): List[Artifact] = {
-    val rootBuildFolder  = folder.getParentFile.getParentFile
-    for (
-      fld <- rootBuildFolder.listFiles.toList
-      if fld.getName == "Artifacts";
-      artifactFile <- fld.listFiles
-      if artifactFile.getName.endsWith("zip")
-    ) yield Artifact("build", Paths.get(rootBuildFolder.getName, "Artifacts", artifactFile.getName).toString)
-  }
 
   val splitRegex = "(?m)^commit(?:(?:\r\n|[\r\n]).+$)*".r
   val commitRegex = """\s*(\w+)[\r\n].*[\r\n]?s*Author:\s*(.*)\s*<(.*)>[\r\n]\s*Date:\s+(.*)[\r\n]([\w\W]*)""".r
@@ -132,7 +122,9 @@ trait ParseFolder extends Artifacts {
           buildDetails.number,
           buildDetails.status,
           buildDetails.statusUrl.getOrElse(""),
-          artifacts,
+          if (buildDetails.statusUrl.isDefined) {
+            Artifact("output", buildDetails.statusUrl.map(url => s"${url}consoleText").get) :: artifacts
+          } else artifacts,
           buildDetails.timestamp,
           buildDetails.rerun,
           children = children, isUnstable = Some(isUnstable(name))))

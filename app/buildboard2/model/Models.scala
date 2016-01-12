@@ -22,7 +22,7 @@ case class Build2(id: String,
 
 object Build2 {
   def create(build: Build): Build2 = {
-    Build2(build.timestamp.getMillis.toString,
+    Build2(getId(build),
       name = build.name,
       timestamp = build.timestamp,
       build.number,
@@ -34,6 +34,7 @@ object Build2 {
       build.status,
       build.ref)
   }
+  def getId(build: Build): String = build.timestamp.getMillis.toString
 }
 
 case class Job2(id: String,
