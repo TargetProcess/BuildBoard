@@ -60,14 +60,8 @@ object BuildBoard2CacheService {
 
     for (account <- registry.accountRepository.getAll) {
       notifyBuild(account, build2)
-
-      for (job <- jobs) {
-        notifyJob(account, job)
-      }
-
-      for (artifact <- artifacts) {
-        notifyArtifact(account, artifact)
-      }
+      notifyJobs(account, jobs)
+      artifacts.grouped(200).foreach(artifacts2 => notifyArtifacts(account, artifacts2))
     }
 
     build
@@ -75,9 +69,9 @@ object BuildBoard2CacheService {
 
   def notifyBuild(account: Account, build2: Build2) = notify(account, "builds", Json.toJson(build2))
 
-  def notifyJob(account: Account, job2: Job2) = notify(account, "jobs", Json.toJson(job2))
+  def notifyJobs(account: Account, jobs2: List[Job2]) = notify(account, "jobs", Json.toJson(Map("items" -> jobs2)))
 
-  def notifyArtifact(account: Account, artifact2: Artifact2) = notify(account, "artifacts", Json.toJson(artifact2))
+  def notifyArtifacts(account: Account, artifacts2: List[Artifact2]) = notify(account, "artifacts", Json.toJson(Map("items" -> artifacts2)))
 
   def notify(account: Account, resource: String, item: JsValue) = {
     try {
