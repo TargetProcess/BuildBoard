@@ -35,7 +35,7 @@ object BuildBoard2CacheService {
 
 
     def getArtifacts(node: BuildNode): List[Artifact2] = {
-      node.artifacts.map(a => Artifact2(a.url, a.name, getArtifactUrl(a), Some(Job2.getId(node)))) ::: node.children.flatMap(getArtifacts)
+      node.artifacts.map(a => Artifact2(a.url, a.name, getArtifactUrl(a), Some(Job2.getId(build, node)))) ::: node.children.flatMap(getArtifacts)
     }
 
     val jobs = build.node

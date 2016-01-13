@@ -49,7 +49,7 @@ case class Job2(id: String,
 
 object Job2 {
   def create(build: Build, buildNode: BuildNode, parentNode: Option[BuildNode]) = {
-    Job2(getId(buildNode),
+    Job2(getId(build, buildNode),
       getName(buildNode),
       buildNode.statusUrl,
       buildNode.number,
@@ -59,7 +59,7 @@ object Job2 {
       Map.empty,
       buildNode.status)
   }
-  def getId(buildNode: BuildNode) = s"${buildNode.timestamp.getMillis}${buildNode.name}"
+  def getId(build: Build, buildNode: BuildNode) = s"${Build2.getId(build)} - ${getName(buildNode)}"
   def getName(buildNode: BuildNode) = if (buildNode.runName.isEmpty) buildNode.name else s"${buildNode.runName} - ${buildNode.name}"
 }
 
