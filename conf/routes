@@ -42,6 +42,8 @@ POST          /buildboard2/account/:toolToken        buildboard2.controllers.Acc
 DELETE        /buildboard2/account/:toolToken        buildboard2.controllers.Accounts.delete(toolToken: String, token: String)
 GET           /buildboard2/builds                    buildboard2.controllers.Builds.builds(take: Option[Int], skip: Option[Int], token: String)
 GET           /buildboard2/jobs                      buildboard2.controllers.Jobs.jobs(take: Option[Int], skip: Option[Int], token: String)
+GET           /buildboard2/artifacts                 buildboard2.controllers.Artifacts.artifacts(take: Option[Int], skip: Option[Int], token: String)
+GET           /buildboard2/artifact                  buildboard2.controllers.Artifacts.artifact(file: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET           /assets/*file                          controllers.Assets.at(path="/public", file)

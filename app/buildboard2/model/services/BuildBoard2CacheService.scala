@@ -1,21 +1,21 @@
 package buildboard2.model.services
 
-import java.nio.file.Paths
-
 import buildboard2.Writes2._
 import buildboard2.components.DefaultRegistry
-import buildboard2.model.{Artifact2, Job2, Account, Build2}
-import models.{Artifact, BuildNode, Build}
+import buildboard2.model.{Account, Artifact2, Build2, Job2}
 import models.notifications.BuildNotification
+import models.{Artifact, Build, BuildNode}
 import play.api.Play
 import play.api.Play.current
 import play.api.libs.json.{JsValue, Json}
-import scala.util.{Try, Failure, Success}
+
+import scala.util.{Failure, Success, Try}
 import scalaj.http.{Http, HttpOptions}
 
 object BuildBoard2CacheService {
   val registry = new DefaultRegistry
-  val url = Play.configuration.getString("buildboard2.url").get
+  val buildBoard2Url = Play.configuration.getString("buildboard2.url").get
+  val baseUrl = Play.configuration.getString("base.url").get
 
   def start() = BuildNotification.subject
     .map(build => processBuild(build))
@@ -31,11 +31,8 @@ object BuildBoard2CacheService {
       Job2.create(build, node, parentNode) :: node.children.flatMap(c => getJobs(c, Some(node)))
     }
 
-    def getArtifactUrl(a: Artifact): String = {
-      if (a.name != "output") {
-        Paths.get(registry.config.jenkinsDataPath, a.url).toString
-      } else a.url
-    }
+    def getArtifactUrl(a: Artifact): String = if (a.name != "output") s"$baseUrl/buildboard2/artifact?file=${a.url}" else a.url
+
 
     def getArtifacts(node: BuildNode): List[Artifact2] = {
       node.artifacts.map(a => Artifact2(a.url, a.name, getArtifactUrl(a), Some(Job2.getId(node)))) ::: node.children.flatMap(getArtifacts)
@@ -75,7 +72,7 @@ object BuildBoard2CacheService {
 
   def notify(account: Account, resource: String, item: JsValue) = {
     try {
-      Http.postData(s"$url/api/$resource/${account.toolToken}", Json.stringify(item))
+      Http.postData(s"$buildBoard2Url/api/$resource/${account.toolToken}", Json.stringify(item))
         .header("content-type", "application/json")
         .option(HttpOptions.connTimeout(1000))
         .option(HttpOptions.readTimeout(5000))

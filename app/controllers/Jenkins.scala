@@ -84,7 +84,6 @@ object Jenkins extends Application {
 
       optionBuild.foreach(repository.notificationService.notifyToggle(optionBranch.get, _))
 
-
       request => Ok(Json.toJson(optionBuild))
   }
 

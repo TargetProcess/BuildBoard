@@ -2,6 +2,7 @@ package buildboard2.components
 
 import models.BuildRepositoryComponentImpl
 import models.configuration.ConfigComponentImpl
+import models.jenkins.JenkinsServiceComponentImpl
 
 trait DefaultComponent
   extends AccountRepositoryComponentImpl
