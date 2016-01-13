@@ -1,10 +1,12 @@
 package buildboard2.controllers
 
 import buildboard2.components.{DefaultComponent, DefaultRegistry}
+import play.api.Play
+import play.api.Play.current
 import play.api.mvc._
 
 trait SecureAuthentication {
-  val secretToken = "bbftw"
+  val secretToken = Play.configuration.getString("buildboard2.token").get
 
   def TokenAuthenticatedComponent(token: String)(f: => DefaultComponent => Request[AnyContent] => Result): EssentialAction = Action {
     implicit request => {

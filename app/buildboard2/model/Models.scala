@@ -34,7 +34,7 @@ object Build2 {
       build.status,
       build.ref)
   }
-  def getId(build: Build): String = build.timestamp.getMillis.toString
+  def getId(build: Build): String = build.name
 }
 
 case class Job2(id: String,
@@ -53,7 +53,7 @@ object Job2 {
       getName(buildNode),
       buildNode.statusUrl,
       buildNode.number,
-      build.number.toString,
+      Build2.getId(build),
       buildNode.timestamp,
       parentNode.map(_.id),
       Map.empty,
