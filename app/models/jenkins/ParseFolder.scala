@@ -33,12 +33,11 @@ trait ParseFolder extends Artifacts {
 
 
     if (folder.exists) {
-      val buildDetails = getBuildDetails(folder)
       val commits = getCommits(new File(folder, "Checkout/GitChanges.log"))
       val ref = getRef(new File(folder, "Checkout/sha.txt"))
 
-      Some(
-        Build(number = buildSource.number,
+      getBuildDetails(folder)
+        .map(buildDetails => Build(number = buildSource.number,
           branch = buildSource.branch,
           status = buildDetails.status,
           timestamp = buildDetails.timestamp,
@@ -49,12 +48,13 @@ trait ParseFolder extends Artifacts {
           initiator = buildSource.params.parameters.get("WHO_STARTS"),
           description = buildSource.params.parameters.get("DESCRIPTION").orElse(buildSource.params.parameters.get("UID")),
           node = node,
-          name = name)
-      )
+          name = name,
+          artifacts = getBuildArtifacts(folder)))
     } else {
       None
     }
   }
+
 
   val splitRegex = "(?m)^commit(?:(?:\r\n|[\r\n]).+$)*".r
   val commitRegex = """\s*(\w+)[\r\n].*[\r\n]?s*Author:\s*(.*)\s*<(.*)>[\r\n]\s*Date:\s+(.*)[\r\n]([\w\W]*)""".r
@@ -88,12 +88,12 @@ trait ParseFolder extends Artifacts {
 
   val complexNameRegex = "(.+)_(.+)".r
   val mergerRegex = "(?s).*Merged by ([^(]*).*".r
+  val buildNumberRegex = ".*/(\\d+)/".r
 
   private def getCommitName(name: String, comment: String): String = comment match {
     case mergerRegex(author) => s"$name [${author.trim}]"
     case _ => name
   }
-
 
   def isUnstable(name: String): Boolean = unstableNodeNames.contains(name)
 
@@ -102,7 +102,6 @@ trait ParseFolder extends Artifacts {
     def getBuildNodeInner(folder: File, path: String): Option[BuildNode] = {
       if (!folder.exists) return None
 
-      val buildDetails = getBuildDetails(folder)
       val contents = folder.listFiles.sortBy(_.getName).toList
       val children: List[BuildNode] = contents
         .filter(f => f.isDirectory && !f.getName.startsWith("."))
@@ -115,15 +114,20 @@ trait ParseFolder extends Artifacts {
         case nme => (nme, nme)
       }
 
-      Some(BuildNode(
-        name,
-        runName,
-        buildDetails.status,
-        buildDetails.statusUrl.getOrElse(""),
-        artifacts,
-        buildDetails.timestamp,
-        buildDetails.rerun,
-        children = children, isUnstable = Some(isUnstable(name))))
+      getBuildDetails(folder)
+        .map(buildDetails => BuildNode(
+          buildDetails.number.toString,
+          name,
+          runName,
+          buildDetails.number,
+          buildDetails.status,
+          buildDetails.statusUrl.getOrElse(""),
+          if (buildDetails.statusUrl.isDefined) {
+            Artifact("output", buildDetails.statusUrl.map(url => s"${url}consoleText").get) :: artifacts
+          } else artifacts,
+          buildDetails.timestamp,
+          buildDetails.rerun,
+          children = children, isUnstable = Some(isUnstable(name))))
     }
 
     //todo: add artifacts to root node
@@ -131,37 +135,44 @@ trait ParseFolder extends Artifacts {
     if (folder.exists) getBuildNodeInner(folder, f.getPath) else None
   }
 
-  private case class BuildDetails(status: Option[String], statusUrl: Option[String], timestamp: DateTime, rerun: Option[Boolean])
+  private case class BuildDetails(number: Int, status: Option[String], statusUrl: Option[String], timestamp: DateTime, rerun: Option[Boolean])
 
   val dateFormat: SimpleDateFormat = new java.text.SimpleDateFormat("MM/dd/yyyy HH:mm:ss")
 
-  private def getBuildDetails(folder: File): BuildDetails = {
+  private def getBuildDetails(folder: File): Option[BuildDetails] = {
     val contents = folder.listFiles
     val startedFile: Option[File] = contents.find(_.getName.endsWith("started"))
 
-    val startedFileContent: Option[Map[Int, String]] = startedFile.flatMap(FileApi.readAsMap)
+    startedFile.map(started => {
+      val startedFileContent: Option[Map[Int, String]] = FileApi.readAsMap(started)
+      val statusUrl: Option[String] = startedFileContent.flatMap(_.get(0))
 
+      val number = statusUrl.map {
+        url => url match {
+          case buildNumberRegex(num) => num.toInt
+        }
+      }.getOrElse(-1)
 
-    val statusUrl = startedFileContent.flatMap(_.get(0))
-    val timestamp = startedFileContent.flatMap(_.get(1))
-      .map(x => new DateTime(dateFormat.parse(x).getTime))
-      .orElse(startedFile.map(x => new DateTime(x.lastModified)))
-      .getOrElse(new DateTime(folder.lastModified))
+      val timestamp = startedFileContent.flatMap(_.get(1))
+        .map(x => new DateTime(dateFormat.parse(x).getTime))
+        .orElse(startedFile.map(x => new DateTime(x.lastModified)))
+        .getOrElse(new DateTime(folder.lastModified))
 
-    val rerunRegex = "RERUN=(true|false)".r
+      val rerunRegex = "RERUN=(true|false)".r
 
-    val rerun = startedFileContent.flatMap(_.get(2)).flatMap {
-      case rerunRegex(value) => Some(value == "true")
-      case _ => None
-    }
+      val rerun = startedFileContent.flatMap(_.get(2)).flatMap {
+        case rerunRegex(value) => Some(value == "true")
+        case _ => None
+      }
 
-    val startedStatus = if (startedFile.isDefined) None else Some("FAILURE")
+      val startedStatus = if (startedFile.isDefined) None else Some("FAILURE")
 
-    val status: Option[String] = startedStatus
-      .orElse(contents.find(_.getName.endsWith("finished")).flatMap(FileApi.read))
-      .orElse(if ((DateTime.now - timeout) > timestamp) Some("TIMED OUT") else None)
+      val status: Option[String] = startedStatus
+        .orElse(contents.find(_.getName.endsWith("finished")).flatMap(FileApi.read))
+        .orElse(if ((DateTime.now - timeout) > timestamp) Some("TIMED OUT") else None)
 
-    BuildDetails(status, statusUrl, timestamp, rerun)
+      BuildDetails(number, status, statusUrl, timestamp, rerun)
+    })
   }
 
   def getTestCasePackages(testRunBuildNode: BuildNode): List[TestCasePackage] = {

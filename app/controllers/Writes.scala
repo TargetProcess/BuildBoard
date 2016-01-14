@@ -14,8 +14,10 @@ object Writes {
   implicit val testCasePackageWrite: Writes[TestCasePackage] = Json.writes[TestCasePackage]
   implicit var buildNodeWrite: Writes[BuildNode] = null
   buildNodeWrite = (
-    (__ \ "name").write[String] ~
+    (__ \ "id").write[String] ~
+      (__ \ "name").write[String] ~
       (__ \ "runName").write[String] ~
+      (__ \ "number").write[Int] ~
       (__ \ "status").writeNullable[String] ~
       (__ \ "statusUrl").write[String] ~
       (__ \ "artifacts").write(list(artifactWrite)) ~
@@ -24,7 +26,7 @@ object Writes {
       (__ \ "rerun").writeNullable[Boolean] ~
       (__ \ "children").lazyWrite(list(buildNodeWrite)) ~
       (__ \ "testResults").write(list(testCasePackageWrite))
-    )((node: BuildNode) => BuildNode.unapply(node.copy(status = Some(node.buildStatus.name.toUpperCase))).get)
+    ) ((node: BuildNode) => BuildNode.unapply(node.copy(status = Some(node.buildStatus.name.toUpperCase))).get)
 
   implicit val commitWrite: Writes[Commit] = Json.writes[Commit]
 
@@ -41,10 +43,11 @@ object Writes {
         (__ \ "description").writeNullable[String] ~
         (__ \ "pullRequestId").writeNullable[Int] ~
         (__ \ "name").write[String] ~
+        (__ \ "artifacts").write(list[Artifact]) ~
         (__ \ "activityType").write[String] ~
         (__ \ "node").writeNullable[BuildNode]
 
-      )((b: Build) => Build.unapply(b.copy(status = Some(b.buildStatus.name.toUpperCase))).get)
+      ) ((b: Build) => Build.unapply(b.copy(status = Some(b.buildStatus.name.toUpperCase))).get)
 
 
   implicit val mergeResultWrite = Json.writes[MergeResult]
@@ -56,7 +59,7 @@ object Writes {
     (__ \ "branchId").writeNullable[String] ~
     (__ \ "cycleName").write[String] ~
     (__ \ "action").write[String] ~
-    (__ \ "buildParametersCategories").write(list(buildParametersCategoryWrite)))(unlift(BuildAction.unapply))
+    (__ \ "buildParametersCategories").write(list(buildParametersCategoryWrite))) (unlift(BuildAction.unapply))
 
   implicit val entityAssignment = Json.writes[Assignment]
   implicit val entityStateWrite = Json.writes[EntityState]
@@ -83,5 +86,5 @@ object Writes {
       (__ \ "merged").write[Boolean] ~
       (__ \ "deleted").write[Boolean] ~
       (__ \ "closed").write[Boolean]
-    )((m: MagicMergeResult) => (m.description, m.merged, m.deleted, m.closed))
+    ) ((m: MagicMergeResult) => (m.description, m.merged, m.deleted, m.closed))
 }

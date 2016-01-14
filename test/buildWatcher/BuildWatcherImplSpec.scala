@@ -15,7 +15,7 @@ import play.api.test.Helpers._
 class BuildWatcherImplSpec extends Specification
 with Mockito {
 
-  def node(name: String, status: Option[String], children: BuildNode*) = BuildNode(name, "", status, "", Nil, null, None, children = children.toList)
+  def node(name: String, status: Option[String], children: BuildNode*) = BuildNode("", name, "", 12, status, "", Nil, null, None, children = children.toList)
 
   def build(status: Option[String], node: BuildNode) = Build(1, "branch", status, DateTime.now(), name = "build 1", node = Some(node))
 

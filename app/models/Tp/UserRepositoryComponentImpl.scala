@@ -73,11 +73,13 @@ trait UserRepositoryComponentImpl extends UserRepositoryComponent {
 
     def findOneById(id: Int): Option[User] = Users.findOne(MongoDBObject("tpId" -> id))
 
+    def findByToken(token: String) = Users.findOne(MongoDBObject("token" -> token))
+
     def save(user: User): Unit = Users.save(user)
 
     override val loggedUser: Option[User] = None
 
-    override def findOneByFullName(fullName: String): Option[User] =  Users.findOne(MongoDBObject("fullName" -> fullName))
+    override def findOneByFullName(fullName: String): Option[User] = Users.findOne(MongoDBObject("fullName" -> fullName))
   }
 
 }

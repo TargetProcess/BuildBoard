@@ -1,21 +1,11 @@
 package controllers
 
-import controllers.Jenkins._
-import controllers.Landing._
-import models.BuildStatus.{InProgress, Unknown}
+import controllers.Writes._
+import models.services.CacheService
 import play.Play
 import play.api.libs.json._
-import Writes._
-import models.services.CacheService
-import play.utils.UriEncoding._
-import scala.util.Try
-import models._
-import models.PullRequest
-import models.User
-import scala.util.Success
-import scala.util.Failure
-import scala.Some
-import components.{DefaultRegistry, DefaultComponent}
+
+import scala.util.{Failure, Success}
 
 object Github extends Application {
 

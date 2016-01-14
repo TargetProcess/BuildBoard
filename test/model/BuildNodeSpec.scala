@@ -9,8 +9,10 @@ import org.specs2.mutable.Specification
 class BuildNodeSpec extends Specification {
 
   def node(name: String, status: String, isUnstable: Boolean = false, children: List[BuildNode] = Nil) = BuildNode(
+    id = "-1",
     name = name,
     runName = "",
+    number = -1,
     status = Some(status),
     statusUrl = "",
     artifacts = Nil,
@@ -20,9 +22,11 @@ class BuildNodeSpec extends Specification {
     isUnstable = Some(isUnstable))
 
 
-  def succ(name:String, children: BuildNode*) = node(name,"SUCCESS", children=children.toList)
-  def fail(name:String, children: BuildNode*) = node(name,"FAILURE", children=children.toList)
-  def failUnstable(name:String, children: BuildNode*) = node(name,"FAILURE", isUnstable = true, children=children.toList)
+  def succ(name: String, children: BuildNode*) = node(name, "SUCCESS", children = children.toList)
+
+  def fail(name: String, children: BuildNode*) = node(name, "FAILURE", children = children.toList)
+
+  def failUnstable(name: String, children: BuildNode*) = node(name, "FAILURE", isUnstable = true, children = children.toList)
 
   "BuildNode" should {
     def n(name: String, children: BuildNode*) = node(name, "", isUnstable = false, children.toList)

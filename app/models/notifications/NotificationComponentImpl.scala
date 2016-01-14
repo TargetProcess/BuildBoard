@@ -6,11 +6,16 @@ import models._
 import models.github.GithubStatus
 import play.api.Play
 import play.api.Play.current
+import rx.lang.scala.Subject
 
 import scala.collection.immutable.Iterable
 import scala.util.{Failure, Success, Try}
 import scalaj.http.{Http, HttpException, HttpOptions}
 import models.teams.Team
+
+object BuildNotification {
+  val subject: Subject[Build] = Subject()
+}
 
 
 trait NotificationComponentImpl extends NotificationComponent {
@@ -69,22 +74,22 @@ trait NotificationComponentImpl extends NotificationComponent {
       }
       updateGithub(build)
 
+      BuildNotification.subject.onNext(build)
+
     }
 
 
     override def notifyAboutBuilds(updatedBuilds: Iterator[Build]) = {
+      val buildsList = updatedBuilds.toList
 
-      val lastBuilds: Iterable[Build] = updatedBuilds.toStream.groupBy(_.branch)
+      val lastBuilds: Iterable[Build] = buildsList
+        .groupBy(_.branch)
         .map {
-        case (_, builds) => builds.maxBy(_.number)
-      }
-
+          case (_, builds) => builds.maxBy(_.number)
+        }
 
       for (build <- lastBuilds) {
-
-        val prevNotification = notificationRepository.getLastNotification(build.branch)
-
-        prevNotification match {
+        notificationRepository.getLastNotification(build.branch) match {
           case Some(notification) =>
             if (notification.status != build.buildStatus.name) {
               sendNotification(build, Some(notification))
@@ -94,8 +99,10 @@ trait NotificationComponentImpl extends NotificationComponent {
         }
 
         notificationRepository.setLastNotification(build.branch, Notification(build.branch, build.buildStatus.name, build.timestamp))
+      }
 
-
+      for (build <- buildsList) {
+        BuildNotification.subject.onNext(build)
       }
     }
 
@@ -139,10 +146,10 @@ trait NotificationComponentImpl extends NotificationComponent {
       post(s"Build <${getBuildLink(build)}> is starting to deploy for ${team.name}", team.channel)
     }
 
-    def notifyDoneDeploy(team: Team, build: Build, result:Try[Any]) {
+    def notifyDoneDeploy(team: Team, build: Build, result: Try[Any]) {
       val deployText = result match {
-        case Success(_)=>"copied"
-        case Failure(_)=>"not copied"
+        case Success(_) => "copied"
+        case Failure(_) => "not copied"
       }
 
       val message = s"Build <${getBuildLink(build)}> is $deployText for ${team.name}"
@@ -190,7 +197,7 @@ trait NotificationComponentImpl extends NotificationComponent {
       play.Logger.info(s"StartDeploy $build -> $team")
     }
 
-    def notifyDoneDeploy(team: Team, build: Build, result:Try[Any]) = {
+    def notifyDoneDeploy(team: Team, build: Build, result: Try[Any]) = {
       play.Logger.info(s"DoneDeploy $build -> $team, $result")
     }
   }

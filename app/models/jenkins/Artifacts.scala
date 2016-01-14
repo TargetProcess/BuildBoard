@@ -1,5 +1,7 @@
 package models.jenkins
 
+import java.nio.file.Paths
+
 import models._
 import java.io.File
 import scala.xml.Node
@@ -8,7 +10,6 @@ trait Artifacts {
 
   val directory: String
   val deployDirectory: String
-
 
   protected val screenshot = "screenshot"
   protected val testNameRegex = """.*\.(\w+)\.(\w+)$""".r
@@ -26,6 +27,16 @@ trait Artifacts {
       case ".Screenshots" => getArtifactsInner(file, _ => true, screenshot)
       case _ => List()
     })
+  }
+
+  def getBuildArtifacts(folder: File): List[Artifact] = {
+    val rootBuildFolder  = folder.getParentFile.getParentFile
+    for (
+      fld <- rootBuildFolder.listFiles.toList
+      if fld.getName == "Artifacts";
+      artifactFile <- fld.listFiles
+      if artifactFile.getName.endsWith("zip")
+    ) yield Artifact("build", Paths.get(rootBuildFolder.getName, "Artifacts", artifactFile.getName).toString)
   }
 
   def getArtifact(file: String): File = new File(directory, file)
