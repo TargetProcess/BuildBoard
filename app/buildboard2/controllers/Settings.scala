@@ -25,6 +25,9 @@ object Settings extends Controller {
           )),
           "jobs" -> Json.toJson(Map(
             "get" -> Map.empty[String, String]
+          )),
+          "artifacts" -> Json.toJson(Map(
+            "get" -> Map.empty[String, String]
           ))
         ))
       )))
