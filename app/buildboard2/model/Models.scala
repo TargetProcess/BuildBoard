@@ -4,7 +4,7 @@ import models.{Build, BuildNode}
 import org.joda.time.DateTime
 
 
-case class Account(name: Option[String], toolToken: String, config: AccountConfig)
+case class Account(name: Option[String], toolToken: String, config: AccountConfig, resources: List[String] = Nil)
 
 case class AccountConfig(user: String, token: String)
 

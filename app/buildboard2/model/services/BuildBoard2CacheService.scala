@@ -71,16 +71,18 @@ object BuildBoard2CacheService {
   def notifyArtifacts(account: Account, artifacts2: List[Artifact2]) = notify(account, "artifacts", Json.toJson(Map("items" -> artifacts2)))
 
   def notify(account: Account, resource: String, item: JsValue) = {
-    try {
-      Http.postData(s"$buildBoard2Url/api/$resource/${account.toolToken}", Json.stringify(item))
-        .header("content-type", "application/json")
-        .option(HttpOptions.connTimeout(1000))
-        .option(HttpOptions.readTimeout(5000))
-        .asString
-    }
-    catch {
-      case e: Throwable =>
-        play.Logger.error(e.getMessage)
+    if (account.resources.contains(resource)) {
+      try {
+        Http.postData(s"$buildBoard2Url/api/$resource/${account.toolToken}", Json.stringify(item))
+          .header("content-type", "application/json")
+          .option(HttpOptions.connTimeout(1000))
+          .option(HttpOptions.readTimeout(5000))
+          .asString
+      }
+      catch {
+        case e: Throwable =>
+          play.Logger.error(e.getMessage)
+      }
     }
   }
 }

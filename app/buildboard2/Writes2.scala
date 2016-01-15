@@ -12,7 +12,8 @@ object Writes2 {
   implicit val accountWrites: Writes[Account] = (
     (__ \ "name").writeNullable[String] ~
       (__ \ "toolToken").write[String] ~
-      (__ \ "config").write[AccountConfig]
+      (__ \ "config").write[AccountConfig] ~
+      (__ \ "resources").write(list[String])
     ) ((a: Account) => Account.unapply(a).get)
   implicit val build2Writes: Writes[Build2] = Json.writes[Build2]
   implicit val job2Writes: Writes[Job2] = Json.writes[Job2]
