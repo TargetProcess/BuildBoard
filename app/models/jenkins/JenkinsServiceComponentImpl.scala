@@ -155,30 +155,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
       val lastBuild = branch.flatMap(buildRepository.getLastBuilds(_, 1).headOption)
       val url = s"${config.jenkinsUrl}/job/${action.jobName}/buildWithParameters"
 
-
-
-      val actionParameters = action.cycle match {
-        case customCycle @ CustomCycle(_) =>
-          def getPartsFor(category: String, parts: String): String = {
-            if (parts == "All") customCycle.getTestsByCategory(category) else parts
-          }
-
-          action.parameters flatMap {
-            case (key, tests) if key == Cycle.includePythonTestsKey =>
-              val pythonFuncTestParts = getPartsFor(Cycle.pythonFuncTestsCategoryName, action.cycle.pythonFuncTests)
-              List((key, pythonFuncTestParts))
-            case (key, tests) if key == Cycle.includeFuncTestsKey =>
-              val funcTestParts = getPartsFor(Cycle.funcTestsCategoryName, tests)
-              List((key, funcTestParts))
-            case (key, value) if key == Cycle.includePerfTestsKey && value == true.toString =>
-              List((key, value)) ++ customCycle.getParamsByCategory(Cycle.perfCategoryName)
-            case (key, value) =>
-              List((key, value))
-          }
-        case _ => action.parameters
-      }
-
-      val parameters = actionParameters ++
+      val parameters = action.parameters ++
         loggedUser.map("WHO_STARTS" -> _.fullName) ++
         List("DESCRIPTION" -> action.name) ++
         lastBuild.flatMap(_.ref).map("PREVIOUS_COMMIT" -> _.trim)
@@ -218,8 +195,8 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
         forcePartWithFilter(s"RunUnitTests", "UnitTests", "UnitTestsFilter", action.cycle.unitTests)
       }
 
-      if (action.cycle.includeCasper) {
-        forcePart("RunCasperJSTests", "FuncTests")
+      if (action.cycle.casperJsTests != "") {
+        forcePartWithFilter("RunCasperJSTests", "FuncTests", "CasperJsTestsFilter", action.cycle.casperJsTests)
       }
 
       if (action.cycle.includeComet) {

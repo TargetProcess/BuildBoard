@@ -18,8 +18,9 @@ case class CustomCycle(buildParametersCategory: List[BuildParametersCategory] = 
   override val includeComet: Boolean = getBoolByCategory(Cycle.cometCategoryName)
   override val funcTests: String = getTestsByCategory(Cycle.funcTestsCategoryName)
   override val pythonFuncTests: String = getTestsByCategory(Cycle.pythonFuncTestsCategoryName)
+  override val casperJsTests: String = getTestsByCategory(Cycle.casperCategoryName)
+  override val karmaJsTests: String = getTestsByCategory(Cycle.karmaCategoryName)
   override val includeSlice: Boolean = getBoolByCategory(Cycle.sliceCategoryName)
-  override val includeCasper: Boolean = getBoolByCategory(Cycle.casperCategoryName)
   override val includeDb: Boolean = getBoolByCategory(Cycle.dbCategoryName)
   override val isFull: Boolean = getBoolByCategory(Cycle.cycleTypeCategoryName)
   override val includePerfTests: Boolean = getBoolByCategory(Cycle.perfCategoryName)
@@ -44,7 +45,8 @@ case class CustomCycle(buildParametersCategory: List[BuildParametersCategory] = 
       BuildParametersCategory(Cycle.pythonFuncTestsCategoryName,  getTests(Cycle.pythonFuncTestsCategoryName)),
       BuildParametersCategory(Cycle.cometCategoryName, List("Include")),
       BuildParametersCategory(Cycle.sliceCategoryName, List("Include")),
-      BuildParametersCategory(Cycle.casperCategoryName, List("Include")),
+      BuildParametersCategory(Cycle.casperCategoryName, getTests(Cycle.casperCategoryName)),
+      BuildParametersCategory(Cycle.karmaCategoryName, getTests(Cycle.karmaCategoryName)),
       BuildParametersCategory(Cycle.dbCategoryName, List("Include")),
       BuildParametersCategory(Cycle.perfCategoryName, List("Include"), Map(("PerfTestClass", ""), ("PerfTestMethod", "")))
     )

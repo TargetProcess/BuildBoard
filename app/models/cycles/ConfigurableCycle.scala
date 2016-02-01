@@ -10,6 +10,8 @@ abstract class ConfigurableCycle(val name: String) extends Cycle {
 
   val unitTests = getTests(Cycle.unitTestsCategoryName)
   val funcTests = getTests(Cycle.funcTestsCategoryName)
+  val casperJsTests = getTests(Cycle.casperCategoryName)
+  val karmaJsTests = getTests(Cycle.karmaCategoryName)
   val pythonFuncTests = getTests(Cycle.pythonFuncTestsCategoryName)
   val includeUnstable = getBoolean("includeUnstable")
   val buildFullPackage = getBoolean("buildFullPackage")

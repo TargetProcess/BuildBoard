@@ -6,7 +6,8 @@ object Cycle {
   val pythonFuncTestsCategoryName = "pythonFuncTests"
   val sliceCategoryName = "SliceLoadTests"
   val cometCategoryName = "CometTests"
-  val casperCategoryName = "CasperTests"
+  val casperCategoryName = "casperTests"
+  val karmaCategoryName = "karmaTests"
   val dbCategoryName = "DbTests"
   val cycleTypeCategoryName = "CycleType"
   val perfCategoryName = "PerfTests"
@@ -14,6 +15,8 @@ object Cycle {
   val includePerfTestsKey = "INCLUDE_PERF"
   val includeFuncTestsKey = "FuncTestsFilter"
   val includePythonTestsKey = "PythonTestsFilter"
+  val includeCasperJsTestsKey = "CasperJsTestsFilter"
+  val includeKarmaJsTestsFilter = "KarmaJsTestsFilter"
 }
 
 trait Cycle {
@@ -23,10 +26,11 @@ trait Cycle {
   val buildFullPackage: Boolean
   val unitTests: String
   val funcTests: String
+  val casperJsTests: String
+  val karmaJsTests: String
   val pythonFuncTests: String
   val includeComet: Boolean
   val includeSlice: Boolean
-  val includeCasper: Boolean
   val includeDb: Boolean
   val isFull: Boolean
   val includePerfTests: Boolean
@@ -36,12 +40,13 @@ trait Cycle {
       Cycle.includeFuncTestsKey -> funcTests,
       Cycle.includePythonTestsKey -> pythonFuncTests,
       Cycle.includePerfTestsKey -> includePerfTests.toString,
+      Cycle.includeCasperJsTestsKey -> casperJsTests,
+      Cycle.includeKarmaJsTestsFilter -> karmaJsTests,
       "BuildFullPackage" -> buildFullPackage.toString,
       "INCLUDE_UNSTABLE" -> includeUnstable.toString,
       "Cycle" -> (if (isFull) "Full" else "Short"),
       "INCLUDE_COMET" -> includeComet.toString,
       "INCLUDE_SLICE" -> includeSlice.toString,
-      "INCLUDE_CASPER" -> includeCasper.toString,
       "INCLUDE_DB" -> includeDb.toString)
   }
 
