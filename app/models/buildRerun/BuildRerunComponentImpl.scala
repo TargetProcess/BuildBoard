@@ -24,9 +24,16 @@ trait BuildRerunComponentImpl extends BuildRerunComponent {
         val funcTestsToRerun = getNodesToRerun(updatedBuild, Cycle.funcTestsCategoryName)
         val pythonFuncTestsToRerun = getNodesToRerun(updatedBuild, Cycle.pythonFuncTestsCategoryName)
         val unitTestsToRerun = getNodesToRerun(updatedBuild, Cycle.unitTestsCategoryName)
+        val casperTestsToRerun = getNodesToRerun(updatedBuild, Cycle.casperCategoryName)
+        val karmaTestsToRerun = getNodesToRerun(updatedBuild, Cycle.karmaCategoryName)
 
 
-        if (funcTestsToRerun.nonEmpty || pythonFuncTestsToRerun.nonEmpty || unitTestsToRerun.nonEmpty) {
+        if (funcTestsToRerun.nonEmpty
+          || pythonFuncTestsToRerun.nonEmpty
+          || unitTestsToRerun.nonEmpty
+          || casperTestsToRerun.nonEmpty
+          || karmaTestsToRerun.nonEmpty
+        ) {
 
           rerunRepository.markAsRerun(updatedBuild, Cycle.funcTestsCategoryName, funcTestsToRerun)
           rerunRepository.markAsRerun(updatedBuild, Cycle.pythonFuncTestsCategoryName, pythonFuncTestsToRerun)
@@ -35,7 +42,9 @@ trait BuildRerunComponentImpl extends BuildRerunComponent {
           val action = ReuseArtifactsBuildAction(updatedBuild.name, updatedBuild.number, CustomCycle(List(
             BuildParametersCategory(Cycle.funcTestsCategoryName, funcTestsToRerun),
             BuildParametersCategory(Cycle.pythonFuncTestsCategoryName, pythonFuncTestsToRerun),
-            BuildParametersCategory(Cycle.unitTestsCategoryName, unitTestsToRerun)
+            BuildParametersCategory(Cycle.unitTestsCategoryName, unitTestsToRerun),
+            BuildParametersCategory(Cycle.casperCategoryName, casperTestsToRerun),
+            BuildParametersCategory(Cycle.karmaCategoryName, karmaTestsToRerun)
           )))
 
           Logger.info(s"Rerun: $action")
