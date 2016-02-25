@@ -114,7 +114,7 @@ trait ParseFolder extends Artifacts {
         case nme => (nme, nme)
       }
 
-      getBuildDetails(folder)
+      val maybeBuildNode = getBuildDetails(folder)
         .map(buildDetails => BuildNode(
           buildDetails.number.toString,
           name,
@@ -128,6 +128,9 @@ trait ParseFolder extends Artifacts {
           buildDetails.timestamp,
           buildDetails.rerun,
           children = children, isUnstable = Some(isUnstable(name))))
+
+      //check if it's container job
+      if (maybeBuildNode.isEmpty && children.length == 1) Some(children.head) else maybeBuildNode
     }
 
     //todo: add artifacts to root node
