@@ -34,7 +34,7 @@ case class CustomCycle(buildParametersCategory: List[BuildParametersCategory] = 
   }
 
   def getTestsByCategory(categoryName: String): String = {
-    buildParametersCategory.find(x => x.name == categoryName).map(x => if (x.parts.isEmpty) "" else "\"" + x.parts.mkString(" ") + "\"").getOrElse("All")
+    buildParametersCategory.find(x => x.name == categoryName).map(x => if (x.parts.isEmpty) "" else x.parts.mkString(" ")).getOrElse("All")
   }
 
   val getPossibleBuildParameters: List[BuildParametersCategory] = {

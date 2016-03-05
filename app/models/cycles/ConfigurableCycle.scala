@@ -27,7 +27,7 @@ abstract class ConfigurableCycle(val name: String) extends Cycle {
 
   def getTests(path: String): String = {
     Try {
-      config.getStringList(path).map(l => "\"" + l.asScala.mkString(" ") + "\"").get
+      config.getStringList(path).map(l => l.asScala.mkString(" ")).get
     }.toOption
       .orElse(config.getString(path))
       .getOrElse("All")
