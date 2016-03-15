@@ -59,9 +59,9 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
         .flatMap(b => b.getTestRunBuildNode(part, run))
         .map(testRunBuildNode => testRunBuildNode.copy(testResults = getTestCasePackages(testRunBuildNode)))
 
-    def forceBuild(action: SimpleJenkinsBuildAction) = action match {
+    def forceBuild(action: JenkinsBuildAction) = action match {
       case x: ReuseArtifactsBuildAction => forceReuseArtifactsBuild(x)
-      case x: SimpleJenkinsBuildAction => forceSimpleBuild(x)
+      case x: JenkinsBuildAction => forceSimpleBuild(x)
     }
 
     override def getBuildActions(build: Build) = List(ReuseArtifactsBuildAction(build.name, build.number, cycleBuilder.emptyCustomCycle))
@@ -105,7 +105,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
         .asString
     }
 
-    def forceSimpleBuild(action: SimpleJenkinsBuildAction) = {
+    def forceSimpleBuild(action: JenkinsBuildAction) = {
       val branch = action match {
         case PullRequestBuildAction(prId, _) => branchRepository.getBranchByPullRequest(prId).map(_.name)
         case BranchBuildAction(name, _) => Some(name)

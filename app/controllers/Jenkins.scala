@@ -34,7 +34,7 @@ object Jenkins extends Application {
   implicit val buildParameterCategoryReads: play.api.libs.json.Reads[List[BuildParametersCategory]] = play.api.libs.json.Reads.list[BuildParametersCategory]
   implicit val reads = Json.reads[ForceBuildParameters]
 
-  def createBuildAction(forceBuildParameters: ForceBuildParameters, component: CycleBuilderComponent): Option[SimpleJenkinsBuildAction] = {
+  def createBuildAction(forceBuildParameters: ForceBuildParameters, component: CycleBuilderComponent): Option[JenkinsBuildAction] = {
 
     if (forceBuildParameters.cycleName == "transifex") {
       forceBuildParameters.branchId.map(TransifexBuildAction)
@@ -46,7 +46,7 @@ object Jenkins extends Application {
       else
         component.cycleBuilder.customCycle(forceBuildParameters.parameters)
 
-      val maybeAction: Option[SimpleJenkinsBuildAction] =
+      val maybeAction: Option[JenkinsBuildAction] =
         (forceBuildParameters.buildNumber, forceBuildParameters.pullRequestId, forceBuildParameters.branchId) match {
           case (Some(number), _, Some(branch)) => Some(ReuseArtifactsBuildAction(branch, number, cycle))
           case (None, Some(prId), None) => Some(PullRequestBuildAction(prId, cycle))
@@ -129,8 +129,9 @@ object Jenkins extends Application {
 
         val branchMapper = number match {
           case Some(id) => (branch: Branch) =>
-            component.buildRepository.getBuild(branch, id)
-              .map(component.jenkinsService.getBuildActions)
+            component.buildRepository
+              .getBuild(branch, id)
+              .map(build => component.jenkinsService.getBuildActions(build) ++ component.deployService.getDeployBuildActions(build))
           case None => (branch: Branch) => Some(branch.buildActions(component))
         }
 

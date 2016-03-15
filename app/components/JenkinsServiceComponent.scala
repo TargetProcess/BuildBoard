@@ -2,7 +2,7 @@ package components
 
 import java.io.File
 
-import models.buildActions.SimpleJenkinsBuildAction
+import models.buildActions.JenkinsBuildAction
 import models.{Branch, Build, BuildNode}
 
 import scala.util.Try
@@ -13,9 +13,9 @@ trait JenkinsServiceComponent {
 
 
   trait JenkinsService {
-    def getBuildActions(build: Build): List[SimpleJenkinsBuildAction]
+    def getBuildActions(build: Build): List[JenkinsBuildAction]
 
-    def forceBuild(action: SimpleJenkinsBuildAction): Try[Any]
+    def forceBuild(action: JenkinsBuildAction): Try[Any]
 
     def getUpdatedBuilds(existingBuilds: List[Build], buildNamesToUpdate: Seq[String]): List[Build]
 

@@ -3,7 +3,7 @@ package models.buildActions
 import models.BranchInfo
 import models.cycles.Cycle
 
-trait SimpleJenkinsBuildAction extends BuildAction {
+trait JenkinsBuildAction extends BuildAction {
   def parameters: List[(String, String)] = List(
     "BRANCHNAME" -> branchName,
     "BUILDPRIORITY" -> (branchName match {
@@ -19,10 +19,6 @@ trait SimpleJenkinsBuildAction extends BuildAction {
   val jobName: String
 }
 
-trait CycleAwareJenkinsBuildAction extends SimpleJenkinsBuildAction {
-  val cycle: Cycle
-  override def parameters = super.parameters ++ cycle.parameters
-  override val jobName = "StartBuild"
-}
+
 
 
