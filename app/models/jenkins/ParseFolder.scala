@@ -22,7 +22,7 @@ trait ParseFolder extends Artifacts with FileHelper{
 
   private val timeout = 5.hours
 
-  val unstableNodeNames: List[String]
+  def unstableNodeNames: List[String]
 
   case class BuildSource(branch: String, number: Int, pullRequestId: Option[Int], folder: Folder, params: BuildParams)
 

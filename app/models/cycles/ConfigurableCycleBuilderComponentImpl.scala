@@ -1,6 +1,6 @@
 package models.cycles
 
-import components.CycleBuilderComponent
+import components.{ConfigComponent, CycleBuilderComponent}
 import models.buildActions.BuildParametersCategory
 import play.api.{Configuration, Play}
 import play.api.Play.current
@@ -10,21 +10,21 @@ import scala.util.Try
 
 trait ConfigurableCycleBuilderComponentImpl extends CycleBuilderComponent {
 
-  def getTests(testName: String): List[String] = {
-    Play.configuration.getConfig("build").get.getStringList(testName).get.asScala.toList.distinct
-  }
+  this:ConfigurableCycleBuilderComponentImpl with ConfigComponent=>
+
+  def getTests(testName: String): List[String]  = config.buildConfig.getTests(testName)
 
   override val cycleBuilder = new CycleBuilder {
     def cycle(name: String): Cycle = {
-      val config: Configuration = Play.configuration.getConfig(s"build.cycle.$name").get
+      val buildConfig: Configuration = config.buildConfig.getBuildConfig(name)
 
-      def getBoolean(path: String) = config.getBoolean(path).getOrElse(false)
+      def getBoolean(path: String) = buildConfig.getBoolean(path).getOrElse(false)
 
       def getTests(path: String): String = {
         Try {
-          config.getStringList(path).map(l => l.asScala.mkString(" ")).get
+          buildConfig.getStringList(path).map(l => l.asScala.mkString(" ")).get
         }.toOption
-          .orElse(config.getString(path))
+          .orElse(buildConfig.getString(path))
           .getOrElse("All")
       }
       val unitTests = getTests(CycleConstants.unitTestsCategoryName)

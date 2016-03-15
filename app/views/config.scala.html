@@ -1,0 +1,11 @@
+@(config: play.api.Configuration, user:User)(implicit request: RequestHeader)
+
+@import com.typesafe.config.ConfigRenderOptions
+
+@main("Build board", Some(user)) {
+    <body ng-app="buildBoard" state="{{$state.current.name}}">
+        <pre contenteditable="true">
+            @config.underlying.root().render(ConfigRenderOptions.concise()))
+        </pre>
+    </body>
+}

@@ -49,7 +49,7 @@ trait DeployServiceComponentImpl extends DeployServiceComponent with FileHelper 
     }
 
     override def getDeployBuildActions(build: Build): List[DeployBuildAction] = if (canDeployBuild(build.name))
-      config.teams.map(team => DeployBuildAction(build.name, build.number, team.name))
+      config.buildConfig.teams.map(team => DeployBuildAction(build.name, build.number, team.name))
     else
       Nil
 

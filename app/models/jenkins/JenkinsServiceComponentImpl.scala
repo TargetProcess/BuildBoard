@@ -26,7 +26,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
 
     lazy val directory = config.jenkinsDataPath
 
-    lazy val unstableNodeNames = config.unstableNodes
+    def unstableNodeNames = config.buildConfig.unstableNodes
 
     override def getUpdatedBuilds(existingBuilds: List[Build], buildNamesToUpdate: Seq[String]): List[Build] = {
 

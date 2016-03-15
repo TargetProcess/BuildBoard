@@ -176,7 +176,7 @@ object Jenkins extends Application {
 
         for (
           build <- component.buildRepository.getBuild(buildId);
-          team <- component.config.teams.find(_.name == teamName)
+          team <- component.config.buildConfig.teams.find(_.name == teamName)
         ) {
           component.notificationService.notifyStartDeploy(team, build)
           val deploy = component.deployService.deployBuild(buildId, team.deployFolder)
