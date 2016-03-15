@@ -22,7 +22,7 @@ trait ConfigurableCycleBuilderComponentImpl extends CycleBuilderComponent {
 
       def getTests(path: String): String = {
         Try {
-          config.getStringList(path).map(l => "\"" + l.asScala.mkString(" ") + "\"").get
+          config.getStringList(path).map(l => l.asScala.mkString(" ")).get
         }.toOption
           .orElse(config.getString(path))
           .getOrElse("All")
@@ -57,7 +57,7 @@ trait ConfigurableCycleBuilderComponentImpl extends CycleBuilderComponent {
       }
 
       def getTestsByCategory(categoryName: String): String = {
-        buildParametersCategory.find(x => x.name == categoryName).map(x => if (x.parts.isEmpty) "" else "\"" + x.parts.mkString(" ") + "\"").getOrElse("All")
+        buildParametersCategory.find(x => x.name == categoryName).map(x => if (x.parts.isEmpty) "" else x.parts.mkString(" ")).getOrElse("All")
       }
 
       val name = "Custom"
