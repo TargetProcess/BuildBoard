@@ -1,10 +1,10 @@
 package buildWatcher
 
-import components.{JenkinsServiceComponent, RerunRepositoryComponent}
+import components.{CycleBuilderComponent, JenkinsServiceComponent, RerunRepositoryComponent}
 import globals.context
-import models.buildActions.{JenkinsBuildAction, ReuseArtifactsBuildAction}
+import models.buildActions.{ReuseArtifactsBuildAction, SimpleJenkinsBuildAction}
 import models.buildRerun.{BuildRerunComponentImpl, RerunRepositoryComponentImpl}
-import models.cycles.CustomCycle
+import models.cycles.ConfigurableCycleBuilderComponentImpl
 import models.{Build, BuildNode}
 import org.joda.time.DateTime
 import org.specs2.matcher.{Expectable, MatchResult, Matcher}
@@ -53,8 +53,9 @@ with Mockito {
 
     "should not rerun twice" in context {
       running(context.fakeApp) {
-        val watcher = new BuildRerunComponentImpl with JenkinsServiceComponent with RerunRepositoryComponentImpl {
+        val watcher = new BuildRerunComponentImpl with JenkinsServiceComponent with RerunRepositoryComponentImpl with ConfigurableCycleBuilderComponentImpl {
           override val jenkinsService: JenkinsService = mock[JenkinsService]
+
         }
 
         val buildToRerun = build(fail,
@@ -104,13 +105,13 @@ with Mockito {
     }
   }
 
-  def isRerunFor(funcTests: List[String] = Nil, unitTests: List[String] = Nil) = new Matcher[JenkinsBuildAction] {
-    override def apply[S <: JenkinsBuildAction](t: Expectable[S]): MatchResult[S] = {
+  def isRerunFor(funcTests: List[String] = Nil, unitTests: List[String] = Nil) = new Matcher[SimpleJenkinsBuildAction] {
+    override def apply[S <: SimpleJenkinsBuildAction](t: Expectable[S]): MatchResult[S] = {
       val expected = t.value.asInstanceOf[ReuseArtifactsBuildAction]
 
 
-      val funcTestsNotFound = funcTests.filterNot(expected.cycle.asInstanceOf[CustomCycle].funcTests.contains(_))
-      val unitTestsNotFound = unitTests.filterNot(expected.cycle.asInstanceOf[CustomCycle].unitTests.contains(_))
+      val funcTestsNotFound = funcTests.filterNot(expected.cycle.funcTests.contains(_))
+      val unitTestsNotFound = unitTests.filterNot(expected.cycle.unitTests.contains(_))
 
 
       val funcTestsMessage = if (funcTestsNotFound.isEmpty) None else Some(s"FuncTests not found: ${funcTestsNotFound.mkString(", ")}")
@@ -126,7 +127,7 @@ with Mockito {
 
 
   def getBuildWatcher: BuildRerunComponentImpl with JenkinsServiceComponent with RerunRepositoryComponent = {
-    new BuildRerunComponentImpl with JenkinsServiceComponent with RerunRepositoryComponent {
+    new BuildRerunComponentImpl with JenkinsServiceComponent with RerunRepositoryComponent with ConfigurableCycleBuilderComponentImpl {
       override val jenkinsService: JenkinsService = mock[JenkinsService]
       override val rerunRepository: RerunRepository = mock[RerunRepository]
     }

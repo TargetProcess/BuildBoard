@@ -1,47 +1,48 @@
 package models.cycles
 
-object Cycle {
-  val unitTestsCategoryName = "unitTests"
-  val funcTestsCategoryName = "funcTests"
-  val pythonFuncTestsCategoryName = "pythonFuncTests"
-  val sliceCategoryName = "SliceLoadTests"
-  val cometCategoryName = "CometTests"
-  val casperCategoryName = "casperTests"
-  val karmaCategoryName = "karmaTests"
-  val dbCategoryName = "DbTests"
-  val cycleTypeCategoryName = "CycleType"
-  val perfCategoryName = "PerfTests"
+import models.buildActions.BuildParametersCategory
 
-  val includePerfTestsKey = "INCLUDE_PERF"
-  val includeFuncTestsKey = "FuncTestsFilter"
-  val includePythonTestsKey = "PythonTestsFilter"
-  val includeCasperJsTestsKey = "CasperJsTestsFilter"
-  val includeKarmaJsTestsFilter = "KarmaJsTestsFilter"
-}
 
-trait Cycle {
-  val name: String
 
-  val includeUnstable: Boolean
-  val buildFullPackage: Boolean
-  val unitTests: String
-  val funcTests: String
-  val casperJsTests: String
-  val karmaJsTests: String
-  val pythonFuncTests: String
-  val includeComet: Boolean
-  val includeSlice: Boolean
-  val includeDb: Boolean
-  val isFull: Boolean
-  val includePerfTests: Boolean
+
+case class Cycle(
+                  name: String,
+                  includeUnstable: Boolean,
+                  buildFullPackage: Boolean,
+                  unitTests: String,
+                  funcTests: String,
+                  casperJsTests: String,
+                  karmaJsTests: String,
+                  pythonFuncTests: String,
+                  includeComet: Boolean,
+                  includeSlice: Boolean,
+                  includeDb: Boolean,
+                  isFull: Boolean,
+                  includePerfTests: Boolean,
+                  buildParametersCategory: List[BuildParametersCategory] = Nil,
+                  possibleBuildParameters: List[BuildParametersCategory] = Nil
+                ) {
+
+
+  def getBoolByCategory(categoryName: String): Boolean = {
+    buildParametersCategory.find(x => x.name == categoryName).exists(x => x.parts.nonEmpty)
+  }
+
+  def getParamsByCategory(categoryName: String): Map[String, String] = {
+    buildParametersCategory.filter(_.name == categoryName).flatMap(x => x.params).toMap
+  }
+
+  def getTestsByCategory(categoryName: String): String = {
+    buildParametersCategory.find(x => x.name == categoryName).map(x => if (x.parts.isEmpty) "" else "\"" + x.parts.mkString(" ") + "\"").getOrElse("All")
+  }
 
   lazy val parameters = {
     List("UnitTestsFilter" -> unitTests,
-      Cycle.includeFuncTestsKey -> funcTests,
-      Cycle.includePythonTestsKey -> pythonFuncTests,
-      Cycle.includePerfTestsKey -> includePerfTests.toString,
-      Cycle.includeCasperJsTestsKey -> casperJsTests,
-      Cycle.includeKarmaJsTestsFilter -> karmaJsTests,
+      CycleConstants.includeFuncTestsKey -> funcTests,
+      CycleConstants.includePythonTestsKey -> pythonFuncTests,
+      CycleConstants.includePerfTestsKey -> includePerfTests.toString,
+      CycleConstants.includeCasperJsTestsKey -> casperJsTests,
+      CycleConstants.includeKarmaJsTestsFilter -> karmaJsTests,
       "BuildFullPackage" -> buildFullPackage.toString,
       "INCLUDE_UNSTABLE" -> includeUnstable.toString,
       "Cycle" -> (if (isFull) "Full" else "Short"),
@@ -49,5 +50,6 @@ trait Cycle {
       "INCLUDE_SLICE" -> includeSlice.toString,
       "INCLUDE_DB" -> includeDb.toString)
   }
+
 
 }

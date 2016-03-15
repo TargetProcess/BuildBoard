@@ -4,12 +4,9 @@ import java.io.File
 
 import components._
 import models.buildActions._
-import models.cycles.{CustomCycle, Cycle}
+import models.cycles.CycleConstants
 import models.{Branch, Build}
-import src.Utils
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 import scala.util.Try
 import scalaj.http.{Http, HttpOptions}
 
@@ -20,6 +17,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
     with LoggedUserProviderComponent
     with NotificationComponent
     with ConfigComponent
+    with CycleBuilderComponent
   =>
 
   val jenkinsService: JenkinsService = new JenkinsServiceImpl
@@ -27,7 +25,6 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
   class JenkinsServiceImpl extends JenkinsService with ParseFolder {
 
     lazy val directory = config.jenkinsDataPath
-    lazy val deployDirectory = config.deployDirectoryRoot
 
     lazy val unstableNodeNames = config.unstableNodes
 
@@ -62,49 +59,12 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
         .flatMap(b => b.getTestRunBuildNode(part, run))
         .map(testRunBuildNode => testRunBuildNode.copy(testResults = getTestCasePackages(testRunBuildNode)))
 
-    def forceBuild(action: JenkinsBuildAction) = action match {
+    def forceBuild(action: SimpleJenkinsBuildAction) = action match {
       case x: ReuseArtifactsBuildAction => forceReuseArtifactsBuild(x)
-      case x: JenkinsBuildAction => forceSimpleBuild(x)
+      case x: SimpleJenkinsBuildAction => forceSimpleBuild(x)
     }
 
-    def deployBuild(buildName: String, deployFolderName: String) = {
-
-
-      val buildFolderPath: String = s"$directory\\$buildName\\Artifacts\\Code\\Releases\\"
-      val deployFolderPath: String = s"$deployDirectory\\$deployFolderName\\"
-
-      val buildFolder = new Folder(buildFolderPath)
-      val deployFolder = new Folder(deployFolderPath)
-
-      Future {
-        Utils.watch(s"Deploy $buildFolderPath to $deployFolderPath") {
-          for (file <- deployFolder.listFiles()) {
-            file.delete()
-          }
-
-          for (file <- buildFolder.listFiles()) {
-            if (file.getName.endsWith("archive.zip")) {
-              FileApi.copyFile(file, deployFolder)
-            }
-          }
-        }
-      }
-    }
-
-    def canDeployBuild(buildName: String) = {
-      val buildFolder = new Folder(s"$directory/$buildName/Artifacts/Code/Releases")
-      buildFolder.exists
-    }
-
-    override def getBuildActions(build: Build) = {
-
-      val deployActions = if (canDeployBuild(build.name))
-        config.teams.map(team => DeployBuildAction(build.name, build.number, team.name))
-      else
-        Nil
-
-      ReuseArtifactsBuildAction(build.name, build.number) :: deployActions
-    }
+    override def getBuildActions(build: Build) = List(ReuseArtifactsBuildAction(build.name, build.number, cycleBuilder.emptyCustomCycle))
 
 
     def getBuildNumbers(name: String): Option[(Int, Option[Int])] = {
@@ -145,7 +105,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
         .asString
     }
 
-    def forceSimpleBuild(action: JenkinsBuildAction) = {
+    def forceSimpleBuild(action: SimpleJenkinsBuildAction) = {
       val branch = action match {
         case PullRequestBuildAction(prId, _) => branchRepository.getBranchByPullRequest(prId).map(_.name)
         case BranchBuildAction(name, _) => Some(name)
@@ -212,10 +172,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
       }
 
       if (action.cycle.includePerfTests) {
-        val parameters: Map[String, String] = action.cycle match {
-          case c @ CustomCycle(_) => c.getParamsByCategory(Cycle.perfCategoryName)
-          case _ => Map.empty
-        }
+        val parameters: Map[String, String] = action.cycle.getParamsByCategory(CycleConstants.perfCategoryName)
         forcePart("RunPerfTests", "PerfTests", parameters)
       }
     }

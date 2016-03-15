@@ -10,8 +10,11 @@ import org.joda.time.DateTime
 import scala.xml.{Node, XML}
 
 
-trait ParseFolder extends Artifacts {
+trait FileHelper {
   type Folder = File
+}
+
+trait ParseFolder extends Artifacts with FileHelper{
 
   protected val screenshotQualifiedFileNameRegex = """.*\\(\w+)\.(\w+)[-].*$""".r
   protected val screenshotFileNameRegex = """.*\\(\w+)[-].*$""".r

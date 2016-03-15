@@ -1,8 +1,8 @@
 package models.buildRerun
 
-import components.{BuildRerunComponent, JenkinsServiceComponent, RerunRepositoryComponent}
+import components.{CycleBuilderComponent, BuildRerunComponent, JenkinsServiceComponent, RerunRepositoryComponent}
 import models.buildActions.{BuildParametersCategory, ReuseArtifactsBuildAction}
-import models.cycles.{CustomCycle, Cycle}
+import models.cycles.CycleConstants
 import models.{BranchInfo, Build}
 import play.api.Play.current
 import play.api.{Logger, Play}
@@ -13,6 +13,7 @@ trait BuildRerunComponentImpl extends BuildRerunComponent {
   this: BuildRerunComponentImpl
     with JenkinsServiceComponent
     with RerunRepositoryComponent
+    with CycleBuilderComponent
   =>
 
 
@@ -21,11 +22,11 @@ trait BuildRerunComponentImpl extends BuildRerunComponent {
     override def rerunFailedParts(updatedBuild: Build) {
       if (shouldRerunBuild(updatedBuild)) {
 
-        val funcTestsToRerun = getNodesToRerun(updatedBuild, Cycle.funcTestsCategoryName)
-        val pythonFuncTestsToRerun = getNodesToRerun(updatedBuild, Cycle.pythonFuncTestsCategoryName)
-        val unitTestsToRerun = getNodesToRerun(updatedBuild, Cycle.unitTestsCategoryName)
-        val casperTestsToRerun = getNodesToRerun(updatedBuild, Cycle.casperCategoryName)
-        val karmaTestsToRerun = getNodesToRerun(updatedBuild, Cycle.karmaCategoryName)
+        val funcTestsToRerun = getNodesToRerun(updatedBuild, CycleConstants.funcTestsCategoryName)
+        val pythonFuncTestsToRerun = getNodesToRerun(updatedBuild, CycleConstants.pythonFuncTestsCategoryName)
+        val unitTestsToRerun = getNodesToRerun(updatedBuild, CycleConstants.unitTestsCategoryName)
+        val casperTestsToRerun = getNodesToRerun(updatedBuild, CycleConstants.casperCategoryName)
+        val karmaTestsToRerun = getNodesToRerun(updatedBuild, CycleConstants.karmaCategoryName)
 
 
         if (funcTestsToRerun.nonEmpty
@@ -35,16 +36,16 @@ trait BuildRerunComponentImpl extends BuildRerunComponent {
           || karmaTestsToRerun.nonEmpty
         ) {
 
-          rerunRepository.markAsRerun(updatedBuild, Cycle.funcTestsCategoryName, funcTestsToRerun)
-          rerunRepository.markAsRerun(updatedBuild, Cycle.pythonFuncTestsCategoryName, pythonFuncTestsToRerun)
-          rerunRepository.markAsRerun(updatedBuild, Cycle.unitTestsCategoryName, unitTestsToRerun)
+          rerunRepository.markAsRerun(updatedBuild, CycleConstants.funcTestsCategoryName, funcTestsToRerun)
+          rerunRepository.markAsRerun(updatedBuild, CycleConstants.pythonFuncTestsCategoryName, pythonFuncTestsToRerun)
+          rerunRepository.markAsRerun(updatedBuild, CycleConstants.unitTestsCategoryName, unitTestsToRerun)
 
-          val action = ReuseArtifactsBuildAction(updatedBuild.name, updatedBuild.number, CustomCycle(List(
-            BuildParametersCategory(Cycle.funcTestsCategoryName, funcTestsToRerun),
-            BuildParametersCategory(Cycle.pythonFuncTestsCategoryName, pythonFuncTestsToRerun),
-            BuildParametersCategory(Cycle.unitTestsCategoryName, unitTestsToRerun),
-            BuildParametersCategory(Cycle.casperCategoryName, casperTestsToRerun),
-            BuildParametersCategory(Cycle.karmaCategoryName, karmaTestsToRerun)
+          val action = ReuseArtifactsBuildAction(updatedBuild.name, updatedBuild.number, cycleBuilder.customCycle(List(
+            BuildParametersCategory(CycleConstants.funcTestsCategoryName, funcTestsToRerun),
+            BuildParametersCategory(CycleConstants.pythonFuncTestsCategoryName, pythonFuncTestsToRerun),
+            BuildParametersCategory(CycleConstants.unitTestsCategoryName, unitTestsToRerun),
+            BuildParametersCategory(CycleConstants.casperCategoryName, casperTestsToRerun),
+            BuildParametersCategory(CycleConstants.karmaCategoryName, karmaTestsToRerun)
           )))
 
           Logger.info(s"Rerun: $action")

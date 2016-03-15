@@ -8,6 +8,7 @@ trait ConfigComponent {
   val config: ConfigService
 
   trait ConfigService {
+
     val deployDirectoryRoot:String
     val jenkinsDataPath:String
     val jenkinsInterval:FiniteDuration
@@ -20,3 +21,5 @@ trait ConfigComponent {
   }
 
 }
+
+

@@ -1,7 +1,8 @@
 package models
 
+import components.CycleBuilderComponent
 import models.buildActions._
-import models.cycles.{ShortCycle, FullCycle, CustomCycle, PackageOnlyCycle}
+import models.cycles.Cycle
 
 case class Branch(
                    name: String,
@@ -10,28 +11,32 @@ case class Branch(
                    entity: Option[Entity] = None,
                    lastBuild: Option[Build] = None,
                    activity: List[ActivityEntry] = Nil
-                   ) {
+                 ) {
 
-  val buildActions: List[BuildAction] = {
+  def buildActions(cycleBuilderComponent: CycleBuilderComponent): List[BuildAction] = {
+    val packageOnlyCycle: Cycle = cycleBuilderComponent.cycleBuilder.packageOnlyCycle
+    val fullCycle: Cycle = cycleBuilderComponent.cycleBuilder.fullCycle
+    val shortCycle: Cycle = cycleBuilderComponent.cycleBuilder.shortCycle
+
     val buildPackages = List(
-      BranchBuildAction(name, PackageOnlyCycle),
-      BranchBuildAction(name, FullCycle)
+      BranchBuildAction(name, packageOnlyCycle),
+      BranchBuildAction(name, fullCycle)
     )
 
     val buildBranches = name match {
       case BranchInfo.release(_) => Nil
       case BranchInfo.hotfix(_) => Nil
-      case _ => List(BranchBuildAction(name, ShortCycle))
+      case _ => List(BranchBuildAction(name, shortCycle))
     }
 
     val (buildPullRequests, buildPullRequestCustom) =
       pullRequest match {
         case Some(pr) if pr.status.isMergeable => (
           List(
-            PullRequestBuildAction(pr.prId, ShortCycle),
-            PullRequestBuildAction(pr.prId, FullCycle)
+            PullRequestBuildAction(pr.prId, shortCycle),
+            PullRequestBuildAction(pr.prId, fullCycle)
           ),
-          List(PullRequestBuildAction(pr.prId, CustomCycle()))
+          List(PullRequestBuildAction(pr.prId, cycleBuilderComponent.cycleBuilder.emptyCustomCycle))
           )
         case _ => (Nil, Nil)
       }
@@ -41,7 +46,7 @@ case class Branch(
       case BranchInfo.hotfix(_) => Nil
       case BranchInfo.develop() => Nil
       case _ => List(
-        BranchBuildAction(name, CustomCycle())
+        BranchBuildAction(name, cycleBuilderComponent.cycleBuilder.emptyCustomCycle)
       )
     }
 

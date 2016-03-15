@@ -24,6 +24,7 @@ trait ConfigComponentImpl extends ConfigComponent {
     private def getString(path: String) = Play.configuration.getString(path).get
 
     override val unstableNodes: List[String] = Play.configuration.getStringList("build.unstableNodes").get.asScala.toList
-    override val jenkinsInterval: FiniteDuration =  Play.configuration.getMilliseconds("jenkins.cache.interval").getOrElse(60000L).milliseconds
+    override val jenkinsInterval: FiniteDuration = Play.configuration.getMilliseconds("jenkins.cache.interval").getOrElse(60000L).milliseconds
+
   }
 }

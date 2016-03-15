@@ -3,14 +3,15 @@ package controllers
 import java.nio.file.Paths
 
 import com.github.nscala_time.time.Imports._
+import components.CycleBuilderComponent
 import controllers.Writes._
 import models.BuildStatus.{InProgress, Unknown}
 import models._
 import models.buildActions._
-import models.cycles.{CustomCycle, Cycle}
+import models.cycles.Cycle
 import play.Play
-import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import play.api.libs.json._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success, Try}
@@ -21,28 +22,7 @@ case class ForceBuildParameters(pullRequestId: Option[Int],
                                 buildNumber: Option[Int],
                                 cycleName: String,
                                 parameters: List[BuildParametersCategory]
-                               ) {
-  def createBuildAction: Option[JenkinsBuildAction] = {
-
-    if (cycleName == "transifex") {
-      branchId.map(TransifexBuildAction)
-    }
-    else {
-
-      val cycle: Cycle = if (parameters.isEmpty) BuildAction.find(cycleName) else CustomCycle(parameters)
-
-      val maybeAction: Option[JenkinsBuildAction] =
-        (buildNumber, pullRequestId, branchId) match {
-          case (Some(number), _, Some(branch)) => Some(ReuseArtifactsBuildAction(branch, number, cycle))
-          case (None, Some(prId), None) => Some(PullRequestBuildAction(prId, cycle))
-          case (None, None, Some(brId)) => Some(BranchBuildAction(brId, cycle))
-
-          case _ => None
-        }
-      maybeAction
-    }
-  }
-}
+                               )
 
 object Jenkins extends Application {
 
@@ -54,6 +34,31 @@ object Jenkins extends Application {
   implicit val buildParameterCategoryReads: play.api.libs.json.Reads[List[BuildParametersCategory]] = play.api.libs.json.Reads.list[BuildParametersCategory]
   implicit val reads = Json.reads[ForceBuildParameters]
 
+  def createBuildAction(forceBuildParameters: ForceBuildParameters, component: CycleBuilderComponent): Option[SimpleJenkinsBuildAction] = {
+
+    if (forceBuildParameters.cycleName == "transifex") {
+      forceBuildParameters.branchId.map(TransifexBuildAction)
+    }
+    else {
+
+      val cycle: Cycle = if (forceBuildParameters.parameters.isEmpty)
+        component.cycleBuilder.find(forceBuildParameters.cycleName).get
+      else
+        component.cycleBuilder.customCycle(forceBuildParameters.parameters)
+
+      val maybeAction: Option[SimpleJenkinsBuildAction] =
+        (forceBuildParameters.buildNumber, forceBuildParameters.pullRequestId, forceBuildParameters.branchId) match {
+          case (Some(number), _, Some(branch)) => Some(ReuseArtifactsBuildAction(branch, number, cycle))
+          case (None, Some(prId), None) => Some(PullRequestBuildAction(prId, cycle))
+          case (None, None, Some(brId)) => Some(BranchBuildAction(brId, cycle))
+
+          case _ => None
+        }
+      maybeAction
+    }
+  }
+
+
   def forceBuild() = IsAuthorizedComponent {
     component =>
       request =>
@@ -61,15 +66,16 @@ object Jenkins extends Application {
 
           val params = json.as[ForceBuildParameters]
 
-          params.createBuildAction.map(buildAction => {
-            val forceBuildResult: Try[Any] = component.jenkinsService.forceBuild(buildAction)
-            forceBuildResult match {
-              case Success(_) => Ok(Json.toJson(Build(-1, params.branchId.getOrElse("this"), Some("In progress"), DateTime.now,
-                name = "", node = Some(BuildNode("-1", "this", "this", -1, Some("In progress"), "#", List(), DateTime.now, None)))))
-              case Failure(e: HttpException) => BadRequest(e.toString)
-              case Failure(e) => throw e
-            }
-          }).getOrElse(BadRequest("There is no pullRequestId or branchId"))
+          createBuildAction(params, component)
+            .map(buildAction => {
+              val forceBuildResult: Try[Any] = component.jenkinsService.forceBuild(buildAction)
+              forceBuildResult match {
+                case Success(_) => Ok(Json.toJson(Build(-1, params.branchId.getOrElse("this"), Some("In progress"), DateTime.now,
+                  name = "", node = Some(BuildNode("-1", "this", "this", -1, Some("In progress"), "#", List(), DateTime.now, None)))))
+                case Failure(e: HttpException) => BadRequest(e.toString)
+                case Failure(e) => throw e
+              }
+            }).getOrElse(BadRequest("There is no pullRequestId or branchId"))
 
         }.getOrElse {
           BadRequest("Expecting Json data")
@@ -125,7 +131,7 @@ object Jenkins extends Application {
           case Some(id) => (branch: Branch) =>
             component.buildRepository.getBuild(branch, id)
               .map(component.jenkinsService.getBuildActions)
-          case None => (branch: Branch) => Some(branch.buildActions)
+          case None => (branch: Branch) => Some(branch.buildActions(component))
         }
 
         val buildActions = branch.flatMap(branchMapper)
@@ -172,7 +178,7 @@ object Jenkins extends Application {
           team <- component.config.teams.find(_.name == teamName)
         ) {
           component.notificationService.notifyStartDeploy(team, build)
-          val deploy = component.jenkinsService.deployBuild(buildId, team.deployFolder)
+          val deploy = component.deployService.deployBuild(buildId, team.deployFolder)
           deploy.onComplete(component.notificationService.notifyDoneDeploy(team, build, _))
           deploy.onFailure { case e => play.Logger.error("Error during deploy", e) }
         }
