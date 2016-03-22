@@ -68,7 +68,7 @@ object Jenkins extends Application {
 
           createBuildAction(params, component)
             .map(buildAction => {
-              val forceBuildResult: Try[Any] = component.jenkinsService.forceBuild(buildAction)
+              val forceBuildResult: Try[Any] = component.forceBuildService.forceBuild(buildAction)
               forceBuildResult match {
                 case Success(_) => Ok(Json.toJson(Build(-1, params.branchId.getOrElse("this"), Some("In progress"), DateTime.now,
                   name = "", node = Some(BuildNode("-1", "this", "this", -1, Some("In progress"), "#", List(), DateTime.now, None)))))
@@ -122,12 +122,12 @@ object Jenkins extends Application {
       request => Ok.sendFile(content = component.jenkinsService.getArtifact(file))
   }
 
-  def buildActions(branchName: String, number: Option[Int]) = IsAuthorizedComponent {
+  def buildActions(branchName: String, buildNumber: Option[Int]) = IsAuthorizedComponent {
     implicit component =>
       request =>
         val branch: Option[Branch] = component.branchRepository.getBranch(branchName)
 
-        val branchMapper = number match {
+        val branchMapper = buildNumber match {
           case Some(id) => (branch: Branch) =>
             component.buildRepository
               .getBuild(branch, id)
@@ -179,7 +179,7 @@ object Jenkins extends Application {
           team <- component.config.buildConfig.teams.find(_.name == teamName)
         ) {
           component.notificationService.notifyStartDeploy(team, build)
-          val deploy = component.deployService.deployBuild(buildId, team.deployFolder)
+          val deploy = component.deployService.deployBuild(buildId, team.deployTo)
           deploy.onComplete(component.notificationService.notifyDoneDeploy(team, build, _))
           deploy.onFailure { case e => play.Logger.error("Error during deploy", e) }
         }

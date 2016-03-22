@@ -7,6 +7,9 @@ GET           /                                      controllers.Landing.index
 GET           /branches                              controllers.Branches.branches
 GET           /branch                                controllers.Branches.activities(branchName: String)
 
+GET           /config                                controllers.Config.getConfig
+
+
 GET           /open                                  controllers.Landing.redirect(id:Int)
 
 GET           /login                                 controllers.Login.index

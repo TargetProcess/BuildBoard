@@ -14,7 +14,7 @@ trait FileHelper {
   type Folder = File
 }
 
-trait ParseFolder extends Artifacts with FileHelper{
+trait ParseFolder extends Artifacts with FileHelper {
 
   protected val screenshotQualifiedFileNameRegex = """.*\\(\w+)\.(\w+)[-].*$""".r
   protected val screenshotFileNameRegex = """.*\\(\w+)[-].*$""".r
@@ -22,9 +22,13 @@ trait ParseFolder extends Artifacts with FileHelper{
 
   private val timeout = 5.hours
 
-  def unstableNodeNames: List[String]
 
   case class BuildSource(branch: String, number: Int, pullRequestId: Option[Int], folder: Folder, params: BuildParams)
+
+  def getParamsFile(folder: Folder): File = {
+    new File(folder, "Build/StartBuild/StartBuild.params")
+  }
+
 
   def getBuild(buildSource: BuildSource, toggled: Boolean): Option[Build] = {
     val name: String = buildSource.folder.getName
@@ -98,6 +102,8 @@ trait ParseFolder extends Artifacts with FileHelper{
     case _ => name
   }
 
+  def unstableNodeNames: List[String]
+
   def isUnstable(name: String): Boolean = unstableNodeNames.contains(name)
 
   def getBuildNode(f: File): Option[BuildNode] = {
@@ -153,11 +159,7 @@ trait ParseFolder extends Artifacts with FileHelper{
       val startedFileContent: Option[Map[Int, String]] = FileApi.readAsMap(started)
       val statusUrl: Option[String] = startedFileContent.flatMap(_.get(0))
 
-      val number = statusUrl.map {
-        url => url match {
-          case buildNumberRegex(num) => num.toInt
-        }
-      }.getOrElse(-1)
+      val number = statusUrl.map { case buildNumberRegex(num) => num.toInt }.getOrElse(-1)
 
       val timestamp = startedFileContent.flatMap(_.get(1))
         .map(x => new DateTime(dateFormat.parse(x).getTime))
@@ -228,7 +230,6 @@ trait ParseFolder extends Artifacts with FileHelper{
 
       (XML.loadString(xml) \ "test-suite").map(getTestCasePackage).toList
     }
-
     def getJUnitTestCasePackage(xml: String): List[TestCasePackage] = {
       def getTestCasePackage(node: Node): TestCasePackage = {
         def getTestCasePackageInner(node: Node, namespace: String = ""): TestCasePackage = {
@@ -255,11 +256,9 @@ trait ParseFolder extends Artifacts with FileHelper{
 
       XML.loadString(xml).map(getTestCasePackage).toList
     }
-
     val nunitParser: PartialFunction[String, List[TestCasePackage]] = {
       case xml => getNUnitTestCasePackage(xml)
     }
-
     val junitParser: PartialFunction[String, List[TestCasePackage]] = {
       case xml => getJUnitTestCasePackage(xml)
     }

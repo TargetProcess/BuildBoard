@@ -11,7 +11,7 @@ import scala.collection.JavaConverters._
 
 trait BuildRerunComponentImpl extends BuildRerunComponent {
   this: BuildRerunComponentImpl
-    with JenkinsServiceComponent
+    with ForceBuildComponent
     with RerunRepositoryComponent
     with CycleBuilderComponent
     with ConfigComponent
@@ -50,7 +50,7 @@ trait BuildRerunComponentImpl extends BuildRerunComponent {
           )))
 
           Logger.info(s"Rerun: $action")
-          jenkinsService.forceBuild(action)
+          forceBuildService.forceBuild(action)
         }
       }
     }
@@ -71,7 +71,7 @@ trait BuildRerunComponentImpl extends BuildRerunComponent {
 
     def getNodesToRerun(build: Build, category: String): List[String] = {
 
-      val testParts = config.buildConfig.getTestParts(category)
+      val testParts = config.buildConfig.build.tests(category)
 
       val testRootNode = build.node.flatMap(_.allChildren.find(_.name.compareToIgnoreCase(category) == 0))
       val failedNodes = testRootNode.map(_.allChildren.filter(

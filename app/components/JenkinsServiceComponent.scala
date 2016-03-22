@@ -15,14 +15,15 @@ trait JenkinsServiceComponent {
   trait JenkinsService {
     def getBuildActions(build: Build): List[JenkinsBuildAction]
 
-    def forceBuild(action: JenkinsBuildAction): Try[Any]
-
     def getUpdatedBuilds(existingBuilds: List[Build], buildNamesToUpdate: Seq[String]): List[Build]
 
     def getTestRun(branch: Branch, buildNumber: Int, part: String, run: String): Option[BuildNode]
 
     def getArtifact(file: String): File
+
   }
 
 }
+
+
 

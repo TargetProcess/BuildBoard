@@ -1,7 +1,7 @@
 package components
 
-import models.{Build, Branch}
-import models.teams.Team
+import models.configuration.Team
+import models.{Branch, Build}
 
 import scala.util.Try
 

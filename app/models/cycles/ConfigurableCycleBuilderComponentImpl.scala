@@ -1,50 +1,17 @@
 package models.cycles
 
 import components.{ConfigComponent, CycleBuilderComponent}
-import models.buildActions.BuildParametersCategory
-import play.api.{Configuration, Play}
-import play.api.Play.current
-
-import scala.collection.JavaConverters._
-import scala.util.Try
+import models.Branch
+import models.buildActions._
+import models.configuration.{CycleConfig, CycleParameters}
 
 trait ConfigurableCycleBuilderComponentImpl extends CycleBuilderComponent {
 
-  this:ConfigurableCycleBuilderComponentImpl with ConfigComponent=>
+  this: ConfigurableCycleBuilderComponentImpl with ConfigComponent =>
 
-  def getTests(testName: String): List[String]  = config.buildConfig.getTests(testName)
+  def getTests(testName: String): List[String] = config.buildConfig.build.tests(testName)
 
   override val cycleBuilder = new CycleBuilder {
-    def cycle(name: String): Cycle = {
-      val buildConfig: Configuration = config.buildConfig.getBuildConfig(name)
-
-      def getBoolean(path: String) = buildConfig.getBoolean(path).getOrElse(false)
-
-      def getTests(path: String): String = {
-        Try {
-          buildConfig.getStringList(path).map(l => l.asScala.mkString(" ")).get
-        }.toOption
-          .orElse(buildConfig.getString(path))
-          .getOrElse("All")
-      }
-      val unitTests = getTests(CycleConstants.unitTestsCategoryName)
-      val funcTests = getTests(CycleConstants.funcTestsCategoryName)
-      val casperJsTests = getTests(CycleConstants.casperCategoryName)
-      val karmaJsTests = getTests(CycleConstants.karmaCategoryName)
-      val pythonFuncTests = getTests(CycleConstants.pythonFuncTestsCategoryName)
-      val includeUnstable = getBoolean("includeUnstable")
-      val buildFullPackage = getBoolean("buildFullPackage")
-      val includeComet = getBoolean("includeComet")
-      val includeSlice = getBoolean("includeSlice")
-      val includeCasper = getBoolean("includeCasper")
-      val includeDb = getBoolean("includeDb")
-      val isFull = getBoolean("isFull")
-      val includePerfTests = getBoolean("includePerfTests")
-
-      Cycle(name, includeUnstable, buildFullPackage, unitTests, funcTests, casperJsTests, karmaJsTests, pythonFuncTests,
-        includeComet, includeSlice, includeDb, isFull, includePerfTests)
-    }
-
     def customCycle(buildParametersCategory: List[BuildParametersCategory]): Cycle = {
 
 
@@ -56,8 +23,8 @@ trait ConfigurableCycleBuilderComponentImpl extends CycleBuilderComponent {
         buildParametersCategory.filter(_.name == categoryName).flatMap(x => x.params).toMap
       }
 
-      def getTestsByCategory(categoryName: String): String = {
-        buildParametersCategory.find(x => x.name == categoryName).map(x => if (x.parts.isEmpty) "" else x.parts.mkString(" ")).getOrElse("All")
+      def getTestsByCategory(categoryName: String): List[String] = {
+        buildParametersCategory.find(x => x.name == categoryName).map(x => if (x.parts.isEmpty) Nil else x.parts).getOrElse(List("All"))
       }
 
       val name = "Custom"
@@ -65,14 +32,14 @@ trait ConfigurableCycleBuilderComponentImpl extends CycleBuilderComponent {
       val buildFullPackage = false
       val includeUnstable: Boolean = false
 
-      val unitTests: String = getTestsByCategory(CycleConstants.unitTestsCategoryName)
+      val unitTests = getTestsByCategory(CycleConstants.unitTestsCategoryName)
       val includeComet: Boolean = getBoolByCategory(CycleConstants.cometCategoryName)
-      val funcTests: String = getTestsByCategory(CycleConstants.funcTestsCategoryName)
-      val pythonFuncTests: String = getTestsByCategory(CycleConstants.pythonFuncTestsCategoryName)
-      val casperJsTests: String = getTestsByCategory(CycleConstants.casperCategoryName)
-      val karmaJsTests: String = getTestsByCategory(CycleConstants.karmaCategoryName)
-      val includeSlice: Boolean = getBoolByCategory(CycleConstants.sliceCategoryName)
-      val includeDb: Boolean = getBoolByCategory(CycleConstants.dbCategoryName)
+      val funcTests = getTestsByCategory(CycleConstants.funcTestsCategoryName)
+      val pythonFuncTests = getTestsByCategory(CycleConstants.pythonFuncTestsCategoryName)
+      val casperJsTests = getTestsByCategory(CycleConstants.casperCategoryName)
+      val karmaJsTests = getTestsByCategory(CycleConstants.karmaCategoryName)
+      val includeSlice = getBoolByCategory(CycleConstants.sliceCategoryName)
+      val includeDb = getBoolByCategory(CycleConstants.dbCategoryName)
       val isFull: Boolean = getBoolByCategory(CycleConstants.cycleTypeCategoryName)
       val includePerfTests: Boolean = getBoolByCategory(CycleConstants.perfCategoryName)
 
@@ -91,8 +58,98 @@ trait ConfigurableCycleBuilderComponentImpl extends CycleBuilderComponent {
         )
 
 
-      Cycle(name, includeUnstable, buildFullPackage, unitTests, funcTests, casperJsTests, karmaJsTests,
-        pythonFuncTests, includeComet, includeSlice, includeDb, isFull, includePerfTests, buildParametersCategory, possibleBuildParameters)
+      Cycle(name,
+        CycleParameters(isFull, includeUnstable, includeDb, includeComet, includeSlice, includePerfTests, buildFullPackage, casperJsTests,karmaJsTests, unitTests, pythonFuncTests, funcTests),
+        buildParametersCategory, possibleBuildParameters)
     }
+
+    def buildCycle(cf: CycleConfig): Cycle = Cycle(cf.name, cf.parameters, Nil, Nil)
+
+    override def buildActions(branch: Branch): List[BuildAction] = {
+
+      val branchCategories = config.buildConfig.branches
+        .filter { case (name, regex) =>
+          regex.r.findFirstIn(branch.name).isDefined
+        }.keys
+        .toList
+
+
+      val applicableBranchConfigs = config.buildConfig.build.cycles
+        .filter(cycleConfig => {
+          cycleConfig.branches.contains("all") || cycleConfig.branches.intersect(branchCategories).nonEmpty
+        })
+
+      val branchCycles: List[Cycle] = applicableBranchConfigs.map(cf => buildCycle(cf))
+
+      val customCycles = config.buildConfig.build.customCyclesAvailability
+
+      val branchBuildActions: List[BranchBuildAction] = branchCycles.map(BranchBuildAction(branch.name, _))
+
+
+
+      val pullRequestBuildAction = branch.pullRequest
+        .filter(_.status.isMergeable).toList.flatMap(pr => branchCycles.map(PullRequestBuildAction(pr.prId, _)))
+
+
+      branchBuildActions ++
+        pullRequestBuildAction ++
+        List(TransifexBuildAction(branch.name))
+
+
+      /*
+
+
+
+
+
+
+
+
+
+            val packageOnlyCycle: Cycle = cycleBuilderComponent.cycleBuilder.packageOnlyCycle
+            val fullCycle: Cycle = cycleBuilderComponent.cycleBuilder.fullCycle
+            val shortCycle: Cycle = cycleBuilderComponent.cycleBuilder.shortCycle
+
+            val buildPackages = List(
+              BranchBuildAction(name, packageOnlyCycle),
+              BranchBuildAction(name, fullCycle)
+            )
+
+            val buildBranches = name match {
+              case BranchInfo.release(_) => Nil
+              case BranchInfo.hotfix(_) => Nil
+              case _ => List(BranchBuildAction(name, shortCycle))
+            }
+
+            val (buildPullRequests, buildPullRequestCustom) =
+              pullRequest match {
+                case Some(pr) if pr.status.isMergeable => (
+                  List(
+                    PullRequestBuildAction(pr.prId, shortCycle),
+                    PullRequestBuildAction(pr.prId, fullCycle)
+                  ),
+                  List(PullRequestBuildAction(pr.prId, cycleBuilderComponent.cycleBuilder.emptyCustomCycle))
+                  )
+                case _ => (Nil, Nil)
+              }
+
+            val buildCustomBranch = name match {
+              case BranchInfo.release(_) => Nil
+              case BranchInfo.hotfix(_) => Nil
+              case BranchInfo.develop() => Nil
+              case _ => List(
+                BranchBuildAction(name, cycleBuilderComponent.cycleBuilder.emptyCustomCycle)
+              )
+            }
+
+            buildPackages ++
+              buildBranches ++
+              buildPullRequests ++
+              buildCustomBranch ++
+              buildPullRequestCustom ++
+              List(TransifexBuildAction(name))
+              */
+    }
+    override def find(cycleName: String): Option[Cycle]  = config.buildConfig.build.cycles.find(_.name == cycleName).map(buildCycle(_))
   }
 }

@@ -14,48 +14,7 @@ case class Branch(
                  ) {
 
   def buildActions(cycleBuilderComponent: CycleBuilderComponent): List[BuildAction] = {
-    val packageOnlyCycle: Cycle = cycleBuilderComponent.cycleBuilder.packageOnlyCycle
-    val fullCycle: Cycle = cycleBuilderComponent.cycleBuilder.fullCycle
-    val shortCycle: Cycle = cycleBuilderComponent.cycleBuilder.shortCycle
-
-    val buildPackages = List(
-      BranchBuildAction(name, packageOnlyCycle),
-      BranchBuildAction(name, fullCycle)
-    )
-
-    val buildBranches = name match {
-      case BranchInfo.release(_) => Nil
-      case BranchInfo.hotfix(_) => Nil
-      case _ => List(BranchBuildAction(name, shortCycle))
-    }
-
-    val (buildPullRequests, buildPullRequestCustom) =
-      pullRequest match {
-        case Some(pr) if pr.status.isMergeable => (
-          List(
-            PullRequestBuildAction(pr.prId, shortCycle),
-            PullRequestBuildAction(pr.prId, fullCycle)
-          ),
-          List(PullRequestBuildAction(pr.prId, cycleBuilderComponent.cycleBuilder.emptyCustomCycle))
-          )
-        case _ => (Nil, Nil)
-      }
-
-    val buildCustomBranch = name match {
-      case BranchInfo.release(_) => Nil
-      case BranchInfo.hotfix(_) => Nil
-      case BranchInfo.develop() => Nil
-      case _ => List(
-        BranchBuildAction(name, cycleBuilderComponent.cycleBuilder.emptyCustomCycle)
-      )
-    }
-
-    buildPackages ++
-      buildBranches ++
-      buildPullRequests ++
-      buildCustomBranch ++
-      buildPullRequestCustom ++
-      List(TransifexBuildAction(name))
+    cycleBuilderComponent.cycleBuilder.buildActions(this)
   }
 
 }

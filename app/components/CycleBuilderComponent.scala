@@ -1,22 +1,18 @@
 package components
 
-import models.buildActions.BuildParametersCategory
+import models.Branch
+import models.buildActions.{BuildAction, BuildParametersCategory}
 import models.cycles.Cycle
 
 trait CycleBuilderComponent {
   val cycleBuilder: CycleBuilder
 
   trait CycleBuilder {
-    def find(cycleName: String) = getAllCycles.find(_.name == cycleName)
+    def find(cycleName: String):Option[Cycle]
 
-    val fullCycle = cycle("Full")
-    val shortCycle = cycle("Short")
-    val packageOnlyCycle = cycle("Package only")
+    def buildActions(branch: Branch): List[BuildAction]
+
     val emptyCustomCycle = customCycle(Nil)
-
-    val getAllCycles = List(fullCycle, shortCycle, packageOnlyCycle)
-
-    def cycle(name: String): Cycle
     def customCycle(buildParametersCategory: List[BuildParametersCategory]): Cycle
   }
 

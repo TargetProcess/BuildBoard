@@ -1,184 +1,219 @@
 {
+  "branches": {
+    "release": "^(?:origin/)?release/(.*)$",
+    "feature": "^(?:origin/)?feature/(.*)$",
+    "hotfix": "^(?:origin/)?hotfix/(.*)$",
+    "vs": "^(?:origin/)?vs/(.*)$",
+    "develop": "^(?:origin/)?develop$",
+    "other":"^(?:origin/)?(?!(develop$)|(release/)|(feature/)|(vs/)|(hotfix/))(.*)$"
+  },
   "build": {
-    "cycle": {
-      "Package only": {
-        "isFull": false,
-        "includeUnstable": false,
-        "includeDb": false,
-        "karmaTests": "",
-        "includeComet": false,
-        "includeSlice": false,
-        "buildFullPackage": true,
-        "casperTests": "",
-        "unitTests": "",
-        "pythonFuncTests": "",
-        "funcTests": ""
+    "cycles": [
+      {
+        "name": "Package only",
+        "branches": [
+          "all"
+        ],
+        "parameters": {
+          "isFull": false,
+          "includeUnstable": false,
+          "includeDb": false,
+          "karmaTests": [],
+          "includeComet": false,
+          "includeSlice": false,
+          "buildFullPackage": true,
+          "casperTests": [],
+          "unitTests": [],
+          "pythonFuncTests": [],
+          "funcTests": [],
+          "includePerfTests" : false
+        }
       },
-      "Full": {
-        "isFull": true,
-        "includeUnstable": false,
-        "includeDb": true,
-        "karmaTests": [
-          "tests",
-          "tpTests"
+      {
+        "name": "Release",
+        "branches": [
+          "all"
         ],
-        "includeComet": true,
-        "includeSlice": true,
-        "buildFullPackage": true,
-        "casperTests": [
-          "general",
-          "qaarea",
-          "stats",
-          "timeline"
-        ],
-        "unitTests": "All",
-        "pythonFuncTests": "All",
-        "funcTests": "All"
+        "parameters": {
+          "isFull": true,
+          "includeUnstable": false,
+          "includeDb": true,
+          "karmaTests": [
+            "tests",
+            "tpTests"
+          ],
+          "includeComet": true,
+          "includeSlice": true,
+          "buildFullPackage": true,
+          "casperTests": [
+            "general",
+            "qaarea",
+            "stats",
+            "timeline"
+          ],
+          "unitTests": ["All"],
+          "pythonFuncTests": ["All"],
+          "funcTests": ["All"],
+          "includePerfTests" : true
+        }
       },
-      "Short": {
-        "isFull": false,
-        "includeUnstable": false,
-        "includeDb": false,
-        "karmaTests": [
-          "tests",
-          "tpTests"
+      {
+        "name": "Debug",
+        "branches": [
+          "feature",
+          "vs",
+          "develop",
+          "other"
         ],
-        "includeComet": false,
-        "includeSlice": false,
-        "buildFullPackage": false,
-        "casperTests": [
-          "general",
-          "qaarea",
-          "stats",
-          "timeline"
-        ],
-        "unitTests": "All",
-        "pythonFuncTests": "All",
-        "funcTests": [
-          "PartComet",
-          "PartViews",
-          "PartViews0",
-          "PartViews1",
-          "PartViews2",
-          "PartViews3",
-          "PartViews4",
-          "PartViews5",
-          "PartViews6",
-          "PartViews7",
-          "PartViews8",
-          "PartViews9",
-          "PartViews10",
-          "PartViews11",
-          "PartViews12",
-          "PartViews13",
-          "PartPlugins1",
-          "PartPlugins2",
-          "PartPlugins3",
-          "PartPlugins4",
-          "PartPy1",
-          "PartPy2",
-          "PartPyComet",
-          "RunKarmaJSTests",
-          "PartBoard1",
-          "PartBoard2",
-          "PartOther"
-        ]
+        "parameters": {
+          "isFull": false,
+          "includeUnstable": false,
+          "includeDb": false,
+          "karmaTests": [
+            "tests",
+            "tpTests"
+          ],
+          "includeComet": false,
+          "includeSlice": false,
+          "includePerfTests" : false,
+          "buildFullPackage": false,
+          "casperTests": [
+            "general",
+            "qaarea",
+            "stats",
+            "timeline"
+          ],
+          "unitTests": ["All"],
+          "pythonFuncTests": ["All"],
+          "funcTests": [
+            "PartComet",
+            "PartViews",
+            "PartViews0",
+            "PartViews1",
+            "PartViews2",
+            "PartViews3",
+            "PartViews4",
+            "PartViews5",
+            "PartViews6",
+            "PartViews7",
+            "PartViews8",
+            "PartViews9",
+            "PartViews10",
+            "PartViews11",
+            "PartViews12",
+            "PartViews13",
+            "PartPlugins1",
+            "PartPlugins2",
+            "PartPlugins3",
+            "PartPlugins4",
+            "PartPy1",
+            "PartPy2",
+            "PartPyComet",
+            "RunKarmaJSTests",
+            "PartBoard1",
+            "PartBoard2",
+            "PartOther"
+          ]
+        }
       }
+    ],
+    "customCyclesAvailability":["feature","other"],
+    "tests":{
+      "karmaTests": [
+        "tests",
+        "tpTests"
+      ],
+      "casperTests": [
+        "general",
+        "qaarea",
+        "stats",
+        "timeline"
+      ],
+      "unitTests": [
+        "Part0",
+        "Part1",
+        "Part17",
+        "Part2",
+        "Part3",
+        "Part4",
+        "Part5",
+        "Part6",
+        "Part7",
+        "Part8",
+        "PartRest1",
+        "PartRestDSL",
+        "PartSlice1",
+        "PartSlice2",
+        "PartOther",
+        "PartPlugins0",
+        "PartPlugins1"
+      ],
+      "pythonFuncTests": [
+        "PartPyComet",
+        "PartPy1",
+        "PartPy2"
+      ],
+      "funcTests": [
+        "Part0",
+        "Part1",
+        "Part10",
+        "Part11",
+        "Part12",
+        "Part13",
+        "Part14",
+        "Part15",
+        "Part16",
+        "Part17",
+        "Part18",
+        "Part19",
+        "Part2",
+        "Part3",
+        "Part4",
+        "Part5",
+        "Part6",
+        "Part7",
+        "Part8",
+        "Part9",
+        "PartIntegration",
+        "PartOther",
+        "PartViews",
+        "PartViews0",
+        "PartViews1",
+        "PartViews2",
+        "PartViews3",
+        "PartViews4",
+        "PartViews5",
+        "PartViews6",
+        "PartViews7",
+        "PartViews8",
+        "PartViews9",
+        "PartViews10",
+        "PartViews11",
+        "PartViews12",
+        "PartViews13",
+        "PartComet",
+        "PartBoard1",
+        "PartBoard2",
+        "PartPlugins1",
+        "PartPlugins2",
+        "PartPlugins3",
+        "PartPlugins4"
+      ]
     },
     "unstableNodes": [
       "RunCasperJSTestsGeneral",
       "RunCasperJSTestsStatistics",
       "RunCasperJSTestsTimeline",
       "RunKarmaJSTests"
-    ],
-    "karmaTests": [
-      "tests",
-      "tpTests"
-    ],
-    "casperTests": [
-      "general",
-      "qaarea",
-      "stats",
-      "timeline"
-    ],
-    "unitTests": [
-      "Part0",
-      "Part1",
-      "Part17",
-      "Part2",
-      "Part3",
-      "Part4",
-      "Part5",
-      "Part6",
-      "Part7",
-      "Part8",
-      "PartRest1",
-      "PartRestDSL",
-      "PartSlice1",
-      "PartSlice2",
-      "PartOther",
-      "PartPlugins0",
-      "PartPlugins1"
-    ],
-    "pythonFuncTests": [
-      "PartPyComet",
-      "PartPy1",
-      "PartPy2"
-    ],
-    "funcTests": [
-      "Part0",
-      "Part1",
-      "Part10",
-      "Part11",
-      "Part12",
-      "Part13",
-      "Part14",
-      "Part15",
-      "Part16",
-      "Part17",
-      "Part18",
-      "Part19",
-      "Part2",
-      "Part3",
-      "Part4",
-      "Part5",
-      "Part6",
-      "Part7",
-      "Part8",
-      "Part9",
-      "PartIntegration",
-      "PartOther",
-      "PartViews",
-      "PartViews0",
-      "PartViews1",
-      "PartViews2",
-      "PartViews3",
-      "PartViews4",
-      "PartViews5",
-      "PartViews6",
-      "PartViews7",
-      "PartViews8",
-      "PartViews9",
-      "PartViews10",
-      "PartViews11",
-      "PartViews12",
-      "PartViews13",
-      "PartComet",
-      "PartBoard1",
-      "PartBoard2",
-      "PartPlugins1",
-      "PartPlugins2",
-      "PartPlugins3",
-      "PartPlugins4"
     ]
   },
   "autoRerun": {
-    "others": false,
-    "hotfix": true,
+    "hotfix": false,
     "feature": false,
-    "develop": true,
-    "vs": true,
-    "release": true
+    "develop": false,
+    "vs": false,
+    "release": false,
+    "all": false
   },
   "teams": [
     {

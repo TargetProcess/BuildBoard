@@ -3,6 +3,7 @@ package models.notifications
 import com.mongodb.casbah.Imports._
 import components._
 import models._
+import models.configuration.Team
 import models.github.GithubStatus
 import play.api.Play
 import play.api.Play.current
@@ -11,7 +12,6 @@ import rx.lang.scala.Subject
 import scala.collection.immutable.Iterable
 import scala.util.{Failure, Success, Try}
 import scalaj.http.{Http, HttpException, HttpOptions}
-import models.teams.Team
 
 object BuildNotification {
   val subject: Subject[Build] = Subject()

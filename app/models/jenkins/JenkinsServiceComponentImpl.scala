@@ -1,14 +1,10 @@
 package models.jenkins
 
-import java.io.File
-
 import components._
 import models.buildActions._
-import models.cycles.CycleConstants
 import models.{Branch, Build}
 
-import scala.util.Try
-import scalaj.http.{Http, HttpOptions}
+
 
 trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
   this: JenkinsServiceComponentImpl
@@ -26,7 +22,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
 
     lazy val directory = config.jenkinsDataPath
 
-    def unstableNodeNames = config.buildConfig.unstableNodes
+    def unstableNodeNames = config.buildConfig.build.unstableNodes
 
     override def getUpdatedBuilds(existingBuilds: List[Build], buildNamesToUpdate: Seq[String]): List[Build] = {
 
@@ -59,10 +55,6 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
         .flatMap(b => b.getTestRunBuildNode(part, run))
         .map(testRunBuildNode => testRunBuildNode.copy(testResults = getTestCasePackages(testRunBuildNode)))
 
-    def forceBuild(action: JenkinsBuildAction) = action match {
-      case x: ReuseArtifactsBuildAction => forceReuseArtifactsBuild(x)
-      case x: JenkinsBuildAction => forceSimpleBuild(x)
-    }
 
     override def getBuildActions(build: Build) = List(ReuseArtifactsBuildAction(build.name, build.number, cycleBuilder.emptyCustomCycle))
 
@@ -88,111 +80,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
       } yield BuildSource(branch.name, buildNumber, prId, folder, buildParams)
     }
 
-    def getParamsFile(folder: Folder): File = {
-      new File(folder, "Build/StartBuild/StartBuild.params")
-    }
-
     def findBuild(branch: Branch, buildId: Int): Option[Build] = buildRepository.getBuild(branch, buildId)
-
-    def post(url: String, parameters: List[(String, String)]) = Try {
-
-      play.Logger.info(s"Force build to $url with parameters $parameters")
-
-      Http.post(url)
-        .params(parameters)
-        .option(HttpOptions.connTimeout(1000))
-        .option(HttpOptions.readTimeout(5000))
-        .asString
-    }
-
-    def forceSimpleBuild(action: JenkinsBuildAction) = {
-      val branch = action match {
-        case PullRequestBuildAction(prId, _) => branchRepository.getBranchByPullRequest(prId).map(_.name)
-        case BranchBuildAction(name, _) => Some(name)
-        case _ => None
-      }
-
-      val lastBuild = branch.flatMap(buildRepository.getLastBuilds(_, 1).headOption)
-      val url = s"${config.jenkinsUrl}/job/${action.jobName}/buildWithParameters"
-
-      val parameters = action.parameters ++
-        loggedUser.map("WHO_STARTS" -> _.fullName) ++
-        List("DESCRIPTION" -> action.name) ++
-        lastBuild.flatMap(_.ref).map("PREVIOUS_COMMIT" -> _.trim)
-
-      post(url, parameters)
-    }
-
-    def forceReuseArtifactsBuild(action: ReuseArtifactsBuildAction): Try[Unit] = Try {
-      val buildFolder = new Folder(s"$directory/${action.buildName}")
-      val revision = FileApi.readAsMap(new File(buildFolder, "Artifacts/Revision.txt"))
-        .flatMap(
-          _.values
-            .filter(_.toString.startsWith("REVISION="))
-            .map(_.replaceAll("REVISION=", ""))
-            .headOption
-        )
-        .get
-
-      val buildParams = BuildParams(getParamsFile(buildFolder)).get
-
-      def forcePart(job: String, postfix: String, params: Map[String, String] = Map.empty): Unit = {
-        forceBuildCategory(buildParams, revision, params, s"${config.jenkinsUrl}/job/$job/buildWithParameters", action.buildNumber, postfix)
-      }
-
-      val forcePartWithFilter = (job: String, postfix: String, filterKey: String, filter: String) =>
-        forcePart(job, postfix, Map((filterKey, filter.replaceAll( """^\"|\"$""", ""))))
-
-      if (action.cycle.funcTests != "") {
-        forcePartWithFilter("RunFuncTests", "FuncTests", "FuncTestsFilter", action.cycle.funcTests)
-      }
-
-      if (action.cycle.pythonFuncTests != "") {
-        forcePartWithFilter("RunFuncTestsPython", "FuncTests", "PythonTestsFilter", action.cycle.pythonFuncTests)
-      }
-
-      if (action.cycle.unitTests != "") {
-        forcePartWithFilter(s"RunUnitTests", "UnitTests", "UnitTestsFilter", action.cycle.unitTests)
-      }
-
-      if (action.cycle.casperJsTests != "") {
-        forcePartWithFilter("RunCasperJSTests", "FuncTests", "CasperJsTestsFilter", action.cycle.casperJsTests)
-      }
-
-      if (action.cycle.includeComet) {
-        forcePart("CometOutOfProcess", "FuncTests")
-      }
-
-      if (action.cycle.includeSlice) {
-        forcePart("RunSliceLoadTest", "FuncTests")
-      }
-
-      if (action.cycle.includeDb) {
-        forcePart("RunDBTest", "FuncTests")
-      }
-
-      if (action.cycle.includePerfTests) {
-        val parameters: Map[String, String] = action.cycle.getParamsByCategory(CycleConstants.perfCategoryName)
-        forcePart("RunPerfTests", "PerfTests", parameters)
-      }
-    }
-
-    def forceBuildCategory(buildParams: BuildParams, revision: String, parameters: Map[String, String], url: String, buildNumber: Int, buildPathPostfix: String) = {
-
-      val params: List[(String, String)] = buildParams.parameters.flatMap {
-        case ("Cycle", value) => Some("CYCLE", value)
-        case ("BUILDPATH", value) => Some("BUILDPATH", value + "\\" + buildPathPostfix)
-        case ("LOCAL_BRANCH", value) => Some("LOCALREPONAME", value)
-        case ("ARTIFACTS", value) => Some("ARTIFACTS", value)
-        case _ => None
-      }.toList ++
-        List(
-          ("VERSION", revision + "." + buildNumber),
-          ("BUILDPRIORITY", "10")
-        )
-
-      post(url, params ++ (parameters.filter(p => p._2 != "") ++ List(("RERUN", "true"))).toList)
-    }
 
   }
 
