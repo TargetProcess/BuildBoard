@@ -1,16 +1,16 @@
 {
   "branches": {
-    "release": "^(?:origin/)?release/(.*)$",
     "feature": "^(?:origin/)?feature/(.*)$",
     "hotfix": "^(?:origin/)?hotfix/(.*)$",
     "vs": "^(?:origin/)?vs/(.*)$",
+    "release": "^(?:origin/)?release/(.*)$",
     "develop": "^(?:origin/)?develop$",
-    "other":"^(?:origin/)?(?!(develop$)|(release/)|(feature/)|(vs/)|(hotfix/))(.*)$"
+    "other": "^(?:origin/)?(?!(develop$)|(release/)|(feature/)|(vs/)|(hotfix/))(.*)$"
   },
   "build": {
     "cycles": [
       {
-        "name": "Package only",
+        "name": "Package only 111",
         "branches": [
           "all"
         ],
@@ -18,15 +18,16 @@
           "isFull": false,
           "includeUnstable": false,
           "includeDb": false,
-          "karmaTests": [],
           "includeComet": false,
           "includeSlice": false,
+          "includePerfTests": false,
+          "includeMashupTests": false,
           "buildFullPackage": true,
           "casperTests": [],
+          "karmaTests": [],
           "unitTests": [],
           "pythonFuncTests": [],
-          "funcTests": [],
-          "includePerfTests" : false
+          "funcTests": []
         }
       },
       {
@@ -38,12 +39,10 @@
           "isFull": true,
           "includeUnstable": false,
           "includeDb": true,
-          "karmaTests": [
-            "tests",
-            "tpTests"
-          ],
           "includeComet": true,
           "includeSlice": true,
+          "includePerfTests": true,
+          "includeMashupTests": true,
           "buildFullPackage": true,
           "casperTests": [
             "general",
@@ -51,10 +50,19 @@
             "stats",
             "timeline"
           ],
-          "unitTests": ["All"],
-          "pythonFuncTests": ["All"],
-          "funcTests": ["All"],
-          "includePerfTests" : true
+          "karmaTests": [
+            "tests",
+            "tpTests"
+          ],
+          "unitTests": [
+            "All"
+          ],
+          "pythonFuncTests": [
+            "All"
+          ],
+          "funcTests": [
+            "All"
+          ]
         }
       },
       {
@@ -68,14 +76,11 @@
         "parameters": {
           "isFull": false,
           "includeUnstable": false,
+          "includeMashupTests": false,
           "includeDb": false,
-          "karmaTests": [
-            "tests",
-            "tpTests"
-          ],
           "includeComet": false,
           "includeSlice": false,
-          "includePerfTests" : false,
+          "includePerfTests": false,
           "buildFullPackage": false,
           "casperTests": [
             "general",
@@ -83,8 +88,16 @@
             "stats",
             "timeline"
           ],
-          "unitTests": ["All"],
-          "pythonFuncTests": ["All"],
+          "karmaTests": [
+            "tests",
+            "tpTests"
+          ],
+          "unitTests": [
+            "All"
+          ],
+          "pythonFuncTests": [
+            "All"
+          ],
           "funcTests": [
             "PartComet",
             "PartViews",
@@ -117,42 +130,11 @@
         }
       }
     ],
-    "customCyclesAvailability":["feature","other"],
-    "tests":{
-      "karmaTests": [
-        "tests",
-        "tpTests"
-      ],
-      "casperTests": [
-        "general",
-        "qaarea",
-        "stats",
-        "timeline"
-      ],
-      "unitTests": [
-        "Part0",
-        "Part1",
-        "Part17",
-        "Part2",
-        "Part3",
-        "Part4",
-        "Part5",
-        "Part6",
-        "Part7",
-        "Part8",
-        "PartRest1",
-        "PartRestDSL",
-        "PartSlice1",
-        "PartSlice2",
-        "PartOther",
-        "PartPlugins0",
-        "PartPlugins1"
-      ],
-      "pythonFuncTests": [
-        "PartPyComet",
-        "PartPy1",
-        "PartPy2"
-      ],
+    "customCyclesAvailability": [
+      "feature",
+      "other"
+    ],
+    "tests": {
       "funcTests": [
         "Part0",
         "Part1",
@@ -198,6 +180,40 @@
         "PartPlugins2",
         "PartPlugins3",
         "PartPlugins4"
+      ],
+      "pythonFuncTests": [
+        "PartPyComet",
+        "PartPy1",
+        "PartPy2"
+      ],
+      "karmaTests": [
+        "tests",
+        "tpTests"
+      ],
+      "unitTests": [
+        "Part0",
+        "Part1",
+        "Part17",
+        "Part2",
+        "Part3",
+        "Part4",
+        "Part5",
+        "Part6",
+        "Part7",
+        "Part8",
+        "PartRest1",
+        "PartRestDSL",
+        "PartSlice1",
+        "PartSlice2",
+        "PartOther",
+        "PartPlugins0",
+        "PartPlugins1"
+      ],
+      "casperTests": [
+        "general",
+        "qaarea",
+        "stats",
+        "timeline"
       ]
     },
     "unstableNodes": [
@@ -208,38 +224,62 @@
     ]
   },
   "autoRerun": {
-    "hotfix": false,
     "feature": false,
-    "develop": false,
+    "hotfix": false,
+    "all": false,
     "vs": false,
     "release": false,
-    "all": false
+    "develop": false
   },
-  "teams": [
+  "deploy": [
     {
       "name": "Alaska",
+      "channel": "alaska",
       "deployTo": "alaska",
-      "channel": "alaska"
+      "branches": [
+        "all"
+      ]
     },
     {
       "name": "Lambda",
+      "channel": "lambda-product",
       "deployTo": "lambda",
-      "channel": "lambda-product"
+      "branches": [
+        "all"
+      ]
     },
     {
       "name": "Buntai",
-      "deployTo": "exploited",
-      "channel": "buntai-dev"
+      "channel": "buntai-dev",
+      "deployTo": "buntai",
+      "branches": [
+        "all"
+      ]
     },
     {
       "name": "Cat",
+      "channel": "cat-team",
       "deployTo": "devops",
-      "channel": "cat-team"
+      "branches": [
+        "all"
+      ]
     },
     {
       "name": "New Team",
+      "channel": "new-team",
       "deployTo": "newteam",
-      "channel": "new-team"
+      "branches": [
+        "all"
+      ]
+    },
+    {
+      "name": "Plan",
+      "channel": "build-release",
+      "deployTo": "deploy",
+      "branches": [
+        "release",
+        "hotfix"
+      ]
     }
   ]
 }

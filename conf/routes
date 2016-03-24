@@ -8,7 +8,7 @@ GET           /branches                              controllers.Branches.branch
 GET           /branch                                controllers.Branches.activities(branchName: String)
 
 GET           /config                                controllers.Config.getConfig
-
+POST          /config                                controllers.Config.setConfig()
 
 GET           /open                                  controllers.Landing.redirect(id:Int)
 
