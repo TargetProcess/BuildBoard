@@ -3,7 +3,6 @@ package models.notifications
 import com.mongodb.casbah.Imports._
 import components._
 import models._
-import models.configuration.Team
 import models.github.GithubStatus
 import play.api.Play
 import play.api.Play.current
@@ -142,22 +141,6 @@ trait NotificationComponentImpl extends NotificationComponent {
 
     }
 
-    def notifyStartDeploy(team: Team, build: Build) {
-      post(s"Build <${getBuildLink(build)}> is starting to deploy for ${team.name}", team.channel)
-    }
-
-    def notifyDoneDeploy(team: Team, build: Build, result: Try[Any]) {
-      val deployText = result match {
-        case Success(_) => "copied"
-        case Failure(_) => "not copied"
-      }
-
-      val message = s"Build <${getBuildLink(build)}> is $deployText for ${team.name}"
-
-      post(message, team.channel)
-    }
-
-
     def getBuildLink(currentBuild: Build): String = s"$baseUrl/#/list/branch?name=${currentBuild.branch}"
 
     def post(text: String, channel: String) {
@@ -185,6 +168,21 @@ trait NotificationComponentImpl extends NotificationComponent {
       icon
     }
 
+    override def notifyStartDeploy(channel: String, destination: String, build: Build): Unit = {
+      post(s"Build <${getBuildLink(build)}> is starting to deploy for $destination", channel)
+    }
+
+    override def notifyDoneDeploy(channel: String, destination: String, build: Build, result: Try[Any]): Unit = {
+      val deployText = result match {
+        case Success(_) => "copied"
+        case Failure(_) => "not copied"
+      }
+
+      val message = s"Build <${getBuildLink(build)}> is $deployText for $destination"
+
+      post(message, channel)
+    }
+
   }
 
   object NoNotifications extends NotificationService {
@@ -193,13 +191,9 @@ trait NotificationComponentImpl extends NotificationComponent {
 
     override def notifyToggle(branch: Branch, build: Build) = {}
 
-    def notifyStartDeploy(team: Team, build: Build) = {
-      play.Logger.info(s"StartDeploy $build -> $team")
-    }
+    override def notifyStartDeploy(channel: String, destination: String, build: Build): Unit = {}
 
-    def notifyDoneDeploy(team: Team, build: Build, result: Try[Any]) = {
-      play.Logger.info(s"DoneDeploy $build -> $team, $result")
-    }
+    override def notifyDoneDeploy(channel: String, destination: String, build: Build, result: Try[Any]): Unit = {}
   }
 
 }

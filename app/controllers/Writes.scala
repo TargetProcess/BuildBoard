@@ -1,14 +1,22 @@
 package controllers
 
 import models.buildActions.{BuildAction, BuildParametersCategory}
+import models.configuration._
 import models.magicMerge.MagicMergeResult
-import models.{PullRequestStatus, _}
+import models._
 import org.joda.time.DateTime
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Writes._
 import play.api.libs.json._
 
 object Writes {
+  implicit val team = Json.format[DeployConfig]
+  implicit val cycleParameters = Json.format[CycleParameters]
+  implicit val cycleConfig = Json.format[CycleConfig]
+  implicit val buildConfig = Json.format[BuildConfig]
+  implicit val buildBoardConfig: Format[BuildBoardConfig] = Json.format[BuildBoardConfig]
+
+
   implicit val artifactWrite: Writes[Artifact] = Json.writes[Artifact]
   implicit val testCaseWrite: Writes[TestCase] = Json.writes[TestCase]
   implicit val testCasePackageWrite: Writes[TestCasePackage] = Json.writes[TestCasePackage]

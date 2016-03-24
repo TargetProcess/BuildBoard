@@ -1,16 +1,31 @@
 package controllers
 
-import controllers.Github._
-import models.services.CacheService
-import play.api.libs.json.Json
+import models.configuration._
+import play.api.libs.json.{Format, JsSuccess, Json}
 
-import scala.util.{Failure, Success}
 
 object Config extends Application {
-  def getConfig = IsAuthorizedComponent {
+  implicit val team = Json.format[DeployConfig]
+  implicit val cycleParameters = Json.format[CycleParameters]
+  implicit val cycleConfig = Json.format[CycleConfig]
+  implicit val buildConfig = Json.format[BuildConfig]
+  implicit val buildBoardConfig: Format[BuildBoardConfig] = Json.format[BuildBoardConfig]
+
+  def getConfig = AuthorizedComponent {
     component =>
       implicit request =>
-        Ok("")//component.config.buildConfig.toJson)
+        Ok(Json.toJson(component.config.buildConfig))
   }
 
+  def setConfig() = AuthorizedComponent {
+    component =>
+      implicit request =>
+        request.body.asJson.map { json =>
+          val config = json.as[BuildBoardConfig]
+          component.config.saveBuildConfig(config)
+          Ok("Saved")
+        }.getOrElse {
+          BadRequest("Expecting Json data")
+        }
+  }
 }

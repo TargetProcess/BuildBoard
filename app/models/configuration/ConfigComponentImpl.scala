@@ -1,6 +1,9 @@
 package models.configuration
 
+import java.io.{BufferedWriter, FileWriter}
+
 import components.ConfigComponent
+import models.Branch
 import models.buildActions.BuildParametersCategory
 import models.cycles.Cycle
 import play.api.Play
@@ -11,14 +14,9 @@ import scala.concurrent.duration._
 
 trait ConfigComponentImpl extends ConfigComponent {
 
-  override val config = new ConfigService {
+  import controllers.Writes._
 
-    implicit val teamRead = Json.reads[Team]
-    implicit val buildParametersCategory = Json.reads[BuildParametersCategory]
-    implicit val cycleParametersRead = Json.reads[CycleParameters]
-    implicit val cycleConfigRead = Json.reads[CycleConfig]
-    implicit val buildConfigRead = Json.reads[BuildConfig]
-    implicit val buildBoardConfigRead = Json.reads[BuildBoardConfig]
+  override val config = new ConfigService {
 
     private def getString(path: String) = Play.configuration.getString(path).get
 
@@ -28,8 +26,17 @@ trait ConfigComponentImpl extends ConfigComponent {
 
     override val jenkinsInterval: FiniteDuration = Play.configuration.getMilliseconds("jenkins.cache.interval").getOrElse(60000L).milliseconds
 
+    val buildConfigPath = getString("build.config.path")
+
+    override def saveBuildConfig(buildConfig: BuildBoardConfig): Unit = {
+      val file = play.api.Play.getFile(buildConfigPath)
+      val bw = new BufferedWriter(new FileWriter(file))
+      bw.write(Json.prettyPrint(Json.toJson(buildConfig)))
+      bw.close()
+    }
+
     override def buildConfig: BuildBoardConfig = {
-      val config = play.api.Play.getFile("conf/build.json")
+      val config = play.api.Play.getFile(buildConfigPath)
       val source = scala.io.Source.fromFile(config)
       val json = try source.mkString finally source.close()
       Json.fromJson[BuildBoardConfig](Json.parse(json)) match {

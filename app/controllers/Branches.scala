@@ -5,7 +5,7 @@ import controllers.Writes._
 
 object Branches extends Application {
 
-  def branches = IsAuthorizedComponent {
+  def branches = AuthorizedComponent {
     component =>
       implicit request =>
         val branches = component.branchRepository.getBranchesWithLastBuild
@@ -14,7 +14,7 @@ object Branches extends Application {
   }
 
 
-  def activities(branchName: String) = IsAuthorizedComponent {
+  def activities(branchName: String) = AuthorizedComponent {
     component =>
       request =>
         val branch = component.branchRepository.getBranch(branchName)

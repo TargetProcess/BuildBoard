@@ -12,6 +12,7 @@ import scala.concurrent.Future
 trait DeployServiceComponentImpl extends DeployServiceComponent with FileHelper {
   this: DeployServiceComponentImpl
     with ConfigComponent
+
   =>
 
   override val deployService = new DeployService {
@@ -49,9 +50,10 @@ trait DeployServiceComponentImpl extends DeployServiceComponent with FileHelper 
     }
 
     override def getDeployBuildActions(build: Build): List[DeployBuildAction] = if (canDeployBuild(build.name))
-      config.buildConfig.teams.map(team => DeployBuildAction(build.name, build.number, team.name))
+      config.buildConfig.deploy
+        .filter(deployConfig => config.buildConfig.isApplicable(build.branch, deployConfig.branches))
+        .map(deployConfig => DeployBuildAction(build.name, build.number, deployConfig.name))
     else
       Nil
-
   }
 }

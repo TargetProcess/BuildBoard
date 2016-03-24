@@ -14,7 +14,6 @@ trait ConfigurableCycleBuilderComponentImpl extends CycleBuilderComponent {
   override val cycleBuilder = new CycleBuilder {
     def customCycle(buildParametersCategory: List[BuildParametersCategory]): Cycle = {
 
-
       def getBoolByCategory(categoryName: String): Boolean = {
         buildParametersCategory.find(x => x.name == categoryName).exists(x => x.parts.nonEmpty)
       }
@@ -42,6 +41,7 @@ trait ConfigurableCycleBuilderComponentImpl extends CycleBuilderComponent {
       val includeDb = getBoolByCategory(CycleConstants.dbCategoryName)
       val isFull: Boolean = getBoolByCategory(CycleConstants.cycleTypeCategoryName)
       val includePerfTests: Boolean = getBoolByCategory(CycleConstants.perfCategoryName)
+      val includeMashupTests: Boolean = getBoolByCategory(CycleConstants.includeMashupTestsKey)
 
       val possibleBuildParameters =
         List(
@@ -59,7 +59,7 @@ trait ConfigurableCycleBuilderComponentImpl extends CycleBuilderComponent {
 
 
       Cycle(name,
-        CycleParameters(isFull, includeUnstable, includeDb, includeComet, includeSlice, includePerfTests, buildFullPackage, casperJsTests,karmaJsTests, unitTests, pythonFuncTests, funcTests),
+        CycleParameters(isFull, includeUnstable, includeDb, includeComet, includeSlice, includePerfTests, includeMashupTests, buildFullPackage, casperJsTests, karmaJsTests, unitTests, pythonFuncTests, funcTests),
         buildParametersCategory, possibleBuildParameters)
     }
 
@@ -67,89 +67,28 @@ trait ConfigurableCycleBuilderComponentImpl extends CycleBuilderComponent {
 
     override def buildActions(branch: Branch): List[BuildAction] = {
 
-      val branchCategories = config.buildConfig.branches
-        .filter { case (name, regex) =>
-          regex.r.findFirstIn(branch.name).isDefined
-        }.keys
-        .toList
-
 
       val applicableBranchConfigs = config.buildConfig.build.cycles
-        .filter(cycleConfig => {
-          cycleConfig.branches.contains("all") || cycleConfig.branches.intersect(branchCategories).nonEmpty
-        })
+        .filter(cycleConfig => config.buildConfig.isApplicable(branch.name, cycleConfig.branches))
 
-      val branchCycles: List[Cycle] = applicableBranchConfigs.map(cf => buildCycle(cf))
-
-      val customCycles = config.buildConfig.build.customCyclesAvailability
-
-      val branchBuildActions: List[BranchBuildAction] = branchCycles.map(BranchBuildAction(branch.name, _))
+      val branchCycles: List[Cycle] = applicableBranchConfigs.map(cf => buildCycle(cf)) ++
+        (if (config.buildConfig.isApplicable(branch.name, config.buildConfig.build.customCyclesAvailability))
+          List(customCycle(Nil))
+        else
+          Nil)
 
 
-
+      val branchBuildActions = branchCycles.map(BranchBuildAction(branch.name, _))
       val pullRequestBuildAction = branch.pullRequest
-        .filter(_.status.isMergeable).toList.flatMap(pr => branchCycles.map(PullRequestBuildAction(pr.prId, _)))
+        .filter(_.status.isMergeable)
+        .toList
+        .flatMap(pr => branchCycles.map(PullRequestBuildAction(pr.prId, _)))
 
 
       branchBuildActions ++
-        pullRequestBuildAction ++
-        List(TransifexBuildAction(branch.name))
-
-
-      /*
-
-
-
-
-
-
-
-
-
-            val packageOnlyCycle: Cycle = cycleBuilderComponent.cycleBuilder.packageOnlyCycle
-            val fullCycle: Cycle = cycleBuilderComponent.cycleBuilder.fullCycle
-            val shortCycle: Cycle = cycleBuilderComponent.cycleBuilder.shortCycle
-
-            val buildPackages = List(
-              BranchBuildAction(name, packageOnlyCycle),
-              BranchBuildAction(name, fullCycle)
-            )
-
-            val buildBranches = name match {
-              case BranchInfo.release(_) => Nil
-              case BranchInfo.hotfix(_) => Nil
-              case _ => List(BranchBuildAction(name, shortCycle))
-            }
-
-            val (buildPullRequests, buildPullRequestCustom) =
-              pullRequest match {
-                case Some(pr) if pr.status.isMergeable => (
-                  List(
-                    PullRequestBuildAction(pr.prId, shortCycle),
-                    PullRequestBuildAction(pr.prId, fullCycle)
-                  ),
-                  List(PullRequestBuildAction(pr.prId, cycleBuilderComponent.cycleBuilder.emptyCustomCycle))
-                  )
-                case _ => (Nil, Nil)
-              }
-
-            val buildCustomBranch = name match {
-              case BranchInfo.release(_) => Nil
-              case BranchInfo.hotfix(_) => Nil
-              case BranchInfo.develop() => Nil
-              case _ => List(
-                BranchBuildAction(name, cycleBuilderComponent.cycleBuilder.emptyCustomCycle)
-              )
-            }
-
-            buildPackages ++
-              buildBranches ++
-              buildPullRequests ++
-              buildCustomBranch ++
-              buildPullRequestCustom ++
-              List(TransifexBuildAction(name))
-              */
+        pullRequestBuildAction
     }
-    override def find(cycleName: String): Option[Cycle]  = config.buildConfig.build.cycles.find(_.name == cycleName).map(buildCycle(_))
+
+    override def find(cycleName: String): Option[Cycle] = config.buildConfig.build.cycles.find(_.name == cycleName).map(buildCycle(_))
   }
 }

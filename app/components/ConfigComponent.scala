@@ -1,5 +1,6 @@
 package components
 
+import models.Branch
 import models.configuration.BuildBoardConfig
 
 import scala.concurrent.duration.FiniteDuration
@@ -14,6 +15,7 @@ trait ConfigComponent {
     val jenkinsUrl: String
 
     def buildConfig: BuildBoardConfig
+    def saveBuildConfig(buildConfig: BuildBoardConfig)
   }
 }
 

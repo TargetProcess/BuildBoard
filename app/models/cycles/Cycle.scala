@@ -16,6 +16,7 @@ case class Cycle(name: String, config: CycleParameters, buildParametersCategory:
       CycleConstants.includeFuncTestsKey -> toString(config.funcTests),
       CycleConstants.includePythonTestsKey -> toString(config.pythonFuncTests),
       CycleConstants.includePerfTestsKey -> config.includePerfTests.toString,
+      CycleConstants.includeMashupTestsKey -> config.includeMashupTests.toString,
       CycleConstants.includeCasperJsTestsKey -> toString(config.casperTests),
       CycleConstants.includeKarmaJsTestsFilter -> toString(config.karmaTests),
       "BuildFullPackage" -> config.buildFullPackage.toString,

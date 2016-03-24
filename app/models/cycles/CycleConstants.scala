@@ -13,6 +13,7 @@ object CycleConstants {
   val perfCategoryName = "PerfTests"
 
   val includePerfTestsKey = "INCLUDE_PERF"
+  val includeMashupTestsKey = "RunMashupTests"
   val includeFuncTestsKey = "FuncTestsFilter"
   val includePythonTestsKey = "PythonTestsFilter"
   val includeCasperJsTestsKey = "CasperJsTestsFilter"
