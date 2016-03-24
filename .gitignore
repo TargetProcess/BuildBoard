@@ -31,3 +31,5 @@ public/javascripts/all.js.map
 data/*
 /artifacts/
 node_modules/
+public/javascripts/bower_components/
+public/javascripts/bower-components/
