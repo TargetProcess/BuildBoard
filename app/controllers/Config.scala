@@ -1,7 +1,7 @@
 package controllers
 
 import models.configuration._
-import play.api.libs.json.{Format, JsSuccess, Json}
+import play.api.libs.json.{Format, JsError, JsSuccess, Json}
 
 
 object Config extends Application {
@@ -21,11 +21,11 @@ object Config extends Application {
     component =>
       implicit request =>
         request.body.asJson.map { json =>
-          val config = json.as[BuildBoardConfig]
-          component.config.saveBuildConfig(config)
-          Ok("Saved")
-        }.getOrElse {
-          BadRequest("Expecting Json data")
+          json.validate[BuildBoardConfig] match {
+            case JsSuccess(config, _) => component.config.saveBuildConfig(config); Ok("json")
+            case JsError(errors) => BadRequest("invalid config")
+          }
         }
+          .getOrElse(BadRequest("Expecting Json data"))
   }
 }

@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "dependencies": {
     "angular": "1.4.5",
-    "underscore": "1.5.2",
+    "underscore": "~1",
     "checklist-model": "0.1.3",
     "angular-underscore": "*",
     "angular-ui-router": "0.2.7",

@@ -2,11 +2,10 @@ package models.jenkins
 
 import java.io.File
 
-import components.{ConfigComponent, CycleBuilderComponent, _}
+import components._
 import models.buildActions.{BranchBuildAction, JenkinsBuildAction, PullRequestBuildAction, ReuseArtifactsBuildAction}
 import models.configuration.CycleParameters
 import models.cycles.CycleConstants
-import views.html.config
 
 import scala.util.Try
 

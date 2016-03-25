@@ -16,6 +16,8 @@
 
         @helper.javascriptRouter("jsRoutes")(
             routes.javascript.Branches.branches,
+            routes.javascript.Config.getConfig,
+            routes.javascript.Config.setConfig,
             routes.javascript.Branches.activities,
             routes.javascript.Targetprocess.changeEntityState,
             routes.javascript.Jenkins.build,

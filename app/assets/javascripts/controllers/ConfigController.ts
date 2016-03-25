@@ -1,16 +1,13 @@
 /// <reference path='../_all.ts' />
 module buildBoard {
     'use strict';
-    /*
-     export interface IBranchDetailsScope extends IBranchScope {
-     loadBuild(buildInfo:Build): void;
-     getActivity(): ActivityEntry[];
-     getBranch():Branch;
-     getBuildStatus(build:Build):Status;
-     getGravatar(email:string):string;
-     processCommitMessage(message:string):string;
-     }
-     */
+
+    interface IConfigControllerScope {
+        obj:any;
+        toggleMode():void
+        save():void
+    }
+
     export class ConfigController {
         public static NAME = "ConfigController";
 
@@ -20,17 +17,32 @@ module buildBoard {
             BackendService.NAME
         ];
 
-        constructor(private $scope:any, $state:ng.ui.IStateService,backendService:BackendService) {
-
-            console.log('hello');
-
+        constructor(private $scope:IConfigControllerScope, $state:ng.ui.IStateService, backendService:BackendService) {
+            var prevConfig;
             $scope.obj = {
-                data: {'hello': 'world'},
-                options: {mode: 'tree'}
+                options: {
+                    name: 'Build Board Config',
+                    mode: 'form',
+                    modes:['code','form']
+                }
             };
 
-            $scope.btnClick = ()=> {
-                $scope.obj.options = 'code';
+            backendService.getConfig().then(data=> {
+                prevConfig = data.data;
+                $scope.obj.data = data.data;
+            });
+
+            $scope.toggleMode = ()=> {
+                $scope.obj.options.mode = $scope.obj.options.mode == 'code' ? 'tree' : 'code';
+            };
+
+            $scope.save = ()=> {
+                backendService.saveConfig($scope.obj.data).then(()=>{
+                    $state.go('list')
+                }, ()=>{
+                    $scope.obj.data = prevConfig;
+                    alert('Invalid config');
+                })
             }
         }
     }

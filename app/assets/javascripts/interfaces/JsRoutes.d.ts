@@ -1,18 +1,19 @@
 declare module buildBoard {
     interface IAction {
-        absoluteURL(): string
+        absoluteURL():string
     }
 
     interface JsRoutes {
-        controllers: Controllers
+        controllers:Controllers
     }
 
     interface Controllers {
-        Login : ILogin;
-        Branches : IBranches;
-        Github: IGithub
-        Jenkins: IJenkins
-        Targetprocess: ITargetProcess
+        Login:ILogin;
+        Branches:IBranches;
+        Config:IConfig;
+        Github:IGithub
+        Jenkins:IJenkins
+        Targetprocess:ITargetProcess
     }
 
     interface ITargetProcess {
@@ -37,8 +38,13 @@ declare module buildBoard {
 
 
     interface IBranches {
-        branches(): IAction;
-        activities(name:string) : IAction;
+        branches():IAction;
+        activities(name:string):IAction;
+    }
+
+    interface IConfig {
+        getConfig():IAction;
+        setConfig():IAction;
     }
 
     export interface ILogin {
