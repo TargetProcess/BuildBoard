@@ -9,7 +9,7 @@ import scala.util.{Failure, Success}
 
 object Github extends Application {
 
-  def merge(branchName: String) = IsAuthorizedComponent {
+  def merge(branchName: String) = AuthorizedComponent {
     registry =>
       implicit request =>
 
@@ -21,7 +21,7 @@ object Github extends Application {
         }
   }
 
-  def prStatus(id: Int) = IsAuthorizedComponent {
+  def prStatus(id: Int) = AuthorizedComponent {
     component =>
       request => {
         val branch = component.branchRepository.getBranchByEntity(id)
@@ -39,7 +39,7 @@ object Github extends Application {
       }
   }
 
-  def pullRequest(entityId: Int) = IsAuthorizedComponent {
+  def pullRequest(entityId: Int) = AuthorizedComponent {
     component =>
       implicit request => {
         val branch = component.branchRepository.getBranchByEntity(entityId)

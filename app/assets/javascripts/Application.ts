@@ -6,7 +6,7 @@
 module buildBoard {
     'use strict';
 
-    angular.module('buildBoard', ['ui.router', 'checklist-model', 'btford.markdown'])
+    angular.module('buildBoard', ['ui.router', 'checklist-model', 'btford.markdown', 'ng.jsoneditor'])
         .service(HttpServiceNotificationDecorator.NAME, HttpServiceNotificationDecorator)
         .service(BackendService.NAME, BackendService)
         .service(LoggedUserService.NAME, LoggedUserService)
@@ -18,6 +18,7 @@ module buildBoard {
         .controller(HeaderController.NAME, HeaderController)
         .controller(RunController.NAME, RunController)
         .controller(TestCaseController.NAME, TestCaseController)
+        .controller(ConfigController.NAME, ConfigController)
         .filter('status2Class', status2Class)
         .filter('parseBuildNodeStatus', parseBuildNodeStatus)
         .filter('parseTestCaseStatus', parseTestCaseStatus)
@@ -37,11 +38,16 @@ module buildBoard {
 
             $urlRouterProvider.otherwise("/list?user=my&branch=all");
 
-            $stateProvider.state('list', {
-                url: "/list?user&branch",
-                templateUrl: "/assets/partials/main.html",
-                controller: BranchesController
-            })
+            $stateProvider
+                .state('config', {
+                    url: "/config",
+                    templateUrl:"/assets/partials/config.html",
+                    controller: ConfigController
+                }).state('list', {
+                    url: "/list?user&branch",
+                    templateUrl: "/assets/partials/main.html",
+                    controller: BranchesController
+                })
                 .state('list.branch', {
                     url: "/branch?name",
                     templateUrl: "/assets/partials/branch.html",
@@ -58,8 +64,9 @@ module buildBoard {
                     controller: TestCaseController
                 })
 
+
         }).run(function ($rootScope, $state) {
-            $rootScope.$state = $state;
-        })
+        $rootScope.$state = $state;
+    })
 
 }

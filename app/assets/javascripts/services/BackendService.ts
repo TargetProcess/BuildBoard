@@ -41,21 +41,19 @@ module buildBoard {
                 }
             ).value();
             return this.$http.post(this.controllers.Jenkins.forceBuild().absoluteURL(), {
-                pullRequestId:buildAction.pullRequestId,
-                branchId:buildAction.branchId,
-                cycleName : buildAction.cycleName,
-                parameters: categories,
-                buildNumber: buildAction.buildNumber
-            }
+                    pullRequestId: buildAction.pullRequestId,
+                    branchId: buildAction.branchId,
+                    cycleName: buildAction.cycleName,
+                    parameters: categories,
+                    buildNumber: buildAction.buildNumber
+                }
             );
         }
 
         deployBuild(buildAction:BuildAction):ng.IHttpPromise<Build> {
             return this.$http.post(this.controllers.Jenkins
                 .deployBuild(buildAction.branchId, buildAction.cycleName)
-                .absoluteURL(),{
-
-            });
+                .absoluteURL(), {});
         }
 
         toggleBuild(branchId:string, buildNumber:number, toggled:boolean):ng.IHttpPromise<Build> {
@@ -66,8 +64,8 @@ module buildBoard {
             return this.$http.post(this.controllers.Targetprocess.changeEntityState(entityId, nextStateId).absoluteURL(), {});
         }
 
-        getBuildActions(branch:string, build?:number):ng.IHttpPromise<BuildAction[]>{
-           return this.$http.get(this.controllers.Jenkins.buildActions(branch, build).absoluteURL());
+        getBuildActions(branch:string, build?:number):ng.IHttpPromise<BuildAction[]> {
+            return this.$http.get(this.controllers.Jenkins.buildActions(branch, build).absoluteURL());
         }
 
         run(branch:string, build:number, part:string, run:string):ng.IHttpPromise<BuildNode> {
@@ -90,6 +88,13 @@ module buildBoard {
             return this.$http.get(this.controllers.Branches.activities(branchName).absoluteURL());
         }
 
+        getConfig():ng.IHttpPromise<any> {
+            return this.$http.get(this.controllers.Config.getConfig().absoluteURL());
+        }
+
+        saveConfig(config:any):ng.IHttpPromise<Branch[]> {
+            return this.$http.post(this.controllers.Config.getConfig().absoluteURL(), JSON.stringify(config));
+        }
     }
 
 }

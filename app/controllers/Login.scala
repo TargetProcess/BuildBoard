@@ -65,7 +65,7 @@ object Login extends Application {
   }
 
 
-  def updateInfo(slackName: String) = IsAuthorizedComponent {
+  def updateInfo(slackName: String) = AuthorizedComponent {
     component =>
       implicit request =>
 

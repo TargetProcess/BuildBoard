@@ -10,7 +10,7 @@ object Landing extends Application {
     }
   }
 
-  def redirect(id: Int) = IsAuthorizedComponent {
+  def redirect(id: Int) = AuthorizedComponent {
     component =>
       implicit request => {
         val branch = component.branchRepository.getBranchByEntity(id)

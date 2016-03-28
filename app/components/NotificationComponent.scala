@@ -1,7 +1,7 @@
 package components
 
-import models.{Build, Branch}
-import models.teams.Team
+import models.configuration.DeployConfig
+import models.{Branch, Build}
 
 import scala.util.Try
 
@@ -10,9 +10,12 @@ trait NotificationComponent {
 
   trait NotificationService {
     def notifyAboutBuilds(builds: Iterator[Build])
-    def notifyToggle(branch: Branch, build:Build)
-    def notifyStartDeploy(team: Team, build:Build)
-    def notifyDoneDeploy(team: Team, build:Build, result: Try[Any])
+
+    def notifyToggle(branch: Branch, build: Build)
+
+    def notifyStartDeploy(channel: String, destination: String, build: Build)
+
+    def notifyDoneDeploy(channel: String, destination: String, build: Build, result: Try[Any])
   }
 
 }

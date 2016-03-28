@@ -3,8 +3,11 @@ package components
 import models.buildRerun.{BuildRerunComponentImpl, RerunRepositoryComponentImpl}
 import models.buildWatcher.NotificationBuildWatcherComponentImpl
 import models.configuration.ConfigComponentImpl
+import models.cycles.ConfigurableCycleBuilderComponentImpl
+import models.deploy.DeployServiceComponentImpl
 import models.github.GithubServiceComponentImpl
 import models.jenkins.JenkinsServiceComponentImpl
+import models.jenkins.ForceBuildComponentImpl
 import models.magicMerge.MagicMergeComponentImpl
 import models.notifications.{NotificationComponentImpl, NotificationRepositoryComponentImpl}
 import models.services.BranchServiceComponentImpl
@@ -30,6 +33,9 @@ trait DefaultComponent
   with RerunRepositoryComponentImpl
   with ConfigComponentImpl
   with NotificationBuildWatcherComponentImpl
+  with ConfigurableCycleBuilderComponentImpl
+  with DeployServiceComponentImpl
+  with ForceBuildComponentImpl
 
 
 class DefaultRegistry(val loggedUser: Option[User], val authInfo: AuthInfo) extends DefaultComponent {

@@ -1,53 +1,29 @@
 package models.cycles
 
-object Cycle {
-  val unitTestsCategoryName = "unitTests"
-  val funcTestsCategoryName = "funcTests"
-  val pythonFuncTestsCategoryName = "pythonFuncTests"
-  val sliceCategoryName = "SliceLoadTests"
-  val cometCategoryName = "CometTests"
-  val casperCategoryName = "casperTests"
-  val karmaCategoryName = "karmaTests"
-  val dbCategoryName = "DbTests"
-  val cycleTypeCategoryName = "CycleType"
-  val perfCategoryName = "PerfTests"
+import models.buildActions.BuildParametersCategory
+import models.configuration.CycleParameters
 
-  val includePerfTestsKey = "INCLUDE_PERF"
-  val includeFuncTestsKey = "FuncTestsFilter"
-  val includePythonTestsKey = "PythonTestsFilter"
-  val includeCasperJsTestsKey = "CasperJsTestsFilter"
-  val includeKarmaJsTestsFilter = "KarmaJsTestsFilter"
-}
 
-trait Cycle {
-  val name: String
+case class Cycle(name: String, config: CycleParameters, buildParametersCategory: List[BuildParametersCategory], possibleBuildParameters: List[BuildParametersCategory]) {
 
-  val includeUnstable: Boolean
-  val buildFullPackage: Boolean
-  val unitTests: String
-  val funcTests: String
-  val casperJsTests: String
-  val karmaJsTests: String
-  val pythonFuncTests: String
-  val includeComet: Boolean
-  val includeSlice: Boolean
-  val includeDb: Boolean
-  val isFull: Boolean
-  val includePerfTests: Boolean
+  def getParamsByCategory(categoryName: String): Map[String, String] = {
+    buildParametersCategory.filter(_.name == categoryName).flatMap(x => x.params).toMap
+  }
+  def toString(funcTests: List[String]): String = funcTests.mkString(" ")
 
   lazy val parameters = {
-    List("UnitTestsFilter" -> unitTests,
-      Cycle.includeFuncTestsKey -> funcTests,
-      Cycle.includePythonTestsKey -> pythonFuncTests,
-      Cycle.includePerfTestsKey -> includePerfTests.toString,
-      Cycle.includeCasperJsTestsKey -> casperJsTests,
-      Cycle.includeKarmaJsTestsFilter -> karmaJsTests,
-      "BuildFullPackage" -> buildFullPackage.toString,
-      "INCLUDE_UNSTABLE" -> includeUnstable.toString,
-      "Cycle" -> (if (isFull) "Full" else "Short"),
-      "INCLUDE_COMET" -> includeComet.toString,
-      "INCLUDE_SLICE" -> includeSlice.toString,
-      "INCLUDE_DB" -> includeDb.toString)
+    List[(String, String)]("UnitTestsFilter" -> toString(config.unitTests),
+      CycleConstants.includeFuncTestsKey -> toString(config.funcTests),
+      CycleConstants.includePythonTestsKey -> toString(config.pythonFuncTests),
+      CycleConstants.includePerfTestsKey -> config.includePerfTests.toString,
+      CycleConstants.includeMashupTestsKey -> config.includeMashupTests.toString,
+      CycleConstants.includeCasperJsTestsKey -> toString(config.casperTests),
+      CycleConstants.includeKarmaJsTestsFilter -> toString(config.karmaTests),
+      "BuildFullPackage" -> config.buildFullPackage.toString,
+      "INCLUDE_UNSTABLE" -> config.includeUnstable.toString,
+      "Cycle" -> (if (config.isFull) "Full" else "Short"),
+      "INCLUDE_COMET" -> config.includeComet.toString,
+      "INCLUDE_SLICE" -> config.includeSlice.toString,
+      "INCLUDE_DB" -> config.includeDb.toString)
   }
-
 }

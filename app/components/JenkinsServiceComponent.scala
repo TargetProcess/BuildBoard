@@ -2,10 +2,9 @@ package components
 
 import java.io.File
 
-import models.buildActions.{BuildAction, JenkinsBuildAction}
+import models.buildActions.JenkinsBuildAction
 import models.{Branch, Build, BuildNode}
 
-import scala.concurrent.Future
 import scala.util.Try
 
 trait JenkinsServiceComponent {
@@ -14,9 +13,7 @@ trait JenkinsServiceComponent {
 
 
   trait JenkinsService {
-    def getBuildActions(build: Build): List[BuildAction]
-
-    def forceBuild(action: JenkinsBuildAction): Try[Any]
+    def getBuildActions(build: Build): List[JenkinsBuildAction]
 
     def getUpdatedBuilds(existingBuilds: List[Build], buildNamesToUpdate: Seq[String]): List[Build]
 
@@ -24,7 +21,9 @@ trait JenkinsServiceComponent {
 
     def getArtifact(file: String): File
 
-    def deployBuild(buildName: String, deployFolderName: String) : Future[Unit]
   }
 
 }
+
+
+

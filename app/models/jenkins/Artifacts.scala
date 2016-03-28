@@ -9,7 +9,6 @@ import scala.xml.Node
 trait Artifacts {
 
   val directory: String
-  val deployDirectory: String
 
   protected val screenshot = "screenshot"
   protected val testNameRegex = """.*\.(\w+)\.(\w+)$""".r

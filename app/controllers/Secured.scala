@@ -26,9 +26,9 @@ trait Secured {
       }
     }
 
-  def IsAuthorizedComponent(f: => DefaultComponent => Request[AnyContent] => Result): EssentialAction = IsAuthorizedComponent(parse.anyContent)(f)
+  def AuthorizedComponent(f: => DefaultComponent => Request[AnyContent] => Result): EssentialAction = AuthorizedComponent(parse.anyContent)(f)
 
-  def IsAuthorizedComponent[A](bodyParser: BodyParser[A])(f: => DefaultComponent => Request[A] => Result) =
+  def AuthorizedComponent[A](bodyParser: BodyParser[A])(f: => DefaultComponent => Request[A] => Result) =
     IsAuthorized(bodyParser) {
       user => {
         val component = new DefaultRegistry(user)

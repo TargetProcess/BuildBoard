@@ -5,7 +5,7 @@ import Writes._
 
 object Targetprocess extends Application {
 
-  def changeEntityState(entityId: Int, stateId: Int) = IsAuthorizedComponent {
+  def changeEntityState(entityId: Int, stateId: Int) = AuthorizedComponent {
     component =>
       request =>
 
