@@ -8,6 +8,7 @@ import models.configuration.CycleParameters
 import models.cycles.CycleConstants
 
 import scala.util.Try
+import scalaj.http.{Http, HttpOptions}
 
 trait ForceBuildComponentImpl extends ForceBuildComponent {
   this: ForceBuildComponentImpl
@@ -28,15 +29,12 @@ trait ForceBuildComponentImpl extends ForceBuildComponent {
 
       play.Logger.info(s"Force build to $url with parameters $parameters")
 
-      /*      Http.post(url)
-              .params(parameters)
-              .option(HttpOptions.connTimeout(1000))
-              .option(HttpOptions.readTimeout(5000))
-              .asString*/
-      ""
+      Http.post(url)
+        .params(parameters)
+        .option(HttpOptions.connTimeout(1000))
+        .option(HttpOptions.readTimeout(5000))
+        .asString
     }
-
-
 
     override def forceBuild(action: JenkinsBuildAction) = action match {
       case x: ReuseArtifactsBuildAction => forceReuseArtifactsBuild(x)
