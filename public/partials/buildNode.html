@@ -1,9 +1,7 @@
-<span ng-model="showMe" ng-click="showMe=!showMe" class="node {{ data | parseBuildNodeStatus }} collapse">
-    <span ng-show="data.children && data.children.length > 0" class="glyphicon glyphicon-collapse-{{showMe ?'down':'up'}}"></span>
-    <a target="_blank" ng-show="!data.artifacts.length" title="{{data.status | lowercase}}" href="{{data.statusUrl}}">{{data.name}}</a>
+<span class="node {{ data | parseBuildNodeStatus }} collapse">
     <a target="_blank" ng-show="data.artifacts.length" ui-sref="list.branch.run({part:data.name,build:entry.number,run:data.runName})"  title="{{data.status | lowercase}}">{{data.name}}</a>
 </span>
 
 <ul>
-    <li ng-repeat="data in data.children | orderBy:'name'" ng-include="'/assets/partials/buildNode.html'"></li>
+    <li class="{{data.children && data.children.length?'has-children':'no-children' }}" ng-repeat="data in data.children | orderBy:'name'" ng-include="'/assets/partials/buildNode.html'"></li>
 </ul>
