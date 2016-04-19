@@ -2,7 +2,7 @@
 <div class="view common" style="left: 480px; z-index: 350;">
     <h2 class="txt-overflow">{{testCase.name}} <span class="txt-{{testCase | parseTestCaseStatus }}">{{testCase.result}}</span></h2>
     <div class="test-info">
-        <div class="time">Took {{testCase.duration | duration}} sec</div>
+        <div class="time">Took {{testCase.duration | duration}}</div>
     </div>
     <div ng-show="testCase.screenshots.length" ng-init="isCollapsed = true" class="test-screenshots">
         <h3 ng-click="isCollapsed = !isCollapsed">Screenshots</h3>
