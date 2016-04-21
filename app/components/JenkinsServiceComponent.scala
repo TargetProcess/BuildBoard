@@ -15,7 +15,7 @@ trait JenkinsServiceComponent {
   trait JenkinsService {
     def getBuildActions(build: Build): List[JenkinsBuildAction]
 
-    def getUpdatedBuilds(existingBuilds: List[Build], buildNamesToUpdate: Seq[String]): List[Build]
+    def getUpdatedBuilds(existingBuilds: List[Build], buildNamesToUpdate: Seq[String]): Stream[Build]
 
     def getTestRun(branch: Branch, buildNumber: Int, part: String, run: String): Option[BuildNode]
 

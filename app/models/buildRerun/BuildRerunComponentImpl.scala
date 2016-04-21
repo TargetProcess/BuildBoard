@@ -8,6 +8,7 @@ import play.api.Play.current
 import play.api.{Logger, Play}
 
 import scala.collection.JavaConverters._
+import src.Utils.watch
 
 trait BuildRerunComponentImpl extends BuildRerunComponent {
   this: BuildRerunComponentImpl
@@ -21,7 +22,8 @@ trait BuildRerunComponentImpl extends BuildRerunComponent {
   override val buildRerun: BuildRerun = new BuildRerun {
 
     override def rerunFailedParts(updatedBuild: Build) {
-      if (shouldRerunBuild(updatedBuild)) {
+
+      if (watch("Should rerun"){shouldRerunBuild(updatedBuild)}) {
 
         val funcTestsToRerun = getNodesToRerun(updatedBuild, CycleConstants.funcTestsCategoryName)
         val pythonFuncTestsToRerun = getNodesToRerun(updatedBuild, CycleConstants.pythonFuncTestsCategoryName)

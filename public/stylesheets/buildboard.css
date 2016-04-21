@@ -56,3 +56,68 @@
 .view .dropdown-menu_state {
     left: 0;
 }
+
+/* Restyling */
+
+.header {
+    display: flex;
+    align-items: flex-start;
+    min-width: 900px;
+}
+
+.header .logo {
+    position: relative;
+    top: 13px;
+    flex-shrink: 0;
+    float: none;
+}
+
+.header__menu {
+    flex: 1 1 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-itens: center;
+}
+
+.header__links {
+    position: relative;
+    top: 16px;
+    flex: 1 1 30%;
+}
+
+.header__links > .links > li > a {
+    display: inline-block;
+}
+
+.header__links > .links > .statistics-link > a {
+    display: inline-block;
+    height: auto;
+    padding: 0;
+}
+
+.navigation {
+    float: left;
+    position: relative;
+    top: 0;
+    padding-top: 20px;
+}
+
+.main {
+    padding-top: 20px;
+}
+
+.header .global-status {
+   float: left;
+   margin: 10px 0px 10px 10px;
+   padding: 6px 10px 6px 6px;
+}
+
+.header .global-status > span {
+    display: block;
+}
+
+.header .external-component-status {
+    padding: 5px 20px; 4px 0px;
+    margin: 10px 0;
+    display: inline-block;
+}

@@ -10,7 +10,7 @@ module buildBoard {
         };
 
         template = '<div ng-show="build()" ui-sref="list.branch({name:name})" class="global-status pointer {{ build().parsedStatus | status2Class }}">' +
-            '<span class="status {{ build().parsedStatus | status2Class }}">' +
+            '<span style="display: block;" class="status {{ build().parsedStatus | status2Class }}">' +
             '{{name}} {{time=="now" ? "is" : "was" }}  {{ build().parsedStatus | status2text }} {{time=="now" ? "since" : "at" }}' +
             ' {{ build().timestamp | friendlyDate }}' +
             '</span>' +

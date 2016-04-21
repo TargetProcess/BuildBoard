@@ -1,6 +1,7 @@
 package models.services
 
 import components.DefaultRegistry
+import models.Build
 import play.api.Play
 import play.api.Play.current
 import rx.lang.scala.{Observable, Subscription}
@@ -9,7 +10,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
-
+import src.Utils.watch;
 object CacheService {
 
   val registry = DefaultRegistry
@@ -53,16 +54,19 @@ object CacheService {
 
   }
 
-  def updateBuilds(updatedBuildNames: Seq[String]) {
+  def updateBuilds(updatedBuildNames: Seq[String]) = watch(s"update builds: ${updatedBuildNames.length}") {
     val existingBuilds = registry.buildRepository.getBuilds.toList
     play.Logger.info(s"existingBuilds: ${existingBuilds.length}")
 
-    val updatedBuilds = registry.jenkinsService.getUpdatedBuilds(existingBuilds, updatedBuildNames)
-    play.Logger.info(s"buildToUpdate: ${updatedBuilds.length}")
+    val updatedBuilds: Stream[Build] = registry.jenkinsService.getUpdatedBuilds(existingBuilds, updatedBuildNames)
 
     for (updatedBuild <- updatedBuilds) {
-      registry.buildRepository.update(updatedBuild)
-      registry.buildRerun.rerunFailedParts(updatedBuild)
+      watch(s"Update build ${updatedBuild.name}") {
+        registry.buildRepository.update(updatedBuild)
+      }
+      watch(s"rerun build ${updatedBuild.name}") {
+        registry.buildRerun.rerunFailedParts(updatedBuild)
+      }
     }
 
     registry.notificationService.notifyAboutBuilds(updatedBuilds.toIterator)

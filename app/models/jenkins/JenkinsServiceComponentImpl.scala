@@ -24,7 +24,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
 
     def unstableNodeNames = config.buildConfig.build.unstableNodes
 
-    override def getUpdatedBuilds(existingBuilds: List[Build], buildNamesToUpdate: Seq[String]): List[Build] = {
+    override def getUpdatedBuilds(existingBuilds: List[Build], buildNamesToUpdate: Seq[String]): Stream[Build] = {
 
       val existingBuildsMap: Map[String, Build] = existingBuilds.map(x => (x.name, x)).toMap
 
@@ -39,15 +39,20 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
         newFolders ++ foldersToUpdate
       }
 
-      val buildSources = folders.distinct.flatMap(createBuildSource)
+      val buildSources: Stream[BuildSource] = folders.distinct.toStream
+        .map(createBuildSource)
+        .filter(_.isDefined)
+        .map(_.get)
 
-      val result = buildSources.flatMap(buildSource => {
+      val result = buildSources.map(buildSource => {
         val name: String = buildSource.folder.getName
         val toggled = existingBuildsMap.get(name).fold(false)(_.toggled)
         getBuild(buildSource, toggled)
       })
+        .filter(_.isDefined)
+        .map(_.get)
 
-      result.toList
+      result
     }
 
     def getTestRun(branch: Branch, build: Int, part: String, run: String) =
