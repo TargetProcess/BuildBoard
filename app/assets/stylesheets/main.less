@@ -53,7 +53,7 @@
 
   .global-status {
     float: left;
-    margin: -4px 0 0 10px;
+    margin: 5px 10px 5px 0;
     padding: 6px 10px 6px 6px;
     &.pointer:hover {
       cursor: pointer;
@@ -80,71 +80,6 @@
       border-bottom-color: #fff;
     }
   }
-}
-
-/* Restyling */
-
-.header {
-  display: flex;
-  align-items: flex-start;
-  min-width: 900px;
-}
-
-.header .logo {
-  position: relative;
-  top: 13px;
-  flex-shrink: 0;
-  float: none;
-}
-
-.header__menu {
-  flex: 1 1 auto;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.header__links {
-  position: relative;
-  top: 16px;
-  flex: 1 1 30%;
-}
-
-.header__links > .links > li > a {
-  display: inline-block;
-}
-
-.header__links > .links > .statistics-link > a {
-  display: inline-block;
-  height: auto;
-  padding: 0;
-}
-
-.navigation {
-  float: left;
-  position: relative;
-  top: 0;
-  padding-top: 20px;
-}
-
-.main {
-  padding-top: 20px;
-}
-
-.header .global-status {
-  float: left;
-  margin: 10px 0px 10px 10px;
-  padding: 6px 10px 6px 6px;
-}
-
-.header .global-status > span {
-  display: block;
-}
-
-.header .external-component-status {
-  padding: 5px 20px 4px 0px;
-  margin: 10px 0;
-  display: inline-block;
 }
 
 a {
@@ -1244,4 +1179,73 @@ body[state='list.branch'], body[state='list.branch.run'], body[state='list.branc
     cursor: pointer;
     display: block;
   }
+}
+
+/* Restyling */
+
+.header {
+  padding: 12px 20px;
+  display: flex;
+  position: relative;
+  align-items: flex-start;
+  min-width: 900px;
+}
+
+.header .logo {
+  position: relative;
+  top: 8px;
+  flex-shrink: 0;
+  float: none;
+}
+
+.header__menu {
+  flex: 1 1 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.header__links {
+  position: relative;
+  top: 11px;
+  flex: 1 1 30%;
+}
+
+.header__links > .links > li > a {
+  display: inline-block;
+}
+
+.header__links > .links > .statistics-link > a {
+  display: inline-block;
+  height: auto;
+  padding: 0;
+}
+
+.navigation {
+  float: left;
+  position: relative;
+  top: 0;
+  padding-top: 20px;
+}
+
+.main {
+  padding-top: 20px;
+}
+
+.header .global-status:first-child {
+   margin-left: 10px;
+}
+
+.header .global-status > span {
+  display: block;
+}
+
+.header .external-component-status {
+  padding: 0 10px;
+  margin: 10px 0;
+  display: inline-block;
+}
+
+.header .external-component-status:last-child {
+   padding-right: 0;
 }
