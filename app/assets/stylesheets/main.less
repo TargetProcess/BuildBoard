@@ -1173,9 +1173,6 @@ body[state='list.branch'], body[state='list.branch.run'], body[state='list.branc
   }
   position: relative;
   > a {
-    padding: 10px 0;
-    height: 20px;
-    line-height: 0px;
     cursor: pointer;
     display: block;
   }
@@ -1211,15 +1208,16 @@ body[state='list.branch'], body[state='list.branch.run'], body[state='list.branc
   flex: 1 1 30%;
 }
 
-.header__links > .links > li > a {
+.header__links > .links > li > a,
+.header__links > .links > li > .user-name {
   display: inline-block;
+  height: 24px;
+  line-height: normal;
 }
 
 .header__links > .links > .statistics-link > a {
   display: inline-block;
-  height: auto;
   padding: 0;
-  line-height: normal;
 }
 
 .navigation {
