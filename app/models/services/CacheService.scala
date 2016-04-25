@@ -2,22 +2,19 @@ package models.services
 
 import components.DefaultRegistry
 import models.Build
-import play.api.Play
-import play.api.Play.current
 import rx.lang.scala.{Observable, Subscription}
-
+import src.Utils.watch
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
-import src.Utils.watch;
 object CacheService {
 
   val registry = DefaultRegistry
 
   val jenkinsDataPath: String = registry.config.jenkinsDataPath
 
-  val githubInterval = Play.configuration.getMilliseconds("github.cache.interval").getOrElse(600000L).milliseconds
+  val githubInterval = registry.config.githubInterval
   val jenkinsInterval = registry.config.jenkinsInterval
 
 
@@ -63,8 +60,6 @@ object CacheService {
     for (updatedBuild <- updatedBuilds) {
       watch(s"Update build ${updatedBuild.name}") {
         registry.buildRepository.update(updatedBuild)
-      }
-      watch(s"rerun build ${updatedBuild.name}") {
         registry.buildRerun.rerunFailedParts(updatedBuild)
       }
     }

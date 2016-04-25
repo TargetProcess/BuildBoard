@@ -12,6 +12,7 @@ trait ConfigComponent {
     val deployDirectoryRoot: String
     val jenkinsDataPath: String
     val jenkinsInterval: FiniteDuration
+    val githubInterval: FiniteDuration
     val jenkinsUrl: String
 
     def buildConfig: BuildBoardConfig

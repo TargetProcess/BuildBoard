@@ -25,6 +25,7 @@ trait ConfigComponentImpl extends ConfigComponent {
     override val deployDirectoryRoot: String = getString("jenkins.data.deployPath")
 
     override val jenkinsInterval: FiniteDuration = Play.configuration.getMilliseconds("jenkins.cache.interval").getOrElse(60000L).milliseconds
+    override val githubInterval: FiniteDuration = Play.configuration.getMilliseconds("github.cache.interval").getOrElse(600000L).milliseconds
 
     val buildConfigPath = getString("build.config.path")
 

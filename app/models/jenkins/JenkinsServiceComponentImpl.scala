@@ -40,17 +40,13 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
       }
 
       val buildSources: Stream[BuildSource] = folders.distinct.toStream
-        .map(createBuildSource)
-        .filter(_.isDefined)
-        .map(_.get)
+        .flatMap(createBuildSource)
 
-      val result = buildSources.map(buildSource => {
+      val result = buildSources.flatMap(buildSource => {
         val name: String = buildSource.folder.getName
         val toggled = existingBuildsMap.get(name).fold(false)(_.toggled)
         getBuild(buildSource, toggled)
       })
-        .filter(_.isDefined)
-        .map(_.get)
 
       result
     }
