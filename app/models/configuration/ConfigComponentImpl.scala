@@ -3,9 +3,6 @@ package models.configuration
 import java.io.{BufferedWriter, FileWriter}
 
 import components.ConfigComponent
-import models.Branch
-import models.buildActions.BuildParametersCategory
-import models.cycles.Cycle
 import play.api.Play
 import play.api.Play.current
 import play.api.libs.json._
@@ -35,6 +32,7 @@ trait ConfigComponentImpl extends ConfigComponent {
       bw.write(Json.prettyPrint(Json.toJson(buildConfig)))
       bw.close()
     }
+
 
     override def buildConfig: BuildBoardConfig = {
       val config = play.api.Play.getFile(buildConfigPath)

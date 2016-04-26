@@ -4,11 +4,7 @@ import components._
 import models.buildActions.{BuildParametersCategory, ReuseArtifactsBuildAction}
 import models.cycles.CycleConstants
 import models.{BranchInfo, Build}
-import play.api.Play.current
-import play.api.{Logger, Play}
-
-import scala.collection.JavaConverters._
-import src.Utils.watch
+import play.api.Logger
 
 trait BuildRerunComponentImpl extends BuildRerunComponent {
   this: BuildRerunComponentImpl
@@ -21,9 +17,9 @@ trait BuildRerunComponentImpl extends BuildRerunComponent {
 
   override val buildRerun: BuildRerun = new BuildRerun {
 
-    override def rerunFailedParts(updatedBuild: Build) {
+    override def rerunFailedParts(updatedBuild: Build) = {
 
-      if (watch("Should rerun"){shouldRerunBuild(updatedBuild)}) {
+      if (shouldRerunBuild(updatedBuild)) {
 
         val funcTestsToRerun = getNodesToRerun(updatedBuild, CycleConstants.funcTestsCategoryName)
         val pythonFuncTestsToRerun = getNodesToRerun(updatedBuild, CycleConstants.pythonFuncTestsCategoryName)
@@ -61,14 +57,15 @@ trait BuildRerunComponentImpl extends BuildRerunComponent {
     def autoRerun(name: String): Boolean = config.buildConfig.autoRerun(name)
 
     def shouldRerunBuild(build: Build): Boolean = {
-      build.branch match {
-        case BranchInfo.develop() => autoRerun("develop")
-        case BranchInfo.hotfix(_) => autoRerun("hotfix")
-        case BranchInfo.release(_) => autoRerun("release")
-        case BranchInfo.feature(_) => autoRerun("feature")
-        case BranchInfo.vs(_) => autoRerun("vs")
-        case _ => autoRerun("others")
+      val branch = build.branch match {
+        case BranchInfo.develop() => "develop"
+        case BranchInfo.hotfix(_) => "hotfix"
+        case BranchInfo.release(_) => "release"
+        case BranchInfo.feature(_) => "feature"
+        case BranchInfo.vs(_) => "vs"
+        case _ => "others"
       }
+      autoRerun(branch)
     }
 
     def getNodesToRerun(build: Build, category: String): List[String] = {

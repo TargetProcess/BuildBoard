@@ -8,6 +8,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
+
 object CacheService {
 
   val registry = DefaultRegistry
@@ -38,10 +39,7 @@ object CacheService {
       .buffer(jenkinsInterval)
       .map(_.distinct)
       .subscribe(buildNames => Try {
-        if (buildNames.nonEmpty) {
-          updateBuilds(buildNames)
-        }
-
+        updateBuilds(buildNames)
       }.recover {
         case e => play.Logger.error("Error in jenkinsSubscription", e)
       },
@@ -58,10 +56,12 @@ object CacheService {
     val updatedBuilds: Stream[Build] = registry.jenkinsService.getUpdatedBuilds(existingBuilds, updatedBuildNames)
 
     for (updatedBuild <- updatedBuilds) {
-      watch(s"Update build ${updatedBuild.name}") {
-        registry.buildRepository.update(updatedBuild)
-        registry.buildRerun.rerunFailedParts(updatedBuild)
-      }
+        Try {
+          registry.buildRepository.update(updatedBuild)
+          registry.buildRerun.rerunFailedParts(updatedBuild)
+        }.recover {
+          case e => play.Logger.error("Error in Update builds", e)
+        }
     }
 
     registry.notificationService.notifyAboutBuilds(updatedBuilds.toIterator)

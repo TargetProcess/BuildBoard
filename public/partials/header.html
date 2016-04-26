@@ -2,20 +2,21 @@
     <a class="logo" href="#"></a>
 
     <div class="header__menu">
-        <build-status-badge build="getLastBuild" name="develop" time="now"></build-status-badge>
+        <div class="global-status__controls">
+            <build-status-badge build="getLastBuild" name="develop" time="now"></build-status-badge>
+            <build-status-badge build="getPrevBuild" name="develop" time="past"></build-status-badge>
+        </div>
 
-        <build-status-badge build="getPrevBuild" name="develop" time="past"></build-status-badge>
-
-        <div>
-            <span class="external-component-status">Transifex integration: <a
+        <div class="external-status__controls">
+            <span class="external-component-status">Transifex: <a
                     href="http://jm2:8080/job/Transifex/"><img title="status transifex integration"
                                                                src="http://jm2:8080/buildStatus/icon?job=Transifex"
                                                                alt="staus transifex integration"/></a></span>
-            <span class="external-component-status">Perf stats: <a
+            <span class="external-component-status">Perf: <a
                     href="http://jm2:8080/job/RunPerfAnalysis/"><img title="perf stats"
                                                                      src="http://jm2:8080/buildStatus/icon?job=RunPerfAnalysis"
                                                                      alt="Perf Stats"/></a></span>
-            <span class="external-component-status">Plugin SDK compatibility: <a
+            <span class="external-component-status">Plugin SDK: <a
                     href="http://jm2:8080/job/PluginSDKCompatibility/"><img title="Plugin SDK compatibility"
                                                                             src="http://jm2:8080/buildStatus/icon?job=PluginSDKCompatibility"
                                                                             alt="Plugin SDK compatibility"/></a></span>
@@ -76,8 +77,6 @@
                 </ul>
             </li>
             <li><a target="_blank" href="https://github.com/TargetProcess/TP/wiki">Wiki</a></li>
-            <li><span class="user-name">{{user.fullName}}</span></li>
-            <li class="sign-out"><a href="{{logout}}">Sign out</a></li>
         </ul>
     </div>
 </div>

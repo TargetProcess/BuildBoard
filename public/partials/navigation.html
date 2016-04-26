@@ -6,12 +6,8 @@
                 <span class="counter">{{countBy("all")}}</span>
             </a>
         </li>
-        <li ui-sref-active="active">
-            <a ui-sref="list({user:'all', branch:'special'})">
-                <b>Special branches</b>
-                <span class="counter">{{countBy('all', 'special')}}</span>
-            </a>
-        </li>
+    </ul>
+    <ul class="branches-filter">
         <li ui-sref-active="active">
             <a ui-sref="list({user:'my', branch:'all'})">
                 <b>My branches</b>
@@ -19,6 +15,27 @@
             </a>
         </li>
     </ul>
+    <ul class="branches-filter">
+        <li ui-sref-active="active">
+            <a ui-sref="list({user:'all', branch:'special'})">
+                <b>Special branches</b>
+                <span class="counter">{{countBy('all', 'special')}}</span>
+            </a>
+        </li>
+        <li ui-sref-active="active">
+            <a ui-sref="list({user:'all', branch:'in progress'})">
+                <b>In progress</b>
+                <span class="counter">{{countBy('all', "in progress")}}</span>
+            </a>
+        </li>
+        <li ui-sref-active="active">
+            <a ui-sref="list({user:'all', branch:'no entity'})">
+                <b>No entity</b>
+                <span class="counter">{{countBy('all', "no entity")}}</span>
+            </a>
+        </li>
+    </ul>
+
     <ul class="persons-list">
         <li ng-repeat="user in getUsers() | orderBy:'firstName+lastName'" ui-sref-active="active">
             <a ui-sref="list({user:user.userId, branch:branchesFilter})">

@@ -97,11 +97,11 @@ module buildBoard {
             var userPredicate;
 
             var userId = userFilter == "my" ? this.loggedUserService.getLoggedUser().userId : parseInt(userFilter, 10);
-            if (!isNaN(userId)) {
-                userPredicate = branch=>branch.entity && _.any(branch.entity.assignments, assignment=>assignment.userId == userId);
-            }
-            else {
+
+            if (isNaN(userId)) {
                 userPredicate = branch=>true;
+            } else {
+                userPredicate = branch=>branch.entity && _.any(branch.entity.assignments, assignment=>assignment.userId == userId);
             }
 
             var branchPredicate;
@@ -112,6 +112,12 @@ module buildBoard {
 
                 case "closed":
                     branchPredicate = (branch:Branch)=>branch.entity && branch.entity.state.isFinal;
+                    break;
+                case "no entity":
+                    branchPredicate = branch=>!branch.entity;
+                    break;
+                case "in progress":
+                    branchPredicate = branch=>branch.lastBuild && branch.lastBuild.parsedStatus == Status.InProgress;
                     break;
 
                 case "special":

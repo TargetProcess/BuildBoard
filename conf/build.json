@@ -76,6 +76,7 @@
     "feature" : false,
     "hotfix" : false,
     "all" : false,
+    "others" : false,
     "vs" : false,
     "release" : false,
     "develop" : false

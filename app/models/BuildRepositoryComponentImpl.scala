@@ -8,7 +8,6 @@ import components.BuildRepositoryComponent
 import play.api.Play.current
 import se.radley.plugin.salat.Binders.ObjectId
 import se.radley.plugin.salat._
-
 trait BuildRepositoryComponentImpl extends BuildRepositoryComponent {
   val buildRepository: BuildRepository = new BuildRepositoryImpl
 

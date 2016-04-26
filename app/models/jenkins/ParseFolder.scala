@@ -8,7 +8,7 @@ import models.{Artifact, Build, BuildNode, Commit, TestCase, TestCasePackage}
 import org.joda.time.DateTime
 
 import scala.xml.{Node, XML}
-import src.Utils.watch;
+import src.Utils.watch
 
 trait FileHelper {
   type Folder = File
@@ -30,11 +30,11 @@ trait ParseFolder extends Artifacts with FileHelper {
   }
 
 
-  def getBuild(buildSource: BuildSource, toggled: Boolean): Option[Build] = watch(s"getBuild ${buildSource.branch}"){
+  def getBuild(buildSource: BuildSource, toggled: Boolean): Option[Build] = {
     val name: String = buildSource.folder.getName
 
 
-    val node = watch(s"Get node ${buildSource.branch}"){getBuildNode(new Folder(buildSource.folder, "Build"))}
+    val node = watch(s"Get node ${buildSource.branch} ${buildSource.number}"){getBuildNode(new Folder(buildSource.folder, "Build"))}
     val folder = new Folder(buildSource.folder, "Build/StartBuild")
 
 

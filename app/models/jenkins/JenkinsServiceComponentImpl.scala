@@ -5,7 +5,6 @@ import models.buildActions._
 import models.{Branch, Build}
 
 
-
 trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
   this: JenkinsServiceComponentImpl
     with BranchRepositoryComponent
@@ -39,7 +38,9 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
         newFolders ++ foldersToUpdate
       }
 
-      val buildSources: Stream[BuildSource] = folders.distinct.toStream
+      val buildSources: Stream[BuildSource] = folders
+        .sortBy(f => -f.lastModified())
+        .distinct.toStream
         .flatMap(createBuildSource)
 
       val result = buildSources.flatMap(buildSource => {

@@ -1,7 +1,7 @@
-<span class="node {{ data | parseBuildNodeStatus }} collapse">
+<span class="node {{ data | parseBuildNodeStatus }} {{data.children && data.children.length?'has-children':'no-children' }}">
     <a target="_blank" ng-show="data.artifacts.length" ui-sref="list.branch.run({part:data.name,build:entry.number,run:data.runName})"  title="{{data.status | lowercase}}">{{data.name}}</a>
 </span>
 
-<ul>
+<ul ng-show="data.children && data.children.length">
     <li class="{{data.children && data.children.length?'has-children':'no-children' }}" ng-repeat="data in data.children | orderBy:'name'" ng-include="'/assets/partials/buildNode.html'"></li>
 </ul>
