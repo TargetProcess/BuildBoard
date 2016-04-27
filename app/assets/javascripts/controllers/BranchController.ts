@@ -34,6 +34,8 @@ module buildBoard {
             this.$scope.closeView = ()=> $state.go("list");
             this.$scope.getBuildStatus = StatusHelper.parse;
             this.$scope.getBuildTime = build=> {
+                if (_.isUndefined(build))
+                    return undefined;
                 var status = StatusHelper.parse(build);
                 var endTime:number = undefined;
                 var result;
