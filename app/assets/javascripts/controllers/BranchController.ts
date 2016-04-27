@@ -10,8 +10,9 @@ module buildBoard {
         getBuildTime(build:Build):number;
         getGravatar(email:string):string;
         processCommitMessage(message:string):string;
+        getSuccessCount(buildNodes:BuildNode[]):number;
 
-        test(z):string;
+        isCollapsible(node:BuildNode):boolean
     }
 
     export class BranchController {
@@ -23,7 +24,11 @@ module buildBoard {
         ];
 
         constructor(private $scope:IBranchDetailsScope, $state:ng.ui.IStateService, modelProvider:ModelProvider, backendService:BackendService) {
-            this.$scope.test = x=>JSON.stringify(x);
+            this.$scope.isCollapsible = node=> StatusHelper.parseBuildNode(node) == Status.Success && node.children.length == 0;
+
+            this.$scope.getSuccessCount = nodes=> {
+                return _.filter(nodes, node=>StatusHelper.parseBuildNode(node) == Status.Success).length;
+            };
 
             this.$scope.branchName = $state.params['name'];
             this.$scope.closeView = ()=> $state.go("list");

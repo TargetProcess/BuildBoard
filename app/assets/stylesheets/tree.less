@@ -2,67 +2,52 @@
 @import "mixins.less";
 
 .tree {
-  position: relative;
 
-  ul:first-child {
-    padding-left: 0;
-  }
-
-  ul {
-    padding-left: 20px;
-  }
-
-  li {
-    list-style: none;
-    margin: 0;
+  .title {
+    border-radius: 2px;
+    line-height: 14px;
     padding: 2px 0 0 2px;
-    position: relative;
     font-size: 12px;
+    display: inline-block;
+    margin: 1px;
 
-    .no-children {
-      display: inline-block;
+    transition: max-width 0.5s; /* Animation time */
+    -webkit-transition: max-width 0.5s; /* For Safari */
+
+    &.in_progress {
+      background: @tree-in-progress;
+    }
+    &.warning {
+      background: @tree-warning;
+    }
+    &.success {
+      background: @tree-success;
+    }
+    &.timed_out {
+      background: @tree-timed-out;
+    }
+    &.default {
+      background: @tree-default;
     }
 
-    .node {
-      border-radius: 2px;
-      display: inline-block;
-      line-height: 14px;
-
-      transition:max-width 0.5s; /* Animation time */
-      -webkit-transition:max-width 0.5s; /* For Safari */
-
-      text-decoration: none;
-
-
-      &.in_progress {
-        background: @tree-in-progress;
-      }
-      &.warning {
-        background: @tree-warning;
-      }
-      &.success {
-        background: @tree-success;
-
-        &.no-children {
-          max-width: 8px;
-          &:hover {
-            max-width: 120px;
-          }
-        }
-
-      }
-      &.timed_out {
-        background: @tree-timed-out;
-      }
-      &.default {
-        background: @tree-default;
-      }
-
-      a {
-        padding: 2px 8px;
-        display: block;
-        color: white;
+    &.collapsible {
+      max-width: 8px;
+      &:hover {
+        max-width: 200px;
       }
     }
+
+    a {
+      padding: 2px 8px;
+      display: block;
+      color: white;
+    }
+  }
+
+  .children {
+    margin-left: 20px;
+  }
+  .node.inline {
+    display: inline-block;
   }
 }

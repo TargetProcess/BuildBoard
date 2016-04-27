@@ -1,7 +1,16 @@
-<span class="node {{ data | parseBuildNodeStatus }} {{data.children && data.children.length?'has-children':'no-children' }}">
-    <a target="_blank" ng-show="data.artifacts.length" ui-sref="list.branch.run({part:data.name,build:entry.number,run:data.runName})"  title="{{data.status | lowercase}}">{{data.name}}</a>
+<span class="title {{ data | parseBuildNodeStatus }} {{isCollapsible(data)?'collapsible':''}}">
+    <a target="_blank"
+       ui-sref="list.branch.run({part:data.name,build:entry.number,run:data.runName})"
+       title="{{data.status | lowercase}}">{{data.name}}
+    <span ng-show="data.children.length">
+        - {{getSuccessCount(data.children)}} / {{data.children.length}}
+    </span>
+    </a>
 </span>
 
-<ul ng-show="data.children && data.children.length">
-    <li class="{{data.children && data.children.length?'has-children':'no-children' }}" ng-repeat="data in data.children | orderBy:'name'" ng-include="'/assets/partials/buildNode.html'"></li>
-</ul>
+<div class="children" ng-show="data.children.length">
+    <div ng-repeat="data in data.children | orderBy:'name'"
+         class="node {{data.children.length ? '':'inline'}}"
+         ng-include="'/assets/partials/buildNode.html'">
+    </div>
+</div>

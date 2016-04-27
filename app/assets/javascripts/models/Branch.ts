@@ -58,6 +58,7 @@ module buildBoard {
         number:number;
         branch:string;
         toggled:boolean;
+        
         status:string;
         parsedStatus:Status;
         timestamp:number;
@@ -77,13 +78,15 @@ module buildBoard {
     export interface BuildNode {
         name:string;
         runName:string;
-        status:string;
         statusUrl:string;
         artifacts:Artifact[];
-        timestamp:number;
-        timestampEnd:number;
         children:BuildNode[];
         testResults:TestCasePackage[];
+
+        parsedStatus:Status;
+        status:string;
+        timestamp:number;
+        timestampEnd:number;
     }
 
     export interface BuildAction {
