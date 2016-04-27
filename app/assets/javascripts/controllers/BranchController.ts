@@ -3,12 +3,15 @@ module buildBoard {
     'use strict';
 
     export interface IBranchDetailsScope extends IBranchScope {
-        loadBuild(buildInfo:Build): void;
-        getActivity(): ActivityEntry[];
+        loadBuild(buildInfo:Build):void;
+        getActivity():ActivityEntry[];
         getBranch():Branch;
         getBuildStatus(build:Build):Status;
+        getBuildTime(build:Build):number;
         getGravatar(email:string):string;
         processCommitMessage(message:string):string;
+
+        test(z):string;
     }
 
     export class BranchController {
@@ -20,15 +23,43 @@ module buildBoard {
         ];
 
         constructor(private $scope:IBranchDetailsScope, $state:ng.ui.IStateService, modelProvider:ModelProvider, backendService:BackendService) {
-
+            this.$scope.test = x=>JSON.stringify(x);
 
             this.$scope.branchName = $state.params['name'];
             this.$scope.closeView = ()=> $state.go("list");
             this.$scope.getBuildStatus = StatusHelper.parse;
+            this.$scope.getBuildTime = build=> {
+                var status = StatusHelper.parse(build);
+                var endTime:number = undefined;
+                var result;
+
+                if (status == Status.InProgress || build.timestampEnd === 0) {
+                    endTime = new Date().getTime()
+                }
+                else if (_.isUndefined(build.timestampEnd)) {
+                    endTime = undefined;
+                }
+                else {
+                    endTime = build.timestampEnd;
+                }
+                if (_.isUndefined(endTime)) {
+                    result = -1;
+                }
+                else {
+                    result = endTime - build.timestamp;
+                }
+                if (result < 0) {
+                    return undefined;
+                }
+                else {
+                    return result / 1000;
+                }
+
+            };
 
             this.$scope.getGravatar = _.memoize((email:string)=> email ? md5(email.toLowerCase().trim()) : '0');
             this.$scope.processCommitMessage = subject=>subject &&
-                subject.replace(/Merge pull request #(\d+) from (.*)/g, 'Merge pull request <a href="https://github.com/TargetProcess/TP/pull/$1" target="_blank">#$1</a> from <span>$2</span>');
+            subject.replace(/Merge pull request #(\d+) from (.*)/g, 'Merge pull request <a href="https://github.com/TargetProcess/TP/pull/$1" target="_blank">#$1</a> from <span>$2</span>');
 
 
             modelProvider.getBranchWithActivities(this.$scope.branchName)

@@ -60,6 +60,8 @@ module buildBoard {
         toggled:boolean;
         status:string;
         parsedStatus:Status;
+        timestamp:number;
+        timestampEnd:number;
     }
 
     export interface Build extends BuildBase {
@@ -79,6 +81,7 @@ module buildBoard {
         statusUrl:string;
         artifacts:Artifact[];
         timestamp:number;
+        timestampEnd:number;
         children:BuildNode[];
         testResults:TestCasePackage[];
     }

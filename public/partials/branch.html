@@ -14,13 +14,21 @@
                     <div class="avatar">
                         <img title="Jenkins" src="/assets/images/jenkins.png" style="width: 32px; height: 32px;">
                     </div>
-                    <div class="description" ng-show="entry.activityType == 'build'">
+                    <div class="description">
                         <div class="panel-group">
                             <div class="panel">
                                 <div class="panel-heading {{ getBuildStatus(entry) | status2Class}}" >
                                     <build-status build="entry" branch="getBranch()" type="btn" status-type="build"></build-status>
                                     <h4 class="panel-title toggle-state">
-                                        <a ng-click="loadBuild(entry); isCollapsed = !isCollapsed">{{entry.isPullRequest ? "PR " : "" }}Build #{{entry.number}} - {{entry.description}} by {{entry.initiator}}</a>
+                                        <a ng-click="loadBuild(entry); isCollapsed = !isCollapsed">
+                                            <span>
+                                                {{entry.isPullRequest ? "PR " : "" }}Build #{{entry.number}} - {{entry.description}} by {{entry.initiator}}
+                                            </span>
+                                        </a>
+                                        <span class="build-time">
+                                               <span>Took {{getBuildTime(entry) | duration }}</span>
+                                               <span class="and-running"> and running</span>
+                                        </span>
                                     </h4>
                                 </div>
                                 <div class="tree panel-collapse" ng-show="!isCollapsed">

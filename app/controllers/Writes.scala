@@ -30,6 +30,7 @@ object Writes {
       (__ \ "statusUrl").write[String] ~
       (__ \ "artifacts").write(list(artifactWrite)) ~
       (__ \ "timestamp").write[DateTime] ~
+      (__ \ "timestampEnd").writeNullable[DateTime] ~
       (__ \ "rerun").writeNullable[Boolean] ~
       (__ \ "rerun").writeNullable[Boolean] ~
       (__ \ "children").lazyWrite(list(buildNodeWrite)) ~
@@ -44,6 +45,7 @@ object Writes {
         (__ \ "branch").write[String] ~
         (__ \ "status").writeNullable[String] ~
         (__ \ "timestamp").write[DateTime] ~
+        (__ \ "timestampEnd").writeNullable[DateTime] ~
         (__ \ "toggled").write[Boolean] ~
         (__ \ "commits").write(list(commitWrite)) ~
         (__ \ "ref").writeNullable[String] ~
@@ -55,7 +57,8 @@ object Writes {
         (__ \ "activityType").write[String] ~
         (__ \ "node").writeNullable[BuildNode]
 
-      ) ((b: Build) => Build.unapply(b.copy(status = Some(b.buildStatus.name.toUpperCase))).get)
+      ) ((b: Build) => Build.unapply(b.copy(status = Some(b.buildStatus.name.toUpperCase),
+      timestampEnd = b.node.flatMap(_.timestampEnd).orElse(b.timestampEnd))).get)
 
 
   implicit val mergeResultWrite = Json.writes[MergeResult]

@@ -2,6 +2,7 @@ package models.jenkins
 
 import java.io.File
 import java.text.SimpleDateFormat
+import java.util.TimeZone
 
 import com.github.nscala_time.time.Imports._
 import models.{Artifact, Build, BuildNode, Commit, TestCase, TestCasePackage}
@@ -34,7 +35,9 @@ trait ParseFolder extends Artifacts with FileHelper {
     val name: String = buildSource.folder.getName
 
 
-    val node = watch(s"Get node ${buildSource.branch} ${buildSource.number}"){getBuildNode(new Folder(buildSource.folder, "Build"))}
+    val node = watch(s"Get node ${buildSource.branch} ${buildSource.number}") {
+      getBuildNode(new Folder(buildSource.folder, "Build"))
+    }
     val folder = new Folder(buildSource.folder, "Build/StartBuild")
 
 
@@ -46,7 +49,8 @@ trait ParseFolder extends Artifacts with FileHelper {
         .map(buildDetails => Build(number = buildSource.number,
           branch = buildSource.branch,
           status = buildDetails.status,
-          timestamp = buildDetails.timestamp,
+          timestamp = buildDetails.startTime,
+          timestampEnd  = buildDetails.endTime,
           toggled = toggled,
           commits = commits,
           ref = ref,
@@ -133,7 +137,8 @@ trait ParseFolder extends Artifacts with FileHelper {
           if (buildDetails.statusUrl.isDefined) {
             Artifact("output", buildDetails.statusUrl.map(url => s"${url}consoleText").get) :: artifacts
           } else artifacts,
-          buildDetails.timestamp,
+          buildDetails.startTime,
+          Some(buildDetails.endTime.getOrElse(new DateTime(0))),
           buildDetails.rerun,
           children = children, isUnstable = Some(isUnstable(name))))
 
@@ -146,13 +151,19 @@ trait ParseFolder extends Artifacts with FileHelper {
     if (folder.exists) getBuildNodeInner(folder, f.getPath) else None
   }
 
-  private case class BuildDetails(number: Int, status: Option[String], statusUrl: Option[String], timestamp: DateTime, rerun: Option[Boolean])
+  private case class BuildDetails(number: Int, status: Option[String], statusUrl: Option[String], startTime: DateTime, endTime:Option[DateTime], rerun: Option[Boolean])
 
-  val dateFormat: SimpleDateFormat = new java.text.SimpleDateFormat("MM/dd/yyyy HH:mm:ss")
+  val dateFormat: SimpleDateFormat = new java.text.SimpleDateFormat("MM/dd/yyyy HH:mm:ss Z")
+  dateFormat.setTimeZone(TimeZone.getDefault)
 
   private def getBuildDetails(folder: File): Option[BuildDetails] = {
     val contents = folder.listFiles
-    val startedFile: Option[File] = contents.find(_.getName.endsWith("started"))
+    def getFile(extension: String): Option[File] = {
+      contents.find(_.getName.endsWith(extension))
+    }
+    val startedFile: Option[File] = getFile("started")
+    val finishedFile: Option[File] = getFile("finished")
+
 
     startedFile.map(started => {
       val startedFileContent: Option[Map[Int, String]] = FileApi.readAsMap(started)
@@ -160,10 +171,9 @@ trait ParseFolder extends Artifacts with FileHelper {
 
       val number = statusUrl.map { case buildNumberRegex(num) => num.toInt }.getOrElse(-1)
 
-      val timestamp = startedFileContent.flatMap(_.get(1))
-        .map(x => new DateTime(dateFormat.parse(x).getTime))
-        .orElse(startedFile.map(x => new DateTime(x.lastModified)))
-        .getOrElse(new DateTime(folder.lastModified))
+      val startTime = startedFileContent.flatMap(_.get(1))
+        .map(x => new DateTime(dateFormat.parse(x+" +0300").getTime))
+        .getOrElse(new DateTime(started.lastModified))
 
       val rerunRegex = "RERUN=(true|false)".r
 
@@ -172,13 +182,13 @@ trait ParseFolder extends Artifacts with FileHelper {
         case _ => None
       }
 
-      val startedStatus = if (startedFile.isDefined) None else Some("FAILURE")
+      val status: Option[String] =
+        finishedFile.flatMap(FileApi.read)
+          .orElse(if ((DateTime.now - timeout) > startTime) Some("TIMED OUT") else None)
 
-      val status: Option[String] = startedStatus
-        .orElse(contents.find(_.getName.endsWith("finished")).flatMap(FileApi.read))
-        .orElse(if ((DateTime.now - timeout) > timestamp) Some("TIMED OUT") else None)
+      val endTime = finishedFile.map(x=>new DateTime(x.lastModified))
 
-      BuildDetails(number, status, statusUrl, timestamp, rerun)
+      BuildDetails(number, status, statusUrl, startTime, endTime, rerun)
     })
   }
 

@@ -17,6 +17,7 @@ class BuildNodeSpec extends Specification {
     statusUrl = "",
     artifacts = Nil,
     timestamp = null,
+    timestampEnd = None,
     rerun = None,
     children = children,
     isUnstable = Some(isUnstable))

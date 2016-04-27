@@ -18,11 +18,11 @@ class BranchesRepositoryImplSpec extends Specification with Mockito {
 
         repo.buildRepository.getBuilds.size must_== 0
 
-        repo.buildRepository update Build(number = 1, branch = "Branch1", status = Some("Success"), timestamp = DateTime.now, name = "build #1", node = None)
-        repo.buildRepository update Build(number = 2, branch = "Branch1", status = Some("Failure"), timestamp = DateTime.now, name = "build #2", node = None)
+        repo.buildRepository update Build(number = 1, branch = "Branch1", status = Some("Success"), timestamp = DateTime.now, timestampEnd = None, name = "build #1", node = None)
+        repo.buildRepository update Build(number = 2, branch = "Branch1", status = Some("Failure"), timestamp = DateTime.now, timestampEnd = None, name = "build #2", node = None)
 
-        repo.buildRepository update Build(number = 3, branch = "Branch2", status = Some("Success"), timestamp = DateTime.now, name = "build #3", node = None)
-        repo.buildRepository update Build(number = 4, branch = "Branch2", status = Some("Failure"), timestamp = DateTime.now, name = "build #4", node = None)
+        repo.buildRepository update Build(number = 3, branch = "Branch2", status = Some("Success"), timestamp = DateTime.now, timestampEnd = None, name = "build #3", node = None)
+        repo.buildRepository update Build(number = 4, branch = "Branch2", status = Some("Failure"), timestamp = DateTime.now, timestampEnd = None, name = "build #4", node = None)
 
 
         repo.buildRepository.getBuilds.size must_== 4
