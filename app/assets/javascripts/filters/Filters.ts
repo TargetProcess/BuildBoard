@@ -17,12 +17,12 @@ module buildBoard {
                 case Status.Success:
                     return "success";
                 case Status.Failed:
-                case Status.Aborted:
                     return "warning";
                 case Status.InProgress:
                     return "in_progress";
+                case Status.Aborted:
                 case Status.TimedOut:
-                    return "warning";
+                    return "timed_out";
                 case Status.Unknown:
                 default:
                     return "default";

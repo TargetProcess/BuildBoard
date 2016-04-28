@@ -45,17 +45,15 @@ trait ConfigurableCycleBuilderComponentImpl extends CycleBuilderComponent {
 
       val possibleBuildParameters =
         List(
-          BuildParametersCategory(CycleConstants.cycleTypeCategoryName, List("build full package")),
-          BuildParametersCategory(CycleConstants.unitTestsCategoryName, getTests(CycleConstants.unitTestsCategoryName)),
-          BuildParametersCategory(CycleConstants.funcTestsCategoryName, getTests(CycleConstants.funcTestsCategoryName)),
-          BuildParametersCategory(CycleConstants.pythonFuncTestsCategoryName, getTests(CycleConstants.pythonFuncTestsCategoryName)),
-          BuildParametersCategory(CycleConstants.cometCategoryName, List("Include")),
-          BuildParametersCategory(CycleConstants.sliceCategoryName, List("Include")),
-          BuildParametersCategory(CycleConstants.casperCategoryName, getTests(CycleConstants.casperCategoryName)),
-          BuildParametersCategory(CycleConstants.karmaCategoryName, getTests(CycleConstants.karmaCategoryName)),
-          BuildParametersCategory(CycleConstants.dbCategoryName, List("Include")),
-          BuildParametersCategory(CycleConstants.perfCategoryName, List("Include"), Map("PerfTestClass" -> "", "PerfTestMethod" -> ""))
-        )
+          BuildParametersCategory(CycleConstants.cycleTypeCategoryName, None, List("build full package"))
+        ) ++
+          CycleConstants.partitionedTests.map { case (categoryName, runName) => BuildParametersCategory(categoryName, Some(runName), getTests(categoryName)) }.toList ++
+          List(
+            BuildParametersCategory(CycleConstants.cometCategoryName, None, List("Include")),
+            BuildParametersCategory(CycleConstants.sliceCategoryName, None, List("Include")),
+            BuildParametersCategory(CycleConstants.dbCategoryName, None, List("Include")),
+            BuildParametersCategory(CycleConstants.perfCategoryName, None, List("Include"), Map("PerfTestClass" -> "", "PerfTestMethod" -> ""))
+          )
 
 
       Cycle(name,

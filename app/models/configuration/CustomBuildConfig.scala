@@ -1,8 +1,5 @@
 package models.configuration
 
-import models.Branch
-
-
 case class BuildConfig(cycles: List[CycleConfig], customCyclesAvailability: List[String], tests: Map[String, List[String]], unstableNodes: List[String])
 
 case class BuildBoardConfig(branches: Map[String, String], build: BuildConfig, autoRerun: Map[String, Boolean], deploy: List[DeployConfig]) {

@@ -8,7 +8,7 @@ module buildBoard {
             type: "@",
             statusType: "@"
         };
-        controller = LastBuildStatusController;
+        controller = BuildStatusController;
         templateUrl = 'assets/partials/buildStatus.html';
         restrict = "E";
         replace = true;
@@ -19,9 +19,9 @@ module buildBoard {
         build:Build;
         branch:Branch;
         type:string;
-        statusType: string;
+        statusType:string;
         showTimestamp:boolean;
-        showList: boolean;
+        showList:boolean;
         execute(buildAction:BuildAction);
         toggleParameters(buildAction:BuildAction);
         clearTimeoutOnFocus();
@@ -33,10 +33,18 @@ module buildBoard {
         pending:boolean;
     }
 
-    export class LastBuildStatusController {
+    export class BuildStatusController {
         public static $inject = ['$scope', '$element', BackendService.NAME, '$timeout'];
 
         constructor(private $scope:IBuildStatusScope, private $element:JQuery, backendService:BackendService, $timeout:ng.ITimeoutService) {
+
+            var ifPartFailed = function (buildNode:BuildNode, runName:String, part:String) {
+                if (buildNode.runName == runName && buildNode.name == part) {
+                    var status = StatusHelper.parseBuildNode(buildNode);
+                    return status != Status.Success;
+                }
+                return _.any(buildNode.children, child=>ifPartFailed(child, runName, part));
+            };
 
             this.$scope.showTimestamp = this.$scope.statusType == "branch";
 
@@ -50,6 +58,22 @@ module buildBoard {
 
                     backendService.getBuildActions(this.$scope.branch.name, buildNumber).then(data=> {
                         this.$scope.buildActions = data.data;
+
+                        if (this.$scope.build) {
+                            var forceCustoms = _.filter(this.$scope.buildActions, c=>c.cycleName == 'Custom');
+                            _.each(forceCustoms, buildAction=> {
+                                var partitioned = _.filter(buildAction.buildParametersCategories, category=>!_.isUndefined(category.runName));
+                                _.each(partitioned, category=> {
+                                    category.selectedParts = category.parts.filter(part=> {
+                                        return ifPartFailed(this.$scope.build.node, category.runName, part);
+                                    });
+                                });
+                            });
+
+
+                        }
+
+
                         this.$scope.pending = false;
                     });
                 }

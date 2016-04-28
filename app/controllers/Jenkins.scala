@@ -30,7 +30,7 @@ object Jenkins extends Application {
     (__ \ "name").read[String] ~
       (__ \ "parts").read[List[String]] ~
       (__ \ "params").read(Reads.optionNoError[Map[String, String]])
-    ) ((name, parts, params) => BuildParametersCategory(name, parts, params.getOrElse(Map.empty)))
+    ) ((name, parts, params) => BuildParametersCategory(name, None, parts, params.getOrElse(Map.empty)))
   implicit val buildParameterCategoryReads: play.api.libs.json.Reads[List[BuildParametersCategory]] = play.api.libs.json.Reads.list[BuildParametersCategory]
   implicit val reads = Json.reads[ForceBuildParameters]
 

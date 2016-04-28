@@ -30,13 +30,6 @@
       background: @tree-default;
     }
 
-    &.collapsible {
-      max-width: 8px;
-      &:hover {
-        max-width: 200px;
-      }
-    }
-
     a {
       padding: 2px 8px;
       display: block;
@@ -50,4 +43,12 @@
   .node.inline {
     display: inline-block;
   }
+
+  .lots-children > .node > .title.collapsible {
+    max-width: 8px;
+    &:hover {
+      max-width: 200px;
+    }
+  }
 }
+

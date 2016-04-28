@@ -85,7 +85,7 @@ trait ForceBuildComponentImpl extends ForceBuildComponent {
 
       forcePartWithFilter("RunFuncTests", "FuncTests", "FuncTestsFilter", cycleParameters.funcTests)
       forcePartWithFilter("RunFuncTestsPython", "FuncTests", "PythonTestsFilter", cycleParameters.pythonFuncTests)
-      forcePartWithFilter(s"RunUnitTests", "UnitTests", "UnitTestsFilter", cycleParameters.unitTests)
+      forcePartWithFilter("RunUnitTests", "UnitTests", "UnitTestsFilter", cycleParameters.unitTests)
       forcePartWithFilter("RunCasperJSTests", "FuncTests", "CasperJsTestsFilter", cycleParameters.casperTests)
       forcePart("CometOutOfProcess", "FuncTests")
       forcePart("RunSliceLoadTest", "FuncTests")

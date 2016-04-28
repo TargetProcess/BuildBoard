@@ -39,12 +39,15 @@ trait BuildRerunComponentImpl extends BuildRerunComponent {
           rerunRepository.markAsRerun(updatedBuild, CycleConstants.pythonFuncTestsCategoryName, pythonFuncTestsToRerun)
           rerunRepository.markAsRerun(updatedBuild, CycleConstants.unitTestsCategoryName, unitTestsToRerun)
 
-          val action = ReuseArtifactsBuildAction(updatedBuild.name, updatedBuild.number, cycleBuilder.customCycle(List(
-            BuildParametersCategory(CycleConstants.funcTestsCategoryName, funcTestsToRerun),
-            BuildParametersCategory(CycleConstants.pythonFuncTestsCategoryName, pythonFuncTestsToRerun),
-            BuildParametersCategory(CycleConstants.unitTestsCategoryName, unitTestsToRerun),
-            BuildParametersCategory(CycleConstants.casperCategoryName, casperTestsToRerun),
-            BuildParametersCategory(CycleConstants.karmaCategoryName, karmaTestsToRerun)
+          val action = ReuseArtifactsBuildAction(updatedBuild.name, updatedBuild.number, cycleBuilder.customCycle(
+
+
+            List(
+            BuildParametersCategory(CycleConstants.funcTestsCategoryName, None, funcTestsToRerun),
+            BuildParametersCategory(CycleConstants.pythonFuncTestsCategoryName, None, pythonFuncTestsToRerun),
+            BuildParametersCategory(CycleConstants.unitTestsCategoryName, None, unitTestsToRerun),
+            BuildParametersCategory(CycleConstants.casperCategoryName, None, casperTestsToRerun),
+            BuildParametersCategory(CycleConstants.karmaCategoryName, None, karmaTestsToRerun)
           )))
 
           Logger.info(s"Rerun: $action")
