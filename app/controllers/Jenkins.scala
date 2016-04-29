@@ -4,7 +4,7 @@ import java.nio.file.Paths
 
 import com.github.nscala_time.time.Imports._
 import components.CycleBuilderComponent
-import controllers.Writes._
+import controllers.Formats._
 import models.BuildStatus.{InProgress, Unknown}
 import models._
 import models.buildActions._

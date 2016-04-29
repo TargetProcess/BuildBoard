@@ -1,6 +1,6 @@
 package components
 
-import models.buildRerun.{BuildRerunComponentImpl, RerunRepositoryComponentImpl}
+import models.buildRerun.{AutoBuildRerunComponentImpl, RerunRepositoryComponentImpl}
 import models.buildWatcher.NotificationBuildWatcherComponentImpl
 import models.configuration.ConfigComponentImpl
 import models.cycles.ConfigurableCycleBuilderComponentImpl
@@ -28,7 +28,7 @@ trait DefaultComponent
   with NotificationComponentImpl
   with UserRepositoryComponentImpl
   with MagicMergeComponentImpl
-  with BuildRerunComponentImpl
+  with AutoBuildRerunComponentImpl
   with NotificationRepositoryComponentImpl
   with RerunRepositoryComponentImpl
   with ConfigComponentImpl

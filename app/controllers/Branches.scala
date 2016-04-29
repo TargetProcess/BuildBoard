@@ -1,7 +1,7 @@
 package controllers
 
 import play.api.libs.json._
-import controllers.Writes._
+import controllers.Formats._
 
 object Branches extends Application {
 

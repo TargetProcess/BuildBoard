@@ -11,7 +11,7 @@ import scala.concurrent.duration._
 
 trait ConfigComponentImpl extends ConfigComponent {
 
-  import controllers.Writes._
+  import controllers.Formats._
 
   override val config = new ConfigService {
 

@@ -1,38 +1,26 @@
 package models.cycles
 
+case class TestCategory(name:String, runName:String, filter:String, postfix:String)
+
 object CycleConstants {
-  val unitTestsCategoryName = "unitTests"
-  val unitTestsRunName = "RunUnitTests"
+  val unitTestCategory = TestCategory("unitTests", "RunUnitTests", "UnitTestsFilter", "UnitTests")
+  val funcTestCategory = TestCategory("funcTests", "RunFuncTests", "FuncTestsFilter", "FuncTests")
+  val pythonTestCategory = TestCategory("pythonFuncTests", "RunFuncTestsPython", "PythonTestsFilter", "FuncTests")
+  val karmaTestCategory = TestCategory("karmaTests", "RunKarmaJSTests", "KarmaJsTestsFilter", "FuncTests")
+  val casperTestCategory = TestCategory("casperTests", "RunCasperJSTests", "CasperJsTestsFilter", "FuncTests")
 
-  val funcTestsCategoryName = "funcTests"
-  val funcTestsRunName = "RunFuncTests"
-
-  val pythonFuncTestsRunName = "RunFuncTestsPython"
-  val pythonFuncTestsCategoryName = "pythonFuncTests"
-
-  val karmaCategoryName = "karmaTests"
-  val karmaRunName = "RunKarmaJSTests"
 
   val sliceCategoryName = "SliceLoadTests"
   val cometCategoryName = "CometTests"
-  val casperCategoryName = "casperTests"
   val dbCategoryName = "DbTests"
   val cycleTypeCategoryName = "CycleType"
   val perfCategoryName = "PerfTests"
-
   val includePerfTestsKey = "INCLUDE_PERF"
   val includeMashupTestsKey = "RunMashupTests"
-  val includeFuncTestsKey = "FuncTestsFilter"
-  val includePythonTestsKey = "PythonTestsFilter"
-  val includeCasperJsTestsKey = "CasperJsTestsFilter"
-  val includeKarmaJsTestsFilter = "KarmaJsTestsFilter"
 
 
-  val partitionedTests = Map(
-    CycleConstants.funcTestsCategoryName -> CycleConstants.funcTestsRunName,
-    CycleConstants.unitTestsCategoryName -> CycleConstants.unitTestsRunName,
-    CycleConstants.pythonFuncTestsCategoryName -> CycleConstants.pythonFuncTestsRunName,
-    CycleConstants.karmaCategoryName -> CycleConstants.karmaRunName
-  )
-
+  val allTestCategories: Map[String, TestCategory] =
+    List(unitTestCategory, funcTestCategory, pythonTestCategory, karmaTestCategory, casperTestCategory)
+        .map(category=>(category.name, category))
+    .toMap
 }

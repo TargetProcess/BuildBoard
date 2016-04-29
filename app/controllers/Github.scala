@@ -1,6 +1,6 @@
 package controllers
 
-import controllers.Writes._
+import controllers.Formats._
 import models.services.CacheService
 import play.Play
 import play.api.libs.json._

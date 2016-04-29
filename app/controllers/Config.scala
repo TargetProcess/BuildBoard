@@ -2,14 +2,9 @@ package controllers
 
 import models.configuration._
 import play.api.libs.json.{Format, JsError, JsSuccess, Json}
-
+import Formats._
 
 object Config extends Application {
-  implicit val team = Json.format[DeployConfig]
-  implicit val cycleParameters = Json.format[CycleParameters]
-  implicit val cycleConfig = Json.format[CycleConfig]
-  implicit val buildConfig = Json.format[BuildConfig]
-  implicit val buildBoardConfig: Format[BuildBoardConfig] = Json.format[BuildBoardConfig]
 
   def getConfig = AuthorizedComponent {
     component =>

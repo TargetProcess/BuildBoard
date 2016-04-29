@@ -9,21 +9,24 @@ case class Cycle(name: String, config: CycleParameters, buildParametersCategory:
   def getParamsByCategory(categoryName: String): Map[String, String] = {
     buildParametersCategory.filter(_.name == categoryName).flatMap(x => x.params).toMap
   }
+
   def toString(funcTests: List[String]): String = funcTests.mkString(" ")
 
   lazy val parameters = {
-    List[(String, String)]("UnitTestsFilter" -> toString(config.unitTests),
-      CycleConstants.includeFuncTestsKey -> toString(config.funcTests),
-      CycleConstants.includePythonTestsKey -> toString(config.pythonFuncTests),
+    val categorizedTests = config.tests.map { case (category, tests) => category.filter -> toString(tests) }.toList
+
+
+    val otherParameters = List[(String, String)](
       CycleConstants.includePerfTestsKey -> config.includePerfTests.toString,
       CycleConstants.includeMashupTestsKey -> config.includeMashupTests.toString,
-      CycleConstants.includeCasperJsTestsKey -> toString(config.casperTests),
-      CycleConstants.includeKarmaJsTestsFilter -> toString(config.karmaTests),
       "BuildFullPackage" -> config.buildFullPackage.toString,
       "INCLUDE_UNSTABLE" -> config.includeUnstable.toString,
       "Cycle" -> (if (config.isFull) "Full" else "Short"),
       "INCLUDE_COMET" -> config.includeComet.toString,
       "INCLUDE_SLICE" -> config.includeSlice.toString,
       "INCLUDE_DB" -> config.includeDb.toString)
+
+
+    categorizedTests ++ otherParameters
   }
 }

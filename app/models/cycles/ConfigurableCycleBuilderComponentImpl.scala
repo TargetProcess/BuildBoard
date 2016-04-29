@@ -9,7 +9,17 @@ trait ConfigurableCycleBuilderComponentImpl extends CycleBuilderComponent {
 
   this: ConfigurableCycleBuilderComponentImpl with ConfigComponent =>
 
-  def getTests(testName: String): List[String] = config.buildConfig.build.tests(testName)
+  def getTests(testName: String): List[String] = {
+    println("1")
+    println(config)
+    println("2")
+    println(config.buildConfig)
+    println("3")
+    println(config.buildConfig.build)
+    println("4")
+    println(config.buildConfig.build.tests)
+    config.buildConfig.build.tests(testName)
+  }
 
   override val cycleBuilder = new CycleBuilder {
     def customCycle(buildParametersCategory: List[BuildParametersCategory]): Cycle = {
@@ -31,12 +41,9 @@ trait ConfigurableCycleBuilderComponentImpl extends CycleBuilderComponent {
       val buildFullPackage = false
       val includeUnstable: Boolean = false
 
-      val unitTests = getTestsByCategory(CycleConstants.unitTestsCategoryName)
+      val tests = CycleConstants.allTestCategories.map{ case(categoryName,category) => (category, getTestsByCategory(category.name))}
+
       val includeComet: Boolean = getBoolByCategory(CycleConstants.cometCategoryName)
-      val funcTests = getTestsByCategory(CycleConstants.funcTestsCategoryName)
-      val pythonFuncTests = getTestsByCategory(CycleConstants.pythonFuncTestsCategoryName)
-      val casperJsTests = getTestsByCategory(CycleConstants.casperCategoryName)
-      val karmaJsTests = getTestsByCategory(CycleConstants.karmaCategoryName)
       val includeSlice = getBoolByCategory(CycleConstants.sliceCategoryName)
       val includeDb = getBoolByCategory(CycleConstants.dbCategoryName)
       val isFull: Boolean = getBoolByCategory(CycleConstants.cycleTypeCategoryName)
@@ -47,7 +54,7 @@ trait ConfigurableCycleBuilderComponentImpl extends CycleBuilderComponent {
         List(
           BuildParametersCategory(CycleConstants.cycleTypeCategoryName, None, List("build full package"))
         ) ++
-          CycleConstants.partitionedTests.map { case (categoryName, runName) => BuildParametersCategory(categoryName, Some(runName), getTests(categoryName)) }.toList ++
+          CycleConstants.allTestCategories.values.map(category => BuildParametersCategory(category.name, Some(category.runName), getTests(category.name))).toList ++
           List(
             BuildParametersCategory(CycleConstants.cometCategoryName, None, List("Include")),
             BuildParametersCategory(CycleConstants.sliceCategoryName, None, List("Include")),
@@ -57,7 +64,7 @@ trait ConfigurableCycleBuilderComponentImpl extends CycleBuilderComponent {
 
 
       Cycle(name,
-        CycleParameters(isFull, includeUnstable, includeDb, includeComet, includeSlice, includePerfTests, includeMashupTests, buildFullPackage, casperJsTests, karmaJsTests, unitTests, pythonFuncTests, funcTests),
+        CycleParameters(isFull, includeUnstable, includeDb, includeComet, includeSlice, includePerfTests, includeMashupTests, buildFullPackage, tests),
         buildParametersCategory, possibleBuildParameters)
     }
 

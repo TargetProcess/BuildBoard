@@ -4,22 +4,42 @@ import models.buildActions.{BuildAction, BuildParametersCategory}
 import models.configuration._
 import models.magicMerge.MagicMergeResult
 import models._
+import models.cycles.{CycleConstants, TestCategory}
 import org.joda.time.DateTime
 import play.api.libs.functional.syntax._
+import play.api.libs.json.Json.JsValueWrapper
 import play.api.libs.json.Writes._
 import play.api.libs.json._
 
-object Writes {
-  implicit val team = Json.format[DeployConfig]
+object Formats {
+  implicit val mapWrites = new Writes[Map[TestCategory, List[String]]] {
+    def writes(map: Map[TestCategory, List[String]]): JsValue =
+      Json.obj(map.map { case (category, list) =>
+        val ret: (String, JsValueWrapper) = category.name -> JsArray(list.map(JsString))
+        ret
+      }.toSeq: _*)
+  }
+
+  implicit val mapReads = new Reads[Map[TestCategory, List[String]]] {
+    def reads(jv: JsValue): JsResult[Map[TestCategory, List[String]]] =
+      JsSuccess(jv.as[Map[String, List[String]]].map { case (name, values) =>
+        CycleConstants.allTestCategories(name) -> values
+      })
+  }
+
+  implicit val mapFormat = Format(mapReads, mapWrites)
+
+
+  implicit val deployConfig = Json.format[DeployConfig]
   implicit val cycleParameters = Json.format[CycleParameters]
   implicit val cycleConfig = Json.format[CycleConfig]
   implicit val buildConfig = Json.format[BuildConfig]
   implicit val buildBoardConfig: Format[BuildBoardConfig] = Json.format[BuildBoardConfig]
 
 
-  implicit val artifactWrite: Writes[Artifact] = Json.writes[Artifact]
-  implicit val testCaseWrite: Writes[TestCase] = Json.writes[TestCase]
-  implicit val testCasePackageWrite: Writes[TestCasePackage] = Json.writes[TestCasePackage]
+  implicit val artifactFormat = Json.format[Artifact]
+  implicit val testCaseWrite = Json.format[TestCase]
+  implicit val testCasePackageWrite = Json.format[TestCasePackage]
   implicit var buildNodeWrite: Writes[BuildNode] = null
   buildNodeWrite = (
     (__ \ "id").write[String] ~
@@ -28,7 +48,7 @@ object Writes {
       (__ \ "number").write[Int] ~
       (__ \ "status").writeNullable[String] ~
       (__ \ "statusUrl").write[String] ~
-      (__ \ "artifacts").write(list(artifactWrite)) ~
+      (__ \ "artifacts").write(list(artifactFormat)) ~
       (__ \ "timestamp").write[DateTime] ~
       (__ \ "timestampEnd").writeNullable[DateTime] ~
       (__ \ "rerun").writeNullable[Boolean] ~

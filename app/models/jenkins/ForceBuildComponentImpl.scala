@@ -73,20 +73,21 @@ trait ForceBuildComponentImpl extends ForceBuildComponent {
 
       val buildParams = BuildParams(getParamsFile(buildFolder)).get
 
-      def forcePart(job: String, postfix: String, params: Map[String, String] = Map.empty): Unit = {
-        forceBuildCategory(buildParams, revision, params, s"${config.jenkinsUrl}/job/$job/buildWithParameters", action.buildNumber, postfix)
-      }
-
-      val forcePartWithFilter = (job: String, postfix: String, filterKey: String, filter: List[String]) => if (filter.nonEmpty)
-        forcePart(job, postfix, Map((filterKey, filter.mkString(" ").replaceAll( """^\"|\"$""", ""))))
-
-
       val cycleParameters: CycleParameters = action.cycle.config
 
-      forcePartWithFilter("RunFuncTests", "FuncTests", "FuncTestsFilter", cycleParameters.funcTests)
-      forcePartWithFilter("RunFuncTestsPython", "FuncTests", "PythonTestsFilter", cycleParameters.pythonFuncTests)
-      forcePartWithFilter("RunUnitTests", "UnitTests", "UnitTestsFilter", cycleParameters.unitTests)
-      forcePartWithFilter("RunCasperJSTests", "FuncTests", "CasperJsTestsFilter", cycleParameters.casperTests)
+      def forcePart(job: String, postfix: String, params: Map[String, String] = Map.empty): Unit = {
+        forceRerunBuildCategory(s"${config.jenkinsUrl}/job/$job/buildWithParameters", buildParams, revision, action.buildNumber, postfix, params)
+      }
+      def forcePartWithFilter(job: String, postfix: String, filterKey: String, filter: List[String]): Unit = {
+        if (filter.nonEmpty)
+          forcePart(job, postfix, Map((filterKey, filter.mkString(" ").replaceAll( """^\"|\"$""", ""))))
+      }
+
+
+      CycleConstants.allTestCategories.values.foreach(category => {
+        forcePartWithFilter(category.runName, category.postfix, category.filter, cycleParameters.tests(category))
+      })
+
       forcePart("CometOutOfProcess", "FuncTests")
       forcePart("RunSliceLoadTest", "FuncTests")
 
@@ -100,21 +101,28 @@ trait ForceBuildComponentImpl extends ForceBuildComponent {
       }
     }
 
-    def forceBuildCategory(buildParams: BuildParams, revision: String, parameters: Map[String, String], url: String, buildNumber: Int, buildPathPostfix: String) = {
+
+    def forceRerunBuildCategory(url: String, buildParams: BuildParams, revision: String, buildNumber: Int, buildPathPostfix: String, additionalParameters: Map[String, String]) = {
+
 
       val params: List[(String, String)] = buildParams.parameters.flatMap {
         case ("Cycle", value) => Some("CYCLE", value)
-        case ("BUILDPATH", value) => Some("BUILDPATH", value + "\\" + buildPathPostfix)
+        case ("BUILDPATH", value) => Some("BUILDPATH", s"$value\\$buildPathPostfix")
         case ("LOCAL_BRANCH", value) => Some("LOCALREPONAME", value)
         case ("ARTIFACTS", value) => Some("ARTIFACTS", value)
         case _ => None
       }.toList ++
         List(
           ("VERSION", revision + "." + buildNumber),
-          ("BUILDPRIORITY", "10")
+          ("BUILDPRIORITY", "10"),
+          ("RERUN", "true")
         )
 
-      post(url, params ++ (parameters.filter(p => p._2 != "") ++ List(("RERUN", "true"))).toList)
+      post(
+        url,
+        params ++ additionalParameters.filter(p => p._2 != "")
+      )
+
     }
 
     def getParamsFile(folder: File): File = {

@@ -22,11 +22,13 @@
           "includePerfTests": false,
           "includeMashupTests": false,
           "buildFullPackage": true,
-          "casperTests": [],
-          "karmaTests": [],
-          "unitTests": [],
-          "pythonFuncTests": [],
-          "funcTests": []
+          "tests": {
+            "casperTests": [],
+            "karmaTests": [],
+            "unitTests": [],
+            "pythonFuncTests": [],
+            "funcTests": []
+          }
         }
       },
       {
@@ -43,25 +45,27 @@
           "includePerfTests": true,
           "includeMashupTests": true,
           "buildFullPackage": true,
-          "casperTests": [
-            "general",
-            "qaarea",
-            "stats",
-            "timeline"
-          ],
-          "karmaTests": [
-            "tests",
-            "tpTests"
-          ],
-          "unitTests": [
-            "All"
-          ],
-          "pythonFuncTests": [
-            "All"
-          ],
-          "funcTests": [
-            "All"
-          ]
+          "tests": {
+            "casperTests": [
+              "general",
+              "qaarea",
+              "stats",
+              "timeline"
+            ],
+            "karmaTests": [
+              "tests",
+              "tpTests"
+            ],
+            "unitTests": [
+              "All"
+            ],
+            "pythonFuncTests": [
+              "All"
+            ],
+            "funcTests": [
+              "All"
+            ]
+          }
         }
       },
       {
@@ -81,51 +85,53 @@
           "includePerfTests": false,
           "includeMashupTests": false,
           "buildFullPackage": false,
-          "casperTests": [
-            "general",
-            "qaarea",
-            "stats",
-            "timeline"
-          ],
-          "karmaTests": [
-            "tests",
-            "tpTests"
-          ],
-          "unitTests": [
-            "All"
-          ],
-          "pythonFuncTests": [
-            "All"
-          ],
-          "funcTests": [
-            "PartComet",
-            "PartViews",
-            "PartViews0",
-            "PartViews1",
-            "PartViews2",
-            "PartViews3",
-            "PartViews4",
-            "PartViews5",
-            "PartViews6",
-            "PartViews7",
-            "PartViews8",
-            "PartViews9",
-            "PartViews10",
-            "PartViews11",
-            "PartViews12",
-            "PartViews13",
-            "PartPlugins1",
-            "PartPlugins2",
-            "PartPlugins3",
-            "PartPlugins4",
-            "PartPy1",
-            "PartPy2",
-            "PartPyComet",
-            "RunKarmaJSTests",
-            "PartBoard1",
-            "PartBoard2",
-            "PartOther"
-          ]
+          "tests": {
+            "casperTests": [
+              "general",
+              "qaarea",
+              "stats",
+              "timeline"
+            ],
+            "karmaTests": [
+              "tests",
+              "tpTests"
+            ],
+            "unitTests": [
+              "All"
+            ],
+            "pythonFuncTests": [
+              "All"
+            ],
+            "funcTests": [
+              "PartComet",
+              "PartViews",
+              "PartViews0",
+              "PartViews1",
+              "PartViews2",
+              "PartViews3",
+              "PartViews4",
+              "PartViews5",
+              "PartViews6",
+              "PartViews7",
+              "PartViews8",
+              "PartViews9",
+              "PartViews10",
+              "PartViews11",
+              "PartViews12",
+              "PartViews13",
+              "PartPlugins1",
+              "PartPlugins2",
+              "PartPlugins3",
+              "PartPlugins4",
+              "PartPy1",
+              "PartPy2",
+              "PartPyComet",
+              "RunKarmaJSTests",
+              "PartBoard1",
+              "PartBoard2",
+              "PartOther"
+            ]
+          }
         }
       }
     ],

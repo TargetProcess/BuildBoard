@@ -1,5 +1,7 @@
 package models.configuration
 
+import models.cycles.TestCategory
+
 case class BuildConfig(cycles: List[CycleConfig], customCyclesAvailability: List[String], tests: Map[String, List[String]], unstableNodes: List[String])
 
 case class BuildBoardConfig(branches: Map[String, String], build: BuildConfig, autoRerun: Map[String, Boolean], deploy: List[DeployConfig]) {
@@ -33,9 +35,5 @@ case class CycleParameters(
                             includePerfTests: Boolean,
                             includeMashupTests: Boolean,
                             buildFullPackage: Boolean,
-                            casperTests: List[String],
-                            karmaTests: List[String],
-                            unitTests: List[String],
-                            pythonFuncTests: List[String],
-                            funcTests: List[String]
+                            tests: Map[TestCategory, List[String]]
                           )
