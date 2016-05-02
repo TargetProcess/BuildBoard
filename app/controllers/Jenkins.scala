@@ -70,8 +70,16 @@ object Jenkins extends Application {
             .map(buildAction => {
               val forceBuildResult: Try[Any] = component.forceBuildService.forceBuild(buildAction)
               forceBuildResult match {
-                case Success(_) => Ok(Json.toJson(Build(-1, params.branchId.getOrElse("this"), Some("In progress"), DateTime.now, None,
-                  name = "", node = Some(BuildNode("-1", "this", "this", -1, Some("In progress"), "#", List(), DateTime.now, None, None)))))
+                case Success(_) => Ok(Json.toJson(
+                  Build(
+                    number = -1,
+                    branch = params.branchId.getOrElse("this"),
+                    status = Some("In progress"),
+                    timestamp = DateTime.now,
+                    timestampEnd = None,
+                    name = "",
+                    node = Some(BuildNode("-1", "this", "this", -1, Some("In progress"), "#", List(), DateTime.now, None, None))
+                    )))
                 case Failure(e: HttpException) => BadRequest(e.toString)
                 case Failure(e) => throw e
               }

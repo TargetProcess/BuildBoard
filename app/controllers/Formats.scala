@@ -75,8 +75,8 @@ object Formats {
         (__ \ "name").write[String] ~
         (__ \ "artifacts").write(list[Artifact]) ~
         (__ \ "activityType").write[String] ~
-        (__ \ "node").writeNullable[BuildNode]
-
+        (__ \ "node").writeNullable[BuildNode] ~
+        (__ \ "pendingRersuns").write(list[String])
       ) ((b: Build) => Build.unapply(b.copy(status = Some(b.buildStatus.name.toUpperCase),
       timestampEnd = b.node.flatMap(_.timestampEnd).orElse(b.timestampEnd))).get)
 

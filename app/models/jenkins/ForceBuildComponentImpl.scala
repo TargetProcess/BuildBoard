@@ -3,9 +3,10 @@ package models.jenkins
 import java.io.File
 
 import components._
+import models.Build
 import models.buildActions.{BranchBuildAction, JenkinsBuildAction, PullRequestBuildAction, ReuseArtifactsBuildAction}
 import models.configuration.CycleParameters
-import models.cycles.CycleConstants
+import models.cycles.{CycleConstants, TestCategory}
 
 import scala.util.Try
 import scalaj.http.{Http, HttpOptions}
@@ -41,7 +42,6 @@ trait ForceBuildComponentImpl extends ForceBuildComponent {
       case x: JenkinsBuildAction => forceSimpleBuild(x)
     }
 
-
     def forceSimpleBuild(action: JenkinsBuildAction) = {
       val branch = action match {
         case PullRequestBuildAction(prId, _) => branchRepository.getBranchByPullRequest(prId).map(_.name)
@@ -62,6 +62,7 @@ trait ForceBuildComponentImpl extends ForceBuildComponent {
 
     def forceReuseArtifactsBuild(action: ReuseArtifactsBuildAction): Try[Unit] = Try {
       val buildFolder = new File(s"$directory/${action.buildName}")
+
       val revision = FileApi.readAsMap(new File(buildFolder, "Artifacts/Revision.txt"))
         .flatMap(
           _.values
@@ -79,17 +80,32 @@ trait ForceBuildComponentImpl extends ForceBuildComponent {
         forceRerunBuildCategory(s"${config.jenkinsUrl}/job/$job/buildWithParameters", buildParams, revision, action.buildNumber, postfix, params)
       }
       def forcePartWithFilter(job: String, postfix: String, filterKey: String, filter: List[String]): Unit = {
-        if (filter.nonEmpty)
+        if (filter.nonEmpty) {
           forcePart(job, postfix, Map((filterKey, filter.mkString(" ").replaceAll( """^\"|\"$""", ""))))
+        }
       }
 
 
       CycleConstants.allTestCategories.values.foreach(category => {
-        forcePartWithFilter(category.runName, category.postfix, category.filter, cycleParameters.tests(category))
+
+        val parts: List[String] = cycleParameters.tests(category)
+
+
+        deleteProgressFiles(buildFolder, category, parts)
+        addRerunsToQueue(action.buildName, category, parts)
+
+
+
+        forcePartWithFilter(category.runName, category.postfix, category.filter, parts)
       })
 
-      forcePart("CometOutOfProcess", "FuncTests")
-      forcePart("RunSliceLoadTest", "FuncTests")
+      if (cycleParameters.includeComet) {
+        forcePart("CometOutOfProcess", "FuncTests")
+      }
+
+      if (cycleParameters.includeSlice) {
+        forcePart("RunSliceLoadTest", "FuncTests")
+      }
 
       if (cycleParameters.includeDb) {
         forcePart("RunDBTest", "FuncTests")
@@ -124,6 +140,34 @@ trait ForceBuildComponentImpl extends ForceBuildComponent {
       )
 
     }
+
+    def addRerunsToQueue(buildName: String, category: TestCategory, parts: List[String]) = {
+      val maybeBuild = buildRepository.getBuild(buildName)
+      maybeBuild.foreach(build => {
+        val existingReruns = build.pendingReruns
+        val updatedReruns = existingReruns ++ parts.map(part => s"${category.runName}_$part")
+        val newBuild = build.copy(pendingReruns = updatedReruns)
+        buildRepository.update(newBuild)
+      })
+    }
+
+    def deleteProgressFiles(buildFolder: File, category: TestCategory, parts: List[String]) = {
+      def deleteFile(folder: File, fileName: String): Unit = {
+        if (!new File(folder, fileName).delete()) {
+          play.Logger.error(s"Cannot delete $fileName")
+        }
+      }
+
+      parts.foreach(part => {
+        val partName = s"${category.runName}_$part"
+
+        val folder = new File(buildFolder, s"Build/StartBuild/${category.postfix}/$partName/")
+
+        deleteFile(folder, s"$partName.started")
+        deleteFile(folder, s"$partName.finished")
+      })
+    }
+
 
     def getParamsFile(folder: File): File = {
       new File(folder, "Build/StartBuild/StartBuild.params")

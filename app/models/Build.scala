@@ -17,8 +17,11 @@ case class Build(number: Int,
                  name: String,
                  artifacts: List[Artifact] = Nil,
                  activityType: String = "build",
-                 node: Option[BuildNode]
+                 node: Option[BuildNode],
+                 pendingReruns: List[String] = List()
                 ) extends ActivityEntry {
+
+
 
   def getTestRunBuildNode(part: String, run: String): Option[BuildNode] = {
     getBuildNode(n => n.name == part && n.runName == run)

@@ -34,8 +34,8 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
       else {
         val allFolders = new Folder(directory).listFiles().filter(_.isDirectory).toList
         val newFolders: List[Folder] = allFolders.filterNot(x => existingBuildsMap.get(x.getName).isDefined)
-        val foldersToUpdate: List[Folder] = existingBuilds.filter(build=>
-          build.status.isEmpty
+        val foldersToUpdate: List[Folder] = existingBuilds.filter(build =>
+          build.status.isEmpty || build.pendingReruns.nonEmpty
         ).map(x => new Folder(directory, x.name))
         newFolders ++ foldersToUpdate
       }
@@ -47,8 +47,11 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
 
       val result = buildSources.flatMap(buildSource => {
         val name: String = buildSource.folder.getName
-        val toggled = existingBuildsMap.get(name).fold(false)(_.toggled)
-        getBuild(buildSource, toggled)
+        val maybeBuild: Option[Build] = existingBuildsMap.get(name)
+
+        val toggled = maybeBuild.fold(false)(_.toggled)
+        val pendingReruns = maybeBuild.map(_.pendingReruns).getOrElse(Nil)
+        getBuild(buildSource, toggled, pendingReruns)
       })
 
       result

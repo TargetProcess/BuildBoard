@@ -9,17 +9,7 @@ trait ConfigurableCycleBuilderComponentImpl extends CycleBuilderComponent {
 
   this: ConfigurableCycleBuilderComponentImpl with ConfigComponent =>
 
-  def getTests(testName: String): List[String] = {
-    println("1")
-    println(config)
-    println("2")
-    println(config.buildConfig)
-    println("3")
-    println(config.buildConfig.build)
-    println("4")
-    println(config.buildConfig.build.tests)
-    config.buildConfig.build.tests(testName)
-  }
+  def getTests(testName: String): List[String] = config.buildConfig.build.tests(testName)
 
   override val cycleBuilder = new CycleBuilder {
     def customCycle(buildParametersCategory: List[BuildParametersCategory]): Cycle = {

@@ -30,12 +30,16 @@ trait ParseFolder extends Artifacts with FileHelper {
     new File(folder, "Build/StartBuild/StartBuild.params")
   }
 
+  def allNodes(node: BuildNode): Stream[BuildNode] = {
+    val map: Stream[BuildNode] = node.children.map(child => allNodes(child)).toStream.flatten
+    node #:: map
+  }
 
-  def getBuild(buildSource: BuildSource, toggled: Boolean): Option[Build] = {
+  def getBuild(buildSource: BuildSource, toggled: Boolean, pendingReruns: List[String]): Option[Build] = {
     val name: String = buildSource.folder.getName
 
 
-    val node = watch(s"Get node ${buildSource.branch} ${buildSource.number}") {
+    val maybeNode = watch(s"Get node ${buildSource.branch} ${buildSource.number}") {
       getBuildNode(new Folder(buildSource.folder, "Build"))
     }
     val folder = new Folder(buildSource.folder, "Build/StartBuild")
@@ -45,21 +49,35 @@ trait ParseFolder extends Artifacts with FileHelper {
       val commits = getCommits(new File(folder, "Checkout/GitChanges.log"))
       val ref = getRef(new File(folder, "Checkout/sha.txt"))
 
+      val finishedReruns = maybeNode.map(
+        node => allNodes(node)
+          .filter(x => x.rerun.getOrElse(false))
+          .map(node => s"${node.runName}_${node.name}")
+          .toList)
+        .getOrElse(Nil)
+
+
       getBuildDetails(folder)
-        .map(buildDetails => Build(number = buildSource.number,
-          branch = buildSource.branch,
-          status = buildDetails.status,
-          timestamp = buildDetails.startTime,
-          timestampEnd  = buildDetails.endTime,
-          toggled = toggled,
-          commits = commits,
-          ref = ref,
-          pullRequestId = buildSource.pullRequestId,
-          initiator = buildSource.params.parameters.get("WHO_STARTS"),
-          description = buildSource.params.parameters.get("DESCRIPTION").orElse(buildSource.params.parameters.get("UID")),
-          node = node,
-          name = name,
-          artifacts = getBuildArtifacts(folder)))
+        .map(buildDetails => {
+          Build(
+            number = buildSource.number,
+            branch = buildSource.branch,
+            status = buildDetails.status,
+            timestamp = buildDetails.startTime,
+            timestampEnd = buildDetails.endTime,
+            toggled = toggled,
+            commits = commits,
+            ref = ref,
+            pullRequestId = buildSource.pullRequestId,
+            initiator = buildSource.params.parameters.get("WHO_STARTS"),
+            description = buildSource.params.parameters.get("DESCRIPTION").orElse(buildSource.params.parameters.get("UID")),
+            node = maybeNode,
+            name = name,
+            artifacts = getBuildArtifacts(folder),
+            pendingReruns = pendingReruns.filter(r => !finishedReruns.contains(r))
+          )
+        }
+        )
     } else {
       None
     }
@@ -151,7 +169,7 @@ trait ParseFolder extends Artifacts with FileHelper {
     if (folder.exists) getBuildNodeInner(folder, f.getPath) else None
   }
 
-  private case class BuildDetails(number: Int, status: Option[String], statusUrl: Option[String], startTime: DateTime, endTime:Option[DateTime], rerun: Option[Boolean])
+  private case class BuildDetails(number: Int, status: Option[String], statusUrl: Option[String], startTime: DateTime, endTime: Option[DateTime], rerun: Option[Boolean])
 
   val dateFormat: SimpleDateFormat = new java.text.SimpleDateFormat("MM/dd/yyyy HH:mm:ss Z")
   dateFormat.setTimeZone(TimeZone.getDefault)
@@ -172,7 +190,7 @@ trait ParseFolder extends Artifacts with FileHelper {
       val number = statusUrl.map { case buildNumberRegex(num) => num.toInt }.getOrElse(-1)
 
       val startTime = startedFileContent.flatMap(_.get(1))
-        .map(x => new DateTime(dateFormat.parse(x+" +0300").getTime))
+        .map(x => new DateTime(dateFormat.parse(x + " +0300").getTime))
         .getOrElse(new DateTime(started.lastModified))
 
       val rerunRegex = "RERUN=(true|false)".r
@@ -186,10 +204,10 @@ trait ParseFolder extends Artifacts with FileHelper {
         finishedFile.flatMap(FileApi.read)
           .orElse(if ((DateTime.now - timeout) > startTime) Some("TIMED OUT") else None)
 
-      val endTime = finishedFile.map(x=>new DateTime(x.lastModified))
+      val endTime = finishedFile.map(x => new DateTime(x.lastModified))
 
       BuildDetails(number, status, statusUrl, startTime, endTime, rerun)
-    })
+    }).getOrElse(BuildDetails())
   }
 
   def getTestCasePackages(testRunBuildNode: BuildNode): List[TestCasePackage] = {
