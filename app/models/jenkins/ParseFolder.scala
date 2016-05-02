@@ -207,7 +207,7 @@ trait ParseFolder extends Artifacts with FileHelper {
       val endTime = finishedFile.map(x => new DateTime(x.lastModified))
 
       BuildDetails(number, status, statusUrl, startTime, endTime, rerun)
-    }).getOrElse(BuildDetails())
+    })
   }
 
   def getTestCasePackages(testRunBuildNode: BuildNode): List[TestCasePackage] = {

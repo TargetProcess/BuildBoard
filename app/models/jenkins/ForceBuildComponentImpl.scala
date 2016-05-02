@@ -92,7 +92,7 @@ trait ForceBuildComponentImpl extends ForceBuildComponent {
 
 
         deleteProgressFiles(buildFolder, category, parts)
-        addRerunsToQueue(action.buildName, category, parts)
+        //addRerunsToQueue(action.buildName, category, parts)
 
 
 
@@ -164,7 +164,7 @@ trait ForceBuildComponentImpl extends ForceBuildComponent {
         val folder = new File(buildFolder, s"Build/StartBuild/${category.postfix}/$partName/")
 
         deleteFile(folder, s"$partName.started")
-        deleteFile(folder, s"$partName.finished")
+        //deleteFile(folder, s"$partName.finished")
       })
     }
 
