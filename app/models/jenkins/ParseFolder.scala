@@ -21,7 +21,7 @@ trait ParseFolder extends Artifacts with FileHelper {
   protected val screenshotFileNameRegex = """.*\\(\w+)[-].*$""".r
   protected val rootJobName = "StartBuild"
 
-  private val timeout = 5.hours
+  private val timeout = 8.hours
 
 
   case class BuildSource(branch: String, number: Int, pullRequestId: Option[Int], folder: Folder, params: BuildParams)
