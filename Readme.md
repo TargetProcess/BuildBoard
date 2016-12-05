@@ -24,3 +24,5 @@
 7. *TBD* Logging
 8. *TBD* Statistics
 9. Github login/TP Login
+
+BuildBoard is hosted on srv-hv3 server. To restart buildboard you should kill buildboard java process and remove RUNNING_PID file from _c:\BuildBoard\bin_. Then simply run _buildboard.bat_. I'm not sure that it is the best way, it's all I know :-).
