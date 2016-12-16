@@ -205,7 +205,8 @@
         "PartSlice2",
         "PartOther",
         "PartPlugins0",
-        "PartPlugins1"
+        "PartPlugins1",
+        "PartPlugins2"
       ],
       "casperTests": [
         "general",
