@@ -206,7 +206,8 @@
         "PartOther",
         "PartPlugins0",
         "PartPlugins1",
-        "PartPlugins2"
+        "PartPlugins2",
+        "PartSearch"
       ],
       "casperTests": [
         "general",
