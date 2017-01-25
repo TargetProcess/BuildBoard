@@ -92,7 +92,7 @@ trait ForceBuildComponentImpl extends ForceBuildComponent {
 
 
         deleteProgressFiles(buildFolder, category, parts)
-        //addRerunsToQueue(action.buildName, category, parts)
+        addRerunsToQueue(action.buildName, category, parts)
 
 
 

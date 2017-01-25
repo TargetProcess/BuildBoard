@@ -85,7 +85,6 @@ object CacheService {
               })
           }
 
-
           Try {
             data.foreach(branch => registry.branchRepository.update(branch))
           }
