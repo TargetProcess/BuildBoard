@@ -230,7 +230,7 @@
     "others": false,
     "vs": false,
     "release": false,
-    "develop": false
+    "develop": true
   },
   "deploy": [
     {

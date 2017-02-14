@@ -22,21 +22,15 @@ trait AutoBuildRerunComponentImpl extends BuildRerunComponent {
       if (shouldRerunBuild(updatedBuild)) {
 
         val testsToRerun = CycleConstants.allTestCategories.values.map(category => (getNodesToRerun(updatedBuild, category.name), category))
-
         if (testsToRerun.exists(_._1.nonEmpty)) {
-
           testsToRerun.foreach { case (tests, category) => rerunRepository.markAsRerun(updatedBuild, category.name, tests) }
-
           val buildParametersCategory = testsToRerun.map { case (tests, category) => BuildParametersCategory(category.name, None, tests) }
-
           val action = ReuseArtifactsBuildAction(updatedBuild.name, updatedBuild.number, cycleBuilder.customCycle(buildParametersCategory.toList))
-
           Logger.info(s"Rerun: $action")
           forceBuildService.forceBuild(action)
         }
       }
     }
-
 
     def autoRerun(name: String): Boolean = config.buildConfig.autoRerun(name)
 
@@ -49,6 +43,8 @@ trait AutoBuildRerunComponentImpl extends BuildRerunComponent {
         case BranchInfo.vs(_) => "vs"
         case _ => "others"
       }
+
+      Logger.info(s"Check for rerun $branch")
       autoRerun(branch)
     }
 
