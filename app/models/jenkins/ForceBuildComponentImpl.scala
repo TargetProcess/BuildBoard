@@ -111,6 +111,10 @@ trait ForceBuildComponentImpl extends ForceBuildComponent {
         forcePart("RunDBTest", "FuncTests")
       }
 
+      if (cycleParameters.includeFuncIntegrationTests) {
+        forcePart("RunFuncTestsIntegration", "RunFuncTestsIntegration")
+      }
+
       if (cycleParameters.includePerfTests) {
         val parameters: Map[String, String] = action.cycle.getParamsByCategory(CycleConstants.perfCategoryName)
         forcePart("RunPerfTests", "PerfTests", parameters)

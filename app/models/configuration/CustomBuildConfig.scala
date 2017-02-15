@@ -34,6 +34,7 @@ case class CycleParameters(
                             includeSlice: Boolean,
                             includePerfTests: Boolean,
                             includeMashupTests: Boolean,
+                            includeFuncIntegrationTests: Boolean,
                             buildFullPackage: Boolean,
                             tests: Map[TestCategory, List[String]]
                           )

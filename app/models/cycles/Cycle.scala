@@ -24,7 +24,8 @@ case class Cycle(name: String, config: CycleParameters, buildParametersCategory:
       "Cycle" -> (if (config.isFull) "Full" else "Short"),
       "INCLUDE_COMET" -> config.includeComet.toString,
       "INCLUDE_SLICE" -> config.includeSlice.toString,
-      "INCLUDE_DB" -> config.includeDb.toString)
+      "INCLUDE_DB" -> config.includeDb.toString,
+      "INCLUDE_INTEGRATION" -> config.includeFuncIntegrationTests.toString)
 
 
     categorizedTests ++ otherParameters
