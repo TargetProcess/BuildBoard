@@ -22,7 +22,6 @@ case class Build(number: Int,
                 ) extends ActivityEntry {
 
 
-
   def getTestRunBuildNode(part: String, run: String): Option[BuildNode] = {
     getBuildNode(n => n.name == part && n.runName == run)
   }
@@ -32,9 +31,9 @@ case class Build(number: Int,
       case n: BuildNode if filter(n) => Some(n)
       case n => n.children.map(getTestRunBuildNodeInner).filter(_.isDefined).flatten.headOption
     }
+
     node.flatMap(getTestRunBuildNodeInner)
   }
-
 
   def isPullRequest = pullRequestId.isDefined
 
@@ -48,7 +47,6 @@ case class Build(number: Int,
       node.map(_.buildStatus).getOrElse(selfStatus)
   }
 }
-
 
 case class BuildNode(
                       id: String,
@@ -90,3 +88,11 @@ case class BuildNode(
 case class BuildToggle(branch: String, buildNumber: Int)
 
 case class Artifact(name: String, url: String)
+
+case class JobRun(
+                   id: String,
+                   buildNumber: Int,
+                   BuildNode: String,
+                   FailedTests: List[TestCase],
+                   startTime: DateTime,
+                   endTime: Option[DateTime])

@@ -5,22 +5,17 @@ import java.text.SimpleDateFormat
 import java.util.TimeZone
 
 import com.github.nscala_time.time.Imports._
-import models.{Artifact, Build, BuildNode, Commit, TestCase, TestCasePackage}
+import models._
 import org.joda.time.DateTime
-
-import scala.xml.{Node, XML}
 import src.Utils.watch
+import components.DefaultRegistry
 
 trait FileHelper {
   type Folder = File
 }
 
-trait ParseFolder extends Artifacts with FileHelper {
-
-  protected val screenshotQualifiedFileNameRegex = """.*\\(\w+)\.(\w+)[-].*$""".r
-  protected val screenshotFileNameRegex = """.*\\(\w+)[-].*$""".r
+trait ParseFolder extends ParseTestResults with FileHelper {
   protected val rootJobName = "StartBuild"
-
   private val timeout = 8.hours
 
 
@@ -35,15 +30,13 @@ trait ParseFolder extends Artifacts with FileHelper {
     node #:: map
   }
 
-  def getBuild(buildSource: BuildSource, toggled: Boolean, pendingReruns: List[String]): Option[Build] = {
+  def getBuild(existingBuild: Option[Build], buildSource: BuildSource, toggled: Boolean): Option[Build] = {
     val name: String = buildSource.folder.getName
 
-
     val maybeNode = watch(s"Get node ${buildSource.branch} ${buildSource.number}") {
-      getBuildNode(new Folder(buildSource.folder, "Build"))
+      getBuildNode(new Folder(buildSource.folder, "Build"), existingBuild)
     }
     val folder = new Folder(buildSource.folder, "Build/StartBuild")
-
 
     if (folder.exists) {
       val commits = getCommits(new File(folder, "Checkout/GitChanges.log"))
@@ -55,7 +48,6 @@ trait ParseFolder extends Artifacts with FileHelper {
           .map(node => s"${node.runName}_${node.name}")
           .toList)
         .getOrElse(Nil)
-
 
       getBuildDetails(folder)
         .map(buildDetails => {
@@ -74,7 +66,7 @@ trait ParseFolder extends Artifacts with FileHelper {
             node = maybeNode,
             name = name,
             artifacts = getBuildArtifacts(folder),
-            pendingReruns = pendingReruns.filter(r => !finishedReruns.contains(r))
+            pendingReruns = existingBuild.map(build => build.pendingReruns.filter(r => !finishedReruns.contains(r))).getOrElse(Nil)
           )
         }
         )
@@ -127,38 +119,49 @@ trait ParseFolder extends Artifacts with FileHelper {
 
   def isUnstable(name: String): Boolean = unstableNodeNames.contains(name)
 
-  def getBuildNode(f: File): Option[BuildNode] = {
+  def getBuildNode(f: File, existingBuild: Option[Build]): Option[BuildNode] = {
 
-    def getBuildNodeInner(folder: File, path: String): Option[BuildNode] = {
+    def getBuildNodeInner(existingBuildNode: Option[BuildNode], folder: File, path: String): Option[BuildNode] = {
       if (!folder.exists) return None
 
       val contents = folder.listFiles.sortBy(_.getName).toList
-      val children: List[BuildNode] = contents
-        .filter(f => f.isDirectory && !f.getName.startsWith("."))
-        .flatMap(f => getBuildNodeInner(f, folder.getPath))
-
       val artifacts = getArtifacts(contents)
 
-      val (runName, name) = folder.getName match {
-        case complexNameRegex(runNme, nme) => (runNme, nme)
-        case nme => (nme, nme)
-      }
+      val (runName, name) = getBuildNodeName(folder)
 
-      val maybeBuildNode = getBuildDetails(folder)
-        .map(buildDetails => BuildNode(
-          buildDetails.number.toString,
-          name,
-          runName,
-          buildDetails.number,
-          buildDetails.status,
-          buildDetails.statusUrl.getOrElse(""),
-          if (buildDetails.statusUrl.isDefined) {
-            Artifact("output", buildDetails.statusUrl.map(url => s"${url}consoleText").get) :: artifacts
-          } else artifacts,
-          buildDetails.startTime,
-          Some(buildDetails.endTime.getOrElse(new DateTime(0))),
-          buildDetails.rerun,
-          children = children, isUnstable = Some(isUnstable(name))))
+      play.Logger.info(s"get build Node ${name}")
+
+      val children: List[BuildNode] = contents
+        .filter(file => file.isDirectory && !file.getName.startsWith("."))
+        .flatMap(folder => {
+          val (_, name) = getBuildNodeName(folder)
+          val existingChildNode = existingBuildNode
+            .flatMap(buildNode => buildNode.children.find(childNode => childNode.name == name))
+          getBuildNodeInner(existingChildNode, folder, folder.getPath)
+        })
+
+      val buildDetails = getBuildDetails(folder)
+      val maybeBuildNode = buildDetails
+        .map(buildDetails => {
+          val jobRunInfo = getJobRunInfo(name, buildDetails, artifacts)
+          DefaultRegistry.jobRunRepository.update(jobRunInfo)
+
+          BuildNode(
+            buildDetails.number.toString,
+            name,
+            runName,
+            buildDetails.number,
+            buildDetails.status,
+            buildDetails.statusUrl.getOrElse(""),
+            if (buildDetails.statusUrl.isDefined) {
+              Artifact("output", buildDetails.statusUrl.map(url => s"${url}consoleText").get) :: artifacts
+            } else artifacts,
+            buildDetails.startTime,
+            Some(buildDetails.endTime.getOrElse(new DateTime(0))),
+            buildDetails.rerun,
+            children = children,
+            isUnstable = Some(isUnstable(name)))
+        })
 
       //check if it's container job
       if (maybeBuildNode.isEmpty && children.length == 1) Some(children.head) else maybeBuildNode
@@ -166,7 +169,19 @@ trait ParseFolder extends Artifacts with FileHelper {
 
     //todo: add artifacts to root node
     val folder = new File(f, rootJobName)
-    if (folder.exists) getBuildNodeInner(folder, f.getPath) else None
+    if (folder.exists) getBuildNodeInner(existingBuild.flatMap(build => build.node), folder, f.getPath) else None
+  }
+
+  private def getJobRunInfo(nodeName: String, buildDetails: BuildDetails, artifacts: List[Artifact]): JobRun = {
+    val id = s"${buildDetails.number}-${nodeName}-${buildDetails.startTime}"
+    JobRun(id, buildDetails.number, nodeName, getFailedTestCases(artifacts), buildDetails.startTime, buildDetails.endTime)
+  }
+
+  private def getBuildNodeName(folder: File): (String, String) = {
+    folder.getName match {
+      case complexNameRegex(runNme, name) => (runNme, name)
+      case name => (name, name)
+    }
   }
 
   private case class BuildDetails(number: Int, status: Option[String], statusUrl: Option[String], startTime: DateTime, endTime: Option[DateTime], rerun: Option[Boolean])
@@ -176,9 +191,11 @@ trait ParseFolder extends Artifacts with FileHelper {
 
   private def getBuildDetails(folder: File): Option[BuildDetails] = {
     val contents = folder.listFiles
+
     def getFile(extension: String): Option[File] = {
       contents.find(_.getName.endsWith(extension))
     }
+
     val startedFile: Option[File] = getFile("started")
     val finishedFile: Option[File] = getFile("finished")
 
@@ -208,103 +225,6 @@ trait ParseFolder extends Artifacts with FileHelper {
 
       BuildDetails(number, status, statusUrl, startTime, endTime, rerun)
     })
-  }
-
-  def getTestCasePackages(testRunBuildNode: BuildNode): List[TestCasePackage] = {
-    val screenshots = testRunBuildNode.artifacts.filter(a => a.name == screenshot)
-
-    def getNUnitTestCasePackage(xml: String): List[TestCasePackage] = {
-      def getTestCasePackage(node: Node): TestCasePackage = {
-        def getTestCasePackageInner(node: Node, namespace: String = ""): TestCasePackage = {
-
-          val name = node.attribute("name").get.head.text
-          val currentNamespace = getAttribute(node, "type") match {
-            case Some("Namespace") => if (namespace.isEmpty) name else s"$namespace.$name"
-            case _ => namespace
-          }
-
-          val children = (node \ "results" \ "test-suite")
-            .filter(n => getAttribute(n, "result").get != "Inconclusive")
-            .map(n => getTestCasePackageInner(n, currentNamespace))
-            .toList
-
-          val testCases = (node \ "results" \ "test-case").map(tcNode => {
-            val executed = getAttribute(tcNode, "executed").get.toBoolean
-            val result = if (!executed) "Ignored" else if (getAttribute(tcNode, "success").get != "True") "Failure" else "Success"
-            val (message, stackTrace) = if (result == "Failure")
-              ((tcNode \\ "message").headOption.map(_.text), (tcNode \\ "stack-trace").headOption.map(_.text))
-            else (None, None)
-            val tcName: String = getAttribute(tcNode, "name").get
-
-            val tcScreenshots = tcName match {
-              case testNameRegex(className, methodName) =>
-                screenshots.filter(s => s.url match {
-                  case screenshotQualifiedFileNameRegex(scrClassName, scrMethodName) => className == scrClassName && methodName == scrMethodName
-                  case screenshotFileNameRegex(scrMethodName) => methodName == scrMethodName
-                  case _ => false
-                }).map(s => Artifact(s"$className.$methodName", s.url))
-              case _ => Nil
-            }
-
-            TestCase(tcName, result, getAttribute(tcNode, "time").map(_.toDouble).getOrElse(0.0), message, tcScreenshots, stackTrace)
-          }).toList
-
-          TestCasePackage(if (currentNamespace.isEmpty) name else s"$namespace.$name", children, testCases)
-        }
-
-        getTestCasePackageInner(node)
-      }
-
-      (XML.loadString(xml) \ "test-suite").map(getTestCasePackage).toList
-    }
-    def getJUnitTestCasePackage(xml: String): List[TestCasePackage] = {
-      def getTestCasePackage(node: Node): TestCasePackage = {
-        def getTestCasePackageInner(node: Node, namespace: String = ""): TestCasePackage = {
-
-          val name = node.attribute("name").map(a => a.head.text).getOrElse("All")
-          val testCases = (node \ "testcase").map(tcNode => {
-            val executed = (tcNode \ "skipped").length == 0
-            val error = tcNode \ "error"
-            val failure = tcNode \ "failure"
-            val failureNode: Option[Node] = (if (error.length > 0) error else failure).headOption
-            val result = if (!executed) "Ignored" else if (failureNode.isDefined) "Failure" else "Success"
-
-            val (message, stackTrace) = failureNode.map(node => (getAttribute(node, "message"), Some(node.text))).getOrElse(None, None)
-            val tcName: String = s"${getAttribute(tcNode, "classname").get}.${getAttribute(tcNode, "name").get}"
-
-            TestCase(tcName, result, getAttribute(tcNode, "time").map(_.toDouble).getOrElse(0.0), message = message, stackTrace = stackTrace)
-          }).toList
-
-          TestCasePackage(name, Nil, testCases)
-        }
-
-        getTestCasePackageInner(node)
-      }
-
-      XML.loadString(xml).map(getTestCasePackage).toList
-    }
-    val nunitParser: PartialFunction[String, List[TestCasePackage]] = {
-      case xml => getNUnitTestCasePackage(xml)
-    }
-    val junitParser: PartialFunction[String, List[TestCasePackage]] = {
-      case xml => getJUnitTestCasePackage(xml)
-    }
-
-    val testResultAdapters = Map(
-      ("nunit", nunitParser),
-      ("junit", junitParser)
-    )
-
-    testRunBuildNode.artifacts
-      .find(a => a.name == "testResults")
-      .map(file => (file, FileApi.read(this.getArtifact(file.url))))
-      .flatMap(fileXmlPair => {
-        val fileName: String = new File(fileXmlPair._1.url).getName
-        testResultAdapters
-          .find(pair => fileName.toLowerCase.startsWith(pair._1))
-          .flatMap(pair => fileXmlPair._2.map(xml => pair._2(xml)))
-      })
-      .getOrElse(Nil)
   }
 }
 
