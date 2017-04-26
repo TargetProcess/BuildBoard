@@ -39,6 +39,7 @@ trait ConfigurableCycleBuilderComponentImpl extends CycleBuilderComponent {
       val isFull: Boolean = getBoolByCategory(CycleConstants.cycleTypeCategoryName)
       val includePerfTests: Boolean = getBoolByCategory(CycleConstants.perfCategoryName)
       val includeMashupTests: Boolean = getBoolByCategory(CycleConstants.includeMashupTestsKey)
+      val includeFuncIntegrationTests: Boolean = getBoolByCategory(CycleConstants.funcIntegrationTestsCategoryName)
 
       val possibleBuildParameters =
         List(
@@ -49,12 +50,13 @@ trait ConfigurableCycleBuilderComponentImpl extends CycleBuilderComponent {
             BuildParametersCategory(CycleConstants.cometCategoryName, None, List("Include")),
             BuildParametersCategory(CycleConstants.sliceCategoryName, None, List("Include")),
             BuildParametersCategory(CycleConstants.dbCategoryName, None, List("Include")),
+            BuildParametersCategory(CycleConstants.funcIntegrationTestsCategoryName, None, List("Include")),
             BuildParametersCategory(CycleConstants.perfCategoryName, None, List("Include"), Map("PerfTestClass" -> "", "PerfTestMethod" -> ""))
           )
 
 
       Cycle(name,
-        CycleParameters(isFull, includeUnstable, includeDb, includeComet, includeSlice, includePerfTests, includeMashupTests, buildFullPackage, tests),
+        CycleParameters(isFull, includeUnstable, includeDb, includeComet, includeSlice, includePerfTests, includeMashupTests, includeFuncIntegrationTests,  buildFullPackage, tests),
         buildParametersCategory, possibleBuildParameters)
     }
 

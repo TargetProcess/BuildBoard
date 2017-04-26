@@ -8,6 +8,7 @@ object CycleConstants {
   val dbCategoryName = "DbTests"
   val cycleTypeCategoryName = "CycleType"
   val perfCategoryName = "PerfTests"
+  val funcIntegrationTestsCategoryName = "RunFuncIntegrationTests"
   val includePerfTestsKey = "INCLUDE_PERF"
   val includeMashupTestsKey = "RunMashupTests"
 

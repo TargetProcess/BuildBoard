@@ -12,7 +12,7 @@ import models.magicMerge.MagicMergeComponentImpl
 import models.notifications.{NotificationComponentImpl, NotificationRepositoryComponentImpl}
 import models.services.BranchServiceComponentImpl
 import models.tp.{TargetprocessComponentImpl, UserRepositoryComponentImpl}
-import models.{AuthInfo, BranchRepositoryComponentImpl, BuildRepositoryComponentImpl, User}
+import models._
 import play.api.Play
 import play.api.Play.current
 
@@ -36,6 +36,7 @@ trait DefaultComponent
   with ConfigurableCycleBuilderComponentImpl
   with DeployServiceComponentImpl
   with ForceBuildComponentImpl
+  with JobRunRepositoryComponentImpl
 
 
 class DefaultRegistry(val loggedUser: Option[User], val authInfo: AuthInfo) extends DefaultComponent {

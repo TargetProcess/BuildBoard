@@ -26,6 +26,8 @@ libraryDependencies ++= Seq(
 
 libraryDependencies += filters
 
+javaOptions in run += "-Xmx8G"
+
 scalacOptions ++= Seq(
   "-encoding",
   "UTF-8",

@@ -22,6 +22,7 @@
           "includePerfTests": false,
           "includeMashupTests": false,
           "buildFullPackage": true,
+          "includeFuncIntegrationTests": false,
           "tests": {
             "casperTests": [],
             "karmaTests": [],
@@ -45,6 +46,7 @@
           "includePerfTests": true,
           "includeMashupTests": true,
           "buildFullPackage": true,
+          "includeFuncIntegrationTests": true,
           "tests": {
             "casperTests": [
               "general",
@@ -85,6 +87,7 @@
           "includePerfTests": false,
           "includeMashupTests": false,
           "buildFullPackage": false,
+          "includeFuncIntegrationTests": false,
           "tests": {
             "casperTests": [
               "general",
