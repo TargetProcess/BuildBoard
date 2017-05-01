@@ -41,6 +41,7 @@ object Formats {
   implicit val testCaseWrite = Json.format[TestCase]
   implicit val testCasePackageWrite = Json.format[TestCasePackage]
   implicit var buildNodeWrite: Writes[BuildNode] = null
+
   buildNodeWrite = (
     (__ \ "id").write[String] ~
       (__ \ "name").write[String] ~
@@ -52,7 +53,7 @@ object Formats {
       (__ \ "timestamp").write[DateTime] ~
       (__ \ "timestampEnd").writeNullable[DateTime] ~
       (__ \ "rerun").writeNullable[Boolean] ~
-      (__ \ "rerun").writeNullable[Boolean] ~
+      (__ \ "isUnstable").writeNullable[Boolean] ~
       (__ \ "children").lazyWrite(list(buildNodeWrite)) ~
       (__ \ "testResults").write(list(testCasePackageWrite))
     ) ((node: BuildNode) => BuildNode.unapply(node.copy(status = Some(node.buildStatus.name.toUpperCase))).get)
@@ -76,7 +77,7 @@ object Formats {
         (__ \ "artifacts").write(list[Artifact]) ~
         (__ \ "activityType").write[String] ~
         (__ \ "node").writeNullable[BuildNode] ~
-        (__ \ "pendingRersuns").write(list[String])
+        (__ \ "pendingReruns").write(list[String])
       ) ((b: Build) => Build.unapply(b.copy(status = Some(b.buildStatus.name.toUpperCase),
       timestampEnd = b.node.flatMap(_.timestampEnd).orElse(b.timestampEnd))).get)
 
@@ -108,9 +109,7 @@ object Formats {
     }
   }
 
-
   implicit val branchWrite = Json.writes[Branch]
-
 
   implicit val magicMergeResultWrite: OWrites[MagicMergeResult] = (
     (__ \ "message").write[String] ~

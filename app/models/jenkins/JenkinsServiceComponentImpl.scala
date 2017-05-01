@@ -28,7 +28,6 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
 
       val existingBuildsMap: Map[String, Build] = existingBuilds.map(x => (x.name, x)).toMap
 
-
       val folders = if (buildNamesToUpdate.nonEmpty) {
         buildNamesToUpdate.map(x => new Folder(directory, x))
       }
@@ -51,8 +50,7 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
         val maybeBuild: Option[Build] = existingBuildsMap.get(name)
 
         val toggled = maybeBuild.fold(false)(_.toggled)
-        val pendingReruns = maybeBuild.map(_.pendingReruns).getOrElse(Nil)
-        getBuild(buildSource, toggled, pendingReruns)
+        getBuild(maybeBuild, buildSource, toggled)
       })
 
       result
@@ -61,11 +59,9 @@ trait JenkinsServiceComponentImpl extends JenkinsServiceComponent {
     def getTestRun(branch: Branch, build: Int, part: String, run: String) =
       findBuild(branch, build)
         .flatMap(b => b.getTestRunBuildNode(part, run))
-        .map(testRunBuildNode => testRunBuildNode.copy(testResults = getTestCasePackages(testRunBuildNode)))
-
+        .map(testRunBuildNode => testRunBuildNode.copy(testResults = getTestCasePackages(testRunBuildNode.artifacts)))
 
     override def getBuildActions(build: Build) = List(ReuseArtifactsBuildAction(build.name, build.number, cycleBuilder.emptyCustomCycle))
-
 
     def getBuildNumbers(name: String): Option[(Int, Option[Int])] = {
       val prR = """pr_(\d+)_(\d+)""".r
