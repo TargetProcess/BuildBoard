@@ -2,8 +2,10 @@ package models.services
 
 import components.DefaultRegistry
 import models.Build
+import org.joda.time.DateTime
 import rx.lang.scala.{Observable, Subscription}
 import src.Utils.watch
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -59,6 +61,7 @@ object CacheService {
         Try {
           registry.buildRepository.update(updatedBuild)
           registry.buildRerun.rerunFailedParts(updatedBuild)
+          registry.jobRunRepository.removeOld(DateTime.now().minusDays(7))
         }.recover {
           case e => play.Logger.error("Error in Update builds", e)
         }
