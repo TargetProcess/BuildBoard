@@ -37,18 +37,19 @@ object CacheService {
   def subscribeToJenkins: Subscription = {
     val buildObservable = registry.buildWatcher.start
 
+    play.Logger.info("Start subscription")
+
     buildObservable
       .buffer(jenkinsInterval)
       .map(_.distinct)
-      .subscribe(buildNames => Try {
-        updateBuilds(buildNames)
-      }.recover {
-        case e => play.Logger.error("Error in jenkinsSubscription", e)
-      },
-        error => {
-          play.Logger.error("Error in jenkinsSubscription", error)
-        })
-
+      .subscribe(buildNames =>
+        try {
+          updateBuilds(buildNames)
+        }
+        catch {
+          case e => play.Logger.error("Error in jenkinsSubscription", e)
+        }
+      )
   }
 
   def updateBuilds(updatedBuildNames: Seq[String]) = watch(s"update builds: ${updatedBuildNames.length}") {
@@ -58,12 +59,13 @@ object CacheService {
     val updatedBuilds: Stream[Build] = registry.jenkinsService.getUpdatedBuilds(existingBuilds, updatedBuildNames)
 
     for (updatedBuild <- updatedBuilds) {
-        Try {
+        try {
           registry.buildRepository.update(updatedBuild)
           registry.buildRerun.rerunFailedParts(updatedBuild)
           registry.jobRunRepository.removeOld(DateTime.now().minusDays(7))
-        }.recover {
-          case e => play.Logger.error("Error in Update builds", e)
+        }
+        catch {
+          case e => play.Logger.info("Error in Update builds", e)
         }
     }
 
