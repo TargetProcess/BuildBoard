@@ -1,5 +1,11 @@
 [![Build Status](https://travis-ci.org/TargetProcess/BuildBoard.png?branch=master)](https://travis-ci.org/TargetProcess/BuildBoard)
 
+It should work with:
+- scala 2.10.2
+- sbt: 0.13.13.1
+- play 2.2.6
+- jdk 1.8
+
 1. View all/my/per user entities/branches
 2. Per branch:
   + create PR
