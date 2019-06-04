@@ -65,7 +65,7 @@ object CacheService {
           registry.jobRunRepository.removeOld(DateTime.now().minusDays(7))
         }
         catch {
-          case e => play.Logger.info("Error in Update builds", e)
+          case e => play.Logger.error("Error in Update builds", e)
         }
     }
 
