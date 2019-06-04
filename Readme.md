@@ -1,10 +1,10 @@
 [![Build Status](https://travis-ci.org/TargetProcess/BuildBoard.png?branch=master)](https://travis-ci.org/TargetProcess/BuildBoard)
 
 It should work with:
-- scala 2.10.2
-- sbt: 0.13.13.1
-- play 2.2.6
-- jdk 1.8
+- [scala 2.10.2](https://scala-lang.org/download/2.10.2.html)
+- [sbt 0.13.13.1](https://www.scala-sbt.org/download.html) 
+- [play 2.2.6](https://www.playframework.com/) 
+- [jdk 1.8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) 
 
 1. View all/my/per user entities/branches
 2. Per branch:
