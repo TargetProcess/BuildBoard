@@ -174,6 +174,10 @@
         "PartComet",
         "PartBoard1",
         "PartBoard2",
+        "PartBoard3",
+        "PartBoard4",
+        "PartBoard5",
+        "PartBoard6",
         "PartPlugins1",
         "PartPlugins2",
         "PartPlugins3",
@@ -191,7 +195,6 @@
       "unitTests": [
         "Part0",
         "Part1",
-        "Part17",
         "Part2",
         "Part3",
         "Part4",
@@ -199,10 +202,15 @@
         "Part6",
         "Part7",
         "Part8",
+        "Part9",
+        "PartBatchActions",
         "PartRest1",
+        "PartRest2",
+        "PartRest3",
         "PartRestDSL",
         "PartSlice1",
         "PartSlice2",
+        "PartSlice3",
         "PartOther",
         "PartPlugins0",
         "PartPlugins1",
@@ -236,41 +244,9 @@
   },
   "deploy": [
     {
-      "name": "Alaska",
-      "channel": "alaska",
-      "deployTo": "alaska",
-      "branches": [
-        "all"
-      ]
-    },
-    {
       "name": "Lambda",
       "channel": "lambda-product",
       "deployTo": "lambda",
-      "branches": [
-        "all"
-      ]
-    },
-    {
-      "name": "Buntai",
-      "channel": "buntai-dev",
-      "deployTo": "buntai",
-      "branches": [
-        "all"
-      ]
-    },
-    {
-      "name": "Cat",
-      "channel": "cat-team",
-      "deployTo": "devops",
-      "branches": [
-        "all"
-      ]
-    },
-    {
-      "name": "New Team",
-      "channel": "new-team",
-      "deployTo": "newteam",
       "branches": [
         "all"
       ]
