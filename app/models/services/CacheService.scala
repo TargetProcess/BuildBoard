@@ -69,6 +69,8 @@ object CacheService {
         }
     }
 
+    play.Logger.info("builds were updated, notifying")
+
     registry.notificationService.notifyAboutBuilds(updatedBuilds.toIterator)
   }
 
@@ -94,7 +96,7 @@ object CacheService {
             data.foreach(branch => registry.branchRepository.update(branch))
           }
 
-        case Failure(e) => play.Logger.error("Error", e)
+        case Failure(e) => play.Logger.error("Error when get branches from github", e)
       },
         error => {
           play.Logger.error("Error in githubSubscription", error)
