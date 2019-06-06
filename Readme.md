@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/TargetProcess/BuildBoard.png?branch=master)](https://travis-ci.org/TargetProcess/BuildBoard)
 
 It should work with:
-- [scala 2.10.4](https://scala-lang.org/download/2.10.2.html)
+- [scala 2.10.4](https://scala-lang.org/download/2.10.4.html)
 - [sbt 0.13.15](https://piccolo.link/sbt-0.13.15.msi) 
 - [play 2.2.6](https://www.playframework.com/releases) 
 - [jdk 1.8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) 
