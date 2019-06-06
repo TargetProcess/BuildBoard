@@ -45,9 +45,9 @@ object CacheService {
       .subscribe(buildNames =>
         try {
           updateBuilds(buildNames)
-        }
+        }        
         catch {
-          case e => play.Logger.error("Error in jenkinsSubscription", e)
+          case e : Throwable => play.Logger.error("Error in jenkinsSubscription", e)
         }
       )
   }
@@ -65,7 +65,7 @@ object CacheService {
           registry.jobRunRepository.removeOld(DateTime.now().minusDays(7))
         }
         catch {
-          case e => play.Logger.error("Error in Update builds", e)
+          case e : Throwable => play.Logger.error("Error in Update builds", e)
         }
     }
 
