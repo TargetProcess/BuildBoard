@@ -1,7 +1,7 @@
 {
   "name": "BuildBoard",
   "version": "0.0.0",
-  "description": "This is your new Play 2.1 application\r =====================================",
+  "description": "Build board for Targetprocess",
   "main": "index.js",
   "directories": {
     "test": "test"
