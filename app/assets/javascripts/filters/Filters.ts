@@ -84,12 +84,12 @@ module buildBoard {
 
             var hours = (seconds / 3600);
             if (hours > 1) {
-                result = Math.round(hours) + 'h ';
+                result = Math.floor(hours) + 'h ';
             }
 
             var minutes = (seconds % 3600) / 60;
             if (hours > 1 || minutes > 1) {
-                result = result + Math.round(minutes) + "m ";
+                result = result + Math.floor(minutes) + 'm ';
             }
 
             var seconds = (seconds % 60);
