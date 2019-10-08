@@ -49,7 +49,7 @@ object CacheService {
           updateBuilds(buildNames)
         }        
         catch {
-          case e : Throwable => play.Logger.error("Error in Jenkins subscriptino", e)
+          case e : Throwable => play.Logger.error("Error in Jenkins subscription", e)
         }
       )
   }
