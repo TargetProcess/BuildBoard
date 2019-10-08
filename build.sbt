@@ -2,7 +2,7 @@ name := "BuildBoard"
 
 version := "1.0"
 
-scalaVersion := "2.10.2"
+scalaVersion := "2.10.4"
 
 resolvers ++= Seq(
   "snapshots" at "http://oss.sonatype.org/content/repositories/snapshots",
