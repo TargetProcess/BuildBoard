@@ -1,8 +1,13 @@
 language: scala
 sudo: false
+jdk:
+  - openjdk8
 scala:
-   - 2.10.2
+  - 2.10.4
    
+script:
+  - sbt -sbt-version 0.13.15 -scala-version $TRAVIS_SCALA_VERSION test
+
 notifications:
   slack:
     rooms:
