@@ -42,7 +42,7 @@ trait MagicMergeComponentImpl extends MagicMergeComponent {
         case e => play.Logger.error("Error during delete", e)
       }
       closed match {
-        case Success(None) => play.Logger.warn("There is no final state")
+        case Success(None) => play.Logger.warn("There is no Merged state")
         case Failure(e) => play.Logger.error("Error during closing entity")
         case _ =>
       }
@@ -61,7 +61,7 @@ trait MagicMergeComponentImpl extends MagicMergeComponent {
       val tryChangeState: Try[Option[EntityState]] = tryDelete.flatMap[Option[EntityState]](_=> {
           val pair: Option[(Entity, EntityState)] = for (
             entity <- branch.entity;
-            finalState <- entity.state.nextStates.find(_.isFinal)
+            finalState <- entity.state.nextStates.find(_.name.compareToIgnoreCase("Merged") == 0)
           ) yield (entity, finalState)
 
           pair match {

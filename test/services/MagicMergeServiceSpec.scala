@@ -38,7 +38,7 @@ with Mockito {
                     entity = Some(Entity(10, "entity", "UserStory",
                       url = "http://tp",
                       state = EntityState(1, "Tested", isFinal = false,
-                        nextStates = List(EntityState(2, "Final", isFinal = true)))
+                        nextStates = List(EntityState(2, "Merged", isFinal = false)))
                     ))
 
                   )

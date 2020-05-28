@@ -12,7 +12,7 @@ module buildBoard {
 
         template = [
             '<div onclick="this.focus();" onfocusin="this.focus();" ng-focus="clearTimeoutOnFocus();"  ng-blur="hideOnBlur();" tabindex="-1" class="dropdown open">',
-            '<a href="" ng-click="showList = !showList" class="status {{type}} {{getStatusStatus(entity.state)}} dropdown-toggle" data-toggle="dropdown">{{entity.state.name}}</a>',
+            '<a href="" title="{{entity.state.name}}" ng-click="showList = !showList" class="status {{type}} {{getStatusStatus(entity.state)}} dropdown-toggle" data-toggle="dropdown">{{entity.state.name}}</a>',
             '<ul ng-if="showList" class="dropdown-menu dropdown-menu_state">',
             '<li ng-repeat="entityState in entity.state.nextStates"><a ng-click="changeEntityState(entityState.id)" class="status {{getStatusStatus(entityState)}}">{{entityState.name}}</a></li>',
             '</ul>',
@@ -57,7 +57,7 @@ module buildBoard {
                 if (!entityState) {
                     return "";
                 }
-                if (entityState.name == "Tested")
+                if (entityState.name == "Tested" || entityState.name == "Merged")
                     return "success";
                 else if (entityState.name == "Reopen" || entityState.name == "Closed" || entityState.name == "Done")
                     return "warning";
