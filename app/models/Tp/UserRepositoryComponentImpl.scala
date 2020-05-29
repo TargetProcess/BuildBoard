@@ -1,20 +1,19 @@
 package models.tp
 
-import scalaj.http.{HttpOptions, Http}
 import play.api.libs.json._
-import scala.util._
-import TargetprocessApplication._
-import models.AuthInfo
 import play.api.Play.current
+import scala.util._
+import scala.Some
+import scalaj.http.{HttpOptions, Http}
+import com.mongodb.casbah.Imports._
+import com.novus.salat.dao.{SalatDAO, ModelCompanion}
+import se.radley.plugin.salat._
+import se.radley.plugin.salat.Binders.ObjectId
+import TargetprocessApplication._
 import components.{AuthInfoProviderComponent, UserRepositoryComponent}
 import models.mongo.mongoContext
-import com.novus.salat.dao.{SalatDAO, ModelCompanion}
-import se.radley.plugin.salat.Binders._
-import se.radley.plugin.salat._
-import com.mongodb.casbah.Imports._
+import models.AuthInfo
 import models.User
-import se.radley.plugin.salat.Binders.ObjectId
-import scala.Some
 import models.TpUser
 
 trait UserRepositoryComponentImpl extends UserRepositoryComponent {

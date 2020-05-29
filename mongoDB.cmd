@@ -1,3 +1,3 @@
-md mongo
-md mongo\data
+MD mongo
+MD mongo\data
 mongod.exe -dbpath mongo\data --smallfiles -v

@@ -1,5 +1,5 @@
 <div class="header" ng-controller="headerController">
-    <a class="logo" href="#"></a>
+    <a class="logo" href="#" title="Buildboard logo"></a>
 
     <div class="header__menu">
         <div class="global-status__controls">
@@ -28,55 +28,55 @@
             <li class="statistics-link"><a>Statistics</a>
                 <ul class="dropdown-menu">
                     <li>
-                        <a target="_blank"
+                        <a target="_blank" rel="noreferrer"
                            href="http://kibana.tpminsk.by/#/dashboard/Jenkins?_g=(time:(from:now-60d,mode:quick,to:now))&_a=(filters:!(),panels:!((col:1,id:Jenkins-Full-Build-Cycle-Time,row:1,size_x:6,size_y:4,type:visualization),(col:7,id:Jenkins-FuncTest,row:5,size_x:6,size_y:5,type:visualization),(col:7,id:Jenkins-Short-Build-Cycle-Time,row:1,size_x:6,size_y:4,type:visualization),(col:1,id:Jenkins-Total-Builds-Per-Day,row:10,size_x:12,size_y:5,type:visualization),(col:1,id:Jenkins-UnitTests,row:5,size_x:6,size_y:5,type:visualization)),query:(query_string:(analyze_wildcard:!t,query:'*')),title:Jenkins)"
                         >
                             Jenkins Dashboard
                         </a>
                     </li>
                     <li>
-                        <a target="_blank"
+                        <a target="_blank" rel="noreferrer"
                            href="http://kibana.tpminsk.by/#/visualize/edit/Jenkins-Full-Build-Cycle-Time?_g=(time:(from:now-30d,mode:quick,to:now))&_a=(filters:!(),linked:!f,query:(query_string:(analyze_wildcard:!t,query:'_type:%22esbuild%22%20AND%20cycle:%22full%22')),vis:(aggs:!((id:'1',params:(field:minutes),schema:metric,type:avg),(id:'2',params:(extended_bounds:(),field:startDate,interval:day,min_doc_count:1),schema:segment,type:date_histogram)),listeners:(),params:(addLegend:!t,addTooltip:!t,defaultYExtents:!f,shareYAxis:!t),type:line))"
                         >
                             Jenkins Full Build Cycle Time
                         </a>
                     </li>
                     <li>
-                        <a target="_blank"
+                        <a target="_blank" rel="noreferrer"
                            href="http://kibana.tpminsk.by/#/visualize/edit/Jenkins-FuncTest?_g=(time:(from:now-30d,mode:quick,to:now))&_a=(filters:!(),linked:!f,query:(query_string:(analyze_wildcard:!t,query:'_type:%22esjob%22%20AND%20name:RunFuncTests*')),vis:(aggs:!((id:'1',params:(field:minutes),schema:metric,type:avg),(id:'2',params:(extended_bounds:(),field:startDate,interval:day,min_doc_count:1),schema:segment,type:date_histogram),(id:'3',params:(field:name,order:desc,orderBy:'1',size:60),schema:group,type:terms)),listeners:(),params:(addLegend:!t,addTooltip:!t,defaultYExtents:!f,shareYAxis:!t),type:line))"
                         >
                             Jenkins FuncTest
                         </a>
                     </li>
                     <li>
-                        <a target="_blank"
+                        <a target="_blank" rel="noreferrer"
                            href="http://kibana.tpminsk.by/#/visualize/edit/Jenkins-Short-Build-Cycle-Time?_g=(time:(from:now-30d,mode:quick,to:now))&_a=(filters:!(),linked:!f,query:(query_string:(analyze_wildcard:!t,query:'_type:%22esbuild%22%20AND%20cycle:%22short%22')),vis:(aggs:!((id:'1',params:(field:minutes),schema:metric,type:avg),(id:'2',params:(extended_bounds:(),field:startDate,interval:day,min_doc_count:1),schema:segment,type:date_histogram)),listeners:(),params:(addLegend:!t,addTooltip:!t,defaultYExtents:!f,shareYAxis:!t),type:line))"
                         >
                             Jenkins Short Build Cycle Time
                         </a>
                     </li>
                     <li>
-                        <a target="_blank"
+                        <a target="_blank" rel="noreferrer"
                            href="http://kibana.tpminsk.by/#/visualize/edit/Jenkins-Total-Builds-Per-Day?_g=(time:(from:now-30d,mode:quick,to:now))&_a=(filters:!(),linked:!f,query:(query_string:(analyze_wildcard:!t,query:'_type:%22esbuild%22')),vis:(aggs:!((id:'1',params:(),schema:metric,type:count),(id:'2',params:(extended_bounds:(),field:startDate,interval:day,min_doc_count:1),schema:segment,type:date_histogram)),listeners:(),params:(addLegend:!t,addTooltip:!t,defaultYExtents:!f,shareYAxis:!t),type:line))"
                         >
                             Jenkins Total Builds Per Day
                         </a>
                     </li>
                     <li>
-                        <a target="_blank"
+                        <a target="_blank" rel="noreferrer"
                            href="http://kibana.tpminsk.by/#/visualize/edit/Jenkins-UnitTests?_g=(time:(from:now-30d,mode:quick,to:now))&_a=(filters:!(),linked:!f,query:(query_string:(analyze_wildcard:!t,query:'_type:%22esjob%22%20AND%20name:RunUnit*')),vis:(aggs:!((id:'1',params:(field:minutes),schema:metric,type:avg),(id:'2',params:(extended_bounds:(),field:startDate,interval:day,min_doc_count:1),schema:segment,type:date_histogram),(id:'3',params:(field:name,order:desc,orderBy:'1',size:60),schema:group,type:terms)),listeners:(),params:(addLegend:!t,addTooltip:!t,defaultYExtents:!f,shareYAxis:!t),type:line))"
                         >
                             Jenkins UnitTests
                         </a>
                     </li>
                     <li>
-                        <a target="_blank"
+                        <a target="_blank" rel="noreferrer"
                            href="http://kibana.tpminsk.by/#/visualize/create?type=histogram&indexPattern=jenkins&_g=(refreshInterval:(display:Off,pause:!f,section:0,value:0),time:(from:now-7d,mode:relative,to:now))&_a=(filters:!(),linked:!f,query:(query_string:(analyze_wildcard:!t,query:'%2B(_type:esnunittest)%20%2B(branch:develop)')),vis:(aggs:!((id:'1',params:(),schema:metric,type:count),(id:'2',params:(field:nameRaw,order:desc,orderBy:'1',size:5),schema:segment,type:terms)),listeners:(),params:(addLegend:!t,addTimeMarker:!f,addTooltip:!t,defaultYExtents:!f,mode:stacked,scale:linear,setYExtents:!f,shareYAxis:!t,times:!(),yAxis:()),type:histogram))"
                         >Jenkins Top Failing Tests</a>
                     </li>
                 </ul>
             </li>
-            <li><a target="_blank" href="https://github.com/TargetProcess/TP/wiki">Wiki</a></li>
+            <li><a target="_blank" rel="noreferrer" href="https://github.com/TargetProcess/TP/wiki">Wiki</a></li>
         </ul>
     </div>
 </div>
