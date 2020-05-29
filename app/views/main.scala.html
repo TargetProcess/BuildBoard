@@ -1,17 +1,21 @@
 @(title: String, user: Option[User])(content: Html)(implicit request: RequestHeader)
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="Description" content="Targetprocess Buildboard.">
+    <meta name="theme-color" content="#3E414A"/>
+    <title>Targetprocess Buildboard</title>
     <link rel="shortcut icon" href='@routes.Assets.at("images/favicon.ico")'>
-    <link href='//fonts.googleapis.com/css?family=Roboto:400,700&subset=latin,cyrillic-ext' rel='stylesheet'
-          type='text/css'>
+    <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:400,700&subset=latin,cyrillic-ext&display=swap'>
     <link rel="stylesheet" href='@routes.Assets.at("stylesheets/bootstrap.css")'>
     <link rel="stylesheet" href='@routes.Assets.at("javascripts/bower_components/jsoneditor/dist/jsoneditor.min.css")'>
-
-
+    <link rel="preconnect" href="https://plan.tpondemand.com">
+    <link rel="preconnect" href="http://jm2:8080">
+    
 
         @helper.javascriptRouter("jsRoutes")(
             routes.javascript.Branches.branches,
@@ -43,19 +47,20 @@
         </script>
         }
 
-        <script src='@routes.Assets.at("javascripts/bower_components/angular/angular.js")'></script>
-        <script src='@routes.Assets.at("javascripts/bower_components/underscore/underscore.js")'></script>
-        <script src='@routes.Assets.at("javascripts/bower_components/checklist-model/checklist-model.js")'></script>
-        <script src='@routes.Assets.at("javascripts/bower_components/angular-underscore/angular-underscore.js")'></script>
-        <script src='@routes.Assets.at("javascripts/bower_components/angular-ui-router/release/angular-ui-router.js")'></script>
-        <script src='@routes.Assets.at("javascripts/bower_components/angular-sanitize/angular-sanitize.min.js")'></script>
-        <script src='@routes.Assets.at("javascripts/bower_components/showdown/compressed/Showdown.min.js")'></script>
-        <script src='@routes.Assets.at("javascripts/bower_components/angular-markdown-directive/markdown.js")'></script>
-        <script src='@routes.Assets.at("javascripts/bower_components/jsoneditor/dist/jsoneditor.min.js")'></script>
-        <script src='@routes.Assets.at("javascripts/bower_components/ng-jsoneditor/ng-jsoneditor.js")'></script>
-
-        <script src='@routes.Assets.at("javascripts/all.js")'></script>
-
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.14/angular.min.js" defer></script>
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js' defer></script>
+        <script src='@routes.Assets.at("javascripts/bower_components/checklist-model/checklist-model.js")' defer></script>
+        <script src='@routes.Assets.at("javascripts/bower_components/angular-underscore/angular-underscore.js")' defer></script>
+        <script src='https://unpkg.com/angular-ui-router@@0.2.18/release/angular-ui-router.min.js' defer></script>
+        <script src='@routes.Assets.at("javascripts/bower_components/angular-sanitize/angular-sanitize.min.js")' defer></script>
+        <script src='@routes.Assets.at("javascripts/bower_components/showdown/compressed/Showdown.min.js")' defer></script>
+        <script src='@routes.Assets.at("javascripts/bower_components/angular-markdown-directive/markdown.js")' defer></script>
+        <script src='@routes.Assets.at("javascripts/bower_components/jsoneditor/dist/jsoneditor.min.js")' defer></script>
+        <script src='@routes.Assets.at("javascripts/bower_components/ng-jsoneditor/ng-jsoneditor.js")' defer></script>
+    
+        <script src='@routes.Assets.at("javascripts/all.js")' defer></script>
     </head>
+    <noscript>Please, enable JavaScript to work with Buildboard</noscript>
+
     @content
 </html>

@@ -11,7 +11,6 @@ class ReferenceService(client: GitHubClient) extends DataService(client) {
    *
    * @param repository
    * @param ref
-   * @throws IOException
    */
   def deleteReference(repository: IRepositoryIdProvider, ref: String) = {
     val id: String = getId(repository)

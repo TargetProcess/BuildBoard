@@ -1,12 +1,12 @@
 package buildboard2.components
 
-import buildboard2.model.Job2
+import play.api.Play.current
 import com.mongodb.casbah.commons.MongoDBObject
 import com.novus.salat.dao.{SalatDAO, ModelCompanion}
-import models.mongo.mongoContext
-import se.radley.plugin.salat.Binders._
 import se.radley.plugin.salat._
-import play.api.Play.current
+import se.radley.plugin.salat.Binders.ObjectId
+import buildboard2.model.Job2
+import models.mongo.mongoContext
 
 trait Job2RepositoryComponentImpl extends Job2RepositoryComponent{
   val job2Repository = new Job2RepositoryImpl

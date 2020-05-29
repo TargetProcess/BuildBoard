@@ -1,2 +1,2 @@
 #!/bin/sh
-play -Dconfig.resource=dev.conf
+build -Dconfig.resource=dev.conf

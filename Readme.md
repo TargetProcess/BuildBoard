@@ -1,10 +1,12 @@
 [![Build Status](https://travis-ci.org/TargetProcess/BuildBoard.png?branch=master)](https://travis-ci.org/TargetProcess/BuildBoard)
 
 It should work with:
-- [scala 2.10.4](https://scala-lang.org/download/2.10.4.html)
-- [sbt 0.13.15](https://piccolo.link/sbt-0.13.15.msi) 
-- [play 2.2.6](https://www.playframework.com/releases) 
-- [jdk 1.8](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) 
+- [jdk 1.8](https://download.oracle.com/otn/java/jdk/8u251-b08/3d5a2bb8f8d4428bbe94aed7ec7ae784/jdk-8u251-windows-x64.exe) 
+- [scala 2.11.11](https://scala-lang.org/download/2.11.11.html)
+- [sbt 0.13.18](https://piccolo.link/sbt-0.13.18.msi)
+- [play 2.4.10 (use github)](https://www.playframework.com/releases)
+
+Ensure jdk bin, scala bin, sbt bin, playframework-xxx\framework directories are added to env PATH variable.
 
 1. View all/my/per user entities/branches
 2. Per branch:

@@ -1,14 +1,14 @@
 package buildboard2.components
 
-import buildboard2.model.Artifact2
-import com.mongodb.casbah.commons.MongoDBObject
-import components.ConfigComponent
-import models.jenkins.Artifacts
 import play.api.Play.current
+import com.mongodb.casbah.commons.MongoDBObject
 import com.novus.salat.dao.{SalatDAO, ModelCompanion}
-import models.mongo.mongoContext
-import se.radley.plugin.salat.Binders._
 import se.radley.plugin.salat._
+import se.radley.plugin.salat.Binders.ObjectId
+import buildboard2.model.Artifact2
+import models.mongo.mongoContext
+import models.jenkins.Artifacts
+import components.ConfigComponent
 
 trait Artifact2RepositoryComponentImpl extends Artifact2RepositoryComponent {
   this: ConfigComponent =>

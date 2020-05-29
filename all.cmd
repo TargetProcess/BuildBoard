@@ -1,3 +1,3 @@
-start mongoDB.cmd
-start grunt typescript watch
-start play_dev.cmd
+START mongoDB.cmd
+START grunt typescript watch
+START play_dev.cmd

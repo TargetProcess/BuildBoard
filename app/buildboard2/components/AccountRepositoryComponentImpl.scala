@@ -1,12 +1,12 @@
 package buildboard2.components
 
-import buildboard2.model.Account
-import models.mongo.mongoContext
 import play.api.Play.current
+import com.mongodb.casbah.Imports._
 import com.novus.salat.dao.{SalatDAO, ModelCompanion}
 import se.radley.plugin.salat._
-import com.mongodb.casbah.Imports._
 import se.radley.plugin.salat.Binders.ObjectId
+import buildboard2.model.Account
+import models.mongo.mongoContext
 
 trait AccountRepositoryComponentImpl extends AccountRepositoryComponent {
   val accountRepository = new AccountRepositoryImpl

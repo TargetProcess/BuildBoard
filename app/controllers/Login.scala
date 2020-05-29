@@ -7,6 +7,8 @@ import play.api.data.Forms._
 import views._
 import scala.util._
 import models.github._
+import play.api.Play.current
+import play.api.i18n.Messages.Implicits._
 
 
 object Login extends Application {
