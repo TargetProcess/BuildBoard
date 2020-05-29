@@ -103,7 +103,7 @@
         <div class="item" ng-show="getBranch().pullRequest">
             <h4>Pr</h4>
             <a
-                    class="btn pr {{ getBranch().pullRequest | pullRequestStatus | status2Class }}"
+                    class="btn pr {{ getBranch().pullRequest | pullRequestStatus | status2Class }}" rel="noopener"
                     href="{{getBranch().pullRequest.url}}" target="_blank">#{{getBranch().pullRequest.prId}}</a>
         </div>
 
