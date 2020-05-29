@@ -59,7 +59,7 @@
             <tbody>
             <tr ng-repeat="branch in getBranches() | orderBy:orderingPredicate:reverse" ng-controller="branchLineController" ng-class="getLastBuildStatus()">
                 <td class="entity-id-cell">
-                    <a ng-show="branch.entity" target="_blank" href="{{branch.entity.url}}"
+                    <a ng-show="branch.entity" target="_blank" href="{{branch.entity.url}}" rel="noopener"
                        class="ui-entity ui-entity-{{branch.entity.entityType.toLowerCase()}}">{{branch.entity.id}}</a>
                 </td>
                 <td class="branch-name-cell">
