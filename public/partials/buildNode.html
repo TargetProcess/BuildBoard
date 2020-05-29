@@ -1,6 +1,5 @@
 <span class="title {{ data | parseBuildNodeStatus }} {{isCollapsible(data)?'collapsible':''}}">
-    <a target="_blank"
-       ui-sref="list.branch.run({part:data.name,build:entry.number,run:data.runName})"
+    <a ui-sref="list.branch.run({part:data.name,build:entry.number,run:data.runName})"
        title="{{data.status | lowercase}} - {{getBuildTime(data) | duration}}">
         {{data.name}}
     <span ng-show="data.children.length">
